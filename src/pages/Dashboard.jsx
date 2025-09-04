@@ -2,6 +2,10 @@ import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import StatsCard from "../components/dashboard/StatsCard";
 import PieChartCard from "../components/dashboard/PieChartCard";
+import BarChartCard from "../components/dashboard/BarChartCard";
+import RecentProjects from "../components/dashboard/RecentProjects";
+import RecentActivity from "../components/dashboard/RecentActivity";
+import ProgressOverview from "../components/dashboard/ProgressOverview";
 
 export default function Dashboard() {
   return (
@@ -10,9 +14,9 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col">
         <Header />
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto space-y-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Projects"
               value="120"
@@ -39,8 +43,20 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Pie Chart */}
-          <PieChartCard />
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BarChartCard />
+            <PieChartCard />
+          </div>
+
+          {/* Data + Activity */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RecentProjects />
+            <RecentActivity />
+          </div>
+
+          {/* KPI Progress */}
+          <ProgressOverview />
         </main>
       </div>
     </div>

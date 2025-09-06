@@ -4,7 +4,6 @@ const data = [
   { name: "Projects", value: 12 },
   { name: "Villages", value: 24 },
   { name: "Plots", value: 40 },
-  { name: "Sub-Plots", value: 30 },
 ];
 
 const COLORS = ["#6366F1", "#EC4899", "#F59E0B", "#3B82F6"];

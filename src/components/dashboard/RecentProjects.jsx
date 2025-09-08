@@ -1,8 +1,8 @@
 export default function RecentProjects() {
   const projects = [
-    { id: 1, name: "Smart City", status: "Active", progress: 75 },
-    { id: 2, name: "Green Village", status: "Pending", progress: 40 },
-    { id: 3, name: "Solar Housing", status: "Completed", progress: 100 },
+    { id: 1, name: "AM/NS", status: "Active", progress: 75 },
+    { id: 2, name: "GMDC - Baitarni-West Coal Block", status: "Pending", progress: 40 },
+    { id: 3, name: "NTPC - Kaniha", status: "Completed", progress: 100 },
   ];
 
   return (

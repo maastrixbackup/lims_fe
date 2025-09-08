@@ -1,12 +1,12 @@
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
 const data = [
-  { name: "Projects", value: 12 },
-  { name: "Villages", value: 24 },
-  { name: "Plots", value: 40 },
+  { name: "Govt Land", value: 12 },
+  { name: "Pvt. Land", value: 24 },
+  { name: "Forest Land", value: 40 },
 ];
 
-const COLORS = ["#6366F1", "#EC4899", "#F59E0B", "#3B82F6"];
+const COLORS = ["#6366F1", "#EC4899", "#F59E0B"];
 
 export default function PieChartCard() {
   return (

@@ -1,15 +1,32 @@
 export default function ProgressOverview() {
   const kpis = [
-    { id: 1, title: "Infrastructure", value: 70, color: "progress-primary" },
-    { id: 2, title: "Housing", value: 50, color: "progress-secondary" },
-    { id: 3, title: "Energy", value: 90, color: "progress-success" },
-    { id: 4, title: "Water Supply", value: 40, color: "progress-error" },
+    {
+      id: 1,
+      title: "Land Acqusition Completed",
+      value: 70,
+      color: "progress-primary",
+    },
+    {
+      id: 2,
+      title: "Forest Diversion Completed",
+      value: 50,
+      color: "progress-secondary",
+    },
+    {
+      id: 3,
+      title: "Socio-Economic Survey Completed",
+      value: 90,
+      color: "progress-success",
+    },
+    { id: 4, title: "Yadaast Completed", value: 40, color: "progress-error" },
   ];
 
   return (
     <div className="card bg-white shadow-xl rounded-2xl">
       <div className="card-body p-6">
-        <h2 className="card-title text-gray-700 mb-4">Project Progress Overview</h2>
+        <h2 className="card-title text-gray-700 mb-4">
+          Project Progress Overview
+        </h2>
         <div className="space-y-4">
           {kpis.map((kpi) => (
             <div key={kpi.id}>

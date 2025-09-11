@@ -1,9 +1,11 @@
 import { Bell, User, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Header() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const { logout } = useAuth();
 
   const notifRef = useRef(null);
   const profileRef = useRef(null);
@@ -20,6 +22,10 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <header className="h-16 bg-white shadow-md flex items-center justify-between px-6 relative z-50">
@@ -72,7 +78,10 @@ export default function Header() {
                 <li className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150">
                   <User size={16} /> Profile
                 </li>
-                <li className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 text-red-600 cursor-pointer transition-colors duration-150">
+                <li
+                  onClick={() => handleLogout()}
+                  className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 text-red-600 cursor-pointer transition-colors duration-150"
+                >
                   <LogOut size={16} /> Logout
                 </li>
               </ul>

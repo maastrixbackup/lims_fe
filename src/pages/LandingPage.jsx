@@ -1,9 +1,40 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 export default function LandingPage() {
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    login("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZV9pZCI6MSwicm9sZV9uYW1lIjoiU3VwZXIgQWRtaW4iLCJpYXQiOjE3NTc1NzIzNjYsImV4cCI6MTc1NzU3NTk2Nn0.XAfDZ_tQOerqcDqw0ZTDoTKb2h1Z14segSO5U6MZjBU")
+    // try {
+    //   const res = await fetch("http://localhost:5000/api/login", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ email, password }),
+    //   });
+
+    //   if (!res.ok) {
+    //     const msg = await res.json();
+    //     setError(msg.error || "Login failed");
+    //     return;
+    //   }
+
+    //   const data = await res.json();
+    //   login(data.token);
+    // } catch (err) {
+    //   console.error(err);
+    //   setError("Something went wrong");
+    // }
+  };
 
   return (
     <div className="h-screen flex flex-col lg:flex-row overflow-hidden">
@@ -29,7 +60,7 @@ export default function LandingPage() {
               Welcome Back
             </h2>
 
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="form-control">
                 <label className="label pb-1">
                   <span className="label-text">Email</span>
@@ -40,6 +71,8 @@ export default function LandingPage() {
                     placeholder="you@example.com"
                     className="input input-bordered focus:input-primary transition w-full pr-10"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
               </div>
@@ -54,6 +87,8 @@ export default function LandingPage() {
                     placeholder="••••••••"
                     className="input input-bordered w-full pr-10 focus:input-primary transition"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
@@ -77,7 +112,7 @@ export default function LandingPage() {
 
               <div className="form-control mt-4">
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  // onClick={() => navigate("/dashboard")}
                   className="btn btn-primary w-full transition-transform hover:scale-105"
                 >
                   Sign In

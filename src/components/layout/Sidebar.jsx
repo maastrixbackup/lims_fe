@@ -15,7 +15,7 @@ import logo from "../../assets/logo.jpeg";
 export default function Sidebar() {
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState("Dashboard");
-  const [expanded, setExpanded] = useState(null); // track which submenu is expanded
+  const [expanded, setExpanded] = useState(null); 
 
   const menuItems = [
     {

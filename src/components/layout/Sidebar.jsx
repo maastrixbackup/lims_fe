@@ -3,47 +3,77 @@ import {
   Menu,
   LayoutDashboard,
   Map,
-  TreePine,
-  MapPin,
-  Grid3x3,
   ChevronDown,
   ChevronRight,
+  ChartBarBig,
+  ImageUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
+import { useNavigate, useLocation } from "react-router";
 
-export default function Sidebar() {
-  const [open, setOpen] = useState(true);
-  const [active, setActive] = useState("Dashboard");
-  const [expanded, setExpanded] = useState(null); 
+export default function Sidebar({ open, setOpen }) {
+  const [active, setActive] = useState(
+    localStorage.getItem("activeMenu") || "Dashboard"
+  );
+  const [expanded, setExpanded] = useState(
+    localStorage.getItem("expandedMenu") || null
+  );
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
     {
       name: "Dashboard",
       icon: <LayoutDashboard size={20} />,
-      submenu: ["Overview", "Analytics", "Reports"],
+      path: "dashboard",
     },
     {
-      name: "Projects",
+      name: "Lands",
       icon: <Map size={20} />,
-      submenu: ["Active Projects", "Archived Projects"],
+      submenu: ["Projects", "Villages", "Plots"],
     },
     {
-      name: "Villages",
-      icon: <TreePine size={20} />,
-      submenu: ["Village List", "Add Village"],
+      name: "import/export",
+      icon: <ImageUp size={20} />,
+      path: "import",
     },
     {
-      name: "Plots",
-      icon: <MapPin size={20} />,
-      submenu: ["All Plots", "Add Plot"],
-    },
-    {
-      name: "Sub-Plots",
-      icon: <Grid3x3 size={20} />,
-      submenu: ["All Sub-Plots", "Add Sub-Plot"],
+      name: "Reports",
+      icon: <ChartBarBig size={20} />,
     },
   ];
+
+  // 🔹 Save active/expanded to localStorage
+  useEffect(() => {
+    localStorage.setItem("activeMenu", active);
+  }, [active]);
+
+  useEffect(() => {
+    if (expanded) {
+      localStorage.setItem("expandedMenu", expanded);
+    } else {
+      localStorage.removeItem("expandedMenu");
+    }
+  }, [expanded]);
+
+  // 🔹 Sync active menu with current URL on refresh
+  useEffect(() => {
+    const path = location.pathname.replace("/", "");
+    if (path) {
+      const foundSubmenu = menuItems.find((m) =>
+        m.submenu?.includes(capitalize(path))
+      );
+      if (foundSubmenu) {
+        setExpanded(foundSubmenu.name);
+        setActive(capitalize(path));
+      } else {
+        setActive("Dashboard");
+      }
+    }
+  }, [location.pathname]);
+
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const toggleSubmenu = (name) => {
     setExpanded(expanded === name ? null : name);
@@ -53,7 +83,7 @@ export default function Sidebar() {
     <motion.div
       animate={{ width: open ? 260 : 80 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col h-screen rounded-r-3xl overflow-hidden"
+      className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50"
     >
       {/* Header with Logo */}
       <div className="flex items-center justify-between p-4 border-b border-white/20">
@@ -87,15 +117,20 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Navigation with Submenus */}
+      {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         {menuItems.map((item) => (
           <div key={item.name}>
             {/* Main Menu */}
             <motion.div
-              onClick={() =>
-                item.submenu ? toggleSubmenu(item.name) : setActive(item.name)
-              }
+              onClick={() => {
+                if (item.submenu) {
+                  toggleSubmenu(item.name);
+                } else {
+                  setActive(item.name);
+                  navigate(item.path.toLowerCase());
+                }
+              }}
               whileHover={{ scale: 1.05, x: 4 }}
               className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 ${
                 active === item.name
@@ -144,7 +179,11 @@ export default function Sidebar() {
                 {item.submenu.map((sub) => (
                   <div
                     key={sub}
-                    onClick={() => setActive(sub)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // ✅ prevent parent toggle
+                      setActive(sub);
+                      navigate("/" + sub.toLowerCase());
+                    }}
                     className={`cursor-pointer text-sm p-2 rounded-lg transition ${
                       active === sub
                         ? "bg-white/20 text-yellow-200"

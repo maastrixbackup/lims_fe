@@ -2,7 +2,7 @@ import { Bell, User, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 
-export default function Header() {
+export default function Header({ heading, sidebarWidth }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const { logout } = useAuth();
@@ -28,12 +28,16 @@ export default function Header() {
   };
 
   return (
-    <header className="h-16 bg-white shadow-md flex items-center justify-between px-6 relative z-50">
-      <h2 className="text-xl font-bold text-indigo-600">Dashboard</h2>
+    <header
+      className="fixed top-0 h-16 bg-white shadow-md flex items-center justify-between px-6 z-40 transition-all duration-300 ease-in-out"
+      style={{
+        left: sidebarWidth,
+        width: `calc(100% - ${sidebarWidth}px)`,
+      }}
+    >
+      <h2 className="text-xl font-bold text-indigo-600">{heading}</h2>
 
-      {/* Right (Notifications + Profile) */}
       <div className="flex items-center gap-6 ml-auto">
-        {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -60,7 +64,6 @@ export default function Header() {
           )}
         </div>
 
-        {/* Profile */}
         <div className="relative" ref={profileRef}>
           <div
             className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200"

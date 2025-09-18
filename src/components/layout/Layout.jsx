@@ -10,9 +10,10 @@ export default function Layout() {
   const pageTitles = {
     "/dashboard": "Dashboard",
     "/projects": "Projects",
+    "/khatas": "Khatas",
     "/villages": "Villages",
     "/plots": "Plots",
-     "/import": "Import/Export",
+    "/import": "Import/Export",
   };
 
   const heading = pageTitles[location.pathname] || "";

@@ -390,3 +390,50 @@ export const plotData = [
     ses: null,
   },
 ];
+
+export const projectVillageKhataMap = {
+  "GMDC - Baitarani-West Coal Block": {
+    "Chhendipada Jangal": ["Khata-101", "Khata-102", "Khata-103"],
+    Handigora: ["Khata-201", "Khata-202"],
+  },
+};
+export const documentList = [
+  "Order Sheet",
+  "Notice by GMDC",
+  "Attendance sheet",
+  "Consent Form",
+  "Genealogy Sheet",
+  "Legal Heir Certificate",
+  "Yadast Register Copy",
+  "Self-Attested RoR",
+  "Certified copy of RoR",
+  "Patta original",
+  "Encumbrance Certificate",
+  "Rent Receipt",
+  "Trace Map",
+  "Application to Claim for lands compensation",
+  "Calculation of Compensation",
+  "Form 9A",
+  "Form 9A (Sample photo if any)",
+  "Form 9B",
+  "Form 9B (Sample photo if any)",
+  "Form 9C",
+  "Form 9C (Sample photo if any)",
+  "Land Acquisition Award",
+  "Indemnity Bond",
+  "Physical Possession certificate (Bond paper)",
+  "Apportionment Affidavit, if applicable",
+  "Affidavit any other legal issues",
+  "Aadhaar / Voter Card copy",
+  "PAN proof",
+  "Bank Account Passbook/Cancel Cheque copy",
+  "Electronic Fund Transfer Form",
+  "Receipt of Compensation-80%",
+  "Receipt of Compensation-20%",
+  "Payment Voucher-80%",
+  "Payment Voucher-20%",
+  "Photo of Physical Possession",
+].map((doc) => ({
+  name: `${doc}.pdf`, // add .pdf to each
+  url: null, // placeholder, updated when file is uploaded
+}));

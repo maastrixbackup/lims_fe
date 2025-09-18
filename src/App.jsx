@@ -11,6 +11,7 @@ import Layout from "./components/layout/Layout";
 import "./App.css";
 import Plots from "./pages/Plots";
 import UploadPlots from "./pages/UploadPlots";
+import Khata from "./pages/Khata";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/villages" element={<Villages />} />
+              <Route path="/khatas" element={<Khata />} />
               <Route path="/plots" element={<Plots />} />
               <Route path="/import" element={<UploadPlots />} />
             </Route>

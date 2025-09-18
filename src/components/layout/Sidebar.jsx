@@ -31,7 +31,7 @@ export default function Sidebar({ open, setOpen }) {
     {
       name: "Lands",
       icon: <Map size={20} />,
-      submenu: ["Projects", "Villages", "Plots"],
+      submenu: ["Projects", "Villages", "Khatas", "Plots"],
     },
     {
       name: "import/export",

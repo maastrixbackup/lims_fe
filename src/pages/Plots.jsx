@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { plotData } from "../utils/constants";
+import { plotData, projectVillageKhataMap } from "../utils/constants";
 
 const Plots = () => {
   const [plots, setPlots] = useState(plotData);
@@ -9,10 +9,11 @@ const Plots = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const [formData, setFormData] = useState({
-    code: "",
+    project: "",
     village: "",
-    sl: "",
     khataNo: "",
+    code: "",
+    sl: "",
     plotNo1: "",
     plotNo2: "",
     tenant: "",
@@ -25,6 +26,7 @@ const Plots = () => {
     ses: "",
   });
 
+  // Open modal
   const openModal = (plot = null) => {
     if (plot) {
       setEditingPlot(plot);
@@ -32,10 +34,11 @@ const Plots = () => {
     } else {
       setEditingPlot(null);
       setFormData({
-        code: "",
+        project: "",
         village: "",
-        sl: "",
         khataNo: "",
+        code: "",
+        sl: "",
         plotNo1: "",
         plotNo2: "",
         tenant: "",
@@ -51,9 +54,20 @@ const Plots = () => {
     setIsModalOpen(true);
   };
 
-  const handleChange = (e) =>
+  // Handle form input
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
+    // Reset child dropdowns when parent changes
+    if (e.target.name === "project") {
+      setFormData((prev) => ({ ...prev, village: "", khataNo: "" }));
+    }
+    if (e.target.name === "village") {
+      setFormData((prev) => ({ ...prev, khataNo: "" }));
+    }
+  };
+
+  // Save plot
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingPlot) {
@@ -68,6 +82,7 @@ const Plots = () => {
     setIsModalOpen(false);
   };
 
+  // Delete
   const confirmDelete = () => {
     setPlots(plots.filter((p) => p.id !== deleteConfirm.id));
     setDeleteConfirm(null);
@@ -90,10 +105,11 @@ const Plots = () => {
             <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
               <tr>
                 <th>#</th>
-                <th>Code</th>
+                <th>Project</th>
                 <th>Village</th>
-                <th>Sl</th>
                 <th>Khata No</th>
+                <th>Code</th>
+                <th>Sl</th>
                 <th>Plot No. 1</th>
                 <th>Plot No. 2</th>
                 <th>Tenant</th>
@@ -107,15 +123,13 @@ const Plots = () => {
             <tbody>
               {plots.length > 0 ? (
                 plots.map((plot, idx) => (
-                  <tr
-                    key={plot.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
+                  <tr key={plot.id} className="hover:bg-gray-50 transition-colors">
                     <td>{idx + 1}</td>
-                    <td>{plot.code}</td>
+                    <td>GMDC - Baitarani-West Coal Block</td>
                     <td>{plot.village}</td>
-                    <td>{plot.sl}</td>
                     <td>{plot.khataNo}</td>
+                    <td>{plot.code}</td>
+                    <td>{plot.sl}</td>
                     <td>{plot.plotNo1}</td>
                     <td>{plot.plotNo2}</td>
                     <td>{plot.tenant}</td>
@@ -143,7 +157,7 @@ const Plots = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="13" className="text-center py-6 text-gray-500">
+                  <td colSpan="14" className="text-center py-6 text-gray-500">
                     No plots found. Click{" "}
                     <span className="font-semibold">+ Add Plot</span> to create
                     one.
@@ -163,6 +177,64 @@ const Plots = () => {
               {editingPlot ? "Edit Plot" : "Add Plot"}
             </h3>
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+              {/* Project Dropdown */}
+              <select
+                name="project"
+                value={formData.project}
+                onChange={handleChange}
+                className="select select-bordered w-full"
+                required
+              >
+                <option value="">Select Project</option>
+                {Object.keys(projectVillageKhataMap).map((project) => (
+                  <option key={project} value={project}>
+                    {project}
+                  </option>
+                ))}
+              </select>
+
+              {/* Village Dropdown */}
+              <select
+                name="village"
+                value={formData.village}
+                onChange={handleChange}
+                className="select select-bordered w-full"
+                required
+                disabled={!formData.project}
+              >
+                <option value="">Select Village</option>
+                {formData.project &&
+                  Object.keys(projectVillageKhataMap[formData.project]).map(
+                    (village) => (
+                      <option key={village} value={village}>
+                        {village}
+                      </option>
+                    )
+                  )}
+              </select>
+
+              {/* Khata Dropdown */}
+              <select
+                name="khataNo"
+                value={formData.khataNo}
+                onChange={handleChange}
+                className="select select-bordered w-full"
+                required
+                disabled={!formData.village}
+              >
+                <option value="">Select Khata</option>
+                {formData.project &&
+                  formData.village &&
+                  projectVillageKhataMap[formData.project][formData.village].map(
+                    (khata, i) => (
+                      <option key={i} value={khata}>
+                        {khata}
+                      </option>
+                    )
+                  )}
+              </select>
+
+              {/* Rest of fields... */}
               <input
                 type="text"
                 name="code"
@@ -173,29 +245,11 @@ const Plots = () => {
                 required
               />
               <input
-                type="text"
-                name="village"
-                value={formData.village}
-                onChange={handleChange}
-                placeholder="Village"
-                className="input input-bordered w-full"
-                required
-              />
-              <input
                 type="number"
                 name="sl"
                 value={formData.sl}
                 onChange={handleChange}
                 placeholder="Sl"
-                className="input input-bordered w-full"
-                required
-              />
-              <input
-                type="text"
-                name="khataNo"
-                value={formData.khataNo}
-                onChange={handleChange}
-                placeholder="Khata No"
                 className="input input-bordered w-full"
                 required
               />
@@ -254,33 +308,6 @@ const Plots = () => {
                 className="input input-bordered w-full"
                 required
               />
-
-              {/* New Fields */}
-              <input
-                type="text"
-                name="yadast"
-                value={formData.yadast}
-                onChange={handleChange}
-                placeholder="Yadast"
-                className="input input-bordered w-full"
-              />
-              <input
-                type="text"
-                name="bmv"
-                value={formData.bmv}
-                onChange={handleChange}
-                placeholder="BMV"
-                className="input input-bordered w-full"
-              />
-              <input
-                type="number"
-                name="ses"
-                value={formData.ses}
-                onChange={handleChange}
-                placeholder="SES"
-                className="input input-bordered w-full"
-              />
-
               <input
                 type="text"
                 name="remarks"

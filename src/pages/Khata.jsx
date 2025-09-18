@@ -1,6 +1,6 @@
 // src/pages/Khata.jsx
 import React, { useState } from "react";
-import { Pencil, Trash2, Upload } from "lucide-react";
+import { Pencil, Trash2, Upload, Map as MapIcon } from "lucide-react";
 import { documentList } from "../utils/constants";
 
 const Khata = () => {
@@ -19,7 +19,7 @@ const Khata = () => {
       id: 1,
       project: "GMDC - Baitarani-West Coal Block",
       village: "Chhendipada Jangal",
-      number: "123/456",
+      number: "348",
       created: "2025-02-01",
     },
     {
@@ -43,6 +43,7 @@ const Khata = () => {
 
   // Upload modal state
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [mapModalOpen, setMapModalOpen] = useState(false);
   const [selectedKhata, setSelectedKhata] = useState(null);
   const [uploadedDocs, setUploadedDocs] = useState(documentList); // { khataId: [{ name, url }] }
 
@@ -90,6 +91,11 @@ const Khata = () => {
   const openUploadModal = (khata) => {
     setSelectedKhata(khata);
     setUploadModalOpen(true);
+  };
+
+  const openMapModal = (khata) => {
+    setSelectedKhata(khata);
+    setMapModalOpen(true);
   };
 
   const handleFileUpload = (e) => {
@@ -143,25 +149,33 @@ const Khata = () => {
                       <td>{khata.village}</td>
                       <td>{khata.number}</td>
                       <td className="text-gray-500">{khata.created}</td>
-                      <td className="text-right space-x-2">
-                        <button
-                          className="btn btn-xs btn-warning text-white"
-                          onClick={() => openModal(khata)}
-                        >
-                          <Pencil size={14} /> Edit
-                        </button>
-                        <button
-                          className="btn btn-xs btn-error text-white"
-                          onClick={() => setDeleteConfirm(khata)}
-                        >
-                          <Trash2 size={14} /> Delete
-                        </button>
-                        <button
-                          className="btn btn-xs btn-info text-white"
-                          onClick={() => openUploadModal(khata)}
-                        >
-                          <Upload size={14} /> Upload
-                        </button>
+                      <td className="text-right">
+                        <div className="flex space-x-2 justify-end">
+                          <button
+                            className="btn btn-xs btn-warning text-white"
+                            onClick={() => openModal(khata)}
+                          >
+                            <Pencil size={14} /> Edit
+                          </button>
+                          <button
+                            className="btn btn-xs btn-error text-white"
+                            onClick={() => setDeleteConfirm(khata)}
+                          >
+                            <Trash2 size={14} /> Delete
+                          </button>
+                          <button
+                            className="btn btn-xs btn-info text-white"
+                            onClick={() => openUploadModal(khata)}
+                          >
+                            <Upload size={14} /> Upload
+                          </button>
+                          <button
+                            className="btn btn-xs btn-success text-white"
+                            onClick={() => openMapModal(khata)}
+                          >
+                            <MapIcon size={14} /> Maps
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -330,6 +344,52 @@ const Khata = () => {
 
             <div className="modal-action">
               <button className="btn" onClick={() => setUploadModalOpen(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+
+      {mapModalOpen && (
+        <dialog open className="modal modal-open">
+          <div className="modal-box max-w-xl">
+            <h3 className="font-bold text-lg mb-4">
+              Maps for Khata {selectedKhata?.number}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
+              <div className="flex items-center justify-between p-3 rounded-xl border shadow-sm bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span className="font-medium text-sm truncate ">2084</span>
+                </div>
+                <a
+                  href={`${window.location.origin}/2084.kmz`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-xs btn-outline btn-primary"
+                >
+                  View in google earth
+                </a>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl border shadow-sm bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span className="font-medium text-sm truncate ">2088</span>
+                </div>
+                <a
+                  href="/2088.kmz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-xs btn-outline btn-primary"
+                >
+                  View in google earth
+                </a>
+              </div>
+            </div>
+
+            <div className="modal-action">
+              <button className="btn" onClick={() => setMapModalOpen(false)}>
                 Close
               </button>
             </div>

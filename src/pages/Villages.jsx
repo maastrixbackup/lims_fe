@@ -1,14 +1,9 @@
 import React, { useState } from "react";
-import Sidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
 import { Pencil, Trash2 } from "lucide-react";
 import { odishaDistricts } from "../utils/constants";
 
 const Villages = () => {
-  // Example projects to pick from
   const projects = [{ id: 1, name: "GMDC - Baitarani-West Coal Block" }];
-
-  // Odisha districts
 
   const [villages, setVillages] = useState([
     {
@@ -32,12 +27,20 @@ const Villages = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVillage, setEditingVillage] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+
   const [formData, setFormData] = useState({
     project: "",
     name: "",
     district: "",
     tahasil: "",
     created: new Date().toISOString().split("T")[0],
+  });
+
+  // Filter state
+  const [filter, setFilter] = useState({
+    project: "",
+    district: "",
+    tahasil: "",
   });
 
   // Open modal for add/edit
@@ -58,12 +61,14 @@ const Villages = () => {
     setIsModalOpen(true);
   };
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Save village
+  const handleFilterChange = (e) => {
+    setFilter({ ...filter, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingVillage) {
@@ -83,15 +88,76 @@ const Villages = () => {
     setDeleteConfirm(null);
   };
 
+  // Filtered villages
+  const filteredVillages = villages.filter((v) => {
+    return (
+      (filter.project === "" || v.project === filter.project) &&
+      (filter.district === "" || v.district === filter.district) &&
+      (filter.tahasil === "" ||
+        v.tahasil.toLowerCase().includes(filter.tahasil.toLowerCase()))
+    );
+  });
+
   return (
     <div>
       <main className="flex-1 p-6 overflow-y-auto space-y-6">
-        {/* Top Row with Button aligned to Table */}
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Villages List</h2>
+
           <button className="btn btn-primary" onClick={() => openModal()}>
             + Add Village
           </button>
+        </div>
+
+        <div className="card bg-white shadow-lg rounded-2xl p-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Project Filter */}
+            <select
+              name="project"
+              value={filter.project}
+              onChange={handleFilterChange}
+              className="select select-bordered w-full"
+            >
+              <option value="">All Projects</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+
+            {/* District Filter */}
+            <select
+              name="district"
+              value={filter.district}
+              onChange={handleFilterChange}
+              className="select select-bordered w-full"
+            >
+              <option value="">All Districts</option>
+              {odishaDistricts.map((d, i) => (
+                <option key={i} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+
+            {/* Tahasil Filter */}
+            <select
+              name="tahasil"
+              value={filter.tahasil}
+              onChange={handleFilterChange}
+              className="select select-bordered w-full"
+            >
+              <option value="">All Tahasils</option>
+              {[...new Set(villages.map((v) => v.tahasil))].map(
+                (tahasil, i) => (
+                  <option key={i} value={tahasil}>
+                    {tahasil}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
         </div>
 
         {/* Villages Table */}
@@ -110,8 +176,8 @@ const Villages = () => {
                 </tr>
               </thead>
               <tbody>
-                {villages.length > 0 ? (
-                  villages.map((village, idx) => (
+                {filteredVillages.length > 0 ? (
+                  filteredVillages.map((village, idx) => (
                     <tr
                       key={village.id}
                       className="hover:bg-gray-50 transition-colors"
@@ -141,9 +207,7 @@ const Villages = () => {
                 ) : (
                   <tr>
                     <td colSpan="7" className="text-center py-6 text-gray-500">
-                      No villages found. Click{" "}
-                      <span className="font-semibold">+ Add Village</span> to
-                      create one.
+                      No villages found.
                     </td>
                   </tr>
                 )}
@@ -161,7 +225,6 @@ const Villages = () => {
               {editingVillage ? "Edit Village" : "Add Village"}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Project */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Project
@@ -182,7 +245,6 @@ const Villages = () => {
                 </select>
               </div>
 
-              {/* District */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   District
@@ -203,7 +265,6 @@ const Villages = () => {
                 </select>
               </div>
 
-              {/* Tahasil */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Tahasil
@@ -217,7 +278,7 @@ const Villages = () => {
                   required
                 />
               </div>
-              {/* Village Name */}
+
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Village Name

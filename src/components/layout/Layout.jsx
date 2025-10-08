@@ -13,6 +13,7 @@ export default function Layout() {
     "/khatas": "Khatas",
     "/villages": "Villages",
     "/plots": "Plots",
+    "/usersmanagement":"UsersManagement",
     "/import": "Import/Export",
   };
 

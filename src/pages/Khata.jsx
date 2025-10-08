@@ -5,6 +5,7 @@ import { documentList } from "../utils/constants";
 
 const Khata = () => {
   const projects = [{ id: 1, name: "GMDC - Baitarani-West Coal Block" }];
+
   const villages = [
     {
       id: 1,
@@ -46,6 +47,16 @@ const Khata = () => {
   const [mapModalOpen, setMapModalOpen] = useState(false);
   const [selectedKhata, setSelectedKhata] = useState(null);
   const [uploadedDocs, setUploadedDocs] = useState(documentList); // { khataId: [{ name, url }] }
+
+  // Filters
+  const [filterProject, setFilterProject] = useState("");
+  const [filterVillage, setFilterVillage] = useState("");
+
+  const filteredKhatas = khatas.filter(
+    (k) =>
+      (filterProject ? k.project === filterProject : true) &&
+      (filterVillage ? k.village === filterVillage : true)
+  );
 
   // Open Add/Edit Modal
   const openModal = (khata = null) => {
@@ -107,8 +118,6 @@ const Khata = () => {
     }));
 
     setUploadedDocs((prev) => [...newDocs, ...prev]); // prepend new uploads
-
-    // ✅ Clear the file input after upload
     e.target.value = "";
   };
 
@@ -121,6 +130,43 @@ const Khata = () => {
           <button className="btn btn-primary" onClick={() => openModal()}>
             + Add Khata
           </button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex space-x-4 mb-4">
+          {/* Project Filter */}
+          <select
+            value={filterProject}
+            onChange={(e) => {
+              setFilterProject(e.target.value);
+              setFilterVillage(""); // reset village when project changes
+            }}
+            className="select select-bordered w-48"
+          >
+            <option value="">All Projects</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Village Filter */}
+          <select
+            value={filterVillage}
+            onChange={(e) => setFilterVillage(e.target.value)}
+            className="select select-bordered w-48"
+            disabled={!filterProject} // only allow village selection if project is selected
+          >
+            <option value="">All Villages</option>
+            {villages
+              .filter((v) => (filterProject ? v.project === filterProject : true))
+              .map((v) => (
+                <option key={v.id} value={v.name}>
+                  {v.name}
+                </option>
+              ))}
+          </select>
         </div>
 
         {/* Khata Table */}
@@ -138,8 +184,8 @@ const Khata = () => {
                 </tr>
               </thead>
               <tbody>
-                {khatas.length > 0 ? (
-                  khatas.map((khata, idx) => (
+                {filteredKhatas.length > 0 ? (
+                  filteredKhatas.map((khata, idx) => (
                     <tr
                       key={khata.id}
                       className="hover:bg-gray-50 transition-colors"
@@ -182,9 +228,7 @@ const Khata = () => {
                 ) : (
                   <tr>
                     <td colSpan="8" className="text-center py-6 text-gray-500">
-                      No khatas found. Click{" "}
-                      <span className="font-semibold">+ Add Khata</span> to
-                      create one.
+                      No khatas found.
                     </td>
                   </tr>
                 )}
@@ -233,7 +277,7 @@ const Khata = () => {
                   value={formData.village}
                   onChange={handleChange}
                   className="select select-bordered w-full"
-                  required
+                  
                 >
                   <option value="">Select Village</option>
                   {villages
@@ -307,7 +351,6 @@ const Khata = () => {
               Upload Documents for Khata {selectedKhata?.number}
             </h3>
 
-            {/* File Upload */}
             <input
               type="file"
               accept="application/pdf"
@@ -316,7 +359,6 @@ const Khata = () => {
               className="file-input file-input-bordered w-full mb-4"
             />
 
-            {/* Uploaded Docs */}
             <h4 className="font-semibold mb-3">Uploaded Files:</h4>
             <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
               {uploadedDocs.map((doc, idx) => (
@@ -343,7 +385,10 @@ const Khata = () => {
             </div>
 
             <div className="modal-action">
-              <button className="btn" onClick={() => setUploadModalOpen(false)}>
+              <button
+                className="btn"
+                onClick={() => setUploadModalOpen(false)}
+              >
                 Close
               </button>
             </div>
@@ -351,6 +396,7 @@ const Khata = () => {
         </dialog>
       )}
 
+      {/* Map Modal */}
       {mapModalOpen && (
         <dialog open className="modal modal-open">
           <div className="modal-box max-w-xl">

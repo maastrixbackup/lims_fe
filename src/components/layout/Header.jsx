@@ -1,14 +1,18 @@
-import { Bell, User, LogOut } from "lucide-react";
+import { Bell, User, LogOut, LockKeyhole } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../utils/userSlice";
 
 export default function Header({ heading, sidebarWidth }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const { logout } = useAuth();
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const notifRef = useRef(null);
   const profileRef = useRef(null);
+ const user = useSelector((state) => state.auth.user);
+const userRole = user?.role_name || "User";
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -23,9 +27,21 @@ export default function Header({ heading, sidebarWidth }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // const { user } = useSelector((state) => state.auth);
+
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
+    navigate("/");
   };
+
+  const goToProfile = () => {
+    setProfileOpen(false);
+    navigate("/profile");
+  };
+  const changePassword=() =>{
+    setProfileOpen(false);
+    navigate("/changepassword");
+  }
 
   return (
     <header
@@ -72,17 +88,27 @@ export default function Header({ heading, sidebarWidth }) {
             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
               <User size={18} />
             </div>
-            <span className="hidden md:inline font-medium">Admin</span>
+            <span className="hidden md:inline font-medium">
+ {userRole}
+</span>
           </div>
 
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <ul className="text-sm">
-                <li className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150">
+                <li
+                  onClick={goToProfile}
+                  className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150"
+                >
                   <User size={16} /> Profile
                 </li>
+                <li 
+                onClick={changePassword}
+                className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150">
+                  <LockKeyhole size={16} /> Change Password
+                </li>
                 <li
-                  onClick={() => handleLogout()}
+                  onClick={handleLogout}
                   className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 text-red-600 cursor-pointer transition-colors duration-150"
                 >
                   <LogOut size={16} /> Logout

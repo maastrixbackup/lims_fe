@@ -1,32 +1,41 @@
-import React, { useState } from "react";
-import Sidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
+import React, { useState, useEffect } from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import ConfirmModal from "../shared/ConfirmModal";
+import { useSelector } from "react-redux";
 
 const Projects = () => {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: "GMDC - Baitarani-West Coal Block",
-      status: "Active",
-      created: "2025-01-12",
-    },
-  ]);
+  const [projects, setProjects] = useState([]);
+  const token = useSelector((state) => state.auth.userToken);
+  console.log("Auth token in Projects:", token);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // project to delete
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     status: "Active",
     created: new Date().toISOString().split("T")[0],
   });
+  const [sortOrder, setSortOrder] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Open modal for add/edit
+  const statusMap = {
+    Pending: 0,
+    Active: 1,
+    Closed: 2,
+  };
+
+  const reverseStatusMap = {
+    0: "Pending",
+    1: "Active",
+    2: "Closed",
+  };
+
+  // --- Open Add/Edit Modal ---
   const openModal = (project = null) => {
     if (project) {
       setEditingProject(project);
-      setFormData(project);
+      setFormData({ ...project });
     } else {
       setEditingProject(null);
       setFormData({
@@ -38,43 +47,139 @@ const Projects = () => {
     setIsModalOpen(true);
   };
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Save project
-  const handleSubmit = (e) => {
+  // --- Fetch Projects ---
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:3000/api/project/projectList", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch projects");
+
+        const data = await response.json();
+        console.log("Fetched projects raw response:", data);
+
+        // ✅ Convert backend data into table-friendly format
+        const formatted = (data?.projects || data)?.map((item) => ({
+          id: item.id || item.project_id,
+          name: item.project_name || item.name,
+          status: reverseStatusMap[item.status] || "Active",
+          created: item.created_at
+            ? new Date(item.created_at).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+        }));
+
+        setProjects(formatted);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) fetchProjects();
+  }, [token]);
+
+  // --- Add or Update Project ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     if (editingProject) {
-      setProjects(
-        projects.map((p) =>
+      // Local update (or could add API call for update)
+      setProjects((prev) =>
+        prev.map((p) =>
           p.id === editingProject.id ? { ...formData, id: p.id } : p
         )
       );
     } else {
-      setProjects([...projects, { ...formData, id: projects.length + 1 }]);
+      try {
+        const payload = {
+          project_name: formData.name,
+          status: statusMap[formData.status],
+        };
+
+        const response = await fetch("http://localhost:3000/api/project/createProject", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error("Failed to create project");
+
+        const data = await response.json();
+
+        const newProject = {
+          id: data?.id || Date.now(),
+          name: formData.name,
+          status: formData.status,
+          created: new Date().toISOString().split("T")[0],
+        };
+
+        setProjects((prev) => [...prev, newProject]);
+      } catch (error) {
+        console.error("Error creating project:", error);
+        alert("Failed to create project. Please try again.");
+      }
     }
+
+    setLoading(false);
     setIsModalOpen(false);
+    setEditingProject(null);
   };
 
   const confirmDelete = () => {
-    setProjects(projects.filter((p) => p.id !== deleteConfirm.id));
+    setProjects((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
     setDeleteConfirm(null);
   };
+
+  // --- Sort Projects ---
+  const sortedProjects = [...projects].sort((a, b) => {
+    if (!sortOrder) return 0;
+    return sortOrder === "asc"
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  });
 
   return (
     <>
       <main className="flex-1 p-6 overflow-y-auto space-y-6">
-        {/* Top Row with Button aligned to Table */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           <h2 className="text-lg font-semibold">Projects List</h2>
-          <button className="btn btn-primary" onClick={() => openModal()}>
-            + Add Project
-          </button>
+
+          <div className="flex items-center gap-3">
+            <select
+              className="select select-bordered"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="">All Projects</option>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+
+            <button
+              className="btn btn-primary"
+              onClick={() => openModal()}
+              disabled={loading}
+            >
+              + Add Project
+            </button>
+          </div>
         </div>
 
-        {/* Projects Table */}
+        {/* Table */}
         <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="table w-full">
@@ -88,12 +193,9 @@ const Projects = () => {
                 </tr>
               </thead>
               <tbody>
-                {projects.length > 0 ? (
-                  projects.map((project, idx) => (
-                    <tr
-                      key={project.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
+                {sortedProjects.length > 0 ? (
+                  sortedProjects.map((project, idx) => (
+                    <tr key={project.id} className="hover:bg-gray-50 transition-colors">
                       <td className="font-medium">{idx + 1}</td>
                       <td className="whitespace-nowrap">{project.name}</td>
                       <td>
@@ -141,7 +243,7 @@ const Projects = () => {
         </div>
       </main>
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
       {isModalOpen && (
         <dialog open className="modal modal-open">
           <div className="modal-box">
@@ -150,9 +252,7 @@ const Projects = () => {
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Project Name
-                </label>
+                <label className="block text-sm font-medium mb-1">Project Name</label>
                 <input
                   type="text"
                   name="name"
@@ -171,21 +271,17 @@ const Projects = () => {
                   onChange={handleChange}
                   className="select select-bordered w-full"
                 >
-                  <option>Active</option>
-                  <option>Pending</option>
-                  <option>Closed</option>
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Closed">Closed</option>
                 </select>
               </div>
 
               <div className="modal-action">
-                <button type="submit" className="btn btn-primary">
-                  Save
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                  {loading ? "Saving..." : "Save"}
                 </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
+                <button type="button" className="btn" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </button>
               </div>
@@ -193,25 +289,22 @@ const Projects = () => {
           </div>
         </dialog>
       )}
-      {deleteConfirm && (
-        <dialog open className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
-            <p>
-              Are you sure you want to delete{" "}
-              <span className="font-semibold">{deleteConfirm.name}</span>?
-            </p>
-            <div className="modal-action">
-              <button className="btn btn-error" onClick={confirmDelete}>
-                Yes, Delete
-              </button>
-              <button className="btn" onClick={() => setDeleteConfirm(null)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </dialog>
-      )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteConfirm}
+        title="Confirm Delete"
+        message={
+          deleteConfirm
+            ? `Are you sure you want to delete "${deleteConfirm.name}"?`
+            : ""
+        }
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        confirmButtonClass="btn btn-error"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
     </>
   );
 };

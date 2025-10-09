@@ -2,7 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
-import LandingPage from "./pages/LandingPage";
+import LandingPage from "./components/features/LoginScreen";
+import Unauthorized from "./pages/Unathorize";
+import Layout from "./components/layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import Unauthorized from "./pages/Unathorize";
 import Projects from "./pages/Projects";
@@ -11,7 +13,13 @@ import Layout from "./components/layout/Layout";
 import "./App.css";
 import Plots from "./pages/Plots";
 import UploadPlots from "./pages/UploadPlots";
-import Khata from "./pages/Khata";
+import UserManagement from "./pages/UserManagement";
+import Profile from "./pages/Profile";
+
+import "./App.css";
+// import ChangePassword from "./components/features/ChangePassword";
+import ForgotPassword from "./components/features/ForgotPassword";
+import ResetPassword from "./components/features/ResetPassword";
 
 export default function App() {
   return (
@@ -19,6 +27,9 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* All protected routes share the same layout */}
@@ -34,6 +45,12 @@ export default function App() {
               <Route path="/khatas" element={<Khata />} />
               <Route path="/plots" element={<Plots />} />
               <Route path="/import" element={<UploadPlots />} />
+              <Route path="/profile" element={<Profile />} />
+
+              <Route
+                path="/reset-password/:token"
+                element={<ResetPassword />}
+              />
             </Route>
           </Route>
         </Routes>

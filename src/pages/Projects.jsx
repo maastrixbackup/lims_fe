@@ -43,8 +43,48 @@ const Projects = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Save project
-  const handleSubmit = (e) => {
+  // --- Fetch Projects ---
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "http://localhost:3000/api/project/projectList",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch projects");
+
+        const data = await response.json();
+        console.log("Fetched projects raw response:", data);
+
+        // ✅ Convert backend data into table-friendly format
+        const formatted = (data?.projects || data)?.map((item) => ({
+          id: item.id || item.project_id,
+          name: item.project_name || item.name,
+          status: reverseStatusMap[item.status] || "Active",
+          created: item.created_at
+            ? new Date(item.created_at).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+        }));
+
+        setProjects(formatted);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) fetchProjects();
+  }, [token]);
+
+  // --- Add or Update Project ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (editingProject) {
       setProjects(
@@ -53,7 +93,40 @@ const Projects = () => {
         )
       );
     } else {
-      setProjects([...projects, { ...formData, id: projects.length + 1 }]);
+      try {
+        const payload = {
+          project_name: formData.name,
+          status: statusMap[formData.status],
+        };
+
+        const response = await fetch(
+          "http://localhost:3000/api/project/createProject",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to create project");
+
+        const data = await response.json();
+
+        const newProject = {
+          id: data?.id || Date.now(),
+          name: formData.name,
+          status: formData.status,
+          created: new Date().toISOString().split("T")[0],
+        };
+
+        setProjects((prev) => [...prev, newProject]);
+      } catch (error) {
+        console.error("Error creating project:", error);
+        alert("Failed to create project. Please try again.");
+      }
     }
     setIsModalOpen(false);
   };
@@ -69,9 +142,26 @@ const Projects = () => {
         {/* Top Row with Button aligned to Table */}
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Projects List</h2>
-          <button className="btn btn-primary" onClick={() => openModal()}>
-            + Add Project
-          </button>
+
+          <div className="flex items-center gap-3">
+            <select
+              className="select bg-white rounded-box border border-gray-400 focus:border-blue-500 focus:outline-none"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="">All Projects</option>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+
+            <button
+              className="btn btn-primary"
+              onClick={() => openModal()}
+              disabled={loading}
+            >
+              + Add Project
+            </button>
+          </div>
         </div>
 
         {/* Projects Table */}
@@ -88,8 +178,8 @@ const Projects = () => {
                 </tr>
               </thead>
               <tbody>
-                {projects.length > 0 ? (
-                  projects.map((project, idx) => (
+                {sortedProjects.length > 0 ? (
+                  sortedProjects.map((project, idx) => (
                     <tr
                       key={project.id}
                       className="hover:bg-gray-50 transition-colors"
@@ -178,8 +268,12 @@ const Projects = () => {
               </div>
 
               <div className="modal-action">
-                <button type="submit" className="btn btn-primary">
-                  Save
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save"}
                 </button>
                 <button
                   type="button"

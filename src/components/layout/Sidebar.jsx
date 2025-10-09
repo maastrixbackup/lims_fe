@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ChartBarBig,
   ImageUp,
+  User2Icon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
@@ -22,27 +23,47 @@ export default function Sidebar({ open, setOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 🔹 Get current user + role
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userRole = user?.role_name?.trim();
+
+  // 🔹 All menu items + their allowed roles
   const menuItems = [
     {
       name: "Dashboard",
       icon: <LayoutDashboard size={20} />,
       path: "dashboard",
+      roles: ["Super Admin", "Admin", "Client"],
     },
     {
       name: "Lands",
       icon: <Map size={20} />,
       submenu: ["Projects", "Villages", "Khatas", "Plots"],
+      roles: ["Super Admin", "Admin"],
     },
     {
-      name: "import/export",
+      name: "User Management",
+      icon: <User2Icon size={20} />,
+      path: "usersmanagement",
+      roles: ["Super Admin", "Client"],
+    },
+    {
+      name: "Import/Export",
       icon: <ImageUp size={20} />,
       path: "import",
+      roles: ["Super Admin", "Admin"],
     },
     {
       name: "Reports",
       icon: <ChartBarBig size={20} />,
+      roles: ["Super Admin"],
     },
   ];
+
+  // 🔹 Filter menus based on user role
+  const filteredMenu = menuItems.filter((item) =>
+    item.roles.includes(userRole)
+  );
 
   // 🔹 Save active/expanded to localStorage
   useEffect(() => {
@@ -119,7 +140,7 @@ export default function Sidebar({ open, setOpen }) {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item) => (
+        {filteredMenu.map((item) => (
           <div key={item.name}>
             {/* Main Menu */}
             <motion.div
@@ -128,7 +149,7 @@ export default function Sidebar({ open, setOpen }) {
                   toggleSubmenu(item.name);
                 } else {
                   setActive(item.name);
-                  navigate(item.path.toLowerCase());
+                  navigate("/" + item.path.toLowerCase());
                 }
               }}
               whileHover={{ scale: 1.05, x: 4 }}
@@ -180,7 +201,7 @@ export default function Sidebar({ open, setOpen }) {
                   <div
                     key={sub}
                     onClick={(e) => {
-                      e.stopPropagation(); // ✅ prevent parent toggle
+                      e.stopPropagation();
                       setActive(sub);
                       navigate("/" + sub.toLowerCase());
                     }}

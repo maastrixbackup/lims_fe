@@ -1,32 +1,41 @@
-import React, { useState } from "react";
-import Sidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
+import React, { useState, useEffect } from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import ConfirmModal from "../shared/ConfirmModal";
+import { useSelector } from "react-redux";
 
 const Projects = () => {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: "GMDC - Baitarani-West Coal Block",
-      status: "Active",
-      created: "2025-01-12",
-    },
-  ]);
+  const [projects, setProjects] = useState([]);
+  const token = useSelector((state) => state.auth.userToken);
+  console.log("Auth token in Projects:", token);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // project to delete
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     status: "Active",
     created: new Date().toISOString().split("T")[0],
   });
+  const [sortOrder, setSortOrder] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Open modal for add/edit
+  const statusMap = {
+    Pending: 0,
+    Active: 1,
+    Closed: 2,
+  };
+
+  const reverseStatusMap = {
+    0: "Pending",
+    1: "Active",
+    2: "Closed",
+  };
+
+  // --- Open Add/Edit Modal ---
   const openModal = (project = null) => {
     if (project) {
       setEditingProject(project);
-      setFormData(project);
+      setFormData({ ...project });
     } else {
       setEditingProject(null);
       setFormData({
@@ -38,7 +47,6 @@ const Projects = () => {
     setIsModalOpen(true);
   };
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -86,9 +94,12 @@ const Projects = () => {
   // --- Add or Update Project ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     if (editingProject) {
-      setProjects(
-        projects.map((p) =>
+      // Local update (or could add API call for update)
+      setProjects((prev) =>
+        prev.map((p) =>
           p.id === editingProject.id ? { ...formData, id: p.id } : p
         )
       );
@@ -128,19 +139,29 @@ const Projects = () => {
         alert("Failed to create project. Please try again.");
       }
     }
+
+    setLoading(false);
     setIsModalOpen(false);
+    setEditingProject(null);
   };
 
   const confirmDelete = () => {
-    setProjects(projects.filter((p) => p.id !== deleteConfirm.id));
+    setProjects((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
     setDeleteConfirm(null);
   };
+
+  // --- Sort Projects ---
+  const sortedProjects = [...projects].sort((a, b) => {
+    if (!sortOrder) return 0;
+    return sortOrder === "asc"
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  });
 
   return (
     <>
       <main className="flex-1 p-6 overflow-y-auto space-y-6">
-        {/* Top Row with Button aligned to Table */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           <h2 className="text-lg font-semibold">Projects List</h2>
 
           <div className="flex items-center gap-3">
@@ -164,7 +185,7 @@ const Projects = () => {
           </div>
         </div>
 
-        {/* Projects Table */}
+        {/* Table */}
         <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="table w-full">
@@ -231,7 +252,7 @@ const Projects = () => {
         </div>
       </main>
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
       {isModalOpen && (
         <dialog open className="modal modal-open">
           <div className="modal-box">
@@ -240,9 +261,7 @@ const Projects = () => {
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Project Name
-                </label>
+                <label className="block text-sm font-medium mb-1">Project Name</label>
                 <input
                   type="text"
                   name="name"
@@ -261,9 +280,9 @@ const Projects = () => {
                   onChange={handleChange}
                   className="select select-bordered w-full"
                 >
-                  <option>Active</option>
-                  <option>Pending</option>
-                  <option>Closed</option>
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Closed">Closed</option>
                 </select>
               </div>
 
@@ -275,11 +294,7 @@ const Projects = () => {
                 >
                   {loading ? "Saving..." : "Save"}
                 </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
+                <button type="button" className="btn" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </button>
               </div>
@@ -287,25 +302,22 @@ const Projects = () => {
           </div>
         </dialog>
       )}
-      {deleteConfirm && (
-        <dialog open className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
-            <p>
-              Are you sure you want to delete{" "}
-              <span className="font-semibold">{deleteConfirm.name}</span>?
-            </p>
-            <div className="modal-action">
-              <button className="btn btn-error" onClick={confirmDelete}>
-                Yes, Delete
-              </button>
-              <button className="btn" onClick={() => setDeleteConfirm(null)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </dialog>
-      )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteConfirm}
+        title="Confirm Delete"
+        message={
+          deleteConfirm
+            ? `Are you sure you want to delete "${deleteConfirm.name}"?`
+            : ""
+        }
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        confirmButtonClass="btn btn-error"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
     </>
   );
 };

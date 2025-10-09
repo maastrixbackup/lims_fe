@@ -7,10 +7,11 @@ import Unauthorized from "./pages/Unathorize";
 import Layout from "./components/layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import Unauthorized from "./pages/Unathorize";
+import Layout from "./components/layout/Layout";
+import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Villages from "./pages/Villages";
-import Layout from "./components/layout/Layout";
-import "./App.css";
+import Khata from "./pages/Khata";
 import Plots from "./pages/Plots";
 import UploadPlots from "./pages/UploadPlots";
 import UserManagement from "./pages/UserManagement";
@@ -26,13 +27,13 @@ export default function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          {/* Public */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* All protected routes share the same layout */}
           <Route
             element={
               <PrivateRoute allowedRoles={["Super Admin", "Admin", "Client"]} />
@@ -42,8 +43,9 @@ export default function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/villages" element={<Villages />} />
-              <Route path="/khatas" element={<Khata />} />
               <Route path="/plots" element={<Plots />} />
+              <Route path="/khatas" element={<Khata />} />
+              <Route path="/usersmanagement" element={<UserManagement />} />
               <Route path="/import" element={<UploadPlots />} />
               <Route path="/profile" element={<Profile />} />
 
@@ -53,6 +55,9 @@ export default function App() {
               />
             </Route>
           </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<Unauthorized />} />
         </Routes>
       </AuthProvider>
     </Router>

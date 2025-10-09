@@ -36,17 +36,20 @@ const ChangePassword = () => {
       setMessage(null);
 
       // --- API call ---
-      const response = await fetch("http://localhost:3000/api/user/changePassword", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:3000/api/user/changePassword",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword: formData.currentPassword,
+            newPassword: formData.newPassword,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -69,14 +72,16 @@ const ChangePassword = () => {
   };
 
   return (
-    <main className="flex-1 p-6 max-w-md mx-auto">
-      <div className="card bg-white shadow-lg rounded-2xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Change Password</h2>
+    <main className="flex-1 flex justify-center items-center bg-gradient-to-br p-6">
+      <div className="card w-full max-w-md bg-white shadow-2xl rounded-2xl p-8 border border-gray-100">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          🔒 Change Password
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Current Password */}
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Current Password
             </label>
             <input
@@ -84,14 +89,15 @@ const ChangePassword = () => {
               name="currentPassword"
               value={formData.currentPassword}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              className="input input-bordered w-full rounded-xl focus:ring-2 focus:ring-indigo-400 transition"
+              placeholder="Enter current password"
               required
             />
           </div>
 
           {/* New Password */}
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               New Password
             </label>
             <input
@@ -99,15 +105,16 @@ const ChangePassword = () => {
               name="newPassword"
               value={formData.newPassword}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              className="input input-bordered w-full rounded-xl focus:ring-2 focus:ring-indigo-400 transition"
+              placeholder="Enter new password"
               required
               minLength={6}
             />
           </div>
 
-          {/* Confirm Password */}
+          {/* Confirm New Password */}
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Confirm New Password
             </label>
             <input
@@ -115,20 +122,23 @@ const ChangePassword = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              className="input input-bordered w-full rounded-xl focus:ring-2 focus:ring-indigo-400 transition"
+              placeholder="Re-enter new password"
               required
               minLength={6}
             />
           </div>
 
           {/* Error or Success Message */}
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          {message && <p className="text-green-600 text-sm">{message}</p>}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {message && (
+            <p className="text-green-600 text-sm text-center">{message}</p>
+          )}
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="btn btn-primary w-full"
+            className="btn btn-primary w-full rounded-xl font-semibold text-white tracking-wide shadow-md hover:shadow-lg transition"
             disabled={loading}
           >
             {loading ? "Updating..." : "Change Password"}

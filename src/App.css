@@ -1,8 +1,22 @@
 @import "tailwindcss";
 @plugin "daisyui";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.body {
-  /* @apply bg-base-200; */
-  background-color: #ffff !important
+/* === Force modal to stay light no matter what system theme is === */
+
+/* Force DaisyUI backdrop to stay semi-transparent gray */
+html.dark .modal::backdrop,
+html[data-theme='dark'] .modal::backdrop,
+.modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.3) !important;
 }
 
+/* Ensure modal box never turns dark */
+html.dark .modal-box,
+html[data-theme='dark'] .modal-box,
+.modal-box {
+  background-color: #ffffff !important;
+  color: #1f2937 !important; /* gray-800 text */
+}

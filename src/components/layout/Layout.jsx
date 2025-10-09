@@ -15,25 +15,27 @@ export default function Layout() {
     "/plots": "Plots",
     "/usersmanagement": "UsersManagement",
     "/import": "Import/Export",
+    "/reoprts": "Reports",
+    "/profile": "Profile",
+    "/changepassword": "Change Password",
   };
 
   const heading = pageTitles[location.pathname] || "";
+
   const sidebarWidth = sidebarOpen ? 260 : 80;
 
   return (
-    <div className="flex h-screen bg-white text-gray-800">
-      {/* Sidebar */}
+    <div data-theme="light" className="bg-gray-50 text-gray-800 h-screen">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col">
         <Header heading={heading} sidebarWidth={sidebarWidth} />
-
+        {/* Make the Outlet fill the available space */}
         <main
-          className="pt-16 h-full overflow-y-auto transition-all duration-300 bg-white"
+          data-theme="light"
+          className="pt-16 h-full overflow-y-auto transition-all duration-300"
           style={{ paddingLeft: sidebarWidth }}
         >
-          <div className="p-6 space-y-6 min-h-screen bg-white">
+          <div className="p-6 space-y-6">
             <Outlet />
           </div>
         </main>

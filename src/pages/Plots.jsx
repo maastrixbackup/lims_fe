@@ -100,7 +100,7 @@ const Plots = () => {
 
       {/* Table */}
       <div className="card bg-white shadow-lg rounded-2xl">
-        <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+        <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
           <table className="table w-full whitespace-nowrap">
             <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
               <tr>

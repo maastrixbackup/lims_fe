@@ -70,7 +70,7 @@ const Projects = () => {
         const data = await response.json();
         console.log("Fetched projects raw response:", data);
 
-        // ✅ Convert backend data into table-friendly format
+        // Convert backend data into table-friendly format
         const formatted = (data?.projects || data)?.map((item) => ({
           id: item.id || item.project_id,
           name: item.project_name || item.name,
@@ -92,63 +92,119 @@ const Projects = () => {
   }, [token]);
 
   // --- Add or Update Project ---
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
+  try {
     if (editingProject) {
-      // Local update (or could add API call for update)
+      // --- EDIT PROJECT API ---
+      const payload = {
+        project_name: formData.name,
+        status: statusMap[formData.status],
+      };
+
+      const response = await fetch(
+        `http://localhost:3000/api/project/updateProject/${editingProject.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update project");
+
+      const data = await response.json();
+      console.log("Project updated:", data);
+
+      // ✅ Update UI instantly
       setProjects((prev) =>
         prev.map((p) =>
-          p.id === editingProject.id ? { ...formData, id: p.id } : p
+          p.id === editingProject.id
+            ? { ...p, name: formData.name, status: formData.status }
+            : p
         )
       );
     } else {
-      try {
-        const payload = {
-          project_name: formData.name,
-          status: statusMap[formData.status],
-        };
+      // --- ADD PROJECT API ---
+      const payload = {
+        project_name: formData.name,
+        status: statusMap[formData.status],
+      };
 
-        const response = await fetch(
-          "http://localhost:3000/api/project/createProject",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(payload),
-          }
-        );
+      const response = await fetch(
+        "http://localhost:3000/api/project/createProject",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-        if (!response.ok) throw new Error("Failed to create project");
+      if (!response.ok) throw new Error("Failed to create project");
 
-        const data = await response.json();
+      const data = await response.json();
 
-        const newProject = {
-          id: data?.id || Date.now(),
-          name: formData.name,
-          status: formData.status,
-          created: new Date().toISOString().split("T")[0],
-        };
+      const newProject = {
+        id: data?.id || Date.now(),
+        name: formData.name,
+        status: formData.status,
+        created: new Date().toISOString().split("T")[0],
+      };
 
-        setProjects((prev) => [...prev, newProject]);
-      } catch (error) {
-        console.error("Error creating project:", error);
-        alert("Failed to create project. Please try again.");
-      }
+      setProjects((prev) => [...prev, newProject]);
     }
 
-    setLoading(false);
+    // ✅ Close modal after success
     setIsModalOpen(false);
     setEditingProject(null);
-  };
+  } catch (error) {
+    console.error("Error saving project:", error);
+    alert("Something went wrong while saving the project.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const confirmDelete = () => {
+
+  const confirmDelete = async () => {
+  if (!deleteConfirm) return;
+
+  try {
+    setLoading(true);
+
+    const response = await fetch(
+      `http://localhost:3000/api/project/deleteProject/${deleteConfirm.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to delete project");
+
+    const data = await response.json();
+    console.log("Project deleted:", data);
     setProjects((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
+
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    alert("Failed to delete project. Please try again.");
+  } finally {
     setDeleteConfirm(null);
-  };
+    setLoading(false);
+  }
+};
+
 
   // --- Sort Projects ---
   const sortedProjects = [...projects].sort((a, b) => {
@@ -186,8 +242,8 @@ const Projects = () => {
         </div>
 
         {/* Table */}
-        <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="card bg-white shadow-lg rounded-2xl overflow-hidden whitespace-nowrap">
+          <div className="max-h-[400px] overflow-y-auto overflow-x-auto">
             <table className="table w-full">
               <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
                 <tr>
@@ -198,6 +254,7 @@ const Projects = () => {
                   <th className="text-right pr-6">Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {sortedProjects.length > 0 ? (
                   sortedProjects.map((project, idx) => (
@@ -209,7 +266,7 @@ const Projects = () => {
                       <td className="whitespace-nowrap">{project.name}</td>
                       <td>
                         <span
-                          className={`badge ${
+                          className={`badge w-24 justify-center ${
                             project.status === "Active"
                               ? "badge-success"
                               : project.status === "Pending"
@@ -261,7 +318,9 @@ const Projects = () => {
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Project Name</label>
+                <label className="block text-sm font-medium mb-1">
+                  Project Name
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -294,7 +353,11 @@ const Projects = () => {
                 >
                   {loading ? "Saving..." : "Save"}
                 </button>
-                <button type="button" className="btn" onClick={() => setIsModalOpen(false)}>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </button>
               </div>

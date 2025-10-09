@@ -160,7 +160,6 @@ const Villages = () => {
           </div>
         </div>
 
-        {/* Villages Table */}
         <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="table w-full">
@@ -217,9 +216,8 @@ const Villages = () => {
         </div>
       </main>
 
-      {/* Add/Edit Modal */}
       {isModalOpen && (
-        <dialog open className="modal modal-open">
+        <dialog data-theme="light" open className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">
               {editingVillage ? "Edit Village" : "Add Village"}

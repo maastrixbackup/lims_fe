@@ -4,9 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
 import LandingPage from "./components/features/LoginScreen";
 import Unauthorized from "./pages/Unathorize";
-import Layout from "./components/layout/Layout";
-import Dashboard from "./pages/Dashboard";
-import Unauthorized from "./pages/Unathorize";
+
 import Layout from "./components/layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
@@ -18,9 +16,10 @@ import UserManagement from "./pages/UserManagement";
 import Profile from "./pages/Profile";
 
 import "./App.css";
-// import ChangePassword from "./components/features/ChangePassword";
+import ChangePassword from "./components/features/ChangePassword";
 import ForgotPassword from "./components/features/ForgotPassword";
 import ResetPassword from "./components/features/ResetPassword";
+import Reports from "./pages/Reports";
 
 export default function App() {
   return (
@@ -31,7 +30,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-
+         
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           <Route
@@ -48,6 +47,10 @@ export default function App() {
               <Route path="/usersmanagement" element={<UserManagement />} />
               <Route path="/import" element={<UploadPlots />} />
               <Route path="/profile" element={<Profile />} />
+               <Route path="/changepassword" element={<ChangePassword />} />
+               <Route path="/reports" element={<Reports />} />
+
+               
 
               <Route
                 path="/reset-password/:token"

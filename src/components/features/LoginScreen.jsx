@@ -68,7 +68,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col lg:flex-row overflow-hidden">
+    <div data-theme="light" className="h-screen flex flex-col lg:flex-row overflow-hidden">
       {/* Left section */}
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-green-700 via-emerald-500 to-teal-400 items-center justify-center relative">
         <div className="absolute top-10 left-10 w-32 h-32 bg-white/20 rounded-full blur-3xl animate-pulse"></div>

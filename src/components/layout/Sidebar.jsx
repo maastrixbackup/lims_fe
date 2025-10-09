@@ -56,6 +56,7 @@ export default function Sidebar({ open, setOpen }) {
     {
       name: "Reports",
       icon: <ChartBarBig size={20} />,
+      path: "reports",
       roles: ["Super Admin"],
     },
   ];

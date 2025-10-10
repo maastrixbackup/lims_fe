@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../utils/userSlice";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -25,24 +26,20 @@ export default function LandingPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
-      console.log("🔐 Login response:", data);
-
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
 
-      // ✅ Save auth in localStorage
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // ✅ Dispatch to Redux Toolkit
       dispatch(login({ user: data.user, token: data.token }));
 
       const roleName = data.user?.role_name?.trim();
@@ -60,7 +57,6 @@ export default function LandingPage() {
           navigate("/unauthorized");
       }
     } catch (err) {
-      console.error("❌ Login failed:", err);
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);

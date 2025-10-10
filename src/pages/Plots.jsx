@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { plotData, projectVillageKhataMap } from "../utils/constants";
+import { Pencil, Trash2, X } from "lucide-react";
 
 const Plots = () => {
   const [plots, setPlots] = useState(plotData);
@@ -173,6 +174,13 @@ const Plots = () => {
       {isModalOpen && (
         <dialog open className="modal modal-open">
           <div className="modal-box max-w-4xl">
+              <button
+              type="button"
+              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <X size={20} />
+            </button>
             <h3 className="font-bold text-lg mb-4">
               {editingPlot ? "Edit Plot" : "Add Plot"}
             </h3>

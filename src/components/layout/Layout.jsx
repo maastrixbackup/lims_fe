@@ -29,7 +29,6 @@ export default function Layout() {
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col">
         <Header heading={heading} sidebarWidth={sidebarWidth} />
-        {/* Make the Outlet fill the available space */}
         <main
           data-theme="light"
           className="pt-16 h-full overflow-y-auto transition-all duration-300"

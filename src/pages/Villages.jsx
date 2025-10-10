@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, X } from "lucide-react";
 import { odishaDistricts } from "../utils/constants";
 
 const Villages = () => {
@@ -219,6 +219,13 @@ const Villages = () => {
       {isModalOpen && (
         <dialog data-theme="light" open className="modal modal-open">
           <div className="modal-box">
+              <button
+              type="button"
+              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <X size={20} />
+            </button>
             <h3 className="font-bold text-lg mb-4">
               {editingVillage ? "Edit Village" : "Add Village"}
             </h3>

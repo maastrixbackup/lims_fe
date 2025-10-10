@@ -22,12 +22,8 @@ export default function Sidebar({ open, setOpen }) {
   );
   const navigate = useNavigate();
   const location = useLocation();
-
-  // 🔹 Get current user + role
   const user = JSON.parse(localStorage.getItem("user"));
   const userRole = user?.role_name?.trim();
-
-  // 🔹 All menu items + their allowed roles
   const menuItems = [
     {
       name: "Dashboard",
@@ -60,13 +56,10 @@ export default function Sidebar({ open, setOpen }) {
       roles: ["Super Admin"],
     },
   ];
-
-  // 🔹 Filter menus based on user role
   const filteredMenu = menuItems.filter((item) =>
     item.roles.includes(userRole)
   );
 
-  // 🔹 Save active/expanded to localStorage
   useEffect(() => {
     localStorage.setItem("activeMenu", active);
   }, [active]);
@@ -78,8 +71,6 @@ export default function Sidebar({ open, setOpen }) {
       localStorage.removeItem("expandedMenu");
     }
   }, [expanded]);
-
-  // 🔹 Sync active menu with current URL on refresh
   useEffect(() => {
     const path = location.pathname.replace("/", "");
     if (path) {

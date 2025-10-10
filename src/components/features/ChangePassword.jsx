@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../../utils/config";
 
 const ChangePassword = () => {
   const token = useSelector((state) => state.auth.userToken);
@@ -37,7 +38,8 @@ const ChangePassword = () => {
 
       // --- API call ---
       const response = await fetch(
-        "http://localhost:3000/api/user/changePassword",
+        // "http://localhost:3000/api/user/changePassword",
+        `${API_BASE_URL}/user/changePassword`,
         {
           method: "POST",
           headers: {

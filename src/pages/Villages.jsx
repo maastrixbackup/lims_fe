@@ -1,61 +1,81 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pencil, Trash2, X } from "lucide-react";
+import { useSelector } from "react-redux";
 import { odishaDistricts } from "../utils/constants";
+import { API_BASE_URL } from "../utils/config"; 
 
 const Villages = () => {
-  const projects = [{ id: 1, name: "GMDC - Baitarani-West Coal Block" }];
-
-  const [villages, setVillages] = useState([
-    {
-      id: 1,
-      project: "GMDC - Baitarani-West Coal Block",
-      name: "Chhendipada Jangal",
-      district: "Angul",
-      tahasil: "Tahasil X",
-      created: "2025-01-10",
-    },
-    {
-      id: 2,
-      project: "GMDC - Baitarani-West Coal Block",
-      name: "Handigora",
-      district: "Balangir",
-      tahasil: "Tahasil Y",
-      created: "2025-01-11",
-    },
-  ]);
+  const token = useSelector((state) => state.auth?.userToken); 
+  const [villages, setVillages] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVillage, setEditingVillage] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const [formData, setFormData] = useState({
-    project: "",
-    name: "",
+    project_id: "",
+    village_name: "",
     district: "",
     tahasil: "",
-    created: new Date().toISOString().split("T")[0],
   });
 
-  // Filter state
   const [filter, setFilter] = useState({
-    project: "",
+    project_id: "",
     district: "",
     tahasil: "",
   });
 
-  // Open modal for add/edit
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/project/projectList`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+
+      .then((data) => {
+        if (data.success) {
+          setProjects(data.projects || []);
+        }
+        console.log("Projects data:", data);
+      })
+      .catch((err) => console.error("Error fetching projects:", err));
+  }, [token]);
+
+  const fetchVillages = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/village/villageList`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) setVillages(data.villages || []);
+    } catch (err) {
+      console.error("Error fetching villages:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchVillages();
+  }, [token]);
   const openModal = (village = null) => {
     if (village) {
       setEditingVillage(village);
-      setFormData(village);
+      setFormData({
+        project_id: village.project_id,
+        village_name: village.village_name,
+        district: village.district,
+        tahasil: village.tahasil,
+      });
     } else {
       setEditingVillage(null);
       setFormData({
-        project: "",
-        name: "",
+        project_id: "",
+        village_name: "",
         district: "",
         tahasil: "",
-        created: new Date().toISOString().split("T")[0],
       });
     }
     setIsModalOpen(true);
@@ -65,33 +85,68 @@ const Villages = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFilterChange = (e) => {
-    setFilter({ ...filter, [e.target.name]: e.target.value });
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editingVillage) {
-      setVillages(
-        villages.map((v) =>
-          v.id === editingVillage.id ? { ...formData, id: v.id } : v
-        )
-      );
+  const isEditing = !!editingVillage;
+  const url = isEditing
+    ? `${API_BASE_URL}/village/updateVillage/${editingVillage.id}`
+    : `${API_BASE_URL}/village/addVillage`;
+  const method = isEditing ? "PUT" : "POST";
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+    console.log("Village response:", data);
+
+    if (data.success) {
+      alert(isEditing ? "Village updated successfully!" : "Village added successfully!");
+      setIsModalOpen(false);
+      fetchVillages();
     } else {
-      setVillages([...villages, { ...formData, id: villages.length + 1 }]);
+      alert(data.message || `Failed to ${isEditing ? "update" : "add"} village`);
     }
-    setIsModalOpen(false);
+  } catch (err) {
+    console.error(`Error ${isEditing ? "updating" : "adding"} village:`, err);
+    alert("Something went wrong!");
+  }
+};
+
+  const confirmDelete = async () => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/village/deleteVillage/${deleteConfirm.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        alert("Village deleted successfully!");
+        fetchVillages();
+      }
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error("Error deleting village:", err);
+    }
   };
 
-  const confirmDelete = () => {
-    setVillages(villages.filter((v) => v.id !== deleteConfirm.id));
-    setDeleteConfirm(null);
-  };
-
-  // Filtered villages
+  // ✅ Filtered list
   const filteredVillages = villages.filter((v) => {
     return (
-      (filter.project === "" || v.project === filter.project) &&
+      (filter.project_id === "" ||
+        v.project_id === Number(filter.project_id)) &&
       (filter.district === "" || v.district === filter.district) &&
       (filter.tahasil === "" ||
         v.tahasil.toLowerCase().includes(filter.tahasil.toLowerCase()))
@@ -103,34 +158,36 @@ const Villages = () => {
       <main className="flex-1 p-6 overflow-y-auto space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Villages List</h2>
-
           <button className="btn btn-primary" onClick={() => openModal()}>
             + Add Village
           </button>
         </div>
 
+        {/* Filters */}
         <div className="card bg-white shadow-lg rounded-2xl p-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Project Filter */}
             <select
-              name="project"
-              value={filter.project}
-              onChange={handleFilterChange}
+              name="project_id"
+              value={filter.project_id}
+              onChange={(e) =>
+                setFilter({ ...filter, project_id: e.target.value })
+              }
               className="select select-bordered w-full"
             >
               <option value="">All Projects</option>
               {projects.map((p) => (
-                <option key={p.id} value={p.name}>
-                  {p.name}
+                <option key={p.id} value={p.id}>
+                  {p.project_name}
                 </option>
               ))}
             </select>
 
-            {/* District Filter */}
             <select
               name="district"
               value={filter.district}
-              onChange={handleFilterChange}
+              onChange={(e) =>
+                setFilter({ ...filter, district: e.target.value })
+              }
               className="select select-bordered w-full"
             >
               <option value="">All Districts</option>
@@ -141,62 +198,59 @@ const Villages = () => {
               ))}
             </select>
 
-            {/* Tahasil Filter */}
-            <select
+            <input
+              type="text"
               name="tahasil"
               value={filter.tahasil}
-              onChange={handleFilterChange}
-              className="select select-bordered w-full"
-            >
-              <option value="">All Tahasils</option>
-              {[...new Set(villages.map((v) => v.tahasil))].map(
-                (tahasil, i) => (
-                  <option key={i} value={tahasil}>
-                    {tahasil}
-                  </option>
-                )
-              )}
-            </select>
+              onChange={(e) =>
+                setFilter({ ...filter, tahasil: e.target.value })
+              }
+              placeholder="Search Tahasil"
+              className="input input-bordered w-full"
+            />
           </div>
         </div>
 
+        {/* Table */}
         <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
                 <tr>
-                  <th className="w-12">#</th>
+                  <th>#</th>
                   <th>Project</th>
                   <th>Village Name</th>
                   <th>District</th>
                   <th>Tahasil</th>
-                  <th>Created</th>
                   <th className="text-right pr-6">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredVillages.length > 0 ? (
-                  filteredVillages.map((village, idx) => (
+                  filteredVillages.map((v, idx) => (
                     <tr
-                      key={village.id}
+                      key={v.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="font-medium">{idx + 1}</td>
-                      <td>{village.project}</td>
-                      <td>{village.name}</td>
-                      <td>{village.district}</td>
-                      <td>{village.tahasil}</td>
-                      <td className="text-gray-500">{village.created}</td>
+                      <td>{idx + 1}</td>
+                      <td>
+                        {projects.find((p) => p.id === v.project_id)
+                          ?.project_name || "N/A"}
+                      </td>
+
+                      <td>{v.village_name}</td>
+                      <td>{v.district}</td>
+                      <td>{v.tahasil}</td>
                       <td className="text-right space-x-2">
                         <button
                           className="btn btn-xs btn-warning text-white"
-                          onClick={() => openModal(village)}
+                          onClick={() => openModal(v)}
                         >
                           <Pencil size={14} /> Edit
                         </button>
                         <button
                           className="btn btn-xs btn-error text-white"
-                          onClick={() => setDeleteConfirm(village)}
+                          onClick={() => setDeleteConfirm(v)}
                         >
                           <Trash2 size={14} /> Delete
                         </button>
@@ -205,7 +259,7 @@ const Villages = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="text-center py-6 text-gray-500">
+                    <td colSpan="6" className="text-center py-6 text-gray-500">
                       No villages found.
                     </td>
                   </tr>
@@ -216,35 +270,38 @@ const Villages = () => {
         </div>
       </main>
 
+      {/* Add/Edit Modal */}
       {isModalOpen && (
-        <dialog data-theme="light" open className="modal modal-open">
-          <div className="modal-box">
-              <button
+        <dialog open className="modal modal-open">
+          <div className="modal-box relative">
+            <button
               type="button"
               className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
               onClick={() => setIsModalOpen(false)}
             >
               <X size={20} />
             </button>
+
             <h3 className="font-bold text-lg mb-4">
               {editingVillage ? "Edit Village" : "Add Village"}
             </h3>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Project
                 </label>
                 <select
-                  name="project"
-                  value={formData.project}
+                  name="project_id"
+                  value={formData.project_id}
                   onChange={handleChange}
                   className="select select-bordered w-full"
                   required
                 >
                   <option value="">Select Project</option>
                   {projects.map((p) => (
-                    <option key={p.id} value={p.name}>
-                      {p.name}
+                    <option key={p.id} value={p.id}>
+                      {p.project_name}
                     </option>
                   ))}
                 </select>
@@ -290,8 +347,8 @@ const Villages = () => {
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="village_name"
+                  value={formData.village_name}
                   onChange={handleChange}
                   className="input input-bordered w-full"
                   required
@@ -315,14 +372,17 @@ const Villages = () => {
         </dialog>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
             <p>
               Are you sure you want to delete{" "}
-              <span className="font-semibold">{deleteConfirm.name}</span>?
+              <span className="font-semibold">
+                {deleteConfirm.village_name}
+              </span>
+              ?
             </p>
             <div className="modal-action">
               <button className="btn btn-error" onClick={confirmDelete}>

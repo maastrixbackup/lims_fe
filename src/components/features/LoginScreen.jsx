@@ -105,8 +105,6 @@ export default function LandingPage() {
                   onChange={handleChangeInput}
                 />
               </div>
-
-              {/* Password */}
               <div className="form-control">
                 <label className="label pb-1">
                   <span className="label-text">Password</span>
@@ -130,8 +128,6 @@ export default function LandingPage() {
                   </button>
                 </div>
               </div>
-
-              {/* Error message */}
               {error && (
                 <p className="text-error text-sm text-center">{error}</p>
               )}
@@ -143,8 +139,6 @@ export default function LandingPage() {
                   <input type="checkbox" className="checkbox checkbox-sm" />
                   <span>Remember me</span>
                 </label>
-
-                {/* 👇 Navigation on click */}
                 <span
                   onClick={() => navigate("/forgot-password")}
                   className="link link-primary cursor-pointer"
@@ -152,8 +146,6 @@ export default function LandingPage() {
                   Forgot password?
                 </span>
               </div>
-
-              {/* Submit button */}
               <div className="form-control mt-4">
                 <button
                   type="submit"

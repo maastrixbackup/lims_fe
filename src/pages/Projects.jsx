@@ -8,7 +8,7 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
-  const userRole = user?.role_name || ""; // 👈 Extract user role
+  const userRole = user?.role_name || "";
 
   console.log("Auth token in Projects:", token, "Role:", userRole);
 
@@ -98,7 +98,6 @@ const Projects = () => {
     if (token) fetchProjects();
   }, [token]);
 
-  // --- Add or Update Project ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

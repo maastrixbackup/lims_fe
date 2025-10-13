@@ -35,13 +35,13 @@ export default function Sidebar({ open, setOpen }) {
       name: "Lands",
       icon: <Map size={20} />,
       submenu: ["Projects", "Villages", "Khatas", "Plots"],
-      roles: ["Super Admin", "Admin"],
+      roles: ["Super Admin", "Admin", "Client"],
     },
     {
       name: "User Management",
       icon: <User2Icon size={20} />,
       path: "usersmanagement",
-      roles: ["Super Admin", "Client"],
+      roles: ["Super Admin", ],
     },
     {
       name: "Import/Export",
@@ -53,7 +53,7 @@ export default function Sidebar({ open, setOpen }) {
       name: "Reports",
       icon: <ChartBarBig size={20} />,
       path: "reports",
-      roles: ["Super Admin"],
+      roles: ["Super Admin", "Admin", "Client"],
     },
   ];
   const filteredMenu = menuItems.filter((item) =>

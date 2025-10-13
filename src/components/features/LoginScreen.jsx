@@ -51,7 +51,7 @@ export default function LandingPage() {
           navigate("/dashboard");
           break;
         case "Client":
-          navigate("/usersmanagement");
+          navigate("/dashboard");
           break;
         default:
           navigate("/unauthorized");

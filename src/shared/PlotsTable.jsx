@@ -1,7 +1,10 @@
 // src/components/Plots/PlotTable.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const PlotTable = ({ plots, onEdit, onDelete }) => {
+const PlotTable = ({ plots, onEdit,setDeleteConfirm }) => {
+const navigate = useNavigate();
+
   return (
     <div className="card bg-white shadow-lg rounded-2xl">
       <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
@@ -241,16 +244,18 @@ const PlotTable = ({ plots, onEdit, onDelete }) => {
 
                   <td className="text-right">
                     <div className="flex justify-end gap-2">
-                      <button
-                        className="btn btn-xs btn-warning text-white"
-                        onClick={() => openModal(plot)}
-                      >
+                     <button
+                          className="btn btn-xs btn-warning text-white"
+                          onClick={() =>
+                            navigate("/plot-form", { state: { plot } }) // 👈 navigate with state for editing
+                          }
+                        >
                         Edit
                       </button>
-                      <button
-                        className="btn btn-xs btn-error text-white"
-                        onClick={() => setDeleteConfirm(plot)}
-                      >
+                    <button
+                          className="btn btn-xs btn-error text-white"
+                          onClick={() => setDeleteConfirm(plot)}
+                        >
                         Delete
                       </button>
                     </div>

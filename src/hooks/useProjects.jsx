@@ -1,64 +1,61 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL } from "../utils/config";
+import moment from "moment";
 
-export const useProjects = (token) => {
+const statusMap = { Pending: 0, Active: 1, Closed: 2 };
+const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
+
+export default function useProjects(token) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sortOrder, setSortOrder] = useState("");
 
-  // --- Fetch all projects ---
-  const fetchProjects = async () => {
-  if (!token) return;
-  setLoading(true);
-  try {
-    const res = await fetch("http://localhost:3000/api/project/projectList", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const fetchProjects = useCallback(async () => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/project/projectList`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
 
-    if (!res.ok) throw new Error("Failed to fetch projects");
+      const formatted = (data?.projects || data)?.map((p) => ({
+        id: p.id || p.project_id,
+        name: p.project_name || p.name,
+        status: reverseStatusMap[p.status] || "Active",
+        created: p.created_at
+          ? moment(p.created_at).format("YYYY-MM-DD")
+          : moment().format("YYYY-MM-DD"),
+      }));
 
-    const json = await res.json();
-    console.log("Fetched projects raw response:", json);
+      setProjects(formatted);
+    } catch (e) {
+      console.error("Error fetching projects:", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-    const projectArray = Array.isArray(json)
-      ? json
-      : Array.isArray(json.data)
-      ? json.data
-      : [];
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
-    const formatted = projectArray.map((p) => ({
-      id: p.id,
-      name: p.project_name,
-      status: p.project_status,
-      created: new Date(p.created_at).toISOString().split("T")[0],
-    }));
-
-    setProjects(formatted);
-  } catch (error) {
-    console.error("Error fetching projects:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // --- Create new project ---
-  const createProject = async (formData) => {
+  const handleSaveProject = async (formData, editingProject) => {
+    const isEdit = !!editingProject;
     setLoading(true);
+
     try {
       const payload = {
         project_name: formData.name,
-        status:
-          formData.status === "Pending"
-            ? 0
-            : formData.status === "Active"
-            ? 1
-            : 2,
+        status: statusMap[formData.status],
       };
 
-      const res = await fetch("http://localhost:3000/api/project/createProject", {
-        method: "POST",
+      const url = isEdit
+        ? `${API_BASE_URL}/project/updateProject/${editingProject.id}`
+        : `${API_BASE_URL}/project/createProject`;
+
+      const method = isEdit ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -66,56 +63,57 @@ export const useProjects = (token) => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to create project");
       const data = await res.json();
 
-      const newProject = {
-        id: data.id || Date.now(),
-        name: data.project_name,
-        status: data.project_status || formData.status,
-        created: new Date(data.created_at || new Date())
-          .toISOString()
-          .split("T")[0],
-      };
-
-      setProjects((prev) => [...prev, newProject]);
-    } catch (error) {
-      console.error("Error creating project:", error);
+      if (isEdit) {
+        setProjects((prev) =>
+          prev.map((p) =>
+            p.id === editingProject.id
+              ? { ...p, name: formData.name, status: formData.status }
+              : p
+          )
+        );
+      } else {
+        setProjects((prev) => [
+          ...prev,
+          {
+            id: data?.id || Date.now(),
+            name: formData.name,
+            status: formData.status,
+            created: moment().format("YYYY-MM-DD"),
+          },
+        ]);
+      }
+    } catch (err) {
+      console.error("Error saving project:", err);
+      alert("Failed to save project.");
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteProject = (id) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+  const handleDeleteProject = async (project) => {
+    if (!project) return;
+    try {
+      setLoading(true);
+      await fetch(`${API_BASE_URL}/project/deleteProject/${project.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProjects((prev) => prev.filter((p) => p.id !== project.id));
+    } catch (err) {
+      console.error("Error deleting project:", err);
+      alert("Failed to delete project.");
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const updateProject = (updated) => {
-    setProjects((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
-    );
-  };
-
-  // --- Sort Projects ---
-  const sortedProjects = [...projects].sort((a, b) => {
-    if (!sortOrder) return 0;
-    return sortOrder === "asc"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
-  });
-
-  useEffect(() => {
-    fetchProjects();
-  }, [token]);
 
   return {
-    projects: sortedProjects,
+    projects,
     loading,
-    sortOrder,
-    setSortOrder,
-    createProject,
-    deleteProject,
-    updateProject,
     fetchProjects,
+    handleSaveProject,
+    handleDeleteProject,
   };
-};
+}

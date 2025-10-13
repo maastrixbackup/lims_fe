@@ -20,6 +20,7 @@ import ChangePassword from "./components/features/ChangePassword";
 import ForgotPassword from "./components/features/ForgotPassword";
 import ResetPassword from "./components/features/ResetPassword";
 import Reports from "./pages/Reports";
+import PlotForm from "./pages/PlotForm";
 
 export default function App() {
   return (
@@ -30,7 +31,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-         
+
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           <Route
@@ -47,10 +48,9 @@ export default function App() {
               <Route path="/usersmanagement" element={<UserManagement />} />
               <Route path="/import" element={<UploadPlots />} />
               <Route path="/profile" element={<Profile />} />
-               <Route path="/changepassword" element={<ChangePassword />} />
-               <Route path="/reports" element={<Reports />} />
-
-               
+              <Route path="/changepassword" element={<ChangePassword />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/plot-form" element={<PlotForm />} />
 
               <Route
                 path="/reset-password/:token"

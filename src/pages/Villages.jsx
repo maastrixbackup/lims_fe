@@ -1,312 +1,261 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pencil, Trash2, X } from "lucide-react";
+import { useSelector } from "react-redux";
 import { odishaDistricts } from "../utils/constants";
+import { API_BASE_URL } from "../utils/config";
+import moment from "moment";
 
 const Villages = () => {
-  const projects = [{ id: 1, name: "GMDC - Baitarani-West Coal Block" }];
+  const { user, userToken: token } = useSelector((s) => s.auth);
+  const isRestricted = ["Admin", "Client"].includes(user?.role_name);
 
-  const [villages, setVillages] = useState([
-    {
-      id: 1,
-      project: "GMDC - Baitarani-West Coal Block",
-      name: "Chhendipada Jangal",
-      district: "Angul",
-      tahasil: "Tahasil X",
-      created: "2025-01-10",
-    },
-    {
-      id: 2,
-      project: "GMDC - Baitarani-West Coal Block",
-      name: "Handigora",
-      district: "Balangir",
-      tahasil: "Tahasil Y",
-      created: "2025-01-11",
-    },
-  ]);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [villages, setVillages] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [formData, setFormData] = useState({
+    project_id: "",
+    village_name: "",
+    district: "",
+    tahasil: "",
+  });
+  const [filter, setFilter] = useState({
+    project_id: "",
+    district: "",
+    tahasil: "",
+  });
   const [editingVillage, setEditingVillage] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
-    project: "",
-    name: "",
-    district: "",
-    tahasil: "",
-    created: new Date().toISOString().split("T")[0],
-  });
+  const api = async (url, method = "GET", body) => {
+    const res = await fetch(`${API_BASE_URL}${url}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      ...(body && { body: JSON.stringify(body) }),
+    });
+    return res.json();
+  };
 
-  // Filter state
-  const [filter, setFilter] = useState({
-    project: "",
-    district: "",
-    tahasil: "",
-  });
+  const fetchProjects = async () => {
+    const data = await api("/project/projectList");
+    if (data.success) setProjects(data.projects || []);
+  };
 
-  // Open modal for add/edit
-  const openModal = (village = null) => {
-    if (village) {
-      setEditingVillage(village);
-      setFormData(village);
-    } else {
-      setEditingVillage(null);
-      setFormData({
-        project: "",
-        name: "",
-        district: "",
-        tahasil: "",
-        created: new Date().toISOString().split("T")[0],
-      });
-    }
+  const fetchVillages = async () => {
+    const data = await api("/village/villageList");
+    if (data.success) setVillages(data.villages || []);
+  };
+
+  useEffect(() => {
+    fetchProjects();
+    fetchVillages();
+  }, [token]);
+
+  const openModal = (v = null) => {
+    setEditingVillage(v);
+    setFormData(
+      v
+        ? { project_id: v.project_id, village_name: v.village_name, district: v.district, tahasil: v.tahasil }
+        : { project_id: "", village_name: "", district: "", tahasil: "" }
+    );
     setIsModalOpen(true);
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleFilterChange = (e) => {
-    setFilter({ ...filter, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingVillage) {
-      setVillages(
-        villages.map((v) =>
-          v.id === editingVillage.id ? { ...formData, id: v.id } : v
-        )
-      );
-    } else {
-      setVillages([...villages, { ...formData, id: villages.length + 1 }]);
+    const url = editingVillage
+      ? `/village/updateVillage/${editingVillage.id}`
+      : `/village/addVillage`;
+    const method = editingVillage ? "PUT" : "POST";
+    const data = await api(url, method, formData);
+    alert(data.message || (editingVillage ? "Village updated" : "Village added"));
+    if (data.success) {
+      setIsModalOpen(false);
+      fetchVillages();
     }
-    setIsModalOpen(false);
   };
 
-  const confirmDelete = () => {
-    setVillages(villages.filter((v) => v.id !== deleteConfirm.id));
+  const confirmDelete = async () => {
+    const data = await api(`/village/deleteVillage/${deleteConfirm.id}`, "DELETE");
+    if (data.success) {
+      alert("Village deleted successfully!");
+      fetchVillages();
+    }
     setDeleteConfirm(null);
   };
 
-  // Filtered villages
-  const filteredVillages = villages.filter((v) => {
-    return (
-      (filter.project === "" || v.project === filter.project) &&
-      (filter.district === "" || v.district === filter.district) &&
-      (filter.tahasil === "" ||
-        v.tahasil.toLowerCase().includes(filter.tahasil.toLowerCase()))
-    );
-  });
+  const filteredVillages = villages.filter(
+    (v) =>
+      (!filter.project_id || v.project_id === Number(filter.project_id)) &&
+      (!filter.district || v.district === filter.district) &&
+      (!filter.tahasil || v.tahasil.toLowerCase().includes(filter.tahasil.toLowerCase()))
+  );
 
   return (
-    <div>
-      <main className="flex-1 p-6 overflow-y-auto space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Villages List</h2>
+    <div className="p-6 space-y-6">
+      <header className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Villages List</h2>
+        <button className="btn btn-primary" disabled={isRestricted} onClick={() => openModal()}>
+          + Add Village
+        </button>
+      </header>
 
-          <button className="btn btn-primary" onClick={() => openModal()}>
-            + Add Village
-          </button>
-        </div>
+      {/* Filters */}
+      <div className="card bg-white shadow-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <select
+          name="project_id"
+          value={filter.project_id}
+          onChange={(e) => setFilter({ ...filter, project_id: e.target.value })}
+          className="select select-bordered"
+        >
+          <option value="">All Projects</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.project_name}
+            </option>
+          ))}
+        </select>
 
-        <div className="card bg-white shadow-lg rounded-2xl p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Project Filter */}
-            <select
-              name="project"
-              value={filter.project}
-              onChange={handleFilterChange}
-              className="select select-bordered w-full"
-            >
-              <option value="">All Projects</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.name}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+        <select
+          name="district"
+          value={filter.district}
+          onChange={(e) => setFilter({ ...filter, district: e.target.value })}
+          className="select select-bordered"
+        >
+          <option value="">All Districts</option>
+          {odishaDistricts.map((d) => (
+            <option key={d}>{d}</option>
+          ))}
+        </select>
 
-            {/* District Filter */}
-            <select
-              name="district"
-              value={filter.district}
-              onChange={handleFilterChange}
-              className="select select-bordered w-full"
-            >
-              <option value="">All Districts</option>
-              {odishaDistricts.map((d, i) => (
-                <option key={i} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+        <input
+          type="text"
+          name="tahasil"
+          value={filter.tahasil}
+          onChange={(e) => setFilter({ ...filter, tahasil: e.target.value })}
+          placeholder="Search Tahasil"
+          className="input input-bordered"
+        />
+      </div>
 
-            {/* Tahasil Filter */}
-            <select
-              name="tahasil"
-              value={filter.tahasil}
-              onChange={handleFilterChange}
-              className="select select-bordered w-full"
-            >
-              <option value="">All Tahasils</option>
-              {[...new Set(villages.map((v) => v.tahasil))].map(
-                (tahasil, i) => (
-                  <option key={i} value={tahasil}>
-                    {tahasil}
-                  </option>
-                )
-              )}
-            </select>
-          </div>
-        </div>
-
-        <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="table w-full">
-              <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
-                <tr>
-                  <th className="w-12">#</th>
-                  <th>Project</th>
-                  <th>Village Name</th>
-                  <th>District</th>
-                  <th>Tahasil</th>
-                  <th>Created</th>
-                  <th className="text-right pr-6">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredVillages.length > 0 ? (
-                  filteredVillages.map((village, idx) => (
-                    <tr
-                      key={village.id}
-                      className="hover:bg-gray-50 transition-colors"
+      {/* Table */}
+      <div className="card bg-white shadow-lg overflow-hidden">
+        <table className="table w-full">
+          <thead className="bg-gray-100 text-gray-700">
+            <tr>
+              <th>#</th>
+              <th>Project</th>
+              <th>Village</th>
+              <th>District</th>
+              <th>Tahasil</th>
+              <th>Date</th>
+              <th className="text-right pr-6">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredVillages.length ? (
+              filteredVillages.map((v, i) => (
+                <tr key={v.id} className="hover:bg-gray-50 transition-colors whitespace-nowrap">
+                  <td>{i + 1}</td>
+                  <td>{projects.find((p) => p.id === v.project_id)?.project_name || "N/A"}</td>
+                  <td>{v.village_name}</td>
+                  <td>{v.district}</td>
+                  <td>{v.tahasil}</td>
+                  <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
+                  <td className="text-right space-x-2">
+                    <button
+                      className="btn btn-xs btn-warning text-white"
+                      onClick={() => openModal(v)}
+                      disabled={isRestricted}
                     >
-                      <td className="font-medium">{idx + 1}</td>
-                      <td>{village.project}</td>
-                      <td>{village.name}</td>
-                      <td>{village.district}</td>
-                      <td>{village.tahasil}</td>
-                      <td className="text-gray-500">{village.created}</td>
-                      <td className="text-right space-x-2">
-                        <button
-                          className="btn btn-xs btn-warning text-white"
-                          onClick={() => openModal(village)}
-                        >
-                          <Pencil size={14} /> Edit
-                        </button>
-                        <button
-                          className="btn btn-xs btn-error text-white"
-                          onClick={() => setDeleteConfirm(village)}
-                        >
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center py-6 text-gray-500">
-                      No villages found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
+                      <Pencil size={14} /> Edit
+                    </button>
+                    <button
+                      className="btn btn-xs btn-error text-white"
+                      onClick={() => setDeleteConfirm(v)}
+                      disabled={isRestricted}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-6 text-gray-500">
+                  No villages found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
+      {/* Add/Edit Modal */}
       {isModalOpen && (
-        <dialog data-theme="light" open className="modal modal-open">
-          <div className="modal-box">
-              <button
-              type="button"
-              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-              onClick={() => setIsModalOpen(false)}
-            >
+        <dialog open className="modal modal-open">
+          <div className="modal-box relative">
+            <button className="absolute right-3 top-3" onClick={() => setIsModalOpen(false)}>
               <X size={20} />
             </button>
             <h3 className="font-bold text-lg mb-4">
               {editingVillage ? "Edit Village" : "Add Village"}
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Project
-                </label>
-                <select
-                  name="project"
-                  value={formData.project}
-                  onChange={handleChange}
-                  className="select select-bordered w-full"
-                  required
-                >
-                  <option value="">Select Project</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.name}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  District
-                </label>
-                <select
-                  name="district"
-                  value={formData.district}
-                  onChange={handleChange}
-                  className="select select-bordered w-full"
-                  required
-                >
-                  <option value="">Select District</option>
-                  {odishaDistricts.map((d, i) => (
-                    <option key={i} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Tahasil
-                </label>
-                <input
-                  type="text"
-                  name="tahasil"
-                  value={formData.tahasil}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Village Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {["project_id", "district", "tahasil", "village_name"].map((f) => (
+                <div key={f}>
+                  <label className="block text-sm font-medium mb-1 capitalize">
+                    {f.replace("_", " ")}
+                  </label>
+                  {f === "district" ? (
+                    <select
+                      name="district"
+                      value={formData.district}
+                      onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                      className="select select-bordered w-full"
+                      required
+                    >
+                      <option value="">Select District</option>
+                      {odishaDistricts.map((d) => (
+                        <option key={d}>{d}</option>
+                      ))}
+                    </select>
+                  ) : f === "project_id" ? (
+                    <select
+                      name="project_id"
+                      value={formData.project_id}
+                      onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
+                      className="select select-bordered w-full"
+                      required
+                    >
+                      <option value="">Select Project</option>
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.project_name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      name={f}
+                      value={formData[f]}
+                      onChange={(e) => setFormData({ ...formData, [f]: e.target.value })}
+                      className="input input-bordered w-full"
+                      required
+                    />
+                  )}
+                </div>
+              ))}
 
               <div className="modal-action">
-                <button type="submit" className="btn btn-primary">
+                <button className="btn btn-primary" type="submit">
                   Save
                 </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
+                <button className="btn" onClick={() => setIsModalOpen(false)} type="button">
                   Cancel
                 </button>
               </div>
@@ -315,14 +264,14 @@ const Villages = () => {
         </dialog>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
             <p>
               Are you sure you want to delete{" "}
-              <span className="font-semibold">{deleteConfirm.name}</span>?
+              <b>{deleteConfirm.village_name}</b>?
             </p>
             <div className="modal-action">
               <button className="btn btn-error" onClick={confirmDelete}>

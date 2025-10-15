@@ -33,6 +33,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
+      console.log("Login response data:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -40,7 +41,7 @@ export default function LandingPage() {
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      dispatch(login({ user: data.user, token: data.token }));
+      dispatch(login({ user: data.user, token: data.token, accessed_projects: data.accessed_projects || [], }));
 
       const roleName = data.user?.role_name?.trim();
       console.log("👤 Detected role:", roleName);

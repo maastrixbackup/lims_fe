@@ -9,7 +9,11 @@ const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
 export default function useProjects(token) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
-  const project_access= useSelector((state) => state.auth.project_access); 
+
+  // Get user info from Redux
+  const user = useSelector((state) => state.auth.user);
+  const accessedProjects = useSelector((state) => state.auth.accessed_projects || []);
+  // cosnole.log("Accessed projects from Redux:", accessedProjects);
 
   const fetchProjects = useCallback(async () => {
     if (!token) return;
@@ -19,24 +23,37 @@ export default function useProjects(token) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      console.log("Projects fetch response:", data);
 
-      const formatted = (data?.projects || data)?.map((p) => ({
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to fetch projects");
+      }
+
+      // Normalize project data
+      const allProjects = (data?.projects || data)?.map((p) => ({
         id: p.id || p.project_id,
         name: p.project_name || p.name,
         status: reverseStatusMap[p.status] || "Active",
-        project_access: project_access || [],
         created: p.created_at
           ? moment(p.created_at).format("YYYY-MM-DD")
           : moment().format("YYYY-MM-DD"),
       }));
 
-      setProjects(formatted);
+      // Filter based on role
+      let visibleProjects = allProjects;
+      if (user?.role_name !== "Super Admin") {
+        // Admin / Client sees only accessed projects
+        const accessIds = accessedProjects.map((p) => p.project_id || p.id);
+        visibleProjects = allProjects.filter((p) => accessIds.includes(p.id));
+      }
+
+      setProjects(visibleProjects);
     } catch (e) {
       console.error("Error fetching projects:", e);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, user?.role_name, accessedProjects]);
 
   useEffect(() => {
     fetchProjects();
@@ -67,6 +84,10 @@ export default function useProjects(token) {
       });
 
       const data = await res.json();
+      console.log("Project save response:", data);
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to save project");
+      }
 
       if (isEdit) {
         setProjects((prev) =>

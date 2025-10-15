@@ -63,7 +63,7 @@ const Projects = () => {
             }}
             disabled={userRole === "Admin" || userRole === "Client"}
           >
-            + Add User
+            + Add Project
           </button>
         </div>
       </div>

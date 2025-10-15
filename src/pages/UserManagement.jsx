@@ -5,9 +5,8 @@ import useUserManagement from "../hooks/useUserManagement";
 
 const UserManagement = () => {
   const { userToken: token, user } = useSelector((s) => s.auth);
-  const userRole = user?.role_name?.toLowerCase();
-  const userId = user?.id;
-
+  const userRole = user.role_name
+  const userId = user?.role_id;
   const {
     users,
     roles,
@@ -26,16 +25,16 @@ const UserManagement = () => {
 
   const [filters, setFilters] = useState({ query: "", role: "all" });
 
-  const filteredUsers = useMemo(
-    () =>
-      (users || []).filter((u) => {
-        if (userRole === "super admin" && u.id === userId) return false;
-        const matchName = u.name?.toLowerCase().includes(filters.query.toLowerCase());
-        const matchRole = filters.role === "all" || u.role_id === +filters.role;
-        return matchName && matchRole;
-      }),
-    [users, filters, userRole, userId]
-  );
+const filteredUsers = useMemo(() => {
+  return (users || []).filter((u) => {
+    if (u.role_name === "Super Admin" && u.role_id === 1) {
+      return false;
+    }
+    const matchName = u.name?.toLowerCase().includes(filters.query.toLowerCase());
+    const matchRole = filters.role === "all" || u.role_id === +filters.role;
+    return matchName && matchRole;
+  });
+}, [users, filters]);
 
   const isRestricted = ["admin", "client"].includes(userRole);
 
@@ -122,93 +121,139 @@ const UserManagement = () => {
         </div>
       </main>
 
-      {/* Add/Edit Modal */}
-      {isModalOpen && (
-        <Modal title={editingUser ? "Edit User" : "Add User"} onClose={closeModal}>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {["name", "email"].map((f) => (
-              <Input
-                key={f}
-                label={f}
-                type={f === "email" ? "email" : "text"}
-                value={formData[f]}
-                onChange={(v) => setFormData((p) => ({ ...p, [f]: v }))}
-              />
-            ))}
+   {/* Add/Edit Modal */}
+{isModalOpen && (
+  <Modal title={editingUser ? "Edit User" : "Add User"} onClose={closeModal}>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* ✅ Basic Info */}
+      <Input
+        label="Full Name"
+        type="text"
+        value={formData.name}
+        onChange={(v) => setFormData((p) => ({ ...p, name: v }))}
+      />
 
-            {!editingUser &&
-              ["password", "confirmPassword"].map((f) => (
-                <Input
-                  key={f}
-                  label={f.replace("Password", " Password")}
-                  type="password"
-                  value={formData[f]}
-                  onChange={(v) => setFormData((p) => ({ ...p, [f]: v }))}
-                />
-              ))}
+      <Input
+        label="Email"
+        type="email"
+        value={formData.email}
+        onChange={(v) => setFormData((p) => ({ ...p, email: v }))}
+      />
+       <Input
+        label="Phone Number"
+        type="number"
+        value={formData.phone_number}
+        onChange={(v) => setFormData((p) => ({ ...p, phone_number: v }))}
+      />
 
-            <Select
-              label="Role"
-              value={formData.role_id}
-              options={roles.map((r) => ({ value: r.id, label: r.name }))}
-              onChange={(v) => setFormData((p) => ({ ...p, role_id: v }))}
-            />
-
-            <Select
-              label="Projects Assigned"
-              value=""
-              options={projects
-                .filter((p) => !formData.accessed_projects.includes(p.id))
-                .map((p) => ({ value: p.id, label: p.project_name }))}
-              onChange={(v) =>
-                setFormData((p) => ({
-                  ...p,
-                  accessed_projects: [...p.accessed_projects, +v],
-                }))
-              }
-            />
-
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.accessed_projects.length ? (
-                formData.accessed_projects.map((id) => {
-                  const name = projects.find((p) => p.id === id)?.project_name || "Unknown";
-                  return (
-                    <span
-                      key={id}
-                      className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm"
-                    >
-                      {name}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData((p) => ({
-                            ...p,
-                            accessed_projects: p.accessed_projects.filter((pid) => pid !== id),
-                          }))
-                        }
-                        className="ml-1 text-blue-500 hover:text-blue-700"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  );
-                })
-              ) : (
-                <span className="text-gray-400 text-sm">No projects selected</span>
-              )}
-            </div>
-
-            <div className="modal-action flex gap-3">
-              <button type="submit" className="btn btn-primary">
-                Save
-              </button>
-              <button type="button" className="btn" onClick={closeModal}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
+      {/* ✅ Passwords (only for new user) */}
+      {!editingUser && (
+        <>
+          <Input
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChange={(v) => setFormData((p) => ({ ...p, password: v }))}
+          />
+          <Input
+            label="Confirm Password"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={(v) => setFormData((p) => ({ ...p, confirmPassword: v }))}
+          />
+        </>
       )}
+
+      {/* ✅ Role */}
+      <Select
+        label="Role"
+        value={formData.role_id}
+        options={roles.map((r) => ({ value: r.id, label: r.name }))}
+        onChange={(v) => setFormData((p) => ({ ...p, role_id: v }))}
+      />
+
+      {/* ✅ Project Access */}
+      <Select
+        label="Assign Project"
+        value=""
+        options={projects
+          .filter((p) => !formData.accessed_projects.includes(p.id))
+          .map((p) => ({ value: p.id, label: p.project_name }))}
+        onChange={(v) =>
+          setFormData((p) => ({
+            ...p,
+            accessed_projects: [...p.accessed_projects, +v],
+          }))
+        }
+      />
+
+      {/* ✅ Show selected projects */}
+      <div className="flex flex-wrap gap-2 mt-2">
+        {formData.accessed_projects.length ? (
+          formData.accessed_projects.map((id) => {
+            const projectName =
+              projects.find((p) => p.id === id)?.project_name || "Unknown";
+            return (
+              <span
+                key={id}
+                className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm"
+              >
+                {projectName}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((p) => ({
+                      ...p,
+                      accessed_projects: p.accessed_projects.filter(
+                        (pid) => pid !== id
+                      ),
+                    }))
+                  }
+                  className="ml-1 text-blue-500 hover:text-blue-700"
+                >
+                  ×
+                </button>
+              </span>
+            );
+          })
+        ) : (
+          <span className="text-gray-400 text-sm">No projects selected</span>
+        )}
+      </div>
+
+      {/* ✅ Profile Picture Upload */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Profile Picture</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFormData((p) => ({ ...p, profile_pic: e.target.files[0] }))}
+          className="file-input file-input-bordered w-full"
+        />
+      </div>
+
+      {/* ✅ Status (optional) */}
+      <Select
+        label="Status"
+        value={formData.status || "active"}
+        options={[
+          { value: "active", label: "Active" },
+          { value: "inactive", label: "Inactive" },
+        ]}
+        onChange={(v) => setFormData((p) => ({ ...p, status: v }))}
+      />
+
+      <div className="modal-action flex gap-3">
+        <button type="submit" className="btn btn-primary">
+          Save
+        </button>
+        <button type="button" className="btn" onClick={closeModal}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  </Modal>
+)}
 
       {/* Delete Confirm */}
       {deleteConfirm && (

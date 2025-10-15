@@ -32,43 +32,48 @@ const Khata = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex space-x-4">
-        <select
-          value={filterProject}
-          onChange={(e) => {
-            setFilterProject(e.target.value);
-            setFilterVillage("");
-          }}
-          className="select select-bordered w-48"
-        >
-          <option value="">All Projects</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.name}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+     {/* Filters */}
+<div className="flex space-x-4">
+  {/* Project Filter */}
+  <select
+    value={filterProject}
+    onChange={(e) => {
+      setFilterProject(e.target.value);
+      setFilterVillage(""); // reset village when project changes
+    }}
+    className="select select-bordered w-48"
+  >
+    <option value="">All Projects</option>
+    {projects.map((p) => (
+      <option key={p.id} value={p.id}>
+        {p.project_name || p.name}
+      </option>
+    ))}
+  </select>
 
-        <select
-          value={filterVillage}
-          onChange={(e) => setFilterVillage(e.target.value)}
-          className="select select-bordered w-48"
-          disabled={!filterProject}
-        >
-          <option value="">All Villages</option>
-          {villages
-            .filter((v) => (filterProject ? v.project === filterProject : true))
-            .map((v) => (
-              <option key={v.id} value={v.name}>
-                {v.name}
-              </option>
-            ))}
-        </select>
-      </div>
+  {/* Village Filter */}
+  <select
+    value={filterVillage}
+    onChange={(e) => setFilterVillage(e.target.value)}
+    className="select select-bordered w-48"
+    disabled={!filterProject} // disable until project is selected
+  >
+    <option value="">All Villages</option>
+    {villages
+      .filter((v) =>
+        filterProject ? v.project_id === parseInt(filterProject) : true
+      )
+      .map((v) => (
+        <option key={v.id} value={v.id}>
+          {v.village_name || v.name}
+        </option>
+      ))}
+  </select>
+</div>
 
       {/* Table */}
       <KhataTable
-        khatas={filteredKhatas}
+        khatas={filteredKhatas} // use filteredKhatas from the hook
         onEdit={handlers.openEditModal}
         onDelete={handlers.openDeleteModal}
         onUpload={handlers.openUploadModal}
@@ -81,11 +86,18 @@ const Khata = () => {
       )}
 
       {modals.isDeleteOpen && (
-        <DeleteConfirmModal {...modals.deleteProps} onConfirm={handlers.confirmDelete} />
-      )}
+  <DeleteConfirmModal
+    {...modals.deleteProps}
+    onCancel={handlers.closeDeleteModal}
+  />
+)}
+
 
       {modals.isUploadOpen && (
-        <UploadModal {...modals.uploadProps} onClose={handlers.closeUploadModal} />
+        <UploadModal
+          {...modals.uploadProps}
+          onClose={handlers.closeUploadModal}
+        />
       )}
 
       {modals.isMapOpen && (

@@ -1,24 +1,19 @@
 // src/hooks/useKhata.js
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { documentList } from "../utils/constants";
+import { API_BASE_URL } from "../utils/config";
+import { useSelector } from "react-redux";
 
 export const useKhata = () => {
-  const projects = [{ id: 1, name: "GMDC - Baitarani-West Coal Block" }];
-  const villages = [
-    { id: 1, name: "Chhendipada Jangal", project: "GMDC - Baitarani-West Coal Block" },
-    { id: 2, name: "Handigora", project: "GMDC - Baitarani-West Coal Block" },
-  ];
-
-  const [khatas, setKhatas] = useState([
-    { id: 1, project: "GMDC - Baitarani-West Coal Block", village: "Chhendipada Jangal", number: "348", created: "2025-02-01" },
-    { id: 2, project: "GMDC - Baitarani-West Coal Block", village: "Handigora", number: "789/111", created: "2025-02-02" },
-  ]);
-
+  const [projects, setProjects] = useState([]);
+  const [villages, setVillages] = useState([]);
+  const [khatas, setKhatas] = useState([]);
   const [filterProject, setFilterProject] = useState("");
   const [filterVillage, setFilterVillage] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState(documentList);
 
-  // modals
+  const token = useSelector((state) => state.auth.userToken);
+
   const [modals, setModals] = useState({
     isFormOpen: false,
     isDeleteOpen: false,
@@ -30,37 +25,90 @@ export const useKhata = () => {
     mapProps: {},
   });
 
+  // Generic API helper
+  const api = async (url, method = "GET", body) => {
+    const res = await fetch(`${API_BASE_URL}${url}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      ...(body && { body: JSON.stringify(body) }),
+    });
+    return res.json();
+  };
+
+  const fetchProjects = async () => {
+    const data = await api("/project/projectList");
+    if (data.success) setProjects(data.projects || []);
+  };
+
+  const fetchVillages = async () => {
+    const data = await api("/village/villageList");
+    if (data.success) setVillages(data.villages || []);
+  };
+
+  const fetchKhatas = async () => {
+    const data = await api("/khata/khataList");
+    if (data.success) setKhatas(data.khatas || []);
+    console.log("Khatas fetched:", data.khatas);
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchProjects();
+      fetchVillages();
+      fetchKhatas();
+    }
+  }, [token]);
+
   const filteredKhatas = useMemo(
     () =>
       khatas.filter(
         (k) =>
-          (!filterProject || k.project === filterProject) &&
-          (!filterVillage || k.village === filterVillage)
+          (!filterProject || k.project_id === parseInt(filterProject)) &&
+          (!filterVillage || k.village_id === parseInt(filterVillage))
       ),
     [khatas, filterProject, filterVillage]
   );
 
+  const handleDeleteConfirm = (id) => {
+  setKhatas((prev) => prev.filter((k) => k.id !== id));
+  setModals((m) => ({ ...m, isDeleteOpen: false }));
+};
   const handlers = {
-    openEditModal: (khata) => setModals((m) => ({ ...m, isFormOpen: true, formProps: { khata, setKhatas } })),
-    openAddModal: () => setModals((m) => ({ ...m, isFormOpen: true, formProps: { khata: null, setKhatas } })),
+    openEditModal: (khata) =>
+      setModals((m) => ({
+        ...m,
+        isFormOpen: true,
+        formProps: { khata, setKhatas, token, projects, villages },
+      })),
+    openAddModal: () =>
+      setModals((m) => ({
+        ...m,
+        isFormOpen: true,
+        formProps: { khata: null, setKhatas, token, projects, villages },
+      })),
     closeForm: () => setModals((m) => ({ ...m, isFormOpen: false })),
 
-    openDeleteModal: (khata) => setModals((m) => ({ ...m, isDeleteOpen: true, deleteProps: { khata, setKhatas } })),
-    confirmDelete: (id) => {
-      setKhatas((prev) => prev.filter((k) => k.id !== id));
-      setModals((m) => ({ ...m, isDeleteOpen: false }));
-    },
+   openDeleteModal: (khata) =>
+    setModals((m) => ({ ...m, isDeleteOpen: true, deleteProps: { khata, onConfirm: handleDeleteConfirm } })),
 
-    openUploadModal: (khata) => setModals((m) => ({ ...m, isUploadOpen: true, uploadProps: { khata, uploadedDocs, setUploadedDocs } })),
+  closeDeleteModal: () => setModals((m) => ({ ...m, isDeleteOpen: false })),
+
+    openUploadModal: (khata) =>
+      setModals((m) => ({ ...m, isUploadOpen: true, uploadProps: { khata, uploadedDocs, setUploadedDocs } })),
     closeUploadModal: () => setModals((m) => ({ ...m, isUploadOpen: false })),
 
-    openMapModal: (khata) => setModals((m) => ({ ...m, isMapOpen: true, mapProps: { khata } })),
+    openMapModal: (khata) =>
+      setModals((m) => ({ ...m, isMapOpen: true, mapProps: { khata } })),
     closeMapModal: () => setModals((m) => ({ ...m, isMapOpen: false })),
   };
 
   return {
     projects,
     villages,
+    khatas,
     filteredKhatas,
     filterProject,
     setFilterProject,

@@ -1,4 +1,3 @@
-// src/components/Khata/KhataTable.jsx
 import React from "react";
 import { Pencil, Trash2, Upload, Map as MapIcon } from "lucide-react";
 
@@ -21,14 +20,16 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
             {khatas.length > 0 ? (
               khatas.map((khata, idx) => (
                 <tr
-                  key={khata.id}
+                  key={khata.id || idx}
                   className="hover:bg-gray-50 transition-colors whitespace-nowrap"
                 >
                   <td>{idx + 1}</td>
-                  <td>{khata.project}</td>
-                  <td>{khata.village}</td>
-                  <td>{khata.number}</td>
-                  <td className="text-gray-500">{khata.created}</td>
+                  <td>{khata.project_name}</td>
+                  <td>{khata.village_name}</td>
+                  <td>{khata.khata_no}</td>
+                  <td className="text-gray-500">
+                    {new Date(khata.created_at).toLocaleDateString()}
+                  </td>
                   <td className="text-right">
                     <div className="flex space-x-2 justify-end">
                       <button

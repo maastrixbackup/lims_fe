@@ -41,11 +41,13 @@ const Villages = () => {
   const fetchProjects = async () => {
     const data = await api("/project/projectList");
     if (data.success) setProjects(data.projects || []);
+    console.log("Projects in villages page:", data.projects)
   };
 
   const fetchVillages = async () => {
     const data = await api("/village/villageList");
     if (data.success) setVillages(data.villages || []);
+    console.log("Villages in villages page:", data.villages)
   };
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../utils/config";
 import moment from "moment";
+import { useSelector } from "react-redux";
 
 const statusMap = { Pending: 0, Active: 1, Closed: 2 };
 const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
@@ -8,6 +9,7 @@ const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
 export default function useProjects(token) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
+  const project_access= useSelector((state) => state.auth.project_access); 
 
   const fetchProjects = useCallback(async () => {
     if (!token) return;
@@ -22,6 +24,7 @@ export default function useProjects(token) {
         id: p.id || p.project_id,
         name: p.project_name || p.name,
         status: reverseStatusMap[p.status] || "Active",
+        project_access: project_access || [],
         created: p.created_at
           ? moment(p.created_at).format("YYYY-MM-DD")
           : moment().format("YYYY-MM-DD"),

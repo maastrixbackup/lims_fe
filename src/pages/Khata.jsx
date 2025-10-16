@@ -6,6 +6,7 @@ import KhataFormModal from "../shared/KhataFormModal";
 import DeleteConfirmModal from "../shared/DeleteConfirmModal";
 import UploadModal from "../shared/UploadModal";
 import MapModal from "../shared/MapModal";
+import { useSelector } from "react-redux";
 
 const Khata = () => {
   const {
@@ -20,58 +21,59 @@ const Khata = () => {
     modals,
     handlers,
   } = useKhata();
+const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role_name || "";
+
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Khata List</h2>
-        <button className="btn btn-primary" onClick={handlers.openAddModal}>
+        <button className="btn btn-primary" onClick={handlers.openAddModal}
+        disabled={userRole === "Admin" || userRole === "Client"}
+        >
           + Add Khata
         </button>
       </div>
 
-      {/* Filters */}
-     {/* Filters */}
-<div className="flex space-x-4">
-  {/* Project Filter */}
-  <select
-    value={filterProject}
-    onChange={(e) => {
-      setFilterProject(e.target.value);
-      setFilterVillage(""); // reset village when project changes
-    }}
-    className="select select-bordered w-48"
-  >
-    <option value="">All Projects</option>
-    {projects.map((p) => (
-      <option key={p.id} value={p.id}>
-        {p.project_name || p.name}
-      </option>
-    ))}
-  </select>
+      <div className="flex space-x-4">
+        {/* Project Filter */}
+        <select
+          value={filterProject}
+          onChange={(e) => {
+            setFilterProject(e.target.value);
+            setFilterVillage(""); // reset village when project changes
+          }}
+          className="select select-bordered w-48"
+        >
+          <option value="">All Projects</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.project_name || p.name}
+            </option>
+          ))}
+        </select>
 
-  {/* Village Filter */}
-  <select
-    value={filterVillage}
-    onChange={(e) => setFilterVillage(e.target.value)}
-    className="select select-bordered w-48"
-    disabled={!filterProject} // disable until project is selected
-  >
-    <option value="">All Villages</option>
-    {villages
-      .filter((v) =>
-        filterProject ? v.project_id === parseInt(filterProject) : true
-      )
-      .map((v) => (
-        <option key={v.id} value={v.id}>
-          {v.village_name || v.name}
-        </option>
-      ))}
-  </select>
-</div>
-
-      {/* Table */}
+        {/* Village Filter */}
+        <select
+          value={filterVillage}
+          onChange={(e) => setFilterVillage(e.target.value)}
+          className="select select-bordered w-48"
+          disabled={!filterProject} // disable until project is selected
+        >
+          <option value="">All Villages</option>
+          {villages
+            .filter((v) =>
+              filterProject ? v.project_id === parseInt(filterProject) : true
+            )
+            .map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.village_name || v.name}
+              </option>
+            ))}
+        </select>
+      </div>
       <KhataTable
         khatas={filteredKhatas} // use filteredKhatas from the hook
         onEdit={handlers.openEditModal}
@@ -86,12 +88,11 @@ const Khata = () => {
       )}
 
       {modals.isDeleteOpen && (
-  <DeleteConfirmModal
-    {...modals.deleteProps}
-    onCancel={handlers.closeDeleteModal}
-  />
-)}
-
+        <DeleteConfirmModal
+          {...modals.deleteProps}
+          onCancel={handlers.closeDeleteModal}
+        />
+      )}
 
       {modals.isUploadOpen && (
         <UploadModal

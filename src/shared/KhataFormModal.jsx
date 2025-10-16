@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { API_BASE_URL } from "../utils/config";
 
@@ -16,18 +16,30 @@ const KhataFormModal = ({
     khata_no: "",
   });
 
+  // ✅ track whether the form is loading initial khata data
+  const initializing = useRef(false);
+
+  // ✅ Load khata data when editing
   useEffect(() => {
     if (khata) {
+      initializing.current = true; // prevent reset village during initial set
       setFormData({
-        project_id: khata.project_id,
-        village_id: khata.village_id,
-        khata_no: khata.khata_no || khata.number,
+        project_id: khata.project_id || "",
+        village_id: khata.village_id || "",
+        khata_no: khata.khata_no || khata.number || "",
       });
+      // small delay before allowing normal change detection
+      setTimeout(() => (initializing.current = false), 300);
+    } else {
+      setFormData({ project_id: "", village_id: "", khata_no: "" });
     }
   }, [khata]);
 
+  // ✅ Reset village ONLY when user manually changes project (not during edit load)
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, village_id: "" }));
+    if (!initializing.current) {
+      setFormData((prev) => ({ ...prev, village_id: "" }));
+    }
   }, [formData.project_id]);
 
   const handleChange = (e) => {
@@ -35,7 +47,9 @@ const KhataFormModal = ({
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "project_id" || name === "village_id" ? parseInt(value) : value,
+        name === "project_id" || name === "village_id"
+          ? parseInt(value)
+          : value,
     }));
   };
 
@@ -45,7 +59,7 @@ const KhataFormModal = ({
       let res, data;
 
       if (khata) {
-        // Update existing Khata
+        // ✅ Update existing Khata
         res = await fetch(`${API_BASE_URL}/khata/updateKhata/${khata.id}`, {
           method: "PUT",
           headers: {
@@ -54,9 +68,8 @@ const KhataFormModal = ({
           },
           body: JSON.stringify(formData),
         });
-        data = await res.json();
       } else {
-        // Add new Khata
+        // ✅ Add new Khata
         res = await fetch(`${API_BASE_URL}/khata/addKhata`, {
           method: "POST",
           headers: {
@@ -65,14 +78,16 @@ const KhataFormModal = ({
           },
           body: JSON.stringify(formData),
         });
-        data = await res.json();
       }
 
+      data = await res.json();
       console.log("Khata API response:", data);
 
       if (res.ok) {
         const updatedKhata = {
           id: data.id || khata?.id,
+          project_id: formData.project_id,
+          village_id: formData.village_id,
           project_name:
             projects.find((p) => p.id === formData.project_id)?.project_name ||
             data.project_name,
@@ -80,17 +95,15 @@ const KhataFormModal = ({
             villages.find((v) => v.id === formData.village_id)?.village_name ||
             data.village_name,
           khata_no: formData.khata_no,
-          created_at: data.created_at || khata?.created_at || new Date().toISOString(),
+          created_at:
+            data.created_at || khata?.created_at || new Date().toISOString(),
         };
 
-        setKhatas((prev) => {
-          if (khata) {
-            // Replace existing khata in list
-            return prev.map((k) => (k.id === khata.id ? updatedKhata : k));
-          }
-          // Add new khata
-          return [...prev, updatedKhata];
-        });
+        setKhatas((prev) =>
+          khata
+            ? prev.map((k) => (k.id === khata.id ? updatedKhata : k))
+            : [...prev, updatedKhata]
+        );
 
         onClose();
       } else {
@@ -102,6 +115,11 @@ const KhataFormModal = ({
     }
   };
 
+  // ✅ Filter villages belonging to selected project
+  const filteredVillages = formData.project_id
+    ? villages.filter((v) => v.project_id === formData.project_id)
+    : [];
+
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box relative">
@@ -112,16 +130,18 @@ const KhataFormModal = ({
         >
           <X size={20} />
         </button>
+
         <h3 className="font-bold text-lg mb-4">
           {khata ? "Edit Khata" : "Add Khata"}
         </h3>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Project */}
           <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <select
               name="project_id"
-              value={formData.project_id}
+              value={formData.project_id || ""}
               onChange={handleChange}
               className="select select-bordered w-full"
               required
@@ -140,19 +160,18 @@ const KhataFormModal = ({
             <label className="block text-sm font-medium mb-1">Village</label>
             <select
               name="village_id"
-              value={formData.village_id}
+              value={formData.village_id || ""}
               onChange={handleChange}
               className="select select-bordered w-full"
               required
+              disabled={!formData.project_id}
             >
               <option value="">Select Village</option>
-              {villages
-                // .filter((v) => v.project_id === formData.project_id)
-                .map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.village_name}
-                  </option>
-                ))}
+              {villages.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.village_name}
+                </option>
+              ))}
             </select>
           </div>
 

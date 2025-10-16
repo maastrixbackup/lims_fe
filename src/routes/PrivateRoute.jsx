@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 export default function PrivateRoute({ allowedRoles }) {
   const { user, token } = useSelector((state) => state.auth);
 
-  // fallback in case Redux is empty after reload
   const storedToken = localStorage.getItem("authToken");
   const storedUser = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user"))
@@ -14,10 +13,10 @@ export default function PrivateRoute({ allowedRoles }) {
   const currentUser = user || storedUser;
   const currentToken = token || storedToken;
 
-  console.log("🧩 PrivateRoute check:", { currentUser, allowedRoles });
+  // console.log(" PrivateRoute check:", { currentUser, allowedRoles });
 
   if (!currentToken || !currentUser) {
-    console.warn("⛔ No user/token found — redirecting to login");
+    // console.warn("No user/token found — redirecting to login");
     return <Navigate to="/" replace />;
   }
 
@@ -27,13 +26,13 @@ export default function PrivateRoute({ allowedRoles }) {
     currentUser.role ||
     "Unknown";
 
-  console.log("🔍 Detected role:", userRole);
+  // console.log("🔍 Detected role:", userRole);
 
   if (!allowedRoles.includes(userRole)) {
-    console.warn(`🚫 Role '${userRole}' not allowed`);
+    // console.warn(`Role '${userRole}' not allowed`);
     return <Navigate to="/unauthorized" replace />;
   }
 
-  console.log("✅ Access granted to:", userRole);
+  // console.log("Access granted to:", userRole);
   return <Outlet />;
 }

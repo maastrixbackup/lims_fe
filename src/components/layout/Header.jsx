@@ -11,8 +11,10 @@ export default function Header({ heading, sidebarWidth }) {
   const dispatch = useDispatch();
   const notifRef = useRef(null);
   const profileRef = useRef(null);
- const user = useSelector((state) => state.auth.user);
-const userRole = user?.role_name || "User";
+  const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role_name || "User";
+  const username = user?.name || "User";
+  const userProfilePic = user?.profile_pic || "/default-avatar.png";
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -38,10 +40,10 @@ const userRole = user?.role_name || "User";
     setProfileOpen(false);
     navigate("/profile");
   };
-  const changePassword=() =>{
+  const changePassword = () => {
     setProfileOpen(false);
     navigate("/changepassword");
-  }
+  };
 
   return (
     <header
@@ -86,11 +88,13 @@ const userRole = user?.role_name || "User";
             onClick={() => setProfileOpen(!profileOpen)}
           >
             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-              <User size={18} />
+              <img
+                src={userProfilePic}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover border border-gray-300"
+              />
             </div>
-            <span className="hidden md:inline font-medium">
- {userRole}
-</span>
+            <span className="hidden md:inline font-medium">{username}</span>
           </div>
 
           {profileOpen && (
@@ -102,9 +106,10 @@ const userRole = user?.role_name || "User";
                 >
                   <User size={16} /> Profile
                 </li>
-                <li 
-                onClick={changePassword}
-                className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150">
+                <li
+                  onClick={changePassword}
+                  className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150"
+                >
                   <LockKeyhole size={16} /> Change Password
                 </li>
                 <li

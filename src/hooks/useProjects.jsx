@@ -13,7 +13,6 @@ export default function useProjects(token) {
   // Get user info from Redux
   const user = useSelector((state) => state.auth.user);
   const accessedProjects = useSelector((state) => state.auth.accessed_projects || []);
-  // cosnole.log("Accessed projects from Redux:", accessedProjects);
 
   const fetchProjects = useCallback(async () => {
     if (!token) return;

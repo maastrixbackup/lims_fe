@@ -71,6 +71,7 @@ const Profile = () => {
               : `${API_BASE_URL}/uploads/${user.profile_pic}`
           );
         }
+         localStorage.setItem("userProfilePic",user.pr);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -117,6 +118,7 @@ const Profile = () => {
       });
 
       const data = await response.json();
+      console.log('dataaaaaa profile', data)
       if (!response.ok || !data.success)
         throw new Error(data.message || "Failed to update profile");
 
@@ -129,7 +131,7 @@ const Profile = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    window.location.reload(); // refresh to restore original data
+    window.location.reload();
   };
 
   if (loading) {
@@ -145,11 +147,6 @@ const Profile = () => {
   return (
     <main className="p-6 md:p-10 bg-gray-50 min-h-screen">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">👤 My Profile</h1>
-
-     
-        </div>
 
         {error && (
           <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-6">
@@ -158,8 +155,8 @@ const Profile = () => {
         )}
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* --- Left Side: Profile Picture Card --- */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center">
+      
+          <div className="bg-white rounded-2xl shadow-all p-6 flex flex-col items-center text-center border-gray-300">
             <div className="relative">
               <img
                 src={preview || "https://www.gravatar.com/avatar/?d=mp&f=y"}
@@ -208,101 +205,106 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* --- Right Side: Edit Form --- */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 md:col-span-2">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
-              <User size={20} /> Profile Details
-            </h2>
+       
+      <div className="bg-white rounded-2xl shadow-all p-6 md:col-span-2 flex flex-col justify-between">
+  <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
+    <User size={20} /> Profile Details
+  </h2>
 
-            <form id="profileForm" onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={profile.fullName}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  readOnly={!isEditing}
-                />
-              </div>
+  <form id="profileForm" onSubmit={handleSubmit} className="space-y-5 flex-1">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Full Name
+      </label>
+      <input
+        type="text"
+        name="fullName"
+        value={profile.fullName}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+        readOnly={!isEditing}
+      />
+    </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={profile.username}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  readOnly={!isEditing}
-                />
-              </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Username
+      </label>
+      <input
+        type="text"
+        name="username"
+        value={profile.username}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+        readOnly={!isEditing}
+      />
+    </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="email"
-                    name="email"
-                    value={profile.email}
-                    onChange={handleChange}
-                    className="input input-bordered w-full"
-                    readOnly={!isEditing}
-                  />
-                  {profile.isEmailVerified ? (
-                    <CheckCircle className="text-green-500" size={20} />
-                  ) : (
-                    <XCircle className="text-red-500" size={20} />
-                  )}
-                </div>
-              </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Email Address
+      </label>
+      <div className="flex items-center gap-2">
+        <input
+          type="email"
+          name="email"
+          value={profile.email}
+          onChange={handleChange}
+          className="input input-bordered w-full"
+          readOnly={!isEditing}
+        />
+        {profile.isEmailVerified ? (
+          <CheckCircle className="text-green-500" size={20} />
+        ) : (
+          <XCircle className="text-red-500" size={20} />
+        )}
+      </div>
+    </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone_number"
-                  value={profile.phone_number}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  readOnly={!isEditing}
-                />
-              </div>
-                   {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="btn btn-primary flex items-center gap-2"
-            >
-              <Edit size={18} /> Edit Profile
-            </button>
-          ) : (
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                form="profileForm"
-                className="btn btn-success flex items-center gap-2"
-              >
-                <Save size={18} /> Save Changes
-              </button>
-              <button
-                onClick={handleCancel}
-                className="btn btn-ghost flex items-center gap-2"
-              >
-                <X size={18} /> Cancel
-              </button>
-            </div>
-          )}
-            </form>
-          </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Phone Number
+      </label>
+      <input
+        type="tel"
+        name="phone_number"
+        value={profile.phone_number}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+        readOnly={!isEditing}
+      />
+    </div>
+  </form>
+
+  {/* ✅ Buttons positioned bottom-right */}
+  <div className="flex justify-end mt-6">
+    {!isEditing ? (
+      <button
+        onClick={() => setIsEditing(true)}
+        className="btn btn-primary flex items-center gap-2"
+      >
+        <Edit size={18} /> Edit Profile
+      </button>
+    ) : (
+      <div className="flex gap-3">
+        <button
+          type="submit"
+          form="profileForm"
+          className="btn btn-success flex items-center gap-2"
+        >
+          <Save size={18} /> Save Changes
+        </button>
+        <button
+          onClick={handleCancel}
+          className="btn btn-ghost flex items-center gap-2"
+        >
+          <X size={18} /> Cancel
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
         </div>
       </div>
     </main>

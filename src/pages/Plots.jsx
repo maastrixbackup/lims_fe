@@ -3,10 +3,14 @@ import { plotData } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 import PlotTable from "../shared/PlotsTable";
+import { useSelector } from "react-redux";
 
 const Plots = () => {
   const [plots, setPlots] = useState(plotData);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const token = useSelector((state) => state.auth.userToken);
+  const user = useSelector((state) => state.auth.user);
+    const userRole = user?.role_name || "";
 
   const navigate = useNavigate();
 
@@ -24,6 +28,7 @@ const Plots = () => {
         <button
           className="btn btn-primary"
           onClick={() => navigate("/plot-form")} // 👈 navigate instead of openModal
+           disabled={userRole === "Admin" || userRole === "Client"}
         >
           + Add Plot
         </button>

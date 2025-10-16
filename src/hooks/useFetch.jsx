@@ -1,49 +1,41 @@
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../utils/config";
 
-const useFetch = (endpoint, queryParams = {}, dependencies = []) => {
-  const token = useSelector((state) => state.auth.userToken);
+export default function useFetch() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Build query string dynamically
-  const queryString = new URLSearchParams(queryParams).toString();
-  const url = `${API_BASE_URL}/${endpoint}${queryString ? `?${queryString}` : ""}`;
+  const token = useSelector((state) => state.auth.userToken);
 
   useEffect(() => {
-    if (!endpoint) return;
-
     const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-
       try {
-        const response = await fetch(url, {
+        console.log("Fetching dashboard data...");
+        const response = await fetch(`${API_BASE_URL}/getDashboardData`, {
+          method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const result = await response.json();
-        setData(result);
+        console.log("Dashboard API response:", result);
+        setData(result.data);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching dashboard data:", err);
+        setError(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [url, token, ...dependencies]);
+    if (token) fetchData();
+  }, [token]);
 
   return { data, loading, error };
-};
-
-export default useFetch;
+}

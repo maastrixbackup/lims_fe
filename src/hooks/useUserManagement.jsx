@@ -17,7 +17,7 @@ export default function useUserManagement(token) {
     role_id: "",
     accessed_projects: [],
     phone_number: "",
-    profile_pic: null,
+    profile_pic: "",
   });
   const fetchData = async () => {
     if (!token) return;
@@ -62,11 +62,17 @@ export default function useUserManagement(token) {
         password: "",
         confirmPassword: "",
         role_id: user.role_id,
-        accessed_projects: user.accessed_projects || [],
+        accessed_projects: Array.isArray(user.accessed_projects) ? user.accessed_projects : [],
         phone_number: user.phone_number,
-        profile_pic: user.profile_pic || null,
+        profile_pic: user.profile_pic || "",
         // status: user.status || "active",
       });
+      console.log("Editing user:", user);
+      console.log("Form data set to:", formData);
+      console.log("Accessed projects:", user.accessed_projects);
+      console.log("Profile pic:", user.profile_pic);
+      console.log("Role ID:", user.role_id);
+      console.log("Phone number:", user.phone_number);
     } else {
       resetForm();
     }
@@ -83,7 +89,7 @@ export default function useUserManagement(token) {
       role_id: "",
       accessed_projects: [],
       phone_number: "",
-      profile_pic: null,
+      profile_pic: "",
     });
   };
 

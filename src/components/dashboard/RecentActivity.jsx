@@ -1,11 +1,14 @@
 import { Clock, CheckCircle, AlertCircle } from "lucide-react";
+import useFetch from "../../hooks/useFetch";
 
 export default function RecentActivity() {
-  const activities = [
-    { id: 1, text: "New project Smart City created", time: "2h ago", icon: <CheckCircle className="text-green-500" size={18} /> },
-    { id: 2, text: "Village data updated", time: "5h ago", icon: <Clock className="text-blue-500" size={18} /> },
-    { id: 3, text: "Plot registration pending approval", time: "1d ago", icon: <AlertCircle className="text-yellow-500" size={18} /> },
-  ];
+    const { data, loading, error } = useFetch();
+  
+    if (loading) return <div>Loading recent projects...</div>;
+    if (error) return <div>Error: {error.message}</div>;
+
+    const activities = data?.recent_activity || []
+
 
   return (
     <div className="card bg-white shadow-xl rounded-2xl">
@@ -16,8 +19,8 @@ export default function RecentActivity() {
             <li key={activity.id} className="flex items-start space-x-3">
               <div className="mt-1">{activity.icon}</div>
               <div>
-                <p className="text-gray-700 text-sm">{activity.text}</p>
-                <span className="text-xs text-gray-500">{activity.time}</span>
+                <p className="text-gray-700 text-sm">{activity.message}</p>
+                <span className="text-xs text-gray-500">{activity.created_at}</span>
               </div>
             </li>
           ))}

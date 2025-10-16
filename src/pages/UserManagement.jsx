@@ -97,7 +97,7 @@ const filteredUsers = useMemo(() => {
                       <td>{u.name}</td>
                       <td>{u.email}</td>
                       <td>{u.role_name}</td>
-                      <td>{u.accessed_projects_name || "—"}</td>
+                      <td>{u.accessed_projects || "—"}</td>
                       <td className="text-right">
                         <button className="btn btn-xs btn-warning text-white mr-2" onClick={() => openModal(u)}>
                           <Pencil size={14} className="mr-1" /> Edit
@@ -221,27 +221,48 @@ const filteredUsers = useMemo(() => {
         )}
       </div>
 
-      {/* ✅ Profile Picture Upload */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Profile Picture</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setFormData((p) => ({ ...p, profile_pic: e.target.files[0] }))}
-          className="file-input file-input-bordered w-full"
-        />
-      </div>
+    {/* ✅ Profile Picture Upload */}
+<div>
+  <label className="block text-sm font-medium mb-1">Profile Picture</label>
 
-      {/* ✅ Status (optional) */}
-      <Select
-        label="Status"
-        value={formData.status || "active"}
-        options={[
-          { value: "active", label: "Active" },
-          { value: "inactive", label: "Inactive" },
-        ]}
-        onChange={(v) => setFormData((p) => ({ ...p, status: v }))}
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, profile_pic: file }));
+      }
+    }}
+    className="file-input file-input-bordered w-full"
+  />
+  
+  {/* {formData.profile_pic && typeof formData.profile_pic === "string" && (
+    <div className="mb-2">
+      <img
+        src={
+          formData.profile_pic.startsWith("http")
+            ? formData.profile_pic
+            : `${API_BASE_URL}/uploads/${formData.profile_pic}`
+        }
+        alt="Profile"
+        className="w-16 h-16 rounded-full object-cover border"
       />
+    </div>
+  )} */}
+  <div>
+    {formData.profile_pic && (
+  <p className="text-xs text-gray-500 mt-1">
+    {typeof formData.profile_pic === "string"
+      ? formData.profile_pic.split("/").pop()
+      : formData.profile_pic.name}
+  </p>
+)}
+
+  </div>
+
+</div>
+
 
       <div className="modal-action flex gap-3">
         <button type="submit" className="btn btn-primary">

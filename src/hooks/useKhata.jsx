@@ -12,7 +12,10 @@ export const useKhata = () => {
   const [filterVillage, setFilterVillage] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState(documentList);
 
-  const token = useSelector((state) => state.auth.userToken);
+  const { user, userToken: token, accessed_projects = [] } = useSelector(
+    (state) => state.auth
+  );
+  const role = user?.role_name;
 
   const [modals, setModals] = useState({
     isFormOpen: false,
@@ -25,7 +28,7 @@ export const useKhata = () => {
     mapProps: {},
   });
 
-  // Generic API helper
+  // --- Generic API helper ---
   const api = async (url, method = "GET", body) => {
     const res = await fetch(`${API_BASE_URL}${url}`, {
       method,
@@ -38,20 +41,57 @@ export const useKhata = () => {
     return res.json();
   };
 
+  // --- Fetch Projects ---
   const fetchProjects = async () => {
     const data = await api("/project/projectList");
-    if (data.success) setProjects(data.projects || []);
+    if (data.success) {
+      let allProjects = data.projects || [];
+
+      // Restrict Admin & Client to accessed projects
+      if (role === "Admin" || role === "Client") {
+        const allowedIds = accessed_projects.map((p) => p.id);
+        allProjects = allProjects.filter((p) => allowedIds.includes(p.id));
+      }
+
+      setProjects(allProjects);
+    }
   };
 
+  // --- Fetch Villages ---
   const fetchVillages = async () => {
     const data = await api("/village/villageList");
-    if (data.success) setVillages(data.villages || []);
+    if (data.success) {
+      let allVillages = data.villages || [];
+
+      // Restrict Admin & Client to villages of allowed projects
+      if (role === "Admin" || role === "Client") {
+        const allowedIds = accessed_projects.map((p) => p.id);
+        allVillages = allVillages.filter((v) =>
+          allowedIds.includes(v.project_id)
+        );
+      }
+
+      setVillages(allVillages);
+    }
   };
 
+  // --- Fetch Khatas ---
   const fetchKhatas = async () => {
     const data = await api("/khata/khataList");
-    if (data.success) setKhatas(data.khatas || []);
-    console.log("Khatas fetched:", data.khatas);
+    if (data.success) {
+      let allKhatas = data.khatas || [];
+
+      // Restrict Admin & Client to khatas of allowed projects
+      if (role === "Admin" || role === "Client") {
+        const allowedIds = accessed_projects.map((p) => p.id);
+        allKhatas = allKhatas.filter((k) =>
+          allowedIds.includes(k.project_id)
+        );
+      }
+
+      setKhatas(allKhatas);
+      console.log("Khatas fetched:", allKhatas);
+    }
   };
 
   useEffect(() => {
@@ -62,6 +102,7 @@ export const useKhata = () => {
     }
   }, [token]);
 
+  // --- Filtering Khatas ---
   const filteredKhatas = useMemo(
     () =>
       khatas.filter(
@@ -72,10 +113,13 @@ export const useKhata = () => {
     [khatas, filterProject, filterVillage]
   );
 
+  // --- Delete Handler ---
   const handleDeleteConfirm = (id) => {
-  setKhatas((prev) => prev.filter((k) => k.id !== id));
-  setModals((m) => ({ ...m, isDeleteOpen: false }));
-};
+    setKhatas((prev) => prev.filter((k) => k.id !== id));
+    setModals((m) => ({ ...m, isDeleteOpen: false }));
+  };
+
+  // --- Modal Handlers ---
   const handlers = {
     openEditModal: (khata) =>
       setModals((m) => ({
@@ -91,13 +135,20 @@ export const useKhata = () => {
       })),
     closeForm: () => setModals((m) => ({ ...m, isFormOpen: false })),
 
-   openDeleteModal: (khata) =>
-    setModals((m) => ({ ...m, isDeleteOpen: true, deleteProps: { khata, onConfirm: handleDeleteConfirm } })),
-
-  closeDeleteModal: () => setModals((m) => ({ ...m, isDeleteOpen: false })),
+    openDeleteModal: (khata) =>
+      setModals((m) => ({
+        ...m,
+        isDeleteOpen: true,
+        deleteProps: { khata, onConfirm: handleDeleteConfirm },
+      })),
+    closeDeleteModal: () => setModals((m) => ({ ...m, isDeleteOpen: false })),
 
     openUploadModal: (khata) =>
-      setModals((m) => ({ ...m, isUploadOpen: true, uploadProps: { khata, uploadedDocs, setUploadedDocs } })),
+      setModals((m) => ({
+        ...m,
+        isUploadOpen: true,
+        uploadProps: { khata, uploadedDocs, setUploadedDocs },
+      })),
     closeUploadModal: () => setModals((m) => ({ ...m, isUploadOpen: false })),
 
     openMapModal: (khata) =>

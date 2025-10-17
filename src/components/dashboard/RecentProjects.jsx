@@ -1,8 +1,9 @@
 import React from "react";
-import useFetch from "../../hooks/useFetch";
+// import useFetch from "../../hooks/useFetch";
+import useFetchDashboard from "../../hooks/useFetchDashboard";
 
 export default function RecentProjects() {
-  const { data, loading, error } = useFetch();
+  const { data, loading, error } = useFetchDashboard();
 
   if (loading) return <div>Loading recent projects...</div>;
   if (error) return <div>Error: {error.message}</div>;

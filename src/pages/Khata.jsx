@@ -30,7 +30,14 @@ const user = useSelector((state) => state.auth.user);
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Khata List</h2>
-        <button className="btn btn-primary" onClick={handlers.openAddModal}
+        <button 
+        // className="btn btn-primary"
+         className={`btn btn-primary text-white ${
+            userRole === "Admin" || userRole === "Client"
+              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+              : ""
+          }`} 
+        onClick={handlers.openAddModal}
         disabled={userRole === "Admin" || userRole === "Client"}
         >
           + Add Khata

@@ -10,7 +10,6 @@ export default function useProjects(token) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Get user info from Redux
   const user = useSelector((state) => state.auth.user);
   const accessedProjects = useSelector((state) => state.auth.accessed_projects || []);
 
@@ -22,28 +21,35 @@ export default function useProjects(token) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log("Projects fetch response:", data);
 
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to fetch projects");
       }
 
-      // Normalize project data
+      // Normalize all projects
       const allProjects = (data?.projects || data)?.map((p) => ({
         id: p.id || p.project_id,
         name: p.project_name || p.name,
-        status: reverseStatusMap[p.status] || "Active",
-        created: p.created_at
-          ? moment(p.created_at).format("YYYY-MM-DD")
-          : moment().format("YYYY-MM-DD"),
+        status: p.status, // numeric
+        statusText: reverseStatusMap[p.status], // for UI
+        created: p.created_at ? moment(p.created_at).format("YYYY-MM-DD") : moment().format("YYYY-MM-DD"),
       }));
 
-      // Filter based on role
       let visibleProjects = allProjects;
+
       if (user?.role_name !== "Super Admin") {
-        // Admin / Client sees only accessed projects
+        // Get accessible project IDs
         const accessIds = accessedProjects.map((p) => p.project_id || p.id);
-        visibleProjects = allProjects.filter((p) => accessIds.includes(p.id));
+
+      visibleProjects = allProjects.filter((project) => {
+  const access = accessedProjects.find(
+    (ap) => ap.project_id === project.id || ap.id === project.id
+  );
+  if (!access) return false;
+  // If access.status is defined, match status too
+  return access.status !== undefined ? access.status === project.status : true;
+});
+
       }
 
       setProjects(visibleProjects);
@@ -73,6 +79,7 @@ export default function useProjects(token) {
         : `${API_BASE_URL}/project/createProject`;
 
       const method = isEdit ? "PUT" : "POST";
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -83,7 +90,7 @@ export default function useProjects(token) {
       });
 
       const data = await res.json();
-      console.log("Project save response:", data);
+      console.log("sjdhgajshdgajdh", data)
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to save project");
       }
@@ -92,7 +99,12 @@ export default function useProjects(token) {
         setProjects((prev) =>
           prev.map((p) =>
             p.id === editingProject.id
-              ? { ...p, name: formData.name, status: formData.status }
+              ? {
+                  ...p,
+                  name: formData.name,
+                  status: statusMap[formData.status],
+                  statusText: formData.status,
+                }
               : p
           )
         );
@@ -102,7 +114,8 @@ export default function useProjects(token) {
           {
             id: data?.id || Date.now(),
             name: formData.name,
-            status: formData.status,
+            status: statusMap[formData.status],
+            statusText: formData.status,
             created: moment().format("YYYY-MM-DD"),
           },
         ]);

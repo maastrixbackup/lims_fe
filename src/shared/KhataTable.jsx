@@ -1,14 +1,18 @@
 import React from "react";
 import { Pencil, Trash2, Upload, Map as MapIcon } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
+  const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role_name || "";
+
   return (
     <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th>#</th>
+              <th>Sl/No</th>
               <th>Project</th>
               <th>Village</th>
               <th>Khata No.</th>
@@ -33,26 +37,50 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                   <td className="text-right">
                     <div className="flex space-x-2 justify-end">
                       <button
-                        className="btn btn-xs btn-warning text-white"
+                        className={`btn btn-xs btn-warning text-white ${
+                          userRole === "Admin" || userRole === "Client"
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
                         onClick={() => onEdit(khata)}
+                        disabled={userRole === "Admin" || userRole === "Client"}
                       >
                         <Pencil size={14} /> Edit
                       </button>
+
                       <button
-                        className="btn btn-xs btn-error text-white"
+                        className={`btn btn-xs btn-error text-white ${
+                          userRole === "Admin" || userRole === "Client"
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
                         onClick={() => onDelete(khata)}
+                        disabled={userRole === "Admin" || userRole === "Client"}
                       >
                         <Trash2 size={14} /> Delete
                       </button>
+
                       <button
-                        className="btn btn-xs btn-info text-white"
+                        className={`btn btn-xs btn-info text-white ${
+                          userRole === "Admin" || userRole === "Client"
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
                         onClick={() => onUpload(khata)}
+                        disabled={userRole === "Admin" || userRole === "Client"}
                       >
                         <Upload size={14} /> Upload
                       </button>
+
                       <button
-                        className="btn btn-xs btn-success text-white"
+                        className="btn btn-xs btn-success text-white "
+                        //   ${
+                        //   userRole === "Admin" || userRole === "Client"
+                        //     ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                        //     : ""
+                        // }`}
                         onClick={() => onMap(khata)}
+                        // disabled={userRole === "Admin" || userRole === "Client"}
                       >
                         <MapIcon size={14} /> Maps
                       </button>

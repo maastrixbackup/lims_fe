@@ -214,8 +214,6 @@ const PlotForm = () => {
             className="input input-bordered w-full"
             required
           />
-
-          {/* 🟩 NEW FIELDS SECTION START */}
           <h4 className="col-span-2 text-lg font-semibold mt-4 border-b pb-1">
             Land Details
           </h4>

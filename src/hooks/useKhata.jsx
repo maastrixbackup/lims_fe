@@ -1,4 +1,3 @@
-// src/hooks/useKhata.js
 import { useState, useEffect, useMemo } from "react";
 import { documentList } from "../utils/constants";
 import { API_BASE_URL } from "../utils/config";
@@ -28,7 +27,6 @@ export const useKhata = () => {
     mapProps: {},
   });
 
-  // --- Generic API helper ---
   const api = async (url, method = "GET", body) => {
     const res = await fetch(`${API_BASE_URL}${url}`, {
       method,
@@ -41,13 +39,11 @@ export const useKhata = () => {
     return res.json();
   };
 
-  // --- Fetch Projects ---
+
   const fetchProjects = async () => {
     const data = await api("/project/projectList");
     if (data.success) {
       let allProjects = data.projects || [];
-
-      // Restrict Admin & Client to accessed projects
       if (role === "Admin" || role === "Client") {
         const allowedIds = accessed_projects.map((p) => p.id);
         allProjects = allProjects.filter((p) => allowedIds.includes(p.id));
@@ -56,14 +52,10 @@ export const useKhata = () => {
       setProjects(allProjects);
     }
   };
-
-  // --- Fetch Villages ---
   const fetchVillages = async () => {
     const data = await api("/village/villageList");
     if (data.success) {
       let allVillages = data.villages || [];
-
-      // Restrict Admin & Client to villages of allowed projects
       if (role === "Admin" || role === "Client") {
         const allowedIds = accessed_projects.map((p) => p.id);
         allVillages = allVillages.filter((v) =>
@@ -75,13 +67,10 @@ export const useKhata = () => {
     }
   };
 
-  // --- Fetch Khatas ---
   const fetchKhatas = async () => {
     const data = await api("/khata/khataList");
     if (data.success) {
       let allKhatas = data.khatas || [];
-
-      // Restrict Admin & Client to khatas of allowed projects
       if (role === "Admin" || role === "Client") {
         const allowedIds = accessed_projects.map((p) => p.id);
         allKhatas = allKhatas.filter((k) =>
@@ -101,8 +90,6 @@ export const useKhata = () => {
       fetchKhatas();
     }
   }, [token]);
-
-  // --- Filtering Khatas ---
   const filteredKhatas = useMemo(
     () =>
       khatas.filter(
@@ -112,14 +99,11 @@ export const useKhata = () => {
       ),
     [khatas, filterProject, filterVillage]
   );
-
-  // --- Delete Handler ---
   const handleDeleteConfirm = (id) => {
     setKhatas((prev) => prev.filter((k) => k.id !== id));
     setModals((m) => ({ ...m, isDeleteOpen: false }));
   };
 
-  // --- Modal Handlers ---
   const handlers = {
     openEditModal: (khata) =>
       setModals((m) => ({

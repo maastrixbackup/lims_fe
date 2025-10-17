@@ -64,20 +64,14 @@ export default function Dashboard() {
           gradient="bg-gradient-to-r from-sky-400 to-blue-600"
         />
       </div>
-
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BarChartCard  />
         <PieChartCard />
       </div>
-
-      {/* Data + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentProjects />
         <RecentActivity />
       </div>
-
-      {/* KPI Progress */}
       <ProgressOverview />
     </main>
   );

@@ -11,7 +11,9 @@ export default function useProjects(token) {
   const [loading, setLoading] = useState(false);
 
   const user = useSelector((state) => state.auth.user);
-  const accessedProjects = useSelector((state) => state.auth.accessed_projects || []);
+  const accessedProjects = useSelector(
+    (state) => state.auth.accessed_projects || []
+  );
 
   const fetchProjects = useCallback(async () => {
     if (!token) return;
@@ -25,31 +27,30 @@ export default function useProjects(token) {
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to fetch projects");
       }
-
-      // Normalize all projects
       const allProjects = (data?.projects || data)?.map((p) => ({
         id: p.id || p.project_id,
         name: p.project_name || p.name,
         status: p.status, // numeric
         statusText: reverseStatusMap[p.status], // for UI
-        created: p.created_at ? moment(p.created_at).format("YYYY-MM-DD") : moment().format("YYYY-MM-DD"),
+        created: p.created_at
+          ? moment(p.created_at).format("YYYY-MM-DD")
+          : moment().format("YYYY-MM-DD"),
       }));
 
       let visibleProjects = allProjects;
 
       if (user?.role_name !== "Super Admin") {
-        // Get accessible project IDs
         const accessIds = accessedProjects.map((p) => p.project_id || p.id);
 
-      visibleProjects = allProjects.filter((project) => {
-  const access = accessedProjects.find(
-    (ap) => ap.project_id === project.id || ap.id === project.id
-  );
-  if (!access) return false;
-  // If access.status is defined, match status too
-  return access.status !== undefined ? access.status === project.status : true;
-});
-
+        visibleProjects = allProjects.filter((project) => {
+          const access = accessedProjects.find(
+            (ap) => ap.project_id === project.id || ap.id === project.id
+          );
+          if (!access) return false;
+          return access.status !== undefined
+            ? access.status === project.status
+            : true;
+        });
       }
 
       setProjects(visibleProjects);
@@ -90,7 +91,7 @@ export default function useProjects(token) {
       });
 
       const data = await res.json();
-      console.log("sjdhgajshdgajdh", data)
+      console.log("sjdhgajshdgajdh", data);
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to save project");
       }

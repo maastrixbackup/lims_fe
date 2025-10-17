@@ -13,7 +13,7 @@ const Khata = () => {
     projects,
     villages,
     filteredKhatas,
-    openAddModal,
+    // openAddModal,
     filterProject,
     setFilterProject,
     filterVillage,
@@ -21,36 +21,32 @@ const Khata = () => {
     modals,
     handlers,
   } = useKhata();
-const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
-
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Khata List</h2>
-        <button 
-        // className="btn btn-primary"
-         className={`btn btn-primary text-white ${
+        <button
+          className={`btn btn-primary text-white ${
             userRole === "Admin" || userRole === "Client"
               ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
               : ""
-          }`} 
-        onClick={handlers.openAddModal}
-        disabled={userRole === "Admin" || userRole === "Client"}
+          }`}
+          onClick={handlers.openAddModal}
+          disabled={userRole === "Admin" || userRole === "Client"}
         >
           + Add Khata
         </button>
       </div>
 
       <div className="flex space-x-4">
-        {/* Project Filter */}
         <select
           value={filterProject}
           onChange={(e) => {
             setFilterProject(e.target.value);
-            setFilterVillage(""); // reset village when project changes
+            setFilterVillage("");
           }}
           className="select select-bordered w-48"
         >
@@ -61,13 +57,11 @@ const user = useSelector((state) => state.auth.user);
             </option>
           ))}
         </select>
-
-        {/* Village Filter */}
         <select
           value={filterVillage}
           onChange={(e) => setFilterVillage(e.target.value)}
           className="select select-bordered w-48"
-          disabled={!filterProject} // disable until project is selected
+          disabled={!filterProject}
         >
           <option value="">All Villages</option>
           {villages
@@ -82,14 +76,12 @@ const user = useSelector((state) => state.auth.user);
         </select>
       </div>
       <KhataTable
-        khatas={filteredKhatas} // use filteredKhatas from the hook
+        khatas={filteredKhatas}
         onEdit={handlers.openEditModal}
         onDelete={handlers.openDeleteModal}
         onUpload={handlers.openUploadModal}
         onMap={handlers.openMapModal}
       />
-
-      {/* Modals */}
       {modals.isFormOpen && (
         <KhataFormModal {...modals.formProps} onClose={handlers.closeForm} />
       )}

@@ -5,7 +5,7 @@ import useUserManagement from "../hooks/useUserManagement";
 
 const UserManagement = () => {
   const { userToken: token, user } = useSelector((s) => s.auth);
-  const userRole = user.role_name
+  const userRole = user.role_name;
   const userId = user?.role_id;
   const {
     users,
@@ -25,23 +25,24 @@ const UserManagement = () => {
 
   const [filters, setFilters] = useState({ query: "", role: "all" });
 
-const filteredUsers = useMemo(() => {
-  return (users || []).filter((u) => {
-    if (u.role_name === "Super Admin" && u.role_id === 1) {
-      return false;
-    }
-    const matchName = u.name?.toLowerCase().includes(filters.query.toLowerCase());
-    const matchRole = filters.role === "all" || u.role_id === +filters.role;
-    return matchName && matchRole;
-  });
-}, [users, filters]);
+  const filteredUsers = useMemo(() => {
+    return (users || []).filter((u) => {
+      if (u.role_name === "Super Admin" && u.role_id === 1) {
+        return false;
+      }
+      const matchName = u.name
+        ?.toLowerCase()
+        .includes(filters.query.toLowerCase());
+      const matchRole = filters.role === "all" || u.role_id === +filters.role;
+      return matchName && matchRole;
+    });
+  }, [users, filters]);
 
   const isRestricted = ["admin", "client"].includes(userRole);
 
   return (
     <div className="bg-gray-50 text-gray-800">
       <main className="p-4 sm:p-6 space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between gap-3 items-center">
           <h2 className="text-lg font-semibold">User Management</h2>
 
@@ -50,7 +51,9 @@ const filteredUsers = useMemo(() => {
               type="search"
               placeholder="Search by name"
               value={filters.query}
-              onChange={(e) => setFilters({ ...filters, query: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, query: e.target.value })
+              }
               className="input input-bordered w-full sm:w-64"
             />
             <select
@@ -67,7 +70,9 @@ const filteredUsers = useMemo(() => {
             </select>
 
             <button
-              className={`btn btn-primary ${isRestricted ? "btn-disabled opacity-50" : ""}`}
+              className={`btn btn-primary ${
+                isRestricted ? "btn-disabled opacity-50" : ""
+              }`}
               onClick={() => !isRestricted && openModal()}
               disabled={isRestricted}
             >
@@ -75,34 +80,46 @@ const filteredUsers = useMemo(() => {
             </button>
           </div>
         </div>
-
-        {/* Table */}
         <div className="card bg-white rounded-2xl shadow">
           <div className="max-h-[400px] overflow-auto">
             <table className="table w-full text-sm sm:text-base">
               <thead className="bg-gray-100 sticky top-0 text-gray-700">
                 <tr>
-                  {["#", "Name", "Email", "Role", "Projects", "Actions"].map((h) => (
-                    <th key={h} className={h === "Actions" ? "text-right pr-6" : ""}>
-                      {h}
-                    </th>
-                  ))}
+                  {["#", "Name", "Email", "Role", "Projects", "Actions"].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        className={h === "Actions" ? "text-right pr-6" : ""}
+                      >
+                        {h}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.length ? (
                   filteredUsers.map((u, i) => (
-                    <tr key={u.id} className="hover:bg-gray-50 transition whitespace-nowrap">
+                    <tr
+                      key={u.id}
+                      className="hover:bg-gray-50 transition whitespace-nowrap"
+                    >
                       <td>{i + 1}</td>
                       <td>{u.name}</td>
                       <td>{u.email}</td>
                       <td>{u.role_name}</td>
                       <td>{u.accessed_projects || "—"}</td>
                       <td className="text-right">
-                        <button className="btn btn-xs btn-warning text-white mr-2" onClick={() => openModal(u)}>
+                        <button
+                          className="btn btn-xs btn-warning text-white mr-2"
+                          onClick={() => openModal(u)}
+                        >
                           <Pencil size={14} className="mr-1" /> Edit
                         </button>
-                        <button className="btn btn-xs btn-error text-white" onClick={() => setDeleteConfirm(u)}>
+                        <button
+                          className="btn btn-xs btn-error text-white"
+                          onClick={() => setDeleteConfirm(u)}
+                        >
                           <Trash2 size={14} className="mr-1" /> Delete
                         </button>
                       </td>
@@ -120,124 +137,121 @@ const filteredUsers = useMemo(() => {
           </div>
         </div>
       </main>
+      {isModalOpen && (
+        <Modal
+          title={editingUser ? "Edit User" : "Add User"}
+          onClose={closeModal}
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Full Name"
+              type="text"
+              value={formData.name}
+              onChange={(v) => setFormData((p) => ({ ...p, name: v }))}
+            />
 
-   {/* Add/Edit Modal */}
-{isModalOpen && (
-  <Modal title={editingUser ? "Edit User" : "Add User"} onClose={closeModal}>
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* ✅ Basic Info */}
-      <Input
-        label="Full Name"
-        type="text"
-        value={formData.name}
-        onChange={(v) => setFormData((p) => ({ ...p, name: v }))}
-      />
-
-      <Input
-        label="Email"
-        type="email"
-        value={formData.email}
-        onChange={(v) => setFormData((p) => ({ ...p, email: v }))}
-      />
-       <Input
-        label="Phone Number"
-        type="number"
-        value={formData.phone_number}
-        onChange={(v) => setFormData((p) => ({ ...p, phone_number: v }))}
-      />
-
-      {/* ✅ Passwords (only for new user) */}
-      {!editingUser && (
-        <>
-          <Input
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={(v) => setFormData((p) => ({ ...p, password: v }))}
-          />
-          <Input
-            label="Confirm Password"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(v) => setFormData((p) => ({ ...p, confirmPassword: v }))}
-          />
-        </>
-      )}
-
-      {/* ✅ Role */}
-      <Select
-        label="Role"
-        value={formData.role_id}
-        options={roles.map((r) => ({ value: r.id, label: r.name }))}
-        onChange={(v) => setFormData((p) => ({ ...p, role_id: v }))}
-      />
-
-      {/* ✅ Project Access */}
-      <Select
-        label="Assign Project"
-        value=""
-        options={projects
-          .filter((p) => !formData.accessed_projects.includes(p.id))
-          .map((p) => ({ value: p.id, label: p.project_name }))}
-        onChange={(v) =>
-          setFormData((p) => ({
-            ...p,
-            accessed_projects: [...p.accessed_projects, +v],
-          }))
-        }
-      />
-
-      {/* ✅ Show selected projects */}
-      <div className="flex flex-wrap gap-2 mt-2">
-        {formData.accessed_projects.length ? (
-          formData.accessed_projects.map((id) => {
-            const projectName =
-              projects.find((p) => p.id === id)?.project_name || "Unknown";
-            return (
-              <span
-                key={id}
-                className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm"
-              >
-                {projectName}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((p) => ({
-                      ...p,
-                      accessed_projects: p.accessed_projects.filter(
-                        (pid) => pid !== id
-                      ),
-                    }))
+            <Input
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={(v) => setFormData((p) => ({ ...p, email: v }))}
+            />
+            <Input
+              label="Phone Number"
+              type="number"
+              value={formData.phone_number}
+              onChange={(v) => setFormData((p) => ({ ...p, phone_number: v }))}
+            />
+            {!editingUser && (
+              <>
+                <Input
+                  label="Password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(v) => setFormData((p) => ({ ...p, password: v }))}
+                />
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(v) =>
+                    setFormData((p) => ({ ...p, confirmPassword: v }))
                   }
-                  className="ml-1 text-blue-500 hover:text-blue-700"
-                >
-                  ×
-                </button>
-              </span>
-            );
-          })
-        ) : (
-          <span className="text-gray-400 text-sm">No projects selected</span>
-        )}
-      </div>
+                />
+              </>
+            )}
+            <Select
+              label="Role"
+              value={formData.role_id}
+              options={roles.map((r) => ({ value: r.id, label: r.name }))}
+              onChange={(v) => setFormData((p) => ({ ...p, role_id: v }))}
+            />
+            <Select
+              label="Assign Project"
+              value=""
+              options={projects
+                .filter((p) => !formData.accessed_projects.includes(p.id))
+                .map((p) => ({ value: p.id, label: p.project_name }))}
+              onChange={(v) =>
+                setFormData((p) => ({
+                  ...p,
+                  accessed_projects: [...p.accessed_projects, +v],
+                }))
+              }
+            />
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.accessed_projects.length ? (
+                formData.accessed_projects.map((id) => {
+                  const projectName =
+                    projects.find((p) => p.id === id)?.project_name ||
+                    "Unknown";
+                  return (
+                    <span
+                      key={id}
+                      className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm"
+                    >
+                      {projectName}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((p) => ({
+                            ...p,
+                            accessed_projects: p.accessed_projects.filter(
+                              (pid) => pid !== id
+                            ),
+                          }))
+                        }
+                        className="ml-1 text-blue-500 hover:text-blue-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })
+              ) : (
+                <span className="text-gray-400 text-sm">
+                  No projects selected
+                </span>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Profile Picture
+              </label>
 
-    {/* ✅ Profile Picture Upload */}
-<div>
-  <label className="block text-sm font-medium mb-1">Profile Picture</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setFormData((prev) => ({ ...prev, profile_pic: file }));
+                  }
+                }}
+                className="file-input file-input-bordered w-full"
+              />
 
-  <input
-    type="file"
-    accept="image/*"
-    onChange={(e) => {
-      const file = e.target.files[0];
-      if (file) {
-        setFormData((prev) => ({ ...prev, profile_pic: file }));
-      }
-    }}
-    className="file-input file-input-bordered w-full"
-  />
-  
-  {/* {formData.profile_pic && typeof formData.profile_pic === "string" && (
+              {/* {formData.profile_pic && typeof formData.profile_pic === "string" && (
     <div className="mb-2">
       <img
         src={
@@ -250,33 +264,28 @@ const filteredUsers = useMemo(() => {
       />
     </div>
   )} */}
-  <div>
-    {formData.profile_pic && (
-  <p className="text-xs text-gray-500 mt-1">
-    {typeof formData.profile_pic === "string"
-      ? formData.profile_pic.split("/").pop()
-      : formData.profile_pic.name}
-  </p>
-)}
+              <div>
+                {formData.profile_pic && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {typeof formData.profile_pic === "string"
+                      ? formData.profile_pic.split("/").pop()
+                      : formData.profile_pic.name}
+                  </p>
+                )}
+              </div>
+            </div>
 
-  </div>
-
-</div>
-
-
-      <div className="modal-action flex gap-3">
-        <button type="submit" className="btn btn-primary">
-          Save
-        </button>
-        <button type="button" className="btn" onClick={closeModal}>
-          Cancel
-        </button>
-      </div>
-    </form>
-  </Modal>
-)}
-
-      {/* Delete Confirm */}
+            <div className="modal-action flex gap-3">
+              <button type="submit" className="btn btn-primary">
+                Save
+              </button>
+              <button type="button" className="btn" onClick={closeModal}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
       {deleteConfirm && (
         <Modal title="Confirm Delete" onClose={() => setDeleteConfirm(null)}>
           <p>
@@ -295,8 +304,6 @@ const filteredUsers = useMemo(() => {
     </div>
   );
 };
-
-/* 🔹 Small reusable helpers */
 const Input = ({ label, type = "text", value, onChange }) => (
   <div>
     <label className="block text-sm font-medium mb-1 capitalize">{label}</label>

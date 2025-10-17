@@ -12,7 +12,7 @@ export default function useFetchDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching dashboard data...");
+        // console.log("Fetching dashboard data...");
         const response = await fetch(`${API_BASE_URL}/getDashboardData`, {
           method: "GET",
           headers: {
@@ -24,7 +24,7 @@ export default function useFetchDashboard() {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const result = await response.json();
-        console.log("Dashboard API response:", result);
+        // console.log("Dashboard API response:", result);
         setData(result.data);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);

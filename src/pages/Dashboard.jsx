@@ -6,10 +6,11 @@ import BarChartCard from "../components/dashboard/BarChartCard";
 import RecentProjects from "../components/dashboard/RecentProjects";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import ProgressOverview from "../components/dashboard/ProgressOverview";
-import useFetch from "../hooks/useFetch";
+// import useFetch from "../hooks/useFetch";
+import useFetchDashboard from "../hooks/useFetchDashboard";
 
 export default function Dashboard() {
-  const { data, loading, error } = useFetch();
+  const { data, loading, error } = useFetchDashboard();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -63,20 +64,14 @@ export default function Dashboard() {
           gradient="bg-gradient-to-r from-sky-400 to-blue-600"
         />
       </div>
-
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BarChartCard  />
         <PieChartCard />
       </div>
-
-      {/* Data + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentProjects />
         <RecentActivity />
       </div>
-
-      {/* KPI Progress */}
       <ProgressOverview />
     </main>
   );

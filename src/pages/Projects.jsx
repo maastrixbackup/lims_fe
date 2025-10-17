@@ -53,15 +53,15 @@ const Projects = () => {
             <option value="desc">Descending</option>
           </select>
           <button
-            className={`btn btn-primary ${
-              userRole === "Admin" || userRole === "Client"
-                ? "btn-disabled opacity-50 cursor-not-allowed"
-                : ""
-            }`}
+              className={`btn btn-primary text-white ${
+            !canModify
+              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+              : ""
+          }`} 
             onClick={() => {
               if (userRole !== "Admin" && userRole !== "Client") openModal();
             }}
-            disabled={userRole === "Admin" || userRole === "Client"}
+            disabled={!canModify}
           >
             + Add Project
           </button>

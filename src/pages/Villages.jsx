@@ -7,7 +7,12 @@ import moment from "moment";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
-  const isRestricted = ["Admin", "Client"].includes(user?.role_name);
+  const accessedProjects = useSelector((s) => s.auth.accessed_projects || []);
+  const role = user?.role_name;
+  console.log('accessed_project', accessedProjects)
+
+  // only Super Admin can add/edit/delete
+  const isRestricted = role === "Admin" || role === "Client";
 
   const [villages, setVillages] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -26,6 +31,7 @@ const Villages = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // generic API helper
   const api = async (url, method = "GET", body) => {
     const res = await fetch(`${API_BASE_URL}${url}`, {
       method,
@@ -38,47 +44,82 @@ const Villages = () => {
     return res.json();
   };
 
-  const fetchProjects = async () => {
-    const data = await api("/project/projectList");
-    if (data.success) setProjects(data.projects || []);
-    console.log("Projects in villages page:", data.projects)
-  };
+ // Fetch all projects
+const fetchProjects = async () => {
+  const data = await api("/project/projectList");
+  if (data.success) {
+    let allProjects = data.projects || [];
 
-  const fetchVillages = async () => {
-    const data = await api("/village/villageList");
-    if (data.success) setVillages(data.villages || []);
-    console.log("Villages in villages page:", data.villages)
-  };
+    // Restrict Admin & Client to accessed projects
+    if (role === "Admin" || role === "Client") {
+      const allowedIds = accessedProjects.map((p) => p.id); // ✅ use id, not name
+      allProjects = allProjects.filter((p) => allowedIds.includes(p.id));
+    }
+
+    setProjects(allProjects);
+  }
+};
+
+// Fetch all villages
+const fetchVillages = async () => {
+  const data = await api("/village/villageList");
+  if (data.success) {
+    let allVillages = data.villages || [];
+
+    // Restrict Admin & Client to villages under their accessed projects
+    if (role === "Admin" || role === "Client") {
+      const allowedIds = accessedProjects.map((p) => p.id); // ✅ use id here too
+      allVillages = allVillages.filter((v) =>
+        allowedIds.includes(v.project_id)
+      );
+    }
+
+    setVillages(allVillages);
+  }
+};
+
 
   useEffect(() => {
-    fetchProjects();
-    fetchVillages();
+    if (token) {
+      fetchProjects();
+      fetchVillages();
+    }
   }, [token]);
 
+  // open add/edit modal
   const openModal = (v = null) => {
     setEditingVillage(v);
     setFormData(
       v
-        ? { project_id: v.project_id, village_name: v.village_name, district: v.district, tahasil: v.tahasil }
+        ? {
+            project_id: v.project_id,
+            village_name: v.village_name,
+            district: v.district,
+            tahasil: v.tahasil,
+          }
         : { project_id: "", village_name: "", district: "", tahasil: "" }
     );
     setIsModalOpen(true);
   };
 
+  // submit form (add/update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingVillage
       ? `/village/updateVillage/${editingVillage.id}`
       : `/village/addVillage`;
     const method = editingVillage ? "PUT" : "POST";
+
     const data = await api(url, method, formData);
     alert(data.message || (editingVillage ? "Village updated" : "Village added"));
+
     if (data.success) {
       setIsModalOpen(false);
       fetchVillages();
     }
   };
 
+  // confirm delete
   const confirmDelete = async () => {
     const data = await api(`/village/deleteVillage/${deleteConfirm.id}`, "DELETE");
     if (data.success) {
@@ -88,18 +129,29 @@ const Villages = () => {
     setDeleteConfirm(null);
   };
 
+  // filtering
   const filteredVillages = villages.filter(
     (v) =>
       (!filter.project_id || v.project_id === Number(filter.project_id)) &&
       (!filter.district || v.district === filter.district) &&
-      (!filter.tahasil || v.tahasil.toLowerCase().includes(filter.tahasil.toLowerCase()))
+      (!filter.tahasil ||
+        v.tahasil.toLowerCase().includes(filter.tahasil.toLowerCase()))
   );
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <header className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Villages List</h2>
-        <button className="btn btn-primary" disabled={isRestricted} onClick={() => openModal()}>
+        <button
+          className={`btn btn-primary text-white ${
+            isRestricted
+              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+              : ""
+          }`}
+          disabled={isRestricted}
+          onClick={() => openModal()}
+        >
           + Add Village
         </button>
       </header>
@@ -108,11 +160,12 @@ const Villages = () => {
       <div className="card bg-white shadow-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         <select
           name="project_id"
-          value={filter.project_id}
+          value={filter.project_name}
           onChange={(e) => setFilter({ ...filter, project_id: e.target.value })}
           className="select select-bordered"
         >
-          <option value="">All Projects</option>
+          {/* Super Admin sees "All Projects" option */}
+          {role === "Super Admin" && <option value="">All Projects</option>}
           {projects.map((p) => (
             <option key={p.id} value={p.id}>
               {p.project_name}
@@ -159,23 +212,34 @@ const Villages = () => {
           <tbody>
             {filteredVillages.length ? (
               filteredVillages.map((v, i) => (
-                <tr key={v.id} className="hover:bg-gray-50 transition-colors whitespace-nowrap">
+                <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
                   <td>{i + 1}</td>
-                  <td>{projects.find((p) => p.id === v.project_id)?.project_name || "N/A"}</td>
+                  <td>
+                    {projects.find((p) => p.id === v.project_id)?.project_name ||
+                      "N/A"}
+                  </td>
                   <td>{v.village_name}</td>
                   <td>{v.district}</td>
                   <td>{v.tahasil}</td>
                   <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
                   <td className="text-right space-x-2">
                     <button
-                      className="btn btn-xs btn-warning text-white"
+                      className={`btn btn-xs btn-warning text-white ${
+                        isRestricted
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : ""
+                      }`}
                       onClick={() => openModal(v)}
                       disabled={isRestricted}
                     >
                       <Pencil size={14} /> Edit
                     </button>
                     <button
-                      className="btn btn-xs btn-error text-white"
+                      className={`btn btn-xs btn-error text-white ${
+                        isRestricted
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : ""
+                      }`}
                       onClick={() => setDeleteConfirm(v)}
                       disabled={isRestricted}
                     >
@@ -199,7 +263,10 @@ const Villages = () => {
       {isModalOpen && (
         <dialog open className="modal modal-open">
           <div className="modal-box relative">
-            <button className="absolute right-3 top-3" onClick={() => setIsModalOpen(false)}>
+            <button
+              className="absolute right-3 top-3"
+              onClick={() => setIsModalOpen(false)}
+            >
               <X size={20} />
             </button>
             <h3 className="font-bold text-lg mb-4">
@@ -216,7 +283,9 @@ const Villages = () => {
                     <select
                       name="district"
                       value={formData.district}
-                      onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, district: e.target.value })
+                      }
                       className="select select-bordered w-full"
                       required
                     >
@@ -229,7 +298,12 @@ const Villages = () => {
                     <select
                       name="project_id"
                       value={formData.project_id}
-                      onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          project_id: e.target.value,
+                        })
+                      }
                       className="select select-bordered w-full"
                       required
                     >
@@ -245,7 +319,9 @@ const Villages = () => {
                       type="text"
                       name={f}
                       value={formData[f]}
-                      onChange={(e) => setFormData({ ...formData, [f]: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, [f]: e.target.value })
+                      }
                       className="input input-bordered w-full"
                       required
                     />
@@ -257,7 +333,11 @@ const Villages = () => {
                 <button className="btn btn-primary" type="submit">
                   Save
                 </button>
-                <button className="btn" onClick={() => setIsModalOpen(false)} type="button">
+                <button
+                  className="btn"
+                  onClick={() => setIsModalOpen(false)}
+                  type="button"
+                >
                   Cancel
                 </button>
               </div>
@@ -279,7 +359,11 @@ const Villages = () => {
               <button className="btn btn-error" onClick={confirmDelete}>
                 Yes, Delete
               </button>
-              <button className="btn" onClick={() => setDeleteConfirm(null)}>
+              <button
+                className="btn"
+                onClick={() => setDeleteConfirm(null)}
+                type="button"
+              >
                 Cancel
               </button>
             </div>

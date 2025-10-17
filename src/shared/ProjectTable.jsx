@@ -27,27 +27,37 @@ const ProjectTable = ({ projects, canModify, onEdit, onDelete, loading }) => {
                   <td>
                     <span
                       className={`badge w-24 justify-center ${
-                        p.status === "Active"
+                        p.status === 1
                           ? "badge-success"
-                          : p.status === "Pending"
+                          : p.status === 0
                           ? "badge-warning"
                           : "badge-error"
                       }`}
                     >
-                      {p.status}
+                      {p.status === 1 ? "Active" : p.status === 0 ? "Pending" : "Closed" }
                     </span>
                   </td>
                   <td>{moment(p.created).format("DD-MM-YYYY")}</td>
                   <td className="text-right space-x-2">
                     <button
-                      className="btn btn-xs btn-warning text-white"
+                      // className="btn btn-xs btn-warning text-white"
+                       className={`btn btn-xs btn-warning text-white ${
+                          !canModify
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
                       onClick={() => onEdit(p)}
                       disabled={!canModify}
                     >
                       <Pencil size={14} /> Edit
                     </button>
                     <button
-                      className="btn btn-xs btn-error text-white"
+                      // className="btn btn-xs btn-error text-white"
+                       className={`btn btn-xs btn-error text-white ${
+                          !canModify
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
                       onClick={() => onDelete(p)}
                       disabled={!canModify}
                     >

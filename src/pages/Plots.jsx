@@ -1,19 +1,43 @@
-import React, { useState } from "react";
-import { plotData } from "../utils/constants";
+import React, { useState, useEffect } from "react";
+// import { plotData } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 import PlotTable from "../shared/PlotsTable";
 import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../utils/config";
+
 
 const Plots = () => {
-  const [plots, setPlots] = useState(plotData);
+  // const [plots, setPlots] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
     const userRole = user?.role_name || "";
+    const [plots, setPlots] = useState([]);
+  const [loading, setLoading] = useState(false);
+  // const [deleteConfirm, setDeleteConfirm] = useS
+    
 
   const navigate = useNavigate();
 
+ const fetchPlots = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/plots/plotList`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setPlots(data.plots);
+    } catch (err) {
+      console.error("Error fetching plots:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlots();
+  }, [token]);
   // Delete confirm handler
   const confirmDelete = () => {
     setPlots(plots.filter((p) => p.id !== deleteConfirm.id));
@@ -27,7 +51,7 @@ const Plots = () => {
         <h2 className="text-lg font-semibold">Plots List</h2>
         <button
           className="btn btn-primary"
-          onClick={() => navigate("/plot-form")} // 👈 navigate instead of openModal
+          onClick={() => navigate("/plot-form")} 
            disabled={userRole === "Admin" || userRole === "Client"}
         >
           + Add Plot
@@ -93,8 +117,12 @@ const Plots = () => {
           </table>
         </div>
       </div> */}
-      <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
-
+     
+       {loading ? (
+        <p>Loading plots...</p>
+      ) : (
+        <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
+      )}
       {/* Delete Modal */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">

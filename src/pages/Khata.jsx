@@ -1,5 +1,5 @@
 // src/pages/Khata.jsx
-import React from "react";
+import React, { useMemo } from "react";
 import { useKhata } from "../hooks/useKhata";
 import KhataTable from "../shared/KhataTable";
 import KhataFormModal from "../shared/KhataFormModal";
@@ -11,9 +11,8 @@ import { useSelector } from "react-redux";
 const Khata = () => {
   const {
     projects,
-    villages,
+    khatas, // 👈 include raw khata list (not just filteredKhatas)
     filteredKhatas,
-    // openAddModal,
     filterProject,
     setFilterProject,
     filterVillage,
@@ -21,8 +20,37 @@ const Khata = () => {
     modals,
     handlers,
   } = useKhata();
+
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
+
+  // ✅ Dynamically build village list from khata data
+  const villages = useMemo(() => {
+    if (!khatas || khatas.length === 0) return [];
+
+    // if project selected → filter first by project
+    const filtered = filterProject
+      ? khatas.filter(
+          (k) => String(k.project_id) === String(filterProject)
+        )
+      : khatas;
+
+    // extract unique villages
+    const unique = [];
+    const seen = new Set();
+
+    for (const k of filtered) {
+      if (!seen.has(k.village_id)) {
+        seen.add(k.village_id);
+        unique.push({
+          id: k.village_id,
+          name: k.village_name,
+          project_id: k.project_id,
+        });
+      }
+    }
+    return unique;
+  }, [khatas, filterProject]);
 
   return (
     <div className="p-6 space-y-6">
@@ -41,7 +69,9 @@ const Khata = () => {
         </button>
       </div>
 
+      {/* ✅ Project + Village Filters */}
       <div className="flex space-x-4">
+        {/* Project Dropdown */}
         <select
           value={filterProject}
           onChange={(e) => {
@@ -57,6 +87,8 @@ const Khata = () => {
             </option>
           ))}
         </select>
+
+        {/* Village Dropdown */}
         <select
           value={filterVillage}
           onChange={(e) => setFilterVillage(e.target.value)}
@@ -64,17 +96,14 @@ const Khata = () => {
           disabled={!filterProject}
         >
           <option value="">All Villages</option>
-          {villages
-            .filter((v) =>
-              filterProject ? v.project_id === parseInt(filterProject) : true
-            )
-            .map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.village_name || v.name}
-              </option>
-            ))}
+          {villages.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.name}
+            </option>
+          ))}
         </select>
       </div>
+
       <KhataTable
         khatas={filteredKhatas}
         onEdit={handlers.openEditModal}
@@ -82,24 +111,23 @@ const Khata = () => {
         onUpload={handlers.openUploadModal}
         onMap={handlers.openMapModal}
       />
+
+      {/* Modals */}
       {modals.isFormOpen && (
         <KhataFormModal {...modals.formProps} onClose={handlers.closeForm} />
       )}
-
       {modals.isDeleteOpen && (
         <DeleteConfirmModal
           {...modals.deleteProps}
           onCancel={handlers.closeDeleteModal}
         />
       )}
-
       {modals.isUploadOpen && (
         <UploadModal
           {...modals.uploadProps}
           onClose={handlers.closeUploadModal}
         />
       )}
-
       {modals.isMapOpen && (
         <MapModal {...modals.mapProps} onClose={handlers.closeMapModal} />
       )}

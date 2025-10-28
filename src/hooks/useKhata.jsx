@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { documentList } from "../utils/constants";
+// import { documentList } from "../utils/constants";
 import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
 
@@ -9,7 +9,7 @@ export const useKhata = () => {
   const [khatas, setKhatas] = useState([]);
   const [filterProject, setFilterProject] = useState("");
   const [filterVillage, setFilterVillage] = useState("");
-  const [uploadedDocs, setUploadedDocs] = useState(documentList);
+  const [uploadedDocs, setUploadedDocs] = useState([]);
 
   const { user, userToken: token, accessed_projects = [] } = useSelector(
     (state) => state.auth

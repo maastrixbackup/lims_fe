@@ -1,33 +1,36 @@
 import React, { useState, useEffect } from "react";
-// import { plotData } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 import PlotTable from "../shared/PlotsTable";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../utils/config";
 
-
 const Plots = () => {
-  // const [plots, setPlots] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
-    const userRole = user?.role_name || "";
-    const [plots, setPlots] = useState([]);
-  const [loading, setLoading] = useState(false);
-  // const [deleteConfirm, setDeleteConfirm] = useS
-    
+  const userRole = user?.role_name || "";
 
+  const [plots, setPlots] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1); // ✅ Track current page
+  const [totalPages, setTotalPages] = useState(1); // ✅ Track total pages from API
   const navigate = useNavigate();
 
- const fetchPlots = async () => {
+  const fetchPlots = async (currentPage = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/plots/plotList`, {
+      const res = await fetch(`${API_BASE_URL}/plots/plotList?page=${currentPage}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) setPlots(data.plots);
+      console.log("Plot List Data:", data);
+
+      if (data.success) {
+        setPlots(data.plots || []);
+        // ✅ If your backend provides total pages, update this:
+        setTotalPages(data.totalPages || 1);
+      }
     } catch (err) {
       console.error("Error fetching plots:", err);
     } finally {
@@ -35,13 +38,23 @@ const Plots = () => {
     }
   };
 
+  // ✅ Fetch plots whenever page changes
   useEffect(() => {
-    fetchPlots();
-  }, [token]);
+    if (token) fetchPlots(page);
+  }, [page, token]);
+
   // Delete confirm handler
   const confirmDelete = () => {
-    setPlots(plots.filter((p) => p.id !== deleteConfirm.id));
+    setPlots((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
     setDeleteConfirm(null);
+  };
+
+  // ✅ Pagination Handlers
+  const handlePrev = () => {
+    if (page > 1) setPage((prev) => prev - 1);
+  };
+  const handleNext = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
   };
 
   return (
@@ -51,78 +64,40 @@ const Plots = () => {
         <h2 className="text-lg font-semibold">Plots List</h2>
         <button
           className="btn btn-primary"
-          onClick={() => navigate("/plot-form")} 
-           disabled={userRole === "Admin" || userRole === "Client"}
+          onClick={() => navigate("/plot-form")}
+          disabled={userRole === "Admin" || userRole === "Client"}
         >
           + Add Plot
         </button>
       </div>
 
-      {/* Table */}
-      {/* <div className="card bg-white shadow-lg rounded-2xl">
-        <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-          <table className="table w-full whitespace-nowrap">
-            <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
-              <tr>
-                <th>#</th>
-                <th>Project</th>
-                <th>Village</th>
-                <th>Khata No</th>
-                <th>Code</th>
-                <th>Tenant</th>
-                <th>RoR Area</th>
-                <th className="text-right pr-6">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {plots.length > 0 ? (
-                plots.map((plot, idx) => (
-                  <tr key={plot.id} className="hover:bg-gray-50 transition-colors">
-                    <td>{idx + 1}</td>
-                    <td>{plot.project}</td>
-                    <td>{plot.village}</td>
-                    <td>{plot.khataNo}</td>
-                    <td>{plot.code}</td>
-                    <td>{plot.tenant}</td>
-                    <td>{plot.rorArea}</td>
-                    <td className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          className="btn btn-xs btn-warning text-white"
-                          onClick={() =>
-                            navigate("/plot-form", { state: { plot } }) // 👈 navigate with state for editing
-                          }
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          className="btn btn-xs btn-error text-white"
-                          onClick={() => setDeleteConfirm(plot)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
-                    No plots found. Click{" "}
-                    <span className="font-semibold">+ Add Plot</span> to create one.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div> */}
-     
-       {loading ? (
+      {loading ? (
         <p>Loading plots...</p>
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}
+
+      {/* ✅ Pagination Controls */}
+      <div className="flex justify-center items-center gap-4 mt-6">
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={handlePrev}
+          disabled={page === 1}
+        >
+          ← Previous
+        </button>
+        <span className="text-sm">
+          Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+        </span>
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={handleNext}
+          disabled={page === totalPages}
+        >
+          Next →
+        </button>
+      </div>
+
       {/* Delete Modal */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">

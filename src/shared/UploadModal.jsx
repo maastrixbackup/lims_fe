@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, CheckCircle } from "lucide-react";
+import { X, CheckCircle, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
 
@@ -8,7 +8,9 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
   const [uploading, setUploading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [localDocs, setLocalDocs] = useState([]); // ✅ local copy
+  const [deletingId, setDeletingId] = useState(null);
 
+  // 🔹 Fetch Documents
   const fetchDocuments = async () => {
     if (!khata?.id) return;
     try {
@@ -22,8 +24,8 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
           name: doc.file_name,
           url: doc.url,
         }));
-        setLocalDocs(formatted);      // ✅ show immediately in modal
-        setUploadedDocs(formatted);   // ✅ also sync to parent
+        setLocalDocs(formatted);
+        setUploadedDocs(formatted);
       }
     } catch (err) {
       console.error("Error fetching documents:", err);
@@ -32,14 +34,16 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
 
   useEffect(() => {
     if (khata?.id) {
-      fetchDocuments(); // ✅ always fetch when khata changes or modal opens
+      fetchDocuments(); // ✅ Always fetch when modal opens or khata changes
     }
   }, [khata]);
 
+  // 🔹 Handle File Upload
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
     setUploading(true);
+
     for (const file of files) {
       const formData = new FormData();
       formData.append("khata_id", khata.id);
@@ -66,19 +70,55 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
         console.error(err);
       }
     }
+
     setUploading(false);
     e.target.value = "";
+  };
+
+  // 🔹 Handle Delete Document
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this document?")) return;
+
+    setDeletingId(id);
+    console.log('idddd',id)
+    try {
+      const res = await fetch(`${API_BASE_URL}/khata/deleteKhataFile/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      console.log("deleteeee", id)
+
+      if (data.success) {
+        setLocalDocs((prev) => prev.filter((doc) => doc.id !== id));
+        setUploadedDocs((prev) => prev.filter((doc) => doc.id !== id));
+        setSuccessMsg("Document deleted successfully!");
+      } else {
+        alert(data.message || "Failed to delete document");
+      }
+    } catch (err) {
+      console.error("Error deleting document:", err);
+    }
+    setDeletingId(null);
   };
 
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-3xl relative">
-        <button onClick={onClose} className="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+        >
           <X size={20} />
         </button>
 
-        <h3 className="font-bold text-lg mb-4">Upload Documents for Khata {khata?.number}</h3>
+        {/* Title */}
+        <h3 className="font-bold text-lg mb-4">
+          Upload Documents for Khata {khata?.number}
+        </h3>
 
+        {/* File Input */}
         <input
           type="file"
           accept="application/pdf"
@@ -88,6 +128,7 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
           disabled={uploading}
         />
 
+        {/* Status Messages */}
         {uploading && <p className="text-blue-600 text-sm mb-2">Uploading...</p>}
         {successMsg && (
           <div className="flex items-center gap-2 bg-green-100 border border-green-300 text-green-700 px-3 py-2 rounded-md mb-3">
@@ -96,6 +137,7 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
           </div>
         )}
 
+        {/* Document List */}
         <h4 className="font-semibold mb-3">Uploaded Files:</h4>
 
         {localDocs.length === 0 ? (
@@ -111,21 +153,38 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                   <span className="font-medium text-sm truncate">{doc.name}</span>
                 </div>
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-xs btn-outline btn-primary"
-                >
-                  View
-                </a>
+
+                <div className="flex gap-2">
+                  <a
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-xs btn-outline btn-primary"
+                  >
+                    View
+                  </a>
+                  <button
+                    onClick={() => handleDelete(doc.id)}
+                    className="btn btn-xs btn-outline btn-error"
+                    disabled={deletingId === doc.id}
+                  >
+                    {deletingId === doc.id ? "Deleting..." : (
+                      <>
+                        <Trash2 size={14} className="mr-1" /> Delete
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
 
+        {/* Close Button */}
         <div className="modal-action">
-          <button className="btn" onClick={onClose}>Close</button>
+          <button className="btn" onClick={onClose}>
+            Close
+          </button>
         </div>
       </div>
     </dialog>

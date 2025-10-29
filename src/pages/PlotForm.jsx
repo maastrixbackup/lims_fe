@@ -9,7 +9,7 @@ const PlotForm = () => {
   const { userToken: token } = useSelector((s) => s.auth);
   const editingPlot = location.state?.plot || null;
 
-  // Dropdown options
+  // 🔹 Dropdown options
   const dropdownFields = {
     displaced_affected_person: ["PAF", "PDF"],
     family_with_orphan_members: ["Y", "N"],
@@ -17,7 +17,7 @@ const PlotForm = () => {
     abatement: ["Yes", "No"],
   };
 
-  // Section-wise field grouping
+  // 🔹 Section-wise field grouping
   const sections = {
     "Basic Information": [
       "ses_survey_no",
@@ -133,12 +133,35 @@ const PlotForm = () => {
     ],
   };
 
-  // Initial form with test values
   const [formData, setFormData] = useState(() =>
-    Object.fromEntries(Object.values(sections).flat().map((f) => [f, "Test"]))
+    Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""]))
   );
 
+  const [villageList, setVillageList] = useState([]); // 🔹 New
   const [loading, setLoading] = useState(false);
+
+  // 🔹 Fetch villages
+  useEffect(() => {
+    const fetchVillages = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/village/villageList`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success && data.villages) {
+          setVillageList(data.villages);
+        } else {
+          console.error("Failed to load villages:", data.message);
+        }
+      } catch (err) {
+        console.error("Error fetching villages:", err);
+      }
+    };
+
+    fetchVillages();
+  }, [token]);
 
   useEffect(() => {
     if (editingPlot) setFormData((prev) => ({ ...prev, ...editingPlot }));
@@ -213,7 +236,8 @@ const PlotForm = () => {
                       {field.replace(/_/g, " ").toUpperCase()}
                     </label>
 
-                    {dropdownFields[field] ? (
+                    {/* 🔹 Village dropdown */}
+                    {field === "village_name" ? (
                       <select
                         id={field}
                         name={field}
@@ -221,6 +245,22 @@ const PlotForm = () => {
                         onChange={handleChange}
                         className="select select-bordered w-full"
                       >
+                        <option value="">Select Village</option>
+                        {villageList.map((v) => (
+                          <option key={v.id} value={v.village_name}>
+                            {v.village_name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : dropdownFields[field] ? (
+                      <select
+                        id={field}
+                        name={field}
+                        value={formData[field] || ""}
+                        onChange={handleChange}
+                        className="select select-bordered w-full"
+                      >
+                        <option value="">Select</option>
                         {dropdownFields[field].map((opt) => (
                           <option key={opt} value={opt}>
                             {opt}
@@ -235,10 +275,11 @@ const PlotForm = () => {
                         onChange={handleChange}
                         placeholder={field.replace(/_/g, " ")}
                         type={
-                          field.includes("date") ? "date" :
-                          ["age", "amount", "value", "area", "acres", "hectares", "income"].some((k) =>
-                            field.includes(k)
-                          )
+                          field.includes("date")
+                            ? "date"
+                            : ["age", "amount", "value", "area", "acres", "hectares", "income"].some((k) =>
+                                field.includes(k)
+                              )
                             ? "number"
                             : "text"
                         }

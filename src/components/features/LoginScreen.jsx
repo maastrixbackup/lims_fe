@@ -33,7 +33,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
-      console.log("Login response data:", data);
+      // console.log("Login response data:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -44,7 +44,7 @@ export default function LandingPage() {
       dispatch(login({ user: data.user, token: data.token, accessed_projects: data.accessed_projects || [], }));
 
       const roleName = data.user?.role_name?.trim();
-      console.log("👤 Detected role:", roleName);
+      // console.log("👤 Detected role:", roleName);
 
       switch (roleName) {
         case "Super Admin":

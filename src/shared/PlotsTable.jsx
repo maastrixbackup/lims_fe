@@ -1,16 +1,66 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, X, Filter } from "lucide-react";
 import moment from "moment";
-
+import { useSelector } from "react-redux";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
-  // Sort plots by ID ascending
-  const navigate= useNavigate()
-  const filteredPlots = useMemo(() => {
+  // Filter States
+  const [selectedVillage, setSelectedVillage] = useState("");
+  const [selectedKhata, setSelectedKhata] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+   const user = useSelector((state) => state.auth.user);
+  const role = user?.role_name;
+  const isRestricted = role === "Admin" || role === "Client";
+
+  // Sort plots in ascending order by `id`
+  const sortedPlots = useMemo(() => {
     if (!plots || plots.length === 0) return [];
-    return [...plots].sort((a, b) => a.id - b.id);
+    return [...plots].sort((a, b) => (a.id || 0) - (b.id || 0));
   }, [plots]);
+
+  const villageOptions = useMemo(() => {
+    const uniqueVillages = new Set(
+      plots?.map((p) => p.village_name).filter(Boolean)
+    );
+    return [...uniqueVillages];
+  }, [plots]);
+
+  //  filter options
+  const khataOptions = useMemo(() => {
+    const uniqueKhata = new Set(plots?.map((p) => p.khata_no).filter(Boolean));
+    return [...uniqueKhata];
+  }, [plots]);
+
+  // Apply filters and search
+  const filteredPlots = useMemo(() => {
+    return sortedPlots.filter((plot) => {
+      const matchVillage =
+        !selectedVillage || plot.village_name === selectedVillage;
+      const matchKhata = !selectedKhata || plot.khata_no === selectedKhata;
+
+      const query = searchQuery.toLowerCase();
+      const matchSearch =
+        !searchQuery ||
+        Object.values(plot).join(" ").toLowerCase().includes(query);
+
+      return matchVillage && matchKhata && matchSearch;
+    });
+  }, [sortedPlots, selectedVillage, selectedKhata, searchQuery]);
+
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedVillage("");
+    setSelectedTahasil("");
+    setSearchQuery("");
+  };
+
+  // Sort plots by ID ascending
+  const navigate = useNavigate();
+  // const filteredPlots = useMemo(() => {
+  //   if (!plots || plots.length === 0) return [];
+  //   return [...plots].sort((a, b) => a.id - b.id);
+  // }, [plots]);
 
   if (!filteredPlots.length) {
     return (
@@ -21,12 +71,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       </div>
     );
   }
-    const formatDate = (date) => {
+  const formatDate = (date) => {
     if (!date) return "N/A";
     const d = moment(date);
     return d.isValid() ? d.format("DD-MM-YYYY") : "N/A";
   };
-
 
   const TableWrapper = ({ title, children }) => (
     <div className="space-y-2">
@@ -43,14 +92,24 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const ActionButtons = (plot) => (
     <div className="flex justify-end gap-2">
       <button
-        className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-xs shadow-sm"
+          className={`btn btn-xs btn-warning text-white ${
+                        isRestricted
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : ""
+                      }`}
         onClick={() => navigate("/plot-form", { state: { plot } })}
+        disabled={isRestricted}
       >
         <Pencil size={12} /> Edit
       </button>
       <button
-        className="btn btn-xs btn-error text-white"
+         className={`btn btn-xs btn-error text-white ${
+                        isRestricted
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : ""
+                      }`}
         onClick={() => setDeleteConfirm(plot)}
+        disabled={isRestricted}
       >
         <Trash2 size={12} /> Delete
       </button>
@@ -67,9 +126,82 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const stickyActionCell =
     "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
 
-
   return (
     <div className="space-y-10">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* 🌾 Village Filter */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              Village
+            </label>
+            <select
+              className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-44 text-gray-700"
+              value={selectedVillage}
+              onChange={(e) => setSelectedVillage(e.target.value)}
+            >
+              <option value="">All Villages</option>
+              {villageOptions.map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 📜 Khata Filter */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              Khata No.
+            </label>
+            <select
+              className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-44 text-gray-700"
+              value={selectedKhata}
+              onChange={(e) => setSelectedKhata(e.target.value)}
+            >
+              <option value="">All Khata Numbers</option>
+              {khataOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 🔍 Search Box */}
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              Search
+            </label>
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+              <input
+                type="text"
+                placeholder="Search tenant, plot, khata..."
+                className="px-3 py-2 w-64 text-sm rounded-l-lg focus:outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button
+                className="px-2 text-gray-500 hover:text-indigo-600"
+                onClick={resetFilters}
+                title="Reset filters"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* 📊 Summary */}
+          <div className="ml-auto flex items-center gap-2 bg-indigo-100 px-3 py-2 rounded-lg text-sm text-indigo-700 font-medium shadow-inner">
+            <Filter size={16} />
+            Showing{" "}
+            <span className="text-indigo-900 font-semibold">
+              {filteredPlots.length}
+            </span>{" "}
+            results
+          </div>
+        </div>
+      </div>
       {/* Basic Details */}
       <TableWrapper title="Basic Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
@@ -217,7 +349,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </td>
               <td className="p-3">{plot.legal_heir_certificate_no || "N/A"}</td>
               <td className="p-3">{plot.land_case_no || "N/A"}</td>
-              <td className="p-3">{formatDate(plot.land_case_date) || "N/A"}</td>
+              <td className="p-3">
+                {formatDate(plot.land_case_date) || "N/A"}
+              </td>
               <td className="p-3">{plot.land_case_type || "N/A"}</td>
               <td className="p-3">{plot.land_case_status || "N/A"}</td>
               <td className="p-3">{plot.land_case_action || "N/A"}</td>
@@ -331,12 +465,16 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             >
               <td className="p-3">{idx + 1}</td>
               <td className="p-3">{plot.grievance_no || "N/A"}</td>
-              <td className="p-3">{formatDate(plot.grievance_date) || "N/A"}</td>
+              <td className="p-3">
+                {formatDate(plot.grievance_date) || "N/A"}
+              </td>
               <td className="p-3">{plot.grievance_subject || "N/A"}</td>
               <td className="p-3">{plot.grievance_status || "N/A"}</td>
               <td className="p-3">{plot.grievance_action || "N/A"}</td>
               <td className="p-3">{plot.tribunal === "Y" ? "Yes" : "No"}</td>
-              <td className="p-3">{formatDate(plot.tribunal_deposit_date) || "N/A"}</td>
+              <td className="p-3">
+                {formatDate(plot.tribunal_deposit_date) || "N/A"}
+              </td>
               <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
               <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
               <td className="p-3">{plot.cess ?? "N/A"}</td>

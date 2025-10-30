@@ -79,7 +79,7 @@ export const useKhata = () => {
       }
 
       setKhatas(allKhatas);
-      console.log("Khatas fetched:", allKhatas);
+      // console.log("Khatas fetched:", allKhatas);
     }
   };
 

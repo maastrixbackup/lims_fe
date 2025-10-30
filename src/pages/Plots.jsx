@@ -13,7 +13,8 @@ const Plots = () => {
 
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
-  const userRole = user?.role_name || "";
+  const role = user?.role_name;
+  const isRestricted = role === "Admin" || role === "Client";
   const navigate = useNavigate();
 
   // Fetch plots list
@@ -24,7 +25,7 @@ const Plots = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log("Plot List Data:", data);
+      // console.log("Plot List Data:", data);
 
       if (data.success) {
         setPlots(data.plots || []);
@@ -83,9 +84,14 @@ const Plots = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Plots List</h2>
         <button
-          className="btn btn-primary"
+            className={`btn btn-primary text-white ${
+            isRestricted
+              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+              : ""
+          }`}
+          disabled={isRestricted}
           onClick={() => navigate("/plot-form")}
-          disabled={userRole === "Admin" || userRole === "Client"}
+        
         >
           + Add Plot
         </button>

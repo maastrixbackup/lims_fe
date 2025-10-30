@@ -64,7 +64,6 @@ const UploadPlots = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // ❌ Don’t set Content-Type manually, FormData handles it automatically
         },
         body: formData,
       });

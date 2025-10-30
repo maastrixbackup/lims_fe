@@ -1,330 +1,388 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Filter, X } from "lucide-react"; 
+import { Pencil, Trash2 } from "lucide-react";
+import moment from "moment";
+
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
-  const navigate = useNavigate();
-  // 🔹 Filter States
-  const [selectedVillage, setSelectedVillage] = useState("");
-  const [selectedTahasil, setSelectedTahasil] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // 🔹 Extract unique villages & tahasils for dropdowns
-  const villageOptions = useMemo(() => {
-    const uniqueVillages = new Set(plots?.map((p) => p.village_name).filter(Boolean));
-    return [...uniqueVillages];
-  }, [plots]);
-
-  const tahasilOptions = useMemo(() => {
-    const uniqueTahasil = new Set(plots?.map((p) => p.tahasil_name).filter(Boolean));
-    return [...uniqueTahasil];
-  }, [plots]);
-
-  const sortedPlots = useMemo(() => {
-    if (!plots || plots.length === 0) return [];
-    return [...plots].sort((a, b) => (a.id || 0) - (b.id || 0));
-  }, [plots]);
-
-  // 🔹 Apply filters and search
+  // Sort plots by ID ascending
+  const navigate= useNavigate()
   const filteredPlots = useMemo(() => {
-    return sortedPlots.filter((plot) => {
-      const matchVillage =
-        !selectedVillage || plot.village_name === selectedVillage;
-      const matchTahasil =
-        !selectedTahasil || plot.tahasil_name === selectedTahasil;
+    if (!plots || plots.length === 0) return [];
+    return [...plots].sort((a, b) => a.id - b.id);
+  }, [plots]);
 
-      const query = searchQuery.toLowerCase();
-      const matchSearch =
-        !searchQuery ||
-        Object.values(plot)
-          .join(" ")
-          .toLowerCase()
-          .includes(query);
-
-      return matchVillage && matchTahasil && matchSearch;
-    });
-  }, [sortedPlots, selectedVillage, selectedTahasil, searchQuery]);
-
-  // 🔹 Reset filters
-  const resetFilters = () => {
-    setSelectedVillage("");
-    setSelectedTahasil("");
-    setSearchQuery("");
+  if (!filteredPlots.length) {
+    return (
+      <div className="text-center py-10 text-gray-500">
+        No plots found. Click{" "}
+        <span className="font-semibold text-blue-600">+ Add Plot</span> to
+        create one.
+      </div>
+    );
+  }
+    const formatDate = (date) => {
+    if (!date) return "N/A";
+    const d = moment(date);
+    return d.isValid() ? d.format("DD-MM-YYYY") : "N/A";
   };
- 
+
+
+  const TableWrapper = ({ title, children }) => (
+    <div className="space-y-2">
+      <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 rounded-t-md shadow-sm">
+        {title}
+      </h2>
+      {/* Scroll wrapper */}
+      <div className="overflow-x-auto max-h-[400px] overflow-y-auto rounded-xl shadow-md bg-white">
+        <table className="min-w-full text-xs relative">{children}</table>
+      </div>
+    </div>
+  );
+
+  const ActionButtons = (plot) => (
+    <div className="flex justify-end gap-2">
+      <button
+        className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-xs shadow-sm"
+        onClick={() => navigate("/plot-form", { state: { plot } })}
+      >
+        <Pencil size={12} /> Edit
+      </button>
+      <button
+        className="btn btn-xs btn-error text-white"
+        onClick={() => setDeleteConfirm(plot)}
+      >
+        <Trash2 size={12} /> Delete
+      </button>
+    </div>
+  );
+
+  // Common row class
+  const rowClass = "hover:bg-gray-50 transition-colors";
+
+  // Common header cell style (sticky actions)
+  const stickyActionHeader =
+    "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
+
+  const stickyActionCell =
+    "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
+
 
   return (
-    <div className="card bg-white shadow-lg rounded-2xl">
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div>
-          <label className="text-xs text-gray-600">Village:</label>
-          <select
-            className="select select-bordered select-sm w-40"
-            value={selectedVillage}
-            onChange={(e) => setSelectedVillage(e.target.value)}
-          >
-            <option value="">All Villages</option>
-            {villageOptions.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="space-y-10">
+      {/* Basic Details */}
+      <TableWrapper title="Basic Details">
+        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+          <tr>
+            <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Project ID</th>
+            <th className="p-3 text-left">SES Survey No</th>
+            <th className="p-3 text-left">LA Case File No</th>
+            <th className="p-3 text-left">Date of Award</th>
+            <th className="p-3 text-left">Recorded Tenant</th>
+            <th className="p-3 text-left">Present Tenant</th>
+            <th className="p-3 text-left">Present Address</th>
+            <th className="p-3 text-left">Displaced/Affected</th>
+            <th className="p-3 text-left">Village</th>
+            <th className="p-3 text-left">Tahasil</th>
+            <th className="p-3 text-left">RI Circle</th>
+            <th className="p-3 text-left">Thana No</th>
+            <th className="p-3 text-left">Khata No</th>
+            <th className="p-3 text-left">Plot No</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
 
-        <div>
-          <label className="text-xs text-gray-600">Tahasil:</label>
-          <select
-            className="select select-bordered select-sm w-40"
-            value={selectedTahasil}
-            onChange={(e) => setSelectedTahasil(e.target.value)}
-          >
-            <option value="">All Tahasils</option>
-            {tahasilOptions.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Search tenant, plot, khata..."
-            className="input input-bordered input-sm w-60"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button
-            className="btn btn-sm btn-ghost text-gray-500"
-            onClick={resetFilters}
-            title="Reset filters"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        <div className="ml-auto text-sm text-gray-600 flex items-center gap-1">
-          <Filter size={16} /> Showing {filteredPlots.length} results
-        </div>
-      </div>
-
-      <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-        <table className="table w-full text-xs">
-          <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-            <tr>
-              <th>#</th>
-              <th>Village</th>
-              <th>Tahasil</th>
-              <th>RI Circle</th>
-              <th>Thana No</th>
-              <th>Khata No</th>
-              <th>Plot No</th>
-              <th>Kissam</th>
-              <th>Land Category</th>
-              <th>Tenant (Recorded)</th>
-              <th>Tenant (Present)</th>
-              <th>Present Address</th>
-              <th>Land Area (Acre)</th>
-              <th>Acquired Area (Acre)</th>
-              <th>Market Value (₹)</th>
-              <th>Basic Land Value (₹)</th>
-              <th>Land Value w/ MF (₹)</th>
-              <th>No. of Trees</th>
-              <th>Value of Trees (₹)</th>
-              <th>No. of Houses</th>
-              <th>Value of Houses (₹)</th>
-              <th>Other Structures</th>
-              <th>Value of Other Structures (₹)</th>
-              <th>Total Value (₹)</th>
-              <th>Solatium 100%</th>
-              <th>Additional 12%</th>
-              <th>Total Compensation (₹)</th>
-              <th>Bank</th>
-              <th>Account No</th>
-              <th>IFSC</th>
-              <th>Aadhaar</th>
-              <th>PAN</th>
-              <th>Age</th>
-              <th>Caste</th>
-              <th>Marital Status</th>
-              <th>Education</th>
-              <th>Occupation</th>
-              <th>Annual Income (₹)</th>
-              <th>Skill Acquired</th>
-              <th>Affidavit</th>
-              <th>Family (Major Male)</th>
-              <th>Family (Major Female)</th>
-              <th>Family (Minor Male)</th>
-              <th>Family (Minor Female)</th>
-              <th>Family (Major TG)</th>
-              <th>Family (Minor TG)</th>
-              <th>Disabled Members</th>
-              <th>Orphan Members</th>
-              <th>Legal Heir Cert No</th>
-              <th>Land Case No</th>
-              <th>Case Date</th>
-              <th>Case Type</th>
-              <th>Case Status</th>
-              <th>Case Action</th>
-              <th>RR Employment</th>
-              <th>RR Cash In Lieu</th>
-              <th>RR Training/Skill</th>
-              <th>RR Self Employment</th>
-              <th>RR Special Allowance</th>
-              <th>RR Homestead</th>
-              <th>RR House Building</th>
-              <th>Constructed By</th>
-              <th>Transit Shed</th>
-              <th>Transport Allowance</th>
-              <th>Maintenance Allowance</th>
-              <th>Multiple Displacement</th>
-              <th>Ex-Gratia</th>
-              <th>Other Benefits</th>
-              <th>Grievance No</th>
-              <th>Grievance Date</th>
-              <th>Grievance Subject</th>
-              <th>Grievance Status</th>
-              <th>Grievance Action</th>
-              <th>Tribunal</th>
-              <th>Tribunal Deposit Date</th>
-              <th>Tribunal Amount</th>
-              <th>Premium</th>
-              <th>Ground Rent</th>
-              <th>Cess</th>
-              <th>Incidental Charges</th>
-              <th>Total</th>
-              <th>Abatement</th>
-              <th>Date of Award</th>
-              <th>Priority/Urgency</th>
-              <th>Land Use Plan</th>
-              <th>Created At</th>
-              <th>Updated At</th>
-              <th className="text-right pr-6">Actions</th>
+        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+          {filteredPlots.map((plot, idx) => (
+            <tr key={plot.id || idx} className="hover:bg-gray-50 transition">
+              <td className="p-3">{idx + 1}</td>
+              <td className="p-3">{plot.project_id || "N/A"}</td>
+              <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
+              <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{formatDate(plot.date_of_award)}</td>
+              <td className="p-3">{plot.name_of_recorded_tenant || "N/A"}</td>
+              <td className="p-3">{plot.name_of_present_tenant || "N/A"}</td>
+              <td className="p-3">{plot.present_address || "N/A"}</td>
+              <td className="p-3">{plot.displaced_affected_person || "N/A"}</td>
+              <td className="p-3">{plot.village_name || "N/A"}</td>
+              <td className="p-3">{plot.tahasil_name || "N/A"}</td>
+              <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
+              <td className="p-3">{plot.thana_no || "N/A"}</td>
+              <td className="p-3">{plot.khata_no || "N/A"}</td>
+              <td className="p-3">{plot.plot_no || "N/A"}</td>
+              <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
-          </thead>
+          ))}
+        </tbody>
+      </TableWrapper>
+      {/* Bank & Personal Details */}
+      <TableWrapper title="Bank & Personal Details">
+        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+          <tr>
+            <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Bank Name</th>
+            <th className="p-3 text-left">Account No</th>
+            <th className="p-3 text-left">IFSC Code</th>
+            <th className="p-3 text-left">Aadhaar No</th>
+            <th className="p-3 text-left">PAN No</th>
+            <th className="p-3 text-left">Age</th>
+            <th className="p-3 text-left">Caste</th>
+            <th className="p-3 text-left">Marital Status</th>
+            <th className="p-3 text-left">Education</th>
+            <th className="p-3 text-left">Occupation</th>
+            <th className="p-3 text-left">Annual Income (₹)</th>
+            <th className="p-3 text-left">Skill Acquired</th>
+            <th className="p-3 text-left">Affidavit Details</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
 
-          <tbody>
-             {filteredPlots.length > 0 ? (
-              filteredPlots.map((plot, idx) => (
-                <tr key={plot.id || idx} className="hover:bg-gray-50 transition-colors whitespace-nowrap">
-                  <td>{idx + 1}</td>
-                  <td>{plot.village_name || "N/A"}</td>
-                  <td>{plot.tahasil_name || "N/A"}</td>
-                  <td>{plot.ri_circle_name || "N/A"}</td>
-                  <td>{plot.thana_no || "N/A"}</td>
-                  <td>{plot.khata_no || "N/A"}</td>
-                  <td>{plot.plot_no || "N/A"}</td>
-                  <td>{plot.kissam_of_land || "N/A"}</td>
-                  <td>{plot.land_category || "N/A"}</td>
-                  <td>{plot.name_of_recorded_tenant || "N/A"}</td>
-                  <td>{plot.name_of_present_tenant || "N/A"}</td>
-                  <td>{plot.present_address || "N/A"}</td>
-                  <td>{plot.land_area_total_acres || "N/A"}</td>
-                  <td>{plot.land_area_acquired_acres || "N/A"}</td>
-                  <td>{plot.market_value_per_acre || "N/A"}</td>
-                  <td>{plot.basic_land_value || "N/A"}</td>
-                  <td>{plot.land_value_with_mf || "N/A"}</td>
-                  <td>{plot.no_of_trees || "N/A"}</td>
-                  <td>{plot.total_value_of_trees || "N/A"}</td>
-                  <td>{plot.no_of_house || "N/A"}</td>
-                  <td>{plot.value_of_house || "N/A"}</td>
-                  <td>{plot.details_of_other_structures || "N/A"}</td>
-                  <td>{plot.value_of_other_structures || "N/A"}</td>
-                  <td>{plot.total_value || "N/A"}</td>
-                  <td>{plot.solatium_100 || "N/A"}</td>
-                  <td>{plot.additional_12_percent || "N/A"}</td>
-                  <td>{plot.total_compensation || "N/A"}</td>
-                  <td>{plot.bank_name || "N/A"}</td>
-                  <td>{plot.bank_account_no || "N/A"}</td>
-                  <td>{plot.branch_ifsc || "N/A"}</td>
-                  <td>{plot.aadhaar_no || "N/A"}</td>
-                  <td>{plot.pan_no || "N/A"}</td>
-                  <td>{plot.age || "N/A"}</td>
-                  <td>{plot.caste || "N/A"}</td>
-                  <td>{plot.marital_status || "N/A"}</td>
-                  <td>{plot.education || "N/A"}</td>
-                  <td>{plot.occupation || "N/A"}</td>
-                  <td>{plot.annual_income || "N/A"}</td>
-                  <td>{plot.skill_acquired || "N/A"}</td>
-                  <td>{plot.affidavit_details || "N/A"}</td>
-                  <td>{plot.family_major_male || "N/A"}</td>
-                  <td>{plot.family_major_female || "N/A"}</td>
-                  <td>{plot.family_minor_male || "N/A"}</td>
-                  <td>{plot.family_minor_female || "N/A"}</td>
-                  <td>{plot.family_major_transgender || "N/A"}</td>
-                  <td>{plot.family_minor_transgender || "N/A"}</td>
-                  <td>{plot.persons_with_disability || "N/A"}</td>
-                  <td>{plot.family_with_orphan_members || "N/A"}</td>
-                  <td>{plot.legal_heir_certificate_no || "N/A"}</td>
-                  <td>{plot.land_case_no || "N/A"}</td>
-                  <td>{plot.land_case_date || "N/A"}</td>
-                  <td>{plot.land_case_type || "N/A"}</td>
-                  <td>{plot.land_case_status || "N/A"}</td>
-                  <td>{plot.land_case_action || "N/A"}</td>
-                  <td>{plot.rr_employment || "N/A"}</td>
-                  <td>{plot.rr_cash_in_lieu || "N/A"}</td>
-                  <td>{plot.rr_training_skill_upgradation || "N/A"}</td>
-                  <td>{plot.rr_self_employment || "N/A"}</td>
-                  <td>{plot.rr_special_allowance_st_ntfp || "N/A"}</td>
-                  <td>{plot.rr_homestead_allotment || "N/A"}</td>
-                  <td>{plot.rr_house_building_assistance || "N/A"}</td>
-                  <td>{plot.rr_constructed_by || "N/A"}</td>
-                  <td>{plot.rr_transit_shed || "N/A"}</td>
-                  <td>{plot.rr_transport_allowance || "N/A"}</td>
-                  <td>{plot.rr_maintenance_allowance || "N/A"}</td>
-                  <td>{plot.rr_multiple_displacement_allowance || "N/A"}</td>
-                  <td>{plot.rr_exgratia || "N/A"}</td>
-                  <td>{plot.rr_other_benefits || "N/A"}</td>
-                  <td>{plot.grievance_no || "N/A"}</td>
-                  <td>{plot.grievance_date || "N/A"}</td>
-                  <td>{plot.grievance_subject || "N/A"}</td>
-                  <td>{plot.grievance_status || "N/A"}</td>
-                  <td>{plot.grievance_action || "N/A"}</td>
-                  <td>{plot.tribunal || "N/A"}</td>
-                  <td>{plot.tribunal_deposit_date || "N/A"}</td>
-                  <td>{plot.tribunal_amount || "N/A"}</td>
-                  <td>{plot.premium || "N/A"}</td>
-                  <td>{plot.ground_rent || "N/A"}</td>
-                  <td>{plot.cess || "N/A"}</td>
-                  <td>{plot.incidental_charges || "N/A"}</td>
-                  <td>{plot.total || "N/A"}</td>
-                  <td>{plot.abatement || "N/A"}</td>
-                  <td>{plot.date_of_award || "N/A"}</td>
-                  <td>{plot.priority_urgency || "N/A"}</td>
-                  <td>{plot.land_use_plan || "N/A"}</td>
-                  <td>{new Date(plot.created_at).toLocaleDateString() || "N/A"}</td>
-                  <td>{plot.updated_at ? new Date(plot.updated_at).toLocaleDateString() : "N/A"}</td>
+        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+          {filteredPlots.map((plot, idx) => (
+            <tr key={plot.id || idx} className={rowClass}>
+              <td className="p-3">{idx + 1}</td>
+              <td className="p-3">{plot.bank_name || "N/A"}</td>
+              <td className="p-3">{plot.bank_account_no || "N/A"}</td>
+              <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
+              <td className="p-3">{plot.aadhaar_no || "N/A"}</td>
+              <td className="p-3">{plot.pan_no || "N/A"}</td>
+              <td className="p-3">{plot.age || "N/A"}</td>
+              <td className="p-3">{plot.caste || "N/A"}</td>
+              <td className="p-3">{plot.marital_status || "N/A"}</td>
+              <td className="p-3">{plot.education || "N/A"}</td>
+              <td className="p-3">{plot.occupation || "N/A"}</td>
+              <td className="p-3">{plot.annual_income || "N/A"}</td>
+              <td className="p-3">{plot.skill_acquired || "N/A"}</td>
+              <td className="p-3">{plot.affidavit_details || "N/A"}</td>
+              <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrapper>
+      {/*  Land Details */}
+      <TableWrapper title="Land and Valuation Details">
+        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
+          <tr>
+            <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Kissam of Land</th>
+            <th className="p-3 text-left">Land Category</th>
+            <th className="p-3 text-left">LO13 Remarks</th>
+            <th className="p-3 text-left">Total Area (Acre)</th>
+            <th className="p-3 text-left">Total Area (Hectare)</th>
+            <th className="p-3 text-left">Acquired Area (Acre)</th>
+            <th className="p-3 text-left">Acquired Area (Hectare)</th>
+            <th className="p-3 text-left">Legal Heir Cert. No</th>
+            <th className="p-3 text-left">Land Case No</th>
+            <th className="p-3 text-left">Land Case Date</th>
+            <th className="p-3 text-left">Land Case Type</th>
+            <th className="p-3 text-left">Land Case Status</th>
+            <th className="p-3 text-left">Land Case Action</th>
+            <th className="p-3 text-left">Market Value / Acre</th>
+            <th className="p-3 text-left">Basic Land Value (₹)</th>
+            <th className="p-3 text-left">Land Value w/ MF (₹)</th>
+            <th className="p-3 text-left">No. of Trees</th>
+            <th className="p-3 text-left">Value of Trees (₹)</th>
+            <th className="p-3 text-left">No. of Houses</th>
+            <th className="p-3 text-left">Value of Houses (₹)</th>
+            <th className="p-3 text-left">Other Structures</th>
+            <th className="p-3 text-left">Value of Other Structures (₹)</th>
+            <th className="p-3 text-left">Total Value (₹)</th>
+            <th className="p-3 text-left">Solatium 100% (₹)</th>
+            <th className="p-3 text-left">Additional 12% (₹)</th>
+            <th className="p-3 text-left">Total Compensation (₹)</th>
+            <th className="p-3 text-left">Apportionment Amount (₹)</th>
+            <th className="p-3 text-left">Priority / Urgency</th>
+            <th className="p-3 text-left">Land Use Plan</th>
+            <th className="p-3 text-left">LA21 Remarks</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
 
-                  <td className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        className="btn btn-xs btn-warning text-white"
-                        onClick={() => navigate("/plot-form", { state: { plot } })}
-                      >
-                        <Pencil size={14} /> Edit
-                      </button>
-                      <button
-                        className="btn btn-xs btn-error text-white"
-                        onClick={() => setDeleteConfirm(plot)}
-                      >
-                        <Trash2 size={14} /> Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="80" className="text-center py-6 text-gray-500">
-                  No plots found. Click <span className="font-semibold">+ Add Plot</span> to create one.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+          {filteredPlots.map((plot, idx) => (
+            <tr
+              key={plot.id || idx}
+              className="hover:bg-gray-50 shadow-sm transition"
+            >
+              <td className="p-3">{idx + 1}</td>
+              <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
+              <td className="p-3">{plot.land_category || "N/A"}</td>
+              <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
+              <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
+              <td className="p-3">{plot.land_area_total_hectares || "N/A"}</td>
+              <td className="p-3">{plot.land_area_acquired_acres || "N/A"}</td>
+              <td className="p-3">
+                {plot.land_area_acquired_hectares || "N/A"}
+              </td>
+              <td className="p-3">{plot.legal_heir_certificate_no || "N/A"}</td>
+              <td className="p-3">{plot.land_case_no || "N/A"}</td>
+              <td className="p-3">{formatDate(plot.land_case_date) || "N/A"}</td>
+              <td className="p-3">{plot.land_case_type || "N/A"}</td>
+              <td className="p-3">{plot.land_case_status || "N/A"}</td>
+              <td className="p-3">{plot.land_case_action || "N/A"}</td>
+              <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
+              <td className="p-3">{plot.basic_land_value || "N/A"}</td>
+              <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>
+              <td className="p-3">{plot.no_of_trees || "N/A"}</td>
+              <td className="p-3">{plot.total_value_of_trees || "N/A"}</td>
+              <td className="p-3">{plot.no_of_house || "N/A"}</td>
+              <td className="p-3">{plot.value_of_house || "N/A"}</td>
+              <td className="p-3">
+                {plot.details_of_other_structures || "N/A"}
+              </td>
+              <td className="p-3">{plot.value_of_other_structures || "N/A"}</td>
+              <td className="p-3">{plot.total_value || "N/A"}</td>
+              <td className="p-3">{plot.solatium_100 || "N/A"}</td>
+              <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
+              <td className="p-3">{plot.total_compensation || "N/A"}</td>
+              <td className="p-3">{plot.apportionment_amount || "N/A"}</td>
+              <td className="p-3">{plot.priority_urgency || "N/A"}</td>
+              <td className="p-3">{plot.land_use_plan || "N/A"}</td>
+              <td className="p-3">{plot.la21_remarks || "N/A"}</td>
+              <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrapper>
+      {/*  RR Details */}
+      <TableWrapper title="RR Details">
+        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+          <tr>
+            <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">RR Employment</th>
+            <th className="p-3 text-left">RR Cash In Lieu</th>
+            <th className="p-3 text-left">RR Training/Skill Upgradation</th>
+            <th className="p-3 text-left">RR Self Employment</th>
+            <th className="p-3 text-left">RR Special Allowance ST/NTFP</th>
+            <th className="p-3 text-left">RR Homestead Allotment</th>
+            <th className="p-3 text-left">RR House Building Assistance</th>
+            <th className="p-3 text-left">RR Constructed By</th>
+            <th className="p-3 text-left">RR Transit Shed</th>
+            <th className="p-3 text-left">RR Transport Allowance</th>
+            <th className="p-3 text-left">RR Maintenance Allowance</th>
+            <th className="p-3 text-left">
+              RR Multiple Displacement Allowance
+            </th>
+            <th className="p-3 text-left">RR Ex-Gratia</th>
+            <th className="p-3 text-left">RR Other Benefits</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+          {filteredPlots.map((plot, idx) => (
+            <tr key={plot.id || idx} className={rowClass}>
+              <td className="p-3">{idx + 1}</td>
+              <td className="p-3">{plot.rr_employment || "N/A"}</td>
+              <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_training_skill_upgradation || "N/A"}
+              </td>
+              <td className="p-3">{plot.rr_self_employment || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_special_allowance_st_ntfp || "N/A"}
+              </td>
+              <td className="p-3">{plot.rr_homestead_allotment || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_house_building_assistance || "N/A"}
+              </td>
+              <td className="p-3">{plot.rr_constructed_by || "N/A"}</td>
+              <td className="p-3">{plot.rr_transit_shed || "N/A"}</td>
+              <td className="p-3">{plot.rr_transport_allowance || "N/A"}</td>
+              <td className="p-3">{plot.rr_maintenance_allowance || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_multiple_displacement_allowance || "N/A"}
+              </td>
+              <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
+              <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
+              <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrapper>
+      {/* Grievance & Tribunal Details */}
+      <TableWrapper title="Grievance & Tribunal Details">
+        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
+          <tr>
+            <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Grievance No</th>
+            <th className="p-3 text-left">Grievance Date</th>
+            <th className="p-3 text-left">Subject</th>
+            <th className="p-3 text-left">Status</th>
+            <th className="p-3 text-left">Action Taken</th>
+            <th className="p-3 text-left">Tribunal</th>
+            <th className="p-3 text-left">Deposit Date</th>
+            <th className="p-3 text-left">Tribunal Amount (₹)</th>
+            <th className="p-3 text-left">Ground Rent (₹)</th>
+            <th className="p-3 text-left">Cess (₹)</th>
+            <th className="p-3 text-left">Incidental Charges (₹)</th>
+            <th className="p-3 text-left">Total (₹)</th>
+            <th className="p-3 text-left">Abatement</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+          {filteredPlots.map((plot, idx) => (
+            <tr
+              key={plot.id || idx}
+              className="hover:bg-gray-50 shadow-sm transition"
+            >
+              <td className="p-3">{idx + 1}</td>
+              <td className="p-3">{plot.grievance_no || "N/A"}</td>
+              <td className="p-3">{formatDate(plot.grievance_date) || "N/A"}</td>
+              <td className="p-3">{plot.grievance_subject || "N/A"}</td>
+              <td className="p-3">{plot.grievance_status || "N/A"}</td>
+              <td className="p-3">{plot.grievance_action || "N/A"}</td>
+              <td className="p-3">{plot.tribunal === "Y" ? "Yes" : "No"}</td>
+              <td className="p-3">{formatDate(plot.tribunal_deposit_date) || "N/A"}</td>
+              <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
+              <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
+              <td className="p-3">{plot.cess ?? "N/A"}</td>
+              <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
+              <td className="p-3">{plot.total ?? "N/A"}</td>
+              <td className="p-3">{plot.abatement || "N/A"}</td>
+              <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrapper>
+      {/*  Family Details */}
+      <TableWrapper title="Family Details">
+        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+          <tr>
+            <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Major Male</th>
+            <th className="p-3 text-left">Major Female</th>
+            <th className="p-3 text-left">Minor Male</th>
+            <th className="p-3 text-left">Minor Female</th>
+            <th className="p-3 text-left">Major Transgender</th>
+            <th className="p-3 text-left">Minor Transgender</th>
+            <th className="p-3 text-left">PwD Members</th>
+            <th className="p-3 text-left">Orphan Members</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+          {filteredPlots.map((plot, idx) => (
+            <tr key={plot.id || idx} className={rowClass}>
+              <td className="p-3">{idx + 1}</td>
+              <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
+              <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
+              <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>
+              <td className="p-3">{plot.family_minor_female ?? "N/A"}</td>
+              <td className="p-3">{plot.family_major_transgender ?? "N/A"}</td>
+              <td className="p-3">{plot.family_minor_transgender ?? "N/A"}</td>
+              <td className="p-3">{plot.persons_with_disability ?? "N/A"}</td>
+              <td className="p-3">
+                {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
+              </td>
+              <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrapper>
     </div>
   );
 };

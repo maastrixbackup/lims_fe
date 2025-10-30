@@ -53,31 +53,38 @@ export default function useUserManagement(token) {
   useEffect(() => {
     fetchData();
   }, [token]);
-  const openModal = (user = null) => {
-    if (user) {
-      setEditingUser(user);
-      setFormData({
-        name: user.name,
-        email: user.email,
-        password: "",
-        confirmPassword: "",
-        role_id: user.role_id,
-        accessed_projects: Array.isArray(user.accessed_projects) ? user.accessed_projects : [],
-        phone_number: user.phone_number,
-        profile_pic: user.profile_pic || "",
-        // status: user.status || "active",
-      });
-      console.log("Editing user:", user);
-      console.log("Form data set to:", formData);
-      console.log("Accessed projects:", user.accessed_projects);
-      console.log("Profile pic:", user.profile_pic);
-      console.log("Role ID:", user.role_id);
-      console.log("Phone number:", user.phone_number);
-    } else {
-      resetForm();
+    
+ const openModal = (user = null) => {
+  if (user) {
+    setEditingUser(user);
+    let parsedProjects = [];
+    if (Array.isArray(user.accessed_projects)) {
+      parsedProjects = user.accessed_projects.map((p) =>
+        typeof p === "object" ? p.id : +p
+      );
+    } else if (typeof user.accessed_projects === "string" && user.accessed_projects) {
+      const matched = projects.find(
+        (p) => p.project_name.toLowerCase() === user.accessed_projects.toLowerCase()
+      );
+      parsedProjects = matched ? [matched.id] : [];
     }
-    setIsModalOpen(true);
-  };
+
+    setFormData({
+      name: user.name || "",
+      email: user.email || "",
+      password: "",
+      confirmPassword: "",
+      role_id: user.role_id || "",
+      accessed_projects: parsedProjects,
+      phone_number: user.phone_number || "",
+      profile_pic: user.profile_pic || "",
+    });
+  } else {
+    resetForm();
+  }
+  setIsModalOpen(true);
+};
+
 
   const resetForm = () => {
     setEditingUser(null);

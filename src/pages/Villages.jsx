@@ -9,7 +9,7 @@ const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
   const accessedProjects = useSelector((s) => s.auth.accessed_projects || []);
   const role = user?.role_name;
-  console.log('accessed_project', accessedProjects)
+  // console.log('accessed_project', accessedProjects)
 
   // only Super Admin can add/edit/delete
   const isRestricted = role === "Admin" || role === "Client";

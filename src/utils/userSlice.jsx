@@ -5,9 +5,9 @@ import { createSlice } from "@reduxjs/toolkit";
 const storedUser = localStorage.getItem("user");
 const storedToken = localStorage.getItem("userToken");
 const storedAccess = localStorage.getItem("accessed_projects");
-console.log("Stored user from localStorage:", storedUser);
-console.log("Stored token from localStorage:", storedToken);
-console.log("Stored accessed_projects from localStorage:", storedAccess); 
+// console.log("Stored user from localStorage:", storedUser);
+// console.log("Stored token from localStorage:", storedToken);
+// console.log("Stored accessed_projects from localStorage:", storedAccess); 
 
 const initialState = {
   loading: false,
@@ -18,7 +18,7 @@ const initialState = {
   success: false,
 };
 
-console.log("Initial user state************:...", initialState);
+// console.log("Initial user state************:...", initialState);
 
 const userSlice = createSlice({
   name: "auth",
@@ -31,8 +31,6 @@ const userSlice = createSlice({
       state.accessed_projects = accessed_projects || [];
       state.success = true;
       state.error = null;
-
-      // ✅ Persist data to localStorage
       localStorage.setItem("userToken", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem(
@@ -47,7 +45,7 @@ const userSlice = createSlice({
       state.success = false;
       state.error = null;
 
-      // ✅ Clear from localStorage
+      //Clear from localStorage
       localStorage.removeItem("userToken");
       localStorage.removeItem("user");
       localStorage.removeItem("accessed_projects");

@@ -91,7 +91,7 @@ export default function useProjects(token) {
       });
 
       const data = await res.json();
-      console.log("sjdhgajshdgajdh", data);
+      // console.log("PROJECT^^^^^^^^^^^^^", data);
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to save project");
       }

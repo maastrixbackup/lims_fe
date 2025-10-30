@@ -17,7 +17,7 @@ const UploadPlots = () => {
 
   const token = useSelector((state) => state.auth.userToken);
 
-  // 🔹 Fetch plot document list
+  // Fetch plot document list
   const fetchPlotDocuments = async () => {
     try {
       setLoadingDocs(true);
@@ -46,7 +46,7 @@ const UploadPlots = () => {
     fetchPlotDocuments();
   }, [token]);
 
-  // 🔹 File Upload
+  // File Upload
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -80,7 +80,7 @@ const UploadPlots = () => {
     }
   };
 
-  // 🔹 Upload to API
+  //Upload to API
   const handleUploadToAPI = async () => {
     if (!file) {
       setError("No file selected. Please select a file first.");
@@ -118,7 +118,7 @@ const UploadPlots = () => {
     }
   };
 
-  // 🔹 Delete Document (optional future API)
+  // Delete Document (optional future API)
   const handleDelete = (name) => {
     // You can replace this alert with delete API
     alert(`Delete API not implemented. Would delete: ${name}`);

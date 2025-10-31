@@ -15,6 +15,7 @@ const Plots = () => {
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
   const isRestricted = role === "Admin" || role === "Client";
+  
   const navigate = useNavigate();
 
   // Fetch plots list

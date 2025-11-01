@@ -34,7 +34,7 @@ const UploadModal = ({ khata, uploadedDocs, setUploadedDocs, onClose }) => {
 
   useEffect(() => {
     if (khata?.id) {
-      fetchDocuments(); // ✅ Always fetch when modal opens or khata changes
+      fetchDocuments(); // Always fetch when modal opens or khata changes
     }
   }, [khata]);
 

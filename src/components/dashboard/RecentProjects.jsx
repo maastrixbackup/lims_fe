@@ -43,7 +43,7 @@ export default function RecentProjects() {
                             ? "badge-success"
                             : project.status_text === "Pending"
                             ? "badge-warning"
-                            : "badge-neutral"
+                            : "badge-error"
                         }`}
                       >
                         {project.status_text}

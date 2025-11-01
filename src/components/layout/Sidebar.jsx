@@ -8,6 +8,7 @@ import {
   ChartBarBig,
   ImageUp,
   User2Icon,
+  Logs,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
@@ -54,6 +55,12 @@ export default function Sidebar({ open, setOpen }) {
       icon: <ChartBarBig size={20} />,
       path: "reports",
       roles: ["Super Admin", "Admin", "Client"],
+    },
+     {
+      name: "Logs",
+      icon: <Logs size={20} />,
+      path: "logs",
+      roles: ["Super Admin"],
     },
   ];
   const filteredMenu = menuItems.filter((item) =>

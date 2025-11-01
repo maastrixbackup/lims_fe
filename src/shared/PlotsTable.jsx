@@ -207,7 +207,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
-            <th className="p-3 text-left">Project ID</th>
+            <th className="p-3 text-left">Project Name</th>
             <th className="p-3 text-left">SES Survey No</th>
             <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Date of Award</th>
@@ -229,7 +229,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className="hover:bg-gray-50 transition">
               <td className="p-3">{idx + 1}</td>
-              <td className="p-3">{plot.project_id || "N/A"}</td>
+              <td className="p-3">{plot.project_name || "N/A"}</td>
               <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{formatDate(plot.date_of_award)}</td>
@@ -253,6 +253,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Bank Name</th>
             <th className="p-3 text-left">Account No</th>
             <th className="p-3 text-left">IFSC Code</th>
@@ -274,6 +275,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.bank_name || "N/A"}</td>
               <td className="p-3">{plot.bank_account_no || "N/A"}</td>
               <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
@@ -297,6 +299,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Kissam of Land</th>
             <th className="p-3 text-left">Land Category</th>
             <th className="p-3 text-left">LO13 Remarks</th>
@@ -338,6 +341,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               className="hover:bg-gray-50 shadow-sm transition"
             >
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
               <td className="p-3">{plot.land_category || "N/A"}</td>
               <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
@@ -384,6 +388,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">RR Employment</th>
             <th className="p-3 text-left">RR Cash In Lieu</th>
             <th className="p-3 text-left">RR Training/Skill Upgradation</th>
@@ -408,6 +413,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.rr_employment || "N/A"}</td>
               <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
               <td className="p-3">
@@ -440,6 +446,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Grievance No</th>
             <th className="p-3 text-left">Grievance Date</th>
             <th className="p-3 text-left">Subject</th>
@@ -464,6 +471,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               className="hover:bg-gray-50 shadow-sm transition"
             >
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.grievance_no || "N/A"}</td>
               <td className="p-3">
                 {formatDate(plot.grievance_date) || "N/A"}
@@ -491,6 +499,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Major Male</th>
             <th className="p-3 text-left">Major Female</th>
             <th className="p-3 text-left">Minor Male</th>
@@ -506,6 +515,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
               <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
               <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>

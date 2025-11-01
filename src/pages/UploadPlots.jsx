@@ -14,10 +14,32 @@ const UploadPlots = () => {
   const [success, setSuccess] = useState(false);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [plotDocs, setPlotDocs] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState("");
 
   const token = useSelector((state) => state.auth.userToken);
+ 
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/project/projectList`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  // Fetch plot document list
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to fetch projects");
+      }
+
+      const data = await response.json();
+      console.log("project list",data)
+      setProjects(data.projects || []);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const fetchPlotDocuments = async () => {
     try {
       setLoadingDocs(true);
@@ -43,10 +65,12 @@ const UploadPlots = () => {
   };
 
   useEffect(() => {
-    fetchPlotDocuments();
+    if (token) {
+      fetchProjects();
+      fetchPlotDocuments();
+    }
   }, [token]);
 
-  // File Upload
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -80,60 +104,80 @@ const UploadPlots = () => {
     }
   };
 
-  //Upload to API
-  const handleUploadToAPI = async () => {
-    if (!file) {
-      setError("No file selected. Please select a file first.");
-      return;
+
+const handleUploadToAPI = async () => {
+  if (!file) return setError("No file selected. Please select a file first.");
+  if (!selectedProject)
+    return setError("Please select a project before uploading.");
+
+  try {
+    setUploading(true);
+    setError(null);
+    setSuccess(false);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("project_id", String(selectedProject)); // ✅ Ensure it's string
+
+    const response = await fetch(`${API_BASE_URL}/plots/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ Token header only (no Content-Type)
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    // console.log('upload**************', data)
+
+    if (!response.ok) {
+      throw new Error(data.message || "File upload failed");
     }
 
-    try {
-      setUploading(true);
-      setError(null);
-      setSuccess(false);
+    setSuccess(true);
+    setFile(null);
+    setPlots([]);
+    fetchPlotDocuments(); // Refresh uploaded document list
+  } catch (err) {
+    console.error("Upload error:", err);
+    setError(err.message || "Upload failed. Please try again.");
+  } finally {
+    setUploading(false);
+  }
+};
 
-      const formData = new FormData();
-      formData.append("file", file);
 
-      const response = await fetch(`${API_BASE_URL}/plots/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Upload failed");
-      }
-
-      await response.json();
-      setSuccess(true);
-      fetchPlotDocuments(); // refresh list
-    } catch (err) {
-      setError(err.message || "Upload failed. Please try again.");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  // Delete Document (optional future API)
   const handleDelete = (name) => {
-    // You can replace this alert with delete API
     alert(`Delete API not implemented. Would delete: ${name}`);
   };
 
   return (
     <main className="p-6 space-y-8">
-      {/* Upload Section */}
-      <div className="flex items-center justify-between">
+      {/* 🔹 Project Select Section */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
+
+        <select
+          className="select select-bordered w-full md:w-1/3"
+          value={selectedProject}
+          onChange={(e) => setSelectedProject(e.target.value)}
+        >
+          <option value="">Select a project</option>
+          {projects.map((proj) => (
+            <option key={proj.id} value={proj.id}>
+              {proj.project_name}
+            </option>
+          ))}
+        </select>
+
         <input
           type="file"
           accept=".csv, .xlsx, .xls"
+          disabled={!selectedProject}
           onChange={handleFileUpload}
-          className="file-input file-input-bordered file-input-primary"
+          className={`file-input file-input-bordered file-input-primary ${
+            !selectedProject ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         />
       </div>
 
@@ -141,7 +185,7 @@ const UploadPlots = () => {
       {error && <p className="text-red-500">{error}</p>}
       {success && (
         <p className="text-green-600 font-medium">
-          ✅ Plots uploaded successfully!
+          Plots uploaded successfully!
         </p>
       )}
 
@@ -186,9 +230,11 @@ const UploadPlots = () => {
         </div>
       )}
 
-      {/* Plot Document List */}
+      {/* Uploaded Plot Documents */}
       <section>
-        <h3 className="text-lg font-semibold mb-3">📄 Uploaded Plot Documents</h3>
+        <h3 className="text-lg font-semibold mb-3">
+          📄 Uploaded Plot Documents
+        </h3>
 
         {loadingDocs ? (
           <p>Loading plot documents...</p>
@@ -210,7 +256,9 @@ const UploadPlots = () => {
                     <td>{idx + 1}</td>
                     <td className="font-medium">{doc.name}</td>
                     <td>{doc.size}</td>
-                    <td>{moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}</td>
+                    <td>
+                      {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
+                    </td>
                     <td className="flex gap-3 items-center">
                       <a
                         href={doc.documentUrl}
@@ -233,7 +281,9 @@ const UploadPlots = () => {
             </table>
           </div>
         ) : (
-          <p className="text-gray-500 italic">No uploaded plot documents found.</p>
+          <p className="text-gray-500 italic">
+            No uploaded plot documents found.
+          </p>
         )}
       </section>
     </main>

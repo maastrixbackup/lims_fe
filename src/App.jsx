@@ -21,6 +21,7 @@ import ForgotPassword from "./components/features/ForgotPassword";
 import ResetPassword from "./components/features/ResetPassword";
 import Reports from "./pages/Reports";
 import PlotForm from "./pages/PlotForm";
+import Logs from "./pages/logs/Logs";
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
               <Route path="/changepassword" element={<ChangePassword />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/plot-form" element={<PlotForm />} />
+              <Route path="/logs" element={<Logs />} />
 
               <Route
                 path="/reset-password/:token"

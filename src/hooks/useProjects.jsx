@@ -23,7 +23,7 @@ export default function useProjects(token) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-
+      console.log("project", data);
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to fetch projects");
       }

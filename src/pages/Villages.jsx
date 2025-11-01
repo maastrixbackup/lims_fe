@@ -9,13 +9,12 @@ const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
   const accessedProjects = useSelector((s) => s.auth.accessed_projects || []);
   const role = user?.role_name;
+  const { projects, villages } = useSelector((s) => s.list);
   // console.log('accessed_project', accessedProjects)
-
+  console.log('namesss',projects)
+  console.log('namesss', villages)
   // only Super Admin can add/edit/delete
   const isRestricted = role === "Admin" || role === "Client";
-
-  const [villages, setVillages] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [formData, setFormData] = useState({
     project_id: "",
     village_name: "",
@@ -43,48 +42,6 @@ const Villages = () => {
     });
     return res.json();
   };
-
- // Fetch all projects
-const fetchProjects = async () => {
-  const data = await api("/project/projectList");
-  if (data.success) {
-    let allProjects = data.projects || [];
-
-    // Restrict Admin & Client to accessed projects
-    if (role === "Admin" || role === "Client") {
-      const allowedIds = accessedProjects.map((p) => p.id); // ✅ use id, not name
-      allProjects = allProjects.filter((p) => allowedIds.includes(p.id));
-    }
-
-    setProjects(allProjects);
-  }
-};
-
-// Fetch all villages
-const fetchVillages = async () => {
-  const data = await api("/village/villageList");
-  if (data.success) {
-    let allVillages = data.villages || [];
-
-    // Restrict Admin & Client to villages under their accessed projects
-    if (role === "Admin" || role === "Client") {
-      const allowedIds = accessedProjects.map((p) => p.id); // ✅ use id here too
-      allVillages = allVillages.filter((v) =>
-        allowedIds.includes(v.project_id)
-      );
-    }
-
-    setVillages(allVillages);
-  }
-};
-
-
-  useEffect(() => {
-    if (token) {
-      fetchProjects();
-      fetchVillages();
-    }
-  }, [token]);
 
   // open add/edit modal
   const openModal = (v = null) => {

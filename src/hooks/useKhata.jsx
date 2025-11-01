@@ -4,17 +4,18 @@ import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
 
 export const useKhata = () => {
-  const [projects, setProjects] = useState([]);
-  const [villages, setVillages] = useState([]);
   const [khatas, setKhatas] = useState([]);
   const [filterProject, setFilterProject] = useState("");
   const [filterVillage, setFilterVillage] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState([]);
 
-  const { user, userToken: token, accessed_projects = [] } = useSelector(
-    (state) => state.auth
-  );
+  const {
+    user,
+    userToken: token,
+    accessed_projects = [],
+  } = useSelector((state) => state.auth);
   const role = user?.role_name;
+  const { projects, villages } = useSelector((s) => s.list);
 
   const [modals, setModals] = useState({
     isFormOpen: false,
@@ -39,43 +40,13 @@ export const useKhata = () => {
     return res.json();
   };
 
-
-  const fetchProjects = async () => {
-    const data = await api("/project/projectList");
-    if (data.success) {
-      let allProjects = data.projects || [];
-      if (role === "Admin" || role === "Client") {
-        const allowedIds = accessed_projects.map((p) => p.id);
-        allProjects = allProjects.filter((p) => allowedIds.includes(p.id));
-      }
-
-      setProjects(allProjects);
-    }
-  };
-  const fetchVillages = async () => {
-    const data = await api("/village/villageList");
-    if (data.success) {
-      let allVillages = data.villages || [];
-      if (role === "Admin" || role === "Client") {
-        const allowedIds = accessed_projects.map((p) => p.id);
-        allVillages = allVillages.filter((v) =>
-          allowedIds.includes(v.project_id)
-        );
-      }
-
-      setVillages(allVillages);
-    }
-  };
-
   const fetchKhatas = async () => {
     const data = await api("/khata/khataList");
     if (data.success) {
       let allKhatas = data.khatas || [];
       if (role === "Admin" || role === "Client") {
         const allowedIds = accessed_projects.map((p) => p.id);
-        allKhatas = allKhatas.filter((k) =>
-          allowedIds.includes(k.project_id)
-        );
+        allKhatas = allKhatas.filter((k) => allowedIds.includes(k.project_id));
       }
 
       setKhatas(allKhatas);
@@ -85,8 +56,6 @@ export const useKhata = () => {
 
   useEffect(() => {
     if (token) {
-      fetchProjects();
-      fetchVillages();
       fetchKhatas();
     }
   }, [token]);

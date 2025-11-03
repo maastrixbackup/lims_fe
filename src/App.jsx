@@ -21,7 +21,7 @@ import ForgotPassword from "./components/features/ForgotPassword";
 import ResetPassword from "./components/features/ResetPassword";
 import Reports from "./pages/Reports";
 import PlotForm from "./pages/PlotForm";
-import Logs from "./pages/logs/Logs";
+import Logs from "./pages/Logs";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, fetchVillages } from "./utils/listSlice";

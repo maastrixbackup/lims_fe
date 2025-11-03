@@ -31,27 +31,35 @@ const userSlice = createSlice({
       state.accessed_projects = accessed_projects || [];
       state.success = true;
       state.error = null;
+
       localStorage.setItem("userToken", token);
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem(
-        "accessed_projects",
-        JSON.stringify(accessed_projects || [])
-      );
+      localStorage.setItem("accessed_projects", JSON.stringify(accessed_projects || []));
     },
+
     logout: (state) => {
       state.user = null;
       state.userToken = null;
       state.accessed_projects = [];
       state.success = false;
       state.error = null;
-
-      //Clear from localStorage
       localStorage.removeItem("userToken");
       localStorage.removeItem("user");
       localStorage.removeItem("accessed_projects");
     },
+
+    // ✅ new action
+    updateUser: (state, action) => {
+      const updatedUser = {
+        ...state.user,
+        ...action.payload,
+      };
+      state.user = updatedUser;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    },
   },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, updateUser } = userSlice.actions;
 export default userSlice.reducer;
+

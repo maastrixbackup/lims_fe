@@ -49,7 +49,7 @@ export default function useUserManagement(token) {
   useEffect(() => {
     fetchData();
   }, [token]);
-
+ console.log('accesseddddd project',formData.accessed_projects)
   const openModal = (user = null) => {
     if (user) {
       setEditingUser(user);
@@ -76,10 +76,11 @@ export default function useUserManagement(token) {
         password: "",
         confirmPassword: "",
         role_id: user.role_id || "",
-        accessed_projects: parsedProjects,
+        accessed_projects: parsedProjects || [],
         phone_number: user.phone_number || "",
         profile_pic: user.profile_pic || "",
       });
+     
     } else {
       resetForm();
     }

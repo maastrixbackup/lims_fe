@@ -12,12 +12,12 @@ export default function Header({ heading, sidebarWidth }) {
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const user = useSelector((state) => state.auth.user);
-  const userRole = user?.role_name || "User";
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
+  console.log("header pp", userProfilePic);
 
   useEffect(() => {
-    function handleClickOutside(e) {
+    function handleClickOutside(e) {   
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotificationsOpen(false);
       }
@@ -28,8 +28,6 @@ export default function Header({ heading, sidebarWidth }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // const { user } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
     dispatch(logout());

@@ -11,8 +11,8 @@ const Villages = () => {
   const role = user?.role_name;
   const { projects, villages } = useSelector((s) => s.list);
   // console.log('accessed_project', accessedProjects)
-  console.log('namesss',projects)
-  console.log('namesss', villages)
+  // console.log('namesss',projects)
+  // console.log('namesss', villages)
   // only Super Admin can add/edit/delete
   const isRestricted = role === "Admin" || role === "Client";
   const [formData, setFormData] = useState({

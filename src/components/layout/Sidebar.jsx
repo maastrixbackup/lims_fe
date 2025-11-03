@@ -9,6 +9,9 @@ import {
   ImageUp,
   User2Icon,
   Logs,
+  LandPlot,
+  LandPlotIcon,
+  TreeDeciduous,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
@@ -33,9 +36,9 @@ export default function Sidebar({ open, setOpen }) {
       roles: ["Super Admin", "Admin", "Client"],
     },
     {
-      name: "Lands",
+      name: "Private Land",
       icon: <Map size={20} />,
-      submenu: ["Projects", "Villages", "Khatas", "Plots"],
+      submenu: ["Projects", "Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
       roles: ["Super Admin", "Admin", "Client"],
     },
     {
@@ -43,6 +46,18 @@ export default function Sidebar({ open, setOpen }) {
       icon: <User2Icon size={20} />,
       path: "usersmanagement",
       roles: ["Super Admin", ],
+    },
+    {
+      name: "Govt Land",
+      icon: <LandPlot size={20} />,
+      // submenu: ["Projects", "Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
+      roles: ["Super Admin",],
+    },
+    {
+      name: "Forest Land",
+      icon: <TreeDeciduous size={20} />,
+      // submenu: ["Projects", "Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
+      roles: ["Super Admin",],
     },
     {
       name: "Import/Export",
@@ -62,6 +77,12 @@ export default function Sidebar({ open, setOpen }) {
       path: "logs",
       roles: ["Super Admin"],
     },
+    //  {
+    //   name: "compensation",
+    //   icon: <Logs size={20} />,
+    //   path: "compensation",
+    //   roles: ["Super Admin"],
+    // },
   ];
   const filteredMenu = menuItems.filter((item) =>
     item.roles.includes(userRole)
@@ -138,7 +159,8 @@ export default function Sidebar({ open, setOpen }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+     <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent hover:scrollbar-thumb-white/60">
+
         {filteredMenu.map((item) => (
           <div key={item.name}>
             {/* Main Menu */}

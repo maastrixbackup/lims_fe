@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
@@ -25,9 +25,10 @@ import Logs from "./pages/Logs";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, fetchVillages } from "./utils/listSlice";
+import Compensation from "./pages/compensation/Compensation";
 
 export default function App() {
- const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { userToken } = useSelector((s) => s.auth);
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/plot-form" element={<PlotForm />} />
               <Route path="/logs" element={<Logs />} />
+              <Route path="/compensation" element={<Compensation />} />
 
               <Route
                 path="/reset-password/:token"

@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  CheckCircle,
-  XCircle,
-  Camera,
-  User,
-  Mail,
-  Phone,
-  Edit,
-  Save,
-  X,
-} from "lucide-react";
+import {CheckCircle,XCircle,Camera, User, Mail, Phone, Edit, Save, X, Loader2,} from "lucide-react";
 import { API_BASE_URL } from "../utils/config";
+import { useDispatch } from "react-redux";
+import { updateUser } from "../utils/userSlice";
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -23,36 +15,37 @@ const Profile = () => {
     role_name: "",
     profile_pic: null,
   });
-
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false); 
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [showModal, setShowModal] = useState(false); 
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchProfile = async () => {
-      setLoading(true);
-      setError("");
-
       try {
+        setLoading(true);
         const token = localStorage.getItem("authToken");
-        if (!token) {
-          setError("User not authenticated");
-          setLoading(false);
-          return;
-        }
+        if (!token) throw new Error("User not authenticated");
 
         const response = await fetch(`${API_BASE_URL}/user/getProfile`, {
-          method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = await response.json();
-        if (!response.ok || !data.success) {
+        if (!response.ok || !data.success)
           throw new Error(data.message || "Failed to load profile");
-        }
 
         const user = data.user;
+        const profilePicUrl = user.profile_pic
+          ? user.profile_pic.startsWith("http")
+            ? user.profile_pic
+            : `${API_BASE_URL}/uploads/${user.profile_pic}`
+          : null;
+
         setProfile({
           avatar: null,
           fullName: user.name || "",
@@ -63,15 +56,8 @@ const Profile = () => {
           role_name: user.role_name || "",
           profile_pic: user.profile_pic || null,
         });
-
-        if (user.profile_pic) {
-          setPreview(
-            user.profile_pic.startsWith("http")
-              ? user.profile_pic
-              : `${API_BASE_URL}/uploads/${user.profile_pic}`
-          );
-        }
-        localStorage.setItem("userProfilePic", user.pr);
+        setPreview(profilePicUrl);
+        localStorage.setItem("userProfilePic", profilePicUrl || "");
       } catch (err) {
         setError(err.message);
       } finally {
@@ -83,25 +69,22 @@ const Profile = () => {
   }, []);
 
   const handleChange = (e) =>
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    setProfile((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
-      setProfile({ ...profile, avatar: file });
+      setProfile((prev) => ({ ...prev, avatar: file }));
       setPreview(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
+      setUpdating(true);
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        alert("Not authorized");
-        return;
-      }
+      if (!token) throw new Error("Not authorized");
 
       const formData = new FormData();
       formData.append("name", profile.fullName);
@@ -118,14 +101,45 @@ const Profile = () => {
       });
 
       const data = await response.json();
-      console.log("dataaaaaa profile", data);
       if (!response.ok || !data.success)
         throw new Error(data.message || "Failed to update profile");
 
-      alert("Profile updated successfully!");
+      const updatedUser = data.updatedUser || data.user || {};
+      const newPicUrl = updatedUser.profile_pic
+        ? updatedUser.profile_pic.startsWith("http")
+          ? updatedUser.profile_pic
+          : `${API_BASE_URL}/uploads/${updatedUser.profile_pic}`
+        : preview;
+
+      //  Update local and Redux states
+      setProfile((prev) => ({
+        ...prev,
+        fullName: updatedUser.name || prev.fullName,
+        username: updatedUser.username || prev.username,
+        email: updatedUser.email || prev.email,
+        phone_number: updatedUser.phone_number || prev.phone_number,
+        profile_pic: updatedUser.profile_pic || prev.profile_pic,
+      }));
+      setPreview(newPicUrl);
+      localStorage.setItem("userProfilePic", newPicUrl || "");
+
+      dispatch(
+        updateUser({
+          name: updatedUser.name,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          phone_number: updatedUser.phone_number,
+          profile_pic: updatedUser.profile_pic,
+        })
+      );
+
+      setShowModal(true);
       setIsEditing(false);
     } catch (err) {
+      console.error("Profile update error:", err);
       alert(err.message || "Failed to update profile");
+    } finally {
+      setUpdating(false); 
     }
   };
 
@@ -137,9 +151,8 @@ const Profile = () => {
   if (loading) {
     return (
       <main className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-600 text-lg font-medium animate-pulse">
-          Loading profile...
-        </p>
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="ml-3 text-gray-600 text-lg font-medium">Loading profile...</p>
       </main>
     );
   }
@@ -154,6 +167,7 @@ const Profile = () => {
         )}
 
         <div className="grid md:grid-cols-3 gap-8">
+          {/* Profile Avatar */}
           <div className="bg-white rounded-2xl shadow-all p-6 flex flex-col items-center text-center border-gray-300">
             <div className="relative">
               <img
@@ -180,16 +194,14 @@ const Profile = () => {
 
             <h3 className="text-lg font-semibold mt-4">{profile.fullName}</h3>
             <p className="text-sm text-gray-500">{profile.role_name}</p>
-            <p className="text-xs text-gray-400 mt-1">
-              {profile.email || "No email"}
-            </p>
+            <p className="text-xs text-gray-400 mt-1">{profile.email}</p>
 
             <div className="mt-6 text-sm text-gray-600 space-y-1">
               <p className="flex items-center justify-center gap-2">
                 <Phone size={14} /> {profile.phone_number || "N/A"}
               </p>
               <p className="flex items-center justify-center gap-2">
-                <Mail size={14} />{" "}
+                <Mail size={14} />
                 {profile.isEmailVerified ? (
                   <span className="flex items-center gap-1 text-green-600">
                     Verified <CheckCircle size={14} />
@@ -202,82 +214,42 @@ const Profile = () => {
               </p>
             </div>
           </div>
-
-          <div className="bg-white rounded-2xl shadow-all p-6 md:col-span-2 flex flex-col justify-between">
+          {/* Profile Details */}
+          <div className="bg-white rounded-2xl shadow-all p-6 md:col-span-2 relative">
             <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
               <User size={20} /> Profile Details
             </h2>
 
-            <form
-              id="profileForm"
-              onSubmit={handleSubmit}
-              className="space-y-5 flex-1"
-            >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={profile.fullName}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  readOnly={!isEditing}
-                />
+            {updating && (
+              <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center rounded-2xl z-10">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="mt-2 text-gray-600 font-medium">Updating...</p>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={profile.username}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  readOnly={!isEditing}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <div className="flex items-center gap-2">
+            <form id="profileForm" onSubmit={handleSubmit} className="space-y-5">
+              {[
+                { label: "Full Name", name: "fullName", type: "text" },
+                { label: "Username", name: "username", type: "text" },
+                { label: "Email Address", name: "email", type: "email" },
+                { label: "Phone Number", name: "phone_number", type: "tel" },
+              ].map((field) => (
+                <div key={field.name}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {field.label}
+                  </label>
                   <input
-                    type="email"
-                    name="email"
-                    value={profile.email}
+                    type={field.type}
+                    name={field.name}
+                    value={profile[field.name]}
                     onChange={handleChange}
                     className="input input-bordered w-full"
                     readOnly={!isEditing}
                   />
-                  {profile.isEmailVerified ? (
-                    <CheckCircle className="text-green-500" size={20} />
-                  ) : (
-                    <XCircle className="text-red-500" size={20} />
-                  )}
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone_number"
-                  value={profile.phone_number}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  readOnly={!isEditing}
-                />
-              </div>
+              ))}
             </form>
 
-            {/* Buttons positioned bottom-right */}
             <div className="flex justify-end mt-6">
               {!isEditing ? (
                 <button
@@ -307,6 +279,25 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 w-80 text-center">
+            <CheckCircle className="mx-auto text-green-500" size={48} />
+            <h3 className="text-lg font-semibold mt-4 text-gray-800">
+              Profile Updated
+            </h3>
+            <p className="text-gray-500 mt-2 text-sm">
+              Your profile has been successfully updated.
+            </p>
+            <button
+              onClick={() => setShowModal(false)}
+              className="btn btn-primary mt-6 w-full"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

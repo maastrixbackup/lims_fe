@@ -15,7 +15,6 @@ const Projects = () => {
   const {
     projects,
     loading,
-    fetchProjects,
     handleSaveProject,
     handleDeleteProject,
   } = useProjects(token);

@@ -33,7 +33,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
-      // console.log("Login response data:", data);
+      console.log("Login response data:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -133,8 +133,6 @@ export default function LandingPage() {
                 <p className="text-error text-sm text-center">{error}</p>
               )}
 
-              {/* Remember me + Forgot password */}
-              {/* Remember me + Forgot password */}
               <div className="flex justify-between items-center text-sm">
                 <label className="cursor-pointer flex items-center space-x-2">
                   <input type="checkbox" className="checkbox checkbox-sm" />

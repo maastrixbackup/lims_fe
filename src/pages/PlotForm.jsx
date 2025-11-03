@@ -9,6 +9,7 @@ const PlotForm = () => {
   const location = useLocation();
   const { userToken: token } = useSelector((s) => s.auth);
   const editingPlot = location.state?.plot || null;
+  const { projects, villages } = useSelector((s) => s.list);
 
   const dropdownFields = {
     displaced_affected_person: ["PAF", "PDF"],
@@ -21,49 +22,8 @@ const PlotForm = () => {
     Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""]))
   );
 
-  const [villageList, setVillageList] = useState([]);
-  const [projectList, setProjectList] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [loading, setLoading] = useState(false);
-
-
-  useEffect(() => {
-    const fetchVillages = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/village/villageList`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        if (data.success && data.villages) setVillageList(data.villages);
-      } catch (err) {
-        console.error("Error fetching villages:", err);
-      }
-    };
-    fetchVillages();
-  }, [token]);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/project/projectList`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        if (data.success && data.projects) {
-          setProjectList(data.projects);
-        } else {
-          console.error("Failed to load projects:", data.message);
-        }
-      } catch (err) {
-        console.error("Error fetching projects:", err);
-      }
-    };
-    fetchProjects();
-  }, [token]);
 
   useEffect(() => {
     if (editingPlot) {
@@ -139,7 +99,7 @@ const PlotForm = () => {
             required
           >
             <option value="">Select Project</option>
-            {projectList.map((proj) => (
+            {projects.map((proj) => (
               <option key={proj.id} value={proj.id}>
                 {proj.project_name}
               </option>
@@ -175,7 +135,7 @@ const PlotForm = () => {
                         className="select select-bordered w-full"
                       >
                         <option value="">Select Village</option>
-                        {villageList.map((v) => (
+                        {villages.map((v) => (
                           <option key={v.id} value={v.village_name}>
                             {v.village_name}
                           </option>

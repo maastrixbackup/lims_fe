@@ -21,11 +21,8 @@ const ChangePassword = () => {
     });
   };
 
-  // --- Submit change password form ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Frontend validation
     if (formData.newPassword !== formData.confirmPassword) {
       setError("New passwords do not match");
       return;

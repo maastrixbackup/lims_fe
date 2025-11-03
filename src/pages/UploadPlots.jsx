@@ -14,31 +14,10 @@ const UploadPlots = () => {
   const [success, setSuccess] = useState(false);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [plotDocs, setPlotDocs] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
+   const { projects } = useSelector((s) => s.list);
 
   const token = useSelector((state) => state.auth.userToken);
- 
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/project/projectList`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Failed to fetch projects");
-      }
-
-      const data = await response.json();
-      console.log("project list",data)
-      setProjects(data.projects || []);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
   const fetchPlotDocuments = async () => {
     try {
@@ -66,7 +45,6 @@ const UploadPlots = () => {
 
   useEffect(() => {
     if (token) {
-      fetchProjects();
       fetchPlotDocuments();
     }
   }, [token]);

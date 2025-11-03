@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
@@ -23,7 +23,20 @@ import Reports from "./pages/Reports";
 import PlotForm from "./pages/PlotForm";
 import Logs from "./pages/logs/Logs";
 
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProjects, fetchVillages } from "./utils/listSlice";
+
 export default function App() {
+ const dispatch = useDispatch();
+  const { userToken } = useSelector((s) => s.auth);
+
+  useEffect(() => {
+    if (userToken) {
+      dispatch(fetchProjects());
+      dispatch(fetchVillages());
+    }
+  }, [userToken, dispatch]);
+
   return (
     <Router>
       <AuthProvider>

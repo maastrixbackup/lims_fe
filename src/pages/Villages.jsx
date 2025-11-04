@@ -7,7 +7,7 @@ import moment from "moment";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
-  const accessedProjects = useSelector((s) => s.auth.accessed_projects || []);
+  // const accessedProjects = useSelector((s) => s.auth.accessed_projects || []);
   const role = user?.role_name;
   const { projects, villages } = useSelector((s) => s.list);
   // console.log('accessed_project', accessedProjects)
@@ -20,6 +20,7 @@ const Villages = () => {
     village_name: "",
     district: "",
     tahasil: "",
+    village_type: "",
   });
   const [filter, setFilter] = useState({
     project_id: "",
@@ -68,7 +69,9 @@ const Villages = () => {
     const method = editingVillage ? "PUT" : "POST";
 
     const data = await api(url, method, formData);
-    alert(data.message || (editingVillage ? "Village updated" : "Village added"));
+    alert(
+      data.message || (editingVillage ? "Village updated" : "Village added")
+    );
 
     if (data.success) {
       setIsModalOpen(false);
@@ -78,7 +81,10 @@ const Villages = () => {
 
   // confirm delete
   const confirmDelete = async () => {
-    const data = await api(`/village/deleteVillage/${deleteConfirm.id}`, "DELETE");
+    const data = await api(
+      `/village/deleteVillage/${deleteConfirm.id}`,
+      "DELETE"
+    );
     if (data.success) {
       alert("Village deleted successfully!");
       fetchVillages();
@@ -112,8 +118,6 @@ const Villages = () => {
           + Add Village
         </button>
       </header>
-
-      {/* Filters */}
       <div className="card bg-white shadow-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         <select
           name="project_id"
@@ -152,7 +156,6 @@ const Villages = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="card bg-white shadow-lg overflow-hidden">
         <table className="table w-full">
           <thead className="bg-gray-100 text-gray-700">
@@ -162,6 +165,7 @@ const Villages = () => {
               <th>Village</th>
               <th>District</th>
               <th>Tahasil</th>
+              <th>Village Type</th>
               <th>Date</th>
               <th className="text-right pr-6">Actions</th>
             </tr>
@@ -172,12 +176,13 @@ const Villages = () => {
                 <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
                   <td>{i + 1}</td>
                   <td>
-                    {projects.find((p) => p.id === v.project_id)?.project_name ||
-                      "N/A"}
+                    {projects.find((p) => p.id === v.project_id)
+                      ?.project_name || "N/A"}
                   </td>
                   <td>{v.village_name}</td>
                   <td>{v.district}</td>
                   <td>{v.tahasil}</td>
+                  <td>{v.village_type}</td>
                   <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
                   <td className="text-right space-x-2">
                     <button
@@ -215,27 +220,36 @@ const Villages = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Add/Edit Modal */}
       {isModalOpen && (
         <dialog open className="modal modal-open">
           <div className="modal-box relative">
+            {/* Close Button */}
             <button
               className="absolute right-3 top-3"
               onClick={() => setIsModalOpen(false)}
             >
               <X size={20} />
             </button>
+
+            {/* Title */}
             <h3 className="font-bold text-lg mb-4">
               {editingVillage ? "Edit Village" : "Add Village"}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-3">
-              {["project_id", "district", "tahasil", "village_name"].map((f) => (
+              {[
+                "project_id",
+                "district",
+                "tahasil",
+                "village_name",
+                "village_type",
+              ].map((f) => (
                 <div key={f}>
                   <label className="block text-sm font-medium mb-1 capitalize">
                     {f.replace("_", " ")}
                   </label>
+
+                  {/* District Dropdown */}
                   {f === "district" ? (
                     <select
                       name="district"
@@ -248,18 +262,18 @@ const Villages = () => {
                     >
                       <option value="">Select District</option>
                       {odishaDistricts.map((d) => (
-                        <option key={d}>{d}</option>
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
                       ))}
                     </select>
                   ) : f === "project_id" ? (
+                    // Project Dropdown
                     <select
                       name="project_id"
                       value={formData.project_id}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          project_id: e.target.value,
-                        })
+                        setFormData({ ...formData, project_id: e.target.value })
                       }
                       className="select select-bordered w-full"
                       required
@@ -271,7 +285,27 @@ const Villages = () => {
                         </option>
                       ))}
                     </select>
+                  ) : f === "village_type" ? (
+                    // ✅ New Dropdown for Village Type
+                    <select
+                      name="village_type"
+                      value={formData.village_type}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          village_type: e.target.value,
+                        })
+                      }
+                      className="select select-bordered w-full"
+                      required
+                    >
+                      <option value="">Select Village Type</option>
+                      <option value="Private">Private</option>
+                      <option value="Government">Government</option>
+                      <option value="Forest">Forest</option>
+                    </select>
                   ) : (
+                    // Regular Text Inputs
                     <input
                       type="text"
                       name={f}
@@ -286,6 +320,7 @@ const Villages = () => {
                 </div>
               ))}
 
+              {/* Footer Buttons */}
               <div className="modal-action">
                 <button className="btn btn-primary" type="submit">
                   Save
@@ -303,7 +338,6 @@ const Villages = () => {
         </dialog>
       )}
 
-      {/* Delete Confirmation */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box">

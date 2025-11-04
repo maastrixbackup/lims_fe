@@ -1,41 +1,29 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { API_BASE_URL } from "../utils/config";
+import { API_BASE_URL } from "../../utils/config";
 
-const KhataFormModal = ({
-  khata,
-  onClose,
-  setKhatas,
-  token,
-  projects,
-  villages,
-}) => {
+const KhataFormModal = ({khata,onClose,setKhatas,token,projects,villages,}) => {
   const [formData, setFormData] = useState({
     project_id: "",
     village_id: "",
     khata_no: "",
   });
 
-  // ✅ track whether the form is loading initial khata data
   const initializing = useRef(false);
-
-  // ✅ Load khata data when editing
   useEffect(() => {
     if (khata) {
-      initializing.current = true; // prevent reset village during initial set
+      initializing.current = true;
       setFormData({
         project_id: khata.project_id || "",
         village_id: khata.village_id || "",
         khata_no: khata.khata_no || khata.number || "",
       });
-      // small delay before allowing normal change detection
       setTimeout(() => (initializing.current = false), 300);
     } else {
       setFormData({ project_id: "", village_id: "", khata_no: "" });
     }
   }, [khata]);
 
-  // ✅ Reset village ONLY when user manually changes project (not during edit load)
   useEffect(() => {
     if (!initializing.current) {
       setFormData((prev) => ({ ...prev, village_id: "" }));
@@ -59,7 +47,6 @@ const KhataFormModal = ({
       let res, data;
 
       if (khata) {
-        // ✅ Update existing Khata
         res = await fetch(`${API_BASE_URL}/khata/updateKhata/${khata.id}`, {
           method: "PUT",
           headers: {
@@ -69,7 +56,6 @@ const KhataFormModal = ({
           body: JSON.stringify(formData),
         });
       } else {
-        // ✅ Add new Khata
         res = await fetch(`${API_BASE_URL}/khata/addKhata`, {
           method: "POST",
           headers: {
@@ -115,10 +101,6 @@ const KhataFormModal = ({
     }
   };
 
-  // ✅ Filter villages belonging to selected project
-  const filteredVillages = formData.project_id
-    ? villages.filter((v) => v.project_id === formData.project_id)
-    : [];
 
   return (
     <dialog open className="modal modal-open">

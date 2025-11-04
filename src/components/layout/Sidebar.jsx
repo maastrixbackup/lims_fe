@@ -10,8 +10,8 @@ import {
   User2Icon,
   Logs,
   LandPlot,
-  LandPlotIcon,
   TreeDeciduous,
+  Trash,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
@@ -38,7 +38,7 @@ export default function Sidebar({ open, setOpen }) {
     {
       name: "Private Land",
       icon: <Map size={20} />,
-      submenu: ["Projects", "Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
+      submenu: ["Villages", "Khatas", "Plots", "Compensation", "Servey"],
       roles: ["Super Admin", "Admin", "Client"],
     },
     {
@@ -77,12 +77,12 @@ export default function Sidebar({ open, setOpen }) {
       path: "logs",
       roles: ["Super Admin"],
     },
-    //  {
-    //   name: "compensation",
-    //   icon: <Logs size={20} />,
-    //   path: "compensation",
-    //   roles: ["Super Admin"],
-    // },
+     {
+      name: "Deleted Records",
+      icon: <Trash size={20} />,
+      path: "deletedrecords",
+      roles: ["Super Admin"],
+    },
   ];
   const filteredMenu = menuItems.filter((item) =>
     item.roles.includes(userRole)

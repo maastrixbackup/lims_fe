@@ -93,7 +93,7 @@ export default function Header({ heading, sidebarWidth }) {
           >
             {selectedProject
               ? selectedProject.project_name || selectedProject.name
-              : "Select Project"}{" "}
+              : "Project"}{" "}
             <ChevronDown size={16} />
           </button>
 

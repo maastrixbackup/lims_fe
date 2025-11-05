@@ -15,6 +15,7 @@ export default function useProjects(token) {
     (state) => state.auth.accessed_projects || []
   );
 
+  // 📦 Fetch Projects
   const fetchProjects = useCallback(async () => {
     if (!token) return;
     try {
@@ -23,15 +24,17 @@ export default function useProjects(token) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log("project", data);
+
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to fetch projects");
       }
+
       const allProjects = (data?.projects || data)?.map((p) => ({
         id: p.id || p.project_id,
         name: p.project_name || p.name,
-        status: p.status, // numeric
-        statusText: reverseStatusMap[p.status], // for UI
+        status: p.status,
+        statusText: reverseStatusMap[p.status],
+        client_code: p.client_code || "",
         created: p.created_at
           ? moment(p.created_at).format("YYYY-MM-DD")
           : moment().format("YYYY-MM-DD"),
@@ -39,7 +42,8 @@ export default function useProjects(token) {
 
       let visibleProjects = allProjects;
 
-      if (user?.role_name !== "Super Admin") {
+      // 🔐 Restrict non-admin users
+      if (user?.role_name !== "Admin") {
         const accessIds = accessedProjects.map((p) => p.project_id || p.id);
 
         visibleProjects = allProjects.filter((project) => {
@@ -65,6 +69,7 @@ export default function useProjects(token) {
     fetchProjects();
   }, [fetchProjects]);
 
+  // 💾 Create / Update Project
   const handleSaveProject = async (formData, editingProject) => {
     const isEdit = !!editingProject;
     setLoading(true);
@@ -73,6 +78,7 @@ export default function useProjects(token) {
       const payload = {
         project_name: formData.name,
         status: statusMap[formData.status],
+        client_code: formData.client_code, // ✅ fixed naming
       };
 
       const url = isEdit
@@ -91,7 +97,8 @@ export default function useProjects(token) {
       });
 
       const data = await res.json();
-      // console.log("PROJECT^^^^^^^^^^^^^", data);
+      console.log("Project save response:", data);
+
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to save project");
       }
@@ -104,6 +111,7 @@ export default function useProjects(token) {
                   ...p,
                   name: formData.name,
                   status: statusMap[formData.status],
+                  client_code: formData.client_code,
                   statusText: formData.status,
                 }
               : p
@@ -117,6 +125,7 @@ export default function useProjects(token) {
             name: formData.name,
             status: statusMap[formData.status],
             statusText: formData.status,
+            client_code: formData.client_code,
             created: moment().format("YYYY-MM-DD"),
           },
         ]);
@@ -129,6 +138,7 @@ export default function useProjects(token) {
     }
   };
 
+  // ❌ Delete Project
   const handleDeleteProject = async (project) => {
     if (!project) return;
     try {

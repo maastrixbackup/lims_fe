@@ -95,12 +95,12 @@ const Khata = () => {
 
           <button
             className={`btn btn-primary text-white ${
-              userRole === "Admin" || userRole === "Client"
+              userRole === "Data Entry User" || userRole === "Viewer"
                 ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                 : ""
             }`}
             onClick={handlers.openAddModal}
-            disabled={userRole === "Admin" || userRole === "Client"}
+            disabled={userRole === "Data Entry User" || userRole === "Viewer"}
           >
             + Add Khata
           </button>

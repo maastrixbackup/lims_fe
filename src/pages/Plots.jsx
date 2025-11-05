@@ -14,7 +14,7 @@ const Plots = () => {
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
-  const isRestricted = role === "Admin" || role === "Client";
+  const isRestricted = role === "Data Entry User" || role === "Viewer";
   
   const navigate = useNavigate();
 

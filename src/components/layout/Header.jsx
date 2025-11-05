@@ -30,14 +30,14 @@ export default function Header({ heading, sidebarWidth }) {
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
 
-  // ✅ Handle project selection
+  // Handle project selection
   const handleProjectSelect = (project) => {
     dispatch(setSelectedProject(project)); // Store globally
     setProjectDropdownOpen(false);
     navigate("/projects"); // Navigate to Project Table
   };
 
-  // ✅ Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
@@ -54,7 +54,7 @@ export default function Header({ heading, sidebarWidth }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Logout Handler
+  // Logout Handler
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -85,7 +85,7 @@ export default function Header({ heading, sidebarWidth }) {
 
       {/* Right Section */}
       <div className="flex items-center gap-6 ml-auto">
-        {/* 🔹 Project Dropdown */}
+        {/*Project Dropdown */}
         <div className="relative" ref={projectRef}>
           <button
             onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
@@ -122,7 +122,7 @@ export default function Header({ heading, sidebarWidth }) {
           )}
         </div>
 
-        {/* 🔔 Notifications */}
+        {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -152,7 +152,7 @@ export default function Header({ heading, sidebarWidth }) {
           )}
         </div>
 
-        {/* 👤 Profile Menu */}
+        {/*Profile Menu */}
         <div className="relative" ref={profileRef}>
           <div
             className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-2 py-1.5 rounded-lg transition-colors duration-200"

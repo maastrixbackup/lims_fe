@@ -47,11 +47,11 @@ export default function LandingPage() {
       // console.log("👤 Detected role:", roleName);
 
       switch (roleName) {
-        case "Super Admin":
         case "Admin":
+        case "Data Entry User":
           navigate("/dashboard");
           break;
-        case "Client":
+        case "Viewer":
           navigate("/dashboard");
           break;
         default:

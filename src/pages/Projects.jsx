@@ -10,7 +10,7 @@ const Projects = () => {
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
 
-  const canModify = userRole !== "Admin" && userRole !== "Client";
+  const canModify = userRole !== "Data Entry User" && userRole !== "Viewer";
 
   const {
     projects,
@@ -58,7 +58,7 @@ const Projects = () => {
               : ""
           }`} 
             onClick={() => {
-              if (userRole !== "Admin" && userRole !== "Client") openModal();
+              if (userRole !== "Data Entry User" && userRole !== "Viewer") openModal();
             }}
             disabled={!canModify}
           >

@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
-    client_code:"Cli-1234",
+    client_code: "Cli-1234",
     status: "Active",
   });
 
@@ -12,24 +12,29 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
     if (project) {
       setFormData({
         name: project.name || "",
-        client_code:"",
-        status: project.status || "Active",
+        client_code: project.client_code || "Cli-1234",
+        status: project.statusText || "Active",
       });
     } else {
-      setFormData({ name: "", status: "Active" });
+      setFormData({
+        name: "",
+        client_code: "Cli-1234",
+        status: "Active",
+      });
     }
   }, [project]);
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onSave(formData);
+    await onSave(formData, project);
   };
 
   return (
@@ -63,13 +68,15 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
               required
             />
           </div>
-           <div>
+
+          {/* Client Code */}
+          <div>
             <label className="block text-sm font-medium mb-1">
-             Client Code
+              Client Code
             </label>
             <input
               type="text"
-              name="name"
+              name="client_code"
               value={formData.client_code}
               onChange={handleChange}
               className="input input-bordered w-full"

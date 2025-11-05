@@ -512,6 +512,18 @@ export const projectVillageKhataMap = {
       "abatement",
     ],
   };
+export const getTypeName = (type) => {
+  switch (Number(type)) {
+    case 1:
+      return "Pvt Land";
+    case 2:
+      return "Govt Land";
+    case 3:
+      return "Forest Land";
+    default:
+      return "-";
+  }
+};
 
 // export const documentList = [
 //   "Order Sheet",

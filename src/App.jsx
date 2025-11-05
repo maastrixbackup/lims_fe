@@ -54,7 +54,7 @@ export default function App() {
 
           <Route
             element={
-              <PrivateRoute allowedRoles={["Super Admin", "Admin", "Client"]} />
+              <PrivateRoute allowedRoles={["Admin", "Data Entry User", "Viewer"]} />
             }
           >
             <Route element={<Layout />}>

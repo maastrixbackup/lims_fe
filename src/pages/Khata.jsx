@@ -1,17 +1,18 @@
-// src/pages/Khata.jsx
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useKhata } from "../hooks/useKhata";
-import KhataTable from "../shared/KhataTable";
-import KhataFormModal from "../shared/KhataFormModal";
+import KhataTable from "../pages/khata/KhataTable";
+import KhataFormModal from "../pages/khata/KhataFormModal";
 import DeleteConfirmModal from "../shared/DeleteConfirmModal";
-import UploadModal from "../shared/UploadModal";
+import UploadModal from "../pages/khata/UploadModal";
 import MapModal from "../shared/MapModal";
+import PlotListModal from "../pages/khata/PlotListModal";
 import { useSelector } from "react-redux";
+
 
 const Khata = () => {
   const {
     projects,
-    khatas, // 👈 include raw khata list (not just filteredKhatas)
+    khatas,
     filteredKhatas,
     filterProject,
     setFilterProject,
@@ -23,19 +24,45 @@ const Khata = () => {
 
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
+  const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
 
-  // ✅ Dynamically build village list from khata data
+  const plots = [
+    {
+      id: 1,
+      plot_no: "P-101",
+      survey_no: "SR-5001",
+      area: 2400,
+      village_name: "Rampur",
+      owner_name: "Ramesh Patel",
+      status: "Completed",
+    },
+    {
+      id: 2,
+      plot_no: "P-102",
+      survey_no: "SR-5002",
+      area: 1800,
+      village_name: "Rampur",
+      owner_name: "Suresh Mehta",
+      status: "Pending",
+    },
+    {
+      id: 3,
+      plot_no: "P-103",
+      survey_no: "SR-5003",
+      area: 2200,
+      village_name: "Bhavnagar",
+      owner_name: "Meena Shah",
+      status: "In Progress",
+    },
+  ];
+
   const villages = useMemo(() => {
     if (!khatas || khatas.length === 0) return [];
 
-    // if project selected → filter first by project
     const filtered = filterProject
-      ? khatas.filter(
-          (k) => String(k.project_id) === String(filterProject)
-        )
+      ? khatas.filter((k) => String(k.project_id) === String(filterProject))
       : khatas;
 
-    // extract unique villages
     const unique = [];
     const seen = new Set();
 
@@ -56,22 +83,30 @@ const Khata = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Khata List</h2>
-        <button
-          className={`btn btn-primary text-white ${
-            userRole === "Admin" || userRole === "Client"
-              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-              : ""
-          }`}
-          onClick={handlers.openAddModal}
-          disabled={userRole === "Admin" || userRole === "Client"}
-        >
-          + Add Khata
-        </button>
-      </div>
 
-      {/* ✅ Project + Village Filters */}
+        {/* Buttons on Right Side */}
+        <div className="flex gap-3">
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => setIsPlotModalOpen(true)}
+          >
+            View Plots
+          </button>
+
+          <button
+            className={`btn btn-primary text-white ${
+              userRole === "Admin" || userRole === "Client"
+                ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                : ""
+            }`}
+            onClick={handlers.openAddModal}
+            disabled={userRole === "Admin" || userRole === "Client"}
+          >
+            + Add Khata
+          </button>
+        </div>
+      </div>
       <div className="flex space-x-4">
-        {/* Project Dropdown */}
         <select
           value={filterProject}
           onChange={(e) => {
@@ -88,7 +123,6 @@ const Khata = () => {
           ))}
         </select>
 
-        {/* Village Dropdown */}
         <select
           value={filterVillage}
           onChange={(e) => setFilterVillage(e.target.value)}
@@ -103,7 +137,6 @@ const Khata = () => {
           ))}
         </select>
       </div>
-
       <KhataTable
         khatas={filteredKhatas}
         onEdit={handlers.openEditModal}
@@ -111,8 +144,6 @@ const Khata = () => {
         onUpload={handlers.openUploadModal}
         onMap={handlers.openMapModal}
       />
-
-      {/* Modals */}
       {modals.isFormOpen && (
         <KhataFormModal {...modals.formProps} onClose={handlers.closeForm} />
       )}
@@ -130,6 +161,12 @@ const Khata = () => {
       )}
       {modals.isMapOpen && (
         <MapModal {...modals.mapProps} onClose={handlers.closeMapModal} />
+      )}
+      {isPlotModalOpen && (
+        <PlotListModal
+          plots={plots}
+          onClose={() => setIsPlotModalOpen(false)}
+        />
       )}
     </div>
   );

@@ -26,6 +26,9 @@ import Logs from "./pages/Logs";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, fetchVillages } from "./utils/listSlice";
 import Compensation from "./pages/compensation/Compensation";
+import DeletedRecords from "./pages/trash/DeletedRecords";
+import SocialServey from "./pages/SocialServey";
+import ProjectTable from "./shared/ProjectTable";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -68,7 +71,9 @@ export default function App() {
               <Route path="/plot-form" element={<PlotForm />} />
               <Route path="/logs" element={<Logs />} />
               <Route path="/compensation" element={<Compensation />} />
-
+               <Route path="/servey" element={<SocialServey/>} />
+               <Route path="/project-table" element={<ProjectTable/>} />
+               <Route path="/deletedrecords" element={<DeletedRecords />} />
               <Route
                 path="/reset-password/:token"
                 element={<ResetPassword />}

@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
+    client_code:"Cli-1234",
     status: "Active",
   });
 
@@ -11,6 +12,7 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
     if (project) {
       setFormData({
         name: project.name || "",
+        client_code:"",
         status: project.status || "Active",
       });
     } else {
@@ -56,6 +58,19 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
               type="text"
               name="name"
               value={formData.name}
+              onChange={handleChange}
+              className="input input-bordered w-full"
+              required
+            />
+          </div>
+           <div>
+            <label className="block text-sm font-medium mb-1">
+             Client Code
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.client_code}
               onChange={handleChange}
               className="input input-bordered w-full"
               required

@@ -1,34 +1,60 @@
-import { Bell, User, LogOut, LockKeyhole } from "lucide-react";
+import {
+  Bell,
+  User,
+  LogOut,
+  LockKeyhole,
+  ChevronDown,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../utils/userSlice";
+import { setSelectedProject } from "../../utils/selectedProjectSlice";
 
 export default function Header({ heading, sidebarWidth }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const notifRef = useRef(null);
   const profileRef = useRef(null);
+  const projectRef = useRef(null);
+
   const user = useSelector((state) => state.auth.user);
+  const { projects } = useSelector((s) => s.list);
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
-  console.log("header pp", userProfilePic);
 
+  // ✅ Handle project selection
+  const handleProjectSelect = (project) => {
+    dispatch(setSelectedProject(project)); // Store globally
+    setProjectDropdownOpen(false);
+    navigate("/projects"); // Navigate to Project Table
+  };
+
+  // ✅ Close dropdowns when clicking outside
   useEffect(() => {
-    function handleClickOutside(e) {   
+    function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotificationsOpen(false);
       }
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
+      if (projectRef.current && !projectRef.current.contains(e.target)) {
+        setProjectDropdownOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ✅ Logout Handler
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -38,6 +64,7 @@ export default function Header({ heading, sidebarWidth }) {
     setProfileOpen(false);
     navigate("/profile");
   };
+
   const changePassword = () => {
     setProfileOpen(false);
     navigate("/changepassword");
@@ -51,68 +78,115 @@ export default function Header({ heading, sidebarWidth }) {
         width: `calc(100% - ${sidebarWidth}px)`,
       }}
     >
-      <h2 className="text-xl font-bold text-indigo-600">{heading}</h2>
+      {/* Left — Page Title */}
+      <h2 className="text-xl font-semibold text-indigo-600 tracking-wide">
+        {heading}
+      </h2>
 
+      {/* Right Section */}
       <div className="flex items-center gap-6 ml-auto">
+        {/* 🔹 Project Dropdown */}
+        <div className="relative" ref={projectRef}>
+          <button
+            onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+            className="flex items-center gap-1 font-medium text-gray-800 hover:text-indigo-600 transition-colors duration-200 cursor-pointer"
+          >
+            {selectedProject
+              ? selectedProject.project_name || selectedProject.name
+              : "Project"}{" "}
+            <ChevronDown size={16} />
+          </button>
+
+          {projectDropdownOpen && (
+            <div className="absolute right-0 mt-3 w-56 bg-white shadow-lg rounded-xl border border-gray-100 p-2 z-50 max-h-64 overflow-y-auto">
+              <ul className="text-sm text-gray-700">
+                {projects && projects.length > 0 ? (
+                  projects.map((project) => (
+                    <li
+                      key={project.id}
+                      onClick={() => handleProjectSelect(project)}
+                      className="p-2 hover:bg-indigo-50 rounded-md cursor-pointer"
+                    >
+                      <span className="font-medium text-gray-800">
+                        {project.project_name || project.name}
+                      </span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="p-2 text-gray-500 italic">
+                    No projects available
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* 🔔 Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
           >
             <Bell size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
+
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <h4 className="font-semibold mb-2">Notifications</h4>
-              <ul className="space-y-2 text-sm">
-                <li className="p-2 hover:bg-gray-100 rounded-md transition-colors duration-150">
-                  New project created
+            <div className="absolute right-0 mt-3 w-64 bg-white shadow-lg rounded-xl border border-gray-100 p-3 z-50">
+              <h4 className="font-semibold text-gray-700 mb-2 text-sm">
+                Notifications
+              </h4>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  🔹 New project created
                 </li>
-                <li className="p-2 hover:bg-gray-100 rounded-md transition-colors duration-150">
-                  Village added
+                <li className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  🏡 Village added
                 </li>
-                <li className="p-2 hover:bg-gray-100 rounded-md transition-colors duration-150">
-                  Plot updated
+                <li className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  📋 Plot updated
                 </li>
               </ul>
             </div>
           )}
         </div>
 
+        {/* 👤 Profile Menu */}
         <div className="relative" ref={profileRef}>
           <div
-            className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200"
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-2 py-1.5 rounded-lg transition-colors duration-200"
             onClick={() => setProfileOpen(!profileOpen)}
           >
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-              <img
-                src={userProfilePic}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover border border-gray-300"
-              />
-            </div>
-            <span className="hidden md:inline font-medium">{username}</span>
+            <img
+              src={userProfilePic}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover border border-gray-300"
+            />
+            <span className="hidden md:inline font-medium text-gray-700">
+              {username}
+            </span>
           </div>
 
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <ul className="text-sm">
+            <div className="absolute right-0 mt-3 w-44 bg-white shadow-lg rounded-xl border border-gray-100 p-2 z-50">
+              <ul className="text-sm text-gray-700">
                 <li
                   onClick={goToProfile}
-                  className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150"
+                  className="p-2 hover:bg-gray-50 rounded-md flex items-center gap-2 cursor-pointer"
                 >
-                  <User size={16} /> Profile
+                  <User size={16} className="text-gray-500" /> Profile
                 </li>
                 <li
                   onClick={changePassword}
-                  className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 cursor-pointer transition-colors duration-150"
+                  className="p-2 hover:bg-gray-50 rounded-md flex items-center gap-2 cursor-pointer"
                 >
-                  <LockKeyhole size={16} /> Change Password
+                  <LockKeyhole size={16} className="text-gray-500" /> Change
+                  Password
                 </li>
                 <li
                   onClick={handleLogout}
-                  className="p-2 hover:bg-gray-100 rounded-md flex items-center gap-2 text-red-600 cursor-pointer transition-colors duration-150"
+                  className="p-2 hover:bg-red-50 rounded-md flex items-center gap-2 text-red-600 cursor-pointer"
                 >
                   <LogOut size={16} /> Logout
                 </li>

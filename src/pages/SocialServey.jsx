@@ -2,7 +2,7 @@ import React from 'react'
 
 const SocialServey = () => {
   return (
-    <div>SocialServey</div>
+    <div>Social Servey</div>
   )
 }
 

@@ -27,7 +27,7 @@ const UserManagement = () => {
 
   const filteredUsers = useMemo(() => {
     return (users || []).filter((u) => {
-      if (u.role_name === "Super Admin" && u.role_id === 1) {
+      if (u.role_name === "Admin" && u.role_id === 1) {
         return false;
       }
       const matchName = u.name
@@ -38,7 +38,7 @@ const UserManagement = () => {
     });
   }, [users, filters]);
 
-  const isRestricted = ["admin", "client"].includes(userRole);
+  const isRestricted = ["data entry user", "viewer"].includes(userRole);
 
   return (
     <div className="bg-gray-50 text-gray-800">

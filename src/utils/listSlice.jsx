@@ -35,6 +35,7 @@ export const fetchVillages = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      console.log("village data redux", data)
 
       if (!data.success) throw new Error(data.message || "Failed to fetch villages");
       return data.villages || [];

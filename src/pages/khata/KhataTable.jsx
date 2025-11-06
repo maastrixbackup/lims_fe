@@ -6,6 +6,12 @@ import moment from "moment";
 const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
+  const selectedProject = useSelector((state) => state.selectedProject.project);
+
+  //  Filter khatas by selected project (if selected)
+  const displayKhatas = selectedProject
+    ? khatas.filter((k) => k.project_id === selectedProject.id)
+    : khatas;
 
   // Helper to convert type ID → name
   const getTypeName = (type) => {
@@ -20,6 +26,9 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
         return "-";
     }
   };
+
+  // Check if user has restricted role
+  const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
   return (
     <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
@@ -37,8 +46,8 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
             </tr>
           </thead>
           <tbody>
-            {khatas.length > 0 ? (
-              khatas.map((khata, idx) => (
+            {displayKhatas.length > 0 ? (
+              displayKhatas.map((khata, idx) => (
                 <tr
                   key={khata.id || idx}
                   className="hover:bg-gray-50 transition-colors whitespace-nowrap"
@@ -48,7 +57,6 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                   <td>{khata.village_name}</td>
                   <td>{khata.khata_no}</td>
                   <td>{getTypeName(khata.type)}</td>
-
                   <td className="text-gray-500">
                     {moment(khata.created_at).format("DD-MM-YYYY")}
                   </td>
@@ -56,42 +64,36 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                     <div className="flex space-x-2 justify-end">
                       <button
                         className={`btn btn-xs btn-warning text-white ${
-                          userRole === "Data Entry User" || userRole === "Viewer"
+                          isRestricted
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : ""
                         }`}
                         onClick={() => onEdit(khata)}
-                        disabled={
-                          userRole === "Data Entry User" || userRole === "Viewer"
-                        }
+                        disabled={isRestricted}
                       >
                         <Pencil size={14} /> Edit
                       </button>
 
                       <button
                         className={`btn btn-xs btn-error text-white ${
-                          userRole === "Data Entry User" || userRole === "Viewer"
+                          isRestricted
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : ""
                         }`}
                         onClick={() => onDelete(khata)}
-                        disabled={
-                          userRole === "Data Entry User" || userRole === "Viewer"
-                        }
+                        disabled={isRestricted}
                       >
                         <Trash2 size={14} /> Delete
                       </button>
 
                       <button
                         className={`btn btn-xs btn-info text-white ${
-                          userRole === "Data Entry User" || userRole === "Viewer"
+                          isRestricted
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : ""
                         }`}
                         onClick={() => onUpload(khata)}
-                        disabled={
-                          userRole === "Data Entry User" || userRole === "Viewer"
-                        }
+                        disabled={isRestricted}
                       >
                         <Upload size={14} /> Upload
                       </button>

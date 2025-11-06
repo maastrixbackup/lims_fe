@@ -30,14 +30,20 @@ export default function Header({ heading, sidebarWidth }) {
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
 
-  // Handle project selection
+  // ✅ Automatically select the first project if none is selected
+  useEffect(() => {
+    if (projects && projects.length > 0 && !selectedProject) {
+      dispatch(setSelectedProject(projects[0]));
+    }
+  }, [projects, selectedProject, dispatch]);
+
+  // ✅ Handle manual project selection
   const handleProjectSelect = (project) => {
     dispatch(setSelectedProject(project)); // Store globally
     setProjectDropdownOpen(false);
-    navigate("/projects"); // Navigate to Project Table
   };
 
-  // Close dropdowns when clicking outside
+  // ✅ Handle clicks outside dropdowns
   useEffect(() => {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
@@ -54,7 +60,7 @@ export default function Header({ heading, sidebarWidth }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Logout Handler
+  // ✅ Logout Handler
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -85,7 +91,7 @@ export default function Header({ heading, sidebarWidth }) {
 
       {/* Right Section */}
       <div className="flex items-center gap-6 ml-auto">
-        {/*Project Dropdown */}
+        {/* Project Dropdown */}
         <div className="relative" ref={projectRef}>
           <button
             onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
@@ -93,7 +99,7 @@ export default function Header({ heading, sidebarWidth }) {
           >
             {selectedProject
               ? selectedProject.project_name || selectedProject.name
-              : "Project"}{" "}
+              : "Select Project"}{" "}
             <ChevronDown size={16} />
           </button>
 
@@ -152,7 +158,7 @@ export default function Header({ heading, sidebarWidth }) {
           )}
         </div>
 
-        {/*Profile Menu */}
+        {/* Profile Menu */}
         <div className="relative" ref={profileRef}>
           <div
             className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-2 py-1.5 rounded-lg transition-colors duration-200"
@@ -181,8 +187,7 @@ export default function Header({ heading, sidebarWidth }) {
                   onClick={changePassword}
                   className="p-2 hover:bg-gray-50 rounded-md flex items-center gap-2 cursor-pointer"
                 >
-                  <LockKeyhole size={16} className="text-gray-500" /> Change
-                  Password
+                  <LockKeyhole size={16} className="text-gray-500" /> Change Password
                 </li>
                 <li
                   onClick={handleLogout}

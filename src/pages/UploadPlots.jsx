@@ -15,8 +15,9 @@ const UploadPlots = () => {
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [plotDocs, setPlotDocs] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
-   const { projects } = useSelector((s) => s.list);
+  const [selectedType, setSelectedType] = useState("");
 
+  const { projects } = useSelector((s) => s.list);
   const token = useSelector((state) => state.auth.userToken);
 
   const fetchPlotDocuments = async () => {
@@ -24,9 +25,7 @@ const UploadPlots = () => {
       setLoadingDocs(true);
       const response = await fetch(`${API_BASE_URL}/plots/plotDocumentList`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) {
@@ -44,9 +43,7 @@ const UploadPlots = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchPlotDocuments();
-    }
+    if (token) fetchPlotDocuments();
   }, [token]);
 
   const handleFileUpload = (e) => {
@@ -82,65 +79,61 @@ const UploadPlots = () => {
     }
   };
 
+  const handleUploadToAPI = async () => {
+    if (!file) return setError("No file selected. Please select a file first.");
+    if (!selectedProject || !selectedType)
+      return setError("Please select both Project and Type before uploading.");
 
-const handleUploadToAPI = async () => {
-  if (!file) return setError("No file selected. Please select a file first.");
-  if (!selectedProject)
-    return setError("Please select a project before uploading.");
+    try {
+      setUploading(true);
+      setError(null);
+      setSuccess(false);
 
-  try {
-    setUploading(true);
-    setError(null);
-    setSuccess(false);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("project_id", String(selectedProject));
+      formData.append("type", String(selectedType));
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("project_id", String(selectedProject)); // ✅ Ensure it's string
+      const response = await fetch(`${API_BASE_URL}/plots/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
 
-    const response = await fetch(`${API_BASE_URL}/plots/upload`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // ✅ Token header only (no Content-Type)
-      },
-      body: formData,
-    });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "File upload failed");
 
-    const data = await response.json();
-    // console.log('upload**************', data)
-
-    if (!response.ok) {
-      throw new Error(data.message || "File upload failed");
+      setSuccess(true);
+      setFile(null);
+      setPlots([]);
+      fetchPlotDocuments();
+    } catch (err) {
+      console.error("Upload error:", err);
+      setError(err.message || "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
     }
-
-    setSuccess(true);
-    setFile(null);
-    setPlots([]);
-    fetchPlotDocuments(); // Refresh uploaded document list
-  } catch (err) {
-    console.error("Upload error:", err);
-    setError(err.message || "Upload failed. Please try again.");
-  } finally {
-    setUploading(false);
-  }
-};
-
+  };
 
   const handleDelete = (name) => {
     alert(`Delete API not implemented. Would delete: ${name}`);
   };
 
+  const isUploadEnabled = selectedProject && selectedType;
+
   return (
     <main className="p-6 space-y-8">
-      {/* 🔹 Project Select Section */}
+      {/* 🔹 Project and Type Section */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
 
+        {/* Project Dropdown */}
         <select
           className="select select-bordered w-full md:w-1/3"
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
         >
-          <option value="">Select a project</option>
+          <option value="">Select Project</option>
           {projects.map((proj) => (
             <option key={proj.id} value={proj.id}>
               {proj.project_name}
@@ -148,14 +141,34 @@ const handleUploadToAPI = async () => {
           ))}
         </select>
 
+        {/* Type Dropdown */}
+        <select
+          className="select select-bordered w-full md:w-1/4"
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+        >
+          <option value="">Select Type</option>
+          <option value="1">Pvt Land</option>
+          <option value="2">Govt Land</option>
+          <option value="3">Forest Land</option>
+        </select>
+
+        {/* File Input — Always Visible */}
         <input
           type="file"
           accept=".csv, .xlsx, .xls"
-          disabled={!selectedProject}
+          disabled={!isUploadEnabled}
           onChange={handleFileUpload}
-          className={`file-input file-input-bordered file-input-primary ${
-            !selectedProject ? "opacity-50 cursor-not-allowed" : ""
+          className={`file-input w-full md:w-auto transition-all duration-300 ${
+            !isUploadEnabled
+              ? "bg-gray-200 border-gray-400 text-gray-600 cursor-not-allowed"
+              : "file-input-bordered file-input-primary bg-white text-gray-900"
           }`}
+          title={
+            !isUploadEnabled
+              ? "Select both Project and Type to enable upload"
+              : "Choose CSV or Excel file"
+          }
         />
       </div>
 

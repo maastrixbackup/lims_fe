@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import useProjects from "../hooks/useProjects";
 import ProjectTable from "../shared/ProjectTable";
 import ProjectFormModal from "../shared/ProjectFormModal";
-import ConfirmModal from "../shared/ConfirmModal";
+import ConfirmDelete from "../shared/ConfirmDelete";
 
 const Projects = () => {
   const token = useSelector((state) => state.auth.userToken);
@@ -89,7 +89,7 @@ const Projects = () => {
         />
       )}
 
-      <ConfirmModal
+      <ConfirmDelete
         isOpen={!!deleteConfirm}
         title="Confirm Delete"
         message={

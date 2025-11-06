@@ -3,7 +3,7 @@ import React from "react";
 const VillageFilter = ({ filter, setFilter, projects, odishaDistricts, role }) => {
   return (
     <div className="card bg-white shadow-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <select
+      {/* <select
         name="project_id"
         value={filter.project_id}
         onChange={(e) => setFilter({ ...filter, project_id: e.target.value })}
@@ -15,7 +15,7 @@ const VillageFilter = ({ filter, setFilter, projects, odishaDistricts, role }) =
             {p.project_name}
           </option>
         ))}
-      </select>
+      </select> */}
 
       <select
         name="district"

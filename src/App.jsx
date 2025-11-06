@@ -71,7 +71,7 @@ export default function App() {
               <Route path="/plot-form" element={<PlotForm />} />
               <Route path="/logs" element={<Logs />} />
               <Route path="/compensation" element={<Compensation />} />
-               <Route path="/servey" element={<SocialServey/>} />
+               <Route path="/social-survey" element={<SocialServey/>} />
                <Route path="/project-table" element={<ProjectTable/>} />
                <Route path="/deletedrecords" element={<DeletedRecords />} />
               <Route

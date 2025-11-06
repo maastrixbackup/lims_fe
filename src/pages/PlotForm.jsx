@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../utils/config";
-import {sections} from "../utils/constants"
+import { sections } from "../utils/constants";
 
 const PlotForm = () => {
   const navigate = useNavigate();
@@ -11,6 +11,9 @@ const PlotForm = () => {
   const editingPlot = location.state?.plot || null;
   const { projects, villages } = useSelector((s) => s.list);
 
+  console.log("village in plot", villages);
+
+  // Dropdowns for specific fields
   const dropdownFields = {
     displaced_affected_person: ["PAF", "PDF"],
     family_with_orphan_members: ["Y", "N"],
@@ -18,13 +21,37 @@ const PlotForm = () => {
     abatement: ["Yes", "No"],
   };
 
-  const [formData, setFormData] = useState(() =>
-    Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""]))
-  );
+  // Fields that must be filled
+  const requiredFields = [
+    "name_of_recorded_tenant",
+    "name_of_present_tenant",
+    "village_name",
+    "village_code",
+    "tahasil_name",
+    "ri_circle_name",
+    "thana_no",
+    "khata_no",
+    "plot_no",
+    "kissam_of_land",
+    "land_category",
+    "land_area_total_acres",
+    "land_area_total_hectares",
+    "land_area_acquired_acres",
+    "land_area_acquired_hectares",
+    "la_case_file_no",
+  ];
 
+  const [formData, setFormData] = useState(() =>
+    Object.fromEntries(
+      Object.values(sections)
+        .flat()
+        .map((f) => [f, ""])
+    )
+  );
   const [selectedProject, setSelectedProject] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Prefill data when editing
   useEffect(() => {
     if (editingPlot) {
       setFormData((prev) => ({ ...prev, ...editingPlot }));
@@ -32,18 +59,70 @@ const PlotForm = () => {
     }
   }, [editingPlot]);
 
+  // Field cleaning and validation
+  const validateField = (name, value) => {
+    const trimmed = value.trim();
+
+    // Comma-separated fields: split, trim each value
+    const commaSeparatedFields = ["name_of_recorded_tenant", "village_name"];
+    if (commaSeparatedFields.includes(name)) {
+      return trimmed
+        .split(",")
+        .map((v) => v.trim())
+        .filter((v) => v !== "")
+        .join(", ");
+    }
+
+    return trimmed;
+  };
+
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+    const cleaned = validateField(name, value);
+
+    // Auto-fill village code when village name changes
+    if (name === "village_name") {
+      const selectedVillage = villages.find((v) => v.village_name === value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: cleaned,
+        village_code: selectedVillage?.village_code || "",
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: cleaned }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation for required fields
+    const missing = requiredFields.filter(
+      (field) => !formData[field] || formData[field].trim() === ""
+    );
+    if (missing.length > 0) {
+      alert(
+        `Please fill all required fields:\n\n${missing
+          .map((f) => f.replace(/_/g, " ").toUpperCase())
+          .join(", ")}`
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // Clean all values before submission
+      const cleanedFormData = Object.fromEntries(
+        Object.entries(formData).map(([key, value]) => [
+          key,
+          typeof value === "string" ? value.trim() : value,
+        ])
+      );
+
       const payload = {
-        ...formData,
+        ...cleanedFormData,
         project_id: selectedProject,
       };
 
@@ -64,6 +143,7 @@ const PlotForm = () => {
         navigate("/plots");
       } else {
         alert(`Failed: ${data.message || "Unknown error"}`);
+        console.log(`Failed: ${data.message || "Unknown error"}`);
       }
     } catch (err) {
       console.error("Error adding plot:", err);
@@ -88,25 +168,45 @@ const PlotForm = () => {
           </button>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-600 mb-1">
-            Project Name
-          </label>
-          <select
-            value={selectedProject}
-            onChange={(e) => setSelectedProject(e.target.value)}
-            className="select select-bordered w-full"
-            required
-          >
-            <option value="">Select Project</option>
-            {projects.map((proj) => (
-              <option key={proj.id} value={proj.id}>
-                {proj.project_name}
-              </option>
-            ))}
-          </select>
+        {/* Project Name + Village Code side by side */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Project Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">
+              Project Name <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="select select-bordered w-full"
+              required
+            >
+              <option value="">Select Project</option>
+              {projects.map((proj) => (
+                <option key={proj.id} value={proj.id}>
+                  {proj.project_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Village Code (auto-filled) */}
+          {/* <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">
+              Village Code <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="village_code"
+              value={formData.village_code || ""}
+              readOnly
+              placeholder="Auto-filled based on village name"
+              className="input input-bordered w-full bg-gray-100"
+            />
+          </div> */}
         </div>
 
+        {/* Form Sections */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {Object.entries(sections).map(([section, fields]) => (
             <div
@@ -116,16 +216,21 @@ const PlotForm = () => {
               <h3 className="text-lg font-semibold mb-3 text-gray-700 border-b pb-2">
                 {section}
               </h3>
+
               <div className="grid grid-cols-2 gap-4">
                 {fields.map((field) => (
                   <div key={field} className="flex flex-col">
                     <label
                       htmlFor={field}
-                      className="text-xs font-semibold text-gray-600 mb-1"
+                      className="text-xs font-semibold text-gray-600 mb-1 flex items-center"
                     >
                       {field.replace(/_/g, " ").toUpperCase()}
+                      {requiredFields.includes(field) && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
-  
+
+                    {/* Conditional input type rendering */}
                     {field === "village_name" ? (
                       <select
                         id={field}
@@ -133,6 +238,7 @@ const PlotForm = () => {
                         value={formData[field] || ""}
                         onChange={handleChange}
                         className="select select-bordered w-full"
+                        required={requiredFields.includes(field)}
                       >
                         <option value="">Select Village</option>
                         {villages.map((v) => (
@@ -148,6 +254,7 @@ const PlotForm = () => {
                         value={formData[field] || ""}
                         onChange={handleChange}
                         className="select select-bordered w-full"
+                        required={requiredFields.includes(field)}
                       >
                         <option value="">Select</option>
                         {dropdownFields[field].map((opt) => (
@@ -166,13 +273,21 @@ const PlotForm = () => {
                         type={
                           field.includes("date")
                             ? "date"
-                            : ["age", "amount", "value", "area", "acres", "hectares", "income"].some(
-                                (k) => field.includes(k)
-                              )
+                            : [
+                                "age",
+                                "amount",
+                                "value",
+                                "area",
+                                "acres",
+                                "hectares",
+                                "income",
+                              ].some((k) => field.includes(k)) &&
+                              !["village_code", "thana_no"].includes(field)
                             ? "number"
                             : "text"
                         }
                         className="input input-bordered w-full"
+                        required={requiredFields.includes(field)}
                       />
                     )}
                   </div>
@@ -181,6 +296,7 @@ const PlotForm = () => {
             </div>
           ))}
 
+          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
@@ -189,7 +305,11 @@ const PlotForm = () => {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
               {loading ? "Saving..." : "Save"}
             </button>
           </div>

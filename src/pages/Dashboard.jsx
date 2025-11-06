@@ -8,7 +8,6 @@ import RecentActivity from "../components/dashboard/RecentActivity";
 import ProgressOverview from "../components/dashboard/ProgressOverview";
 // import useFetch from "../hooks/useFetch";
 import useFetchDashboard from "../hooks/useFetchDashboard";
-import Projects from "./Projects";
 
 export default function Dashboard() {
   const { data, loading, error } = useFetchDashboard();
@@ -65,7 +64,7 @@ export default function Dashboard() {
           gradient="bg-gradient-to-r from-sky-400 to-blue-600"
         />
       </div>
-      <Projects />
+    
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BarChartCard  />
         <PieChartCard />

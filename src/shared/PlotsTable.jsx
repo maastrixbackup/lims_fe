@@ -253,6 +253,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Project Name</th>
             <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Bank Name</th>
             <th className="p-3 text-left">Account No</th>
@@ -275,6 +276,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.project_name || "N/A"}</td>
                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.bank_name || "N/A"}</td>
               <td className="p-3">{plot.bank_account_no || "N/A"}</td>
@@ -299,6 +301,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Project Name</th>
             <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Kissam of Land</th>
             <th className="p-3 text-left">Land Category</th>
@@ -341,6 +344,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               className="hover:bg-gray-50 shadow-sm transition"
             >
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.project_name || "N/A"}</td>
                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
               <td className="p-3">{plot.land_category || "N/A"}</td>
@@ -348,14 +352,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
               <td className="p-3">{plot.land_area_total_hectares || "N/A"}</td>
               <td className="p-3">{plot.land_area_acquired_acres || "N/A"}</td>
-              <td className="p-3">
-                {plot.land_area_acquired_hectares || "N/A"}
-              </td>
+              <td className="p-3">{plot.land_area_acquired_hectares || "N/A"}</td>
               <td className="p-3">{plot.legal_heir_certificate_no || "N/A"}</td>
               <td className="p-3">{plot.land_case_no || "N/A"}</td>
-              <td className="p-3">
-                {formatDate(plot.land_case_date) || "N/A"}
-              </td>
+              <td className="p-3">{formatDate(plot.land_case_date) || "N/A"}</td>
               <td className="p-3">{plot.land_case_type || "N/A"}</td>
               <td className="p-3">{plot.land_case_status || "N/A"}</td>
               <td className="p-3">{plot.land_case_action || "N/A"}</td>
@@ -366,9 +366,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.total_value_of_trees || "N/A"}</td>
               <td className="p-3">{plot.no_of_house || "N/A"}</td>
               <td className="p-3">{plot.value_of_house || "N/A"}</td>
-              <td className="p-3">
-                {plot.details_of_other_structures || "N/A"}
-              </td>
+              <td className="p-3">{plot.details_of_other_structures || "N/A"}</td>
               <td className="p-3">{plot.value_of_other_structures || "N/A"}</td>
               <td className="p-3">{plot.total_value || "N/A"}</td>
               <td className="p-3">{plot.solatium_100 || "N/A"}</td>
@@ -388,6 +386,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Project Name</th>
             <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">RR Employment</th>
             <th className="p-3 text-left">RR Cash In Lieu</th>
@@ -400,9 +399,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">RR Transit Shed</th>
             <th className="p-3 text-left">RR Transport Allowance</th>
             <th className="p-3 text-left">RR Maintenance Allowance</th>
-            <th className="p-3 text-left">
-              RR Multiple Displacement Allowance
-            </th>
+            <th className="p-3 text-left">RR Multiple Displacement Allowance</th>
             <th className="p-3 text-left">RR Ex-Gratia</th>
             <th className="p-3 text-left">RR Other Benefits</th>
             <th className={stickyActionHeader}>Actions</th>
@@ -413,27 +410,20 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.project_name || "N/A"}</td>
                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.rr_employment || "N/A"}</td>
               <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
-              <td className="p-3">
-                {plot.rr_training_skill_upgradation || "N/A"}
-              </td>
+              <td className="p-3">{plot.rr_training_skill_upgradation || "N/A"}</td>
               <td className="p-3">{plot.rr_self_employment || "N/A"}</td>
-              <td className="p-3">
-                {plot.rr_special_allowance_st_ntfp || "N/A"}
-              </td>
+              <td className="p-3">{plot.rr_special_allowance_st_ntfp || "N/A"}</td>
               <td className="p-3">{plot.rr_homestead_allotment || "N/A"}</td>
-              <td className="p-3">
-                {plot.rr_house_building_assistance || "N/A"}
-              </td>
+              <td className="p-3">{plot.rr_house_building_assistance || "N/A"}</td>
               <td className="p-3">{plot.rr_constructed_by || "N/A"}</td>
               <td className="p-3">{plot.rr_transit_shed || "N/A"}</td>
               <td className="p-3">{plot.rr_transport_allowance || "N/A"}</td>
               <td className="p-3">{plot.rr_maintenance_allowance || "N/A"}</td>
-              <td className="p-3">
-                {plot.rr_multiple_displacement_allowance || "N/A"}
-              </td>
+              <td className="p-3">{plot.rr_multiple_displacement_allowance || "N/A"}</td>
               <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
               <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
@@ -446,6 +436,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Project Name</th>
             <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Grievance No</th>
             <th className="p-3 text-left">Grievance Date</th>
@@ -471,18 +462,15 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               className="hover:bg-gray-50 shadow-sm transition"
             >
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.project_name || "N/A"}</td>
                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.grievance_no || "N/A"}</td>
-              <td className="p-3">
-                {formatDate(plot.grievance_date) || "N/A"}
-              </td>
+              <td className="p-3">{formatDate(plot.grievance_date) || "N/A"}</td>
               <td className="p-3">{plot.grievance_subject || "N/A"}</td>
               <td className="p-3">{plot.grievance_status || "N/A"}</td>
               <td className="p-3">{plot.grievance_action || "N/A"}</td>
               <td className="p-3">{plot.tribunal === "Y" ? "Yes" : "No"}</td>
-              <td className="p-3">
-                {formatDate(plot.tribunal_deposit_date) || "N/A"}
-              </td>
+              <td className="p-3">{formatDate(plot.tribunal_deposit_date) || "N/A"}</td>
               <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
               <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
               <td className="p-3">{plot.cess ?? "N/A"}</td>
@@ -499,6 +487,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
             <th className="p-3 text-left">#</th>
+            <th className="p-3 text-left">Project Name</th>
             <th className="p-3 text-left">LA Case File No</th>
             <th className="p-3 text-left">Major Male</th>
             <th className="p-3 text-left">Major Female</th>
@@ -515,6 +504,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
+               <td className="p-3">{plot.project_name || "N/A"}</td>
                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
               <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
@@ -523,9 +513,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.family_major_transgender ?? "N/A"}</td>
               <td className="p-3">{plot.family_minor_transgender ?? "N/A"}</td>
               <td className="p-3">{plot.persons_with_disability ?? "N/A"}</td>
-              <td className="p-3">
-                {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
-              </td>
+              <td className="p-3">{plot.family_with_orphan_members === "Y" ? "Yes" : "No"}</td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}

@@ -1,4 +1,3 @@
-// src/utils/selectedProjectSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const selectedProjectSlice = createSlice({
@@ -14,6 +13,5 @@ const selectedProjectSlice = createSlice({
   },
 });
 
-export const { setSelectedProject, clearSelectedProject } =
-  selectedProjectSlice.actions;
+export const { setSelectedProject, clearSelectedProject } = selectedProjectSlice.actions;
 export default selectedProjectSlice.reducer;

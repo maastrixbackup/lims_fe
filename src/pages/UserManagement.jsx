@@ -27,9 +27,7 @@ const UserManagement = () => {
 
   const filteredUsers = useMemo(() => {
     return (users || []).filter((u) => {
-      if (u.role_name === "Admin" && u.role_id === 1) {
-        return false;
-      }
+      if (u.role_name === "Admin" && u.role_id === 1) return false;
       const matchName = u.name
         ?.toLowerCase()
         .includes(filters.query.toLowerCase());
@@ -68,7 +66,6 @@ const UserManagement = () => {
                 </option>
               ))}
             </select>
-
             <button
               className={`btn btn-primary ${
                 isRestricted ? "btn-disabled opacity-50" : ""
@@ -80,6 +77,7 @@ const UserManagement = () => {
             </button>
           </div>
         </div>
+
         <div className="card bg-white rounded-2xl shadow">
           <div className="max-h-[400px] overflow-auto">
             <table className="table w-full text-sm sm:text-base">
@@ -138,133 +136,205 @@ const UserManagement = () => {
         </div>
       </main>
       {isModalOpen && (
-        <Modal
-          title={editingUser ? "Edit User" : "Add User"}
-          onClose={closeModal}
-        >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Full Name"
-              type="text"
-              value={formData.name}
-              onChange={(v) => setFormData((p) => ({ ...p, name: v }))}
-            />
+        <dialog open className="modal modal-open">
+          <div className="modal-box w-11/12 max-w-lg bg-white relative">
+            <button
+              type="button"
+              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              onClick={closeModal}
+            >
+              <X size={20} />
+            </button>
+            <h3 className="font-bold text-lg mb-4">
+              {editingUser ? "Edit User" : "Add User"}
+            </h3>
 
-            <Input
-              label="Email"
-              type="email"
-              value={formData.email}
-              onChange={(v) => setFormData((p) => ({ ...p, email: v }))}
-            />
-            <Input
-              label="Phone Number"
-              type="number"
-              value={formData.phone_number}
-              onChange={(v) => setFormData((p) => ({ ...p, phone_number: v }))}
-            />
-            {!editingUser && (
-              <>
-                <Input
-                  label="Password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(v) => setFormData((p) => ({ ...p, password: v }))}
-                />
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(v) =>
-                    setFormData((p) => ({ ...p, confirmPassword: v }))
-                  }
-                />
-              </>
-            )}
-            <Select
-              label="Role"
-              value={formData.role_id}
-              options={roles.map((r) => ({ value: r.id, label: r.name }))}
-              onChange={(v) => setFormData((p) => ({ ...p, role_id: v }))}
-            />
-            <Select
-              label="Assign Project"
-              value=""
-              options={projects
-                .filter((p) => !formData.accessed_projects.includes(p.id))
-                .map((p) => ({ value: p.id, label: p.project_name }))}
-              onChange={(v) =>
-                setFormData((p) => ({
-                  ...p,
-                  accessed_projects: [...p.accessed_projects, +v],
-                }))
-              }
-            />
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.accessed_projects.length ? (
-                formData.accessed_projects.map((id) => {
-                  const projectName =
-                    projects.find((p) => p.id === id)?.project_name ||
-                    "Unknown";
-                  return (
-                    <span
-                      key={id}
-                      className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm"
-                    >
-                      {projectName}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData((p) => ({
-                            ...p,
-                            accessed_projects: p.accessed_projects.filter(
-                              (pid) => pid !== id
-                            ),
-                          }))
-                        }
-                        className="ml-1 text-blue-500 hover:text-blue-700"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  );
-                })
-              ) : (
-                <span className="text-gray-400 text-sm">
-                  No projects selected
-                </span>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Profile Picture
-              </label>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file) {
-                    setFormData((prev) => ({ ...prev, profile_pic: file }));
-                  }
-                }}
-                className="file-input file-input-bordered w-full"
-              />
-
-              {/* {formData.profile_pic && typeof formData.profile_pic === "string" && (
-    <div className="mb-2">
-      <img
-        src={
-          formData.profile_pic.startsWith("http")
-            ? formData.profile_pic
-            : `${API_BASE_URL}/uploads/${formData.profile_pic}`
-        }
-        alt="Profile"
-        className="w-16 h-16 rounded-full object-cover border"
-      />
-    </div>
-  )} */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, name: e.target.value }))
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  className="input input-bordered w-full"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, email: e.target.value }))
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={formData.phone_number}
+                  onChange={(e) =>
+                    setFormData((p) => ({
+                      ...p,
+                      phone_number: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              {!editingUser && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      className="input input-bordered w-full"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          password: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      className="input input-bordered w-full"
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          confirmPassword: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select
+                  className="select select-bordered w-full"
+                  value={formData.role_id}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, role_id: e.target.value }))
+                  }
+                  required
+                >
+                  <option value="">Select Role</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Assign Project
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value=""
+                  onChange={(e) =>
+                    setFormData((p) => ({
+                      ...p,
+                      accessed_projects: [
+                        ...p.accessed_projects,
+                        +e.target.value,
+                      ],
+                    }))
+                  }
+                >
+                  <option value="">Select Project</option>
+                  {projects
+                    .filter(
+                      (p) => !formData.accessed_projects.includes(p.id)
+                    )
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.project_name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.accessed_projects.length ? (
+                  formData.accessed_projects.map((id) => {
+                    const projectName =
+                      projects.find((p) => p.id === id)?.project_name ||
+                      "Unknown";
+                    return (
+                      <span
+                        key={id}
+                        className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm"
+                      >
+                        {projectName}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((p) => ({
+                              ...p,
+                              accessed_projects: p.accessed_projects.filter(
+                                (pid) => pid !== id
+                              ),
+                            }))
+                          }
+                          className="ml-1 text-blue-500 hover:text-blue-700"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="text-gray-400 text-sm">
+                    No projects selected
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Profile Picture
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setFormData((prev) => ({ ...prev, profile_pic: file }));
+                    }
+                  }}
+                  className="file-input file-input-bordered w-full"
+                />
                 {formData.profile_pic && (
                   <p className="text-xs text-gray-500 mt-1">
                     {typeof formData.profile_pic === "string"
@@ -273,82 +343,46 @@ const UserManagement = () => {
                   </p>
                 )}
               </div>
-            </div>
 
+              <div className="modal-action flex gap-3">
+                <button type="submit" className="btn btn-primary">
+                  {editingUser ? "Update" : "Save"}
+                </button>
+                <button type="button" className="btn" onClick={closeModal}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </dialog>
+      )}
+      {deleteConfirm && (
+        <dialog open className="modal modal-open">
+          <div className="modal-box bg-white relative">
+            <button
+              type="button"
+              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              onClick={() => setDeleteConfirm(null)}
+            >
+              <X size={20} />
+            </button>
+            <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
+            <p>
+              Delete <b>{deleteConfirm.name}</b>?
+            </p>
             <div className="modal-action flex gap-3">
-              <button type="submit" className="btn btn-primary">
-                Save
+              <button className="btn btn-error" onClick={confirmDelete}>
+                Yes, Delete
               </button>
-              <button type="button" className="btn" onClick={closeModal}>
+              <button className="btn" onClick={() => setDeleteConfirm(null)}>
                 Cancel
               </button>
             </div>
-          </form>
-        </Modal>
-      )}
-      {deleteConfirm && (
-        <Modal title="Confirm Delete" onClose={() => setDeleteConfirm(null)}>
-          <p>
-            Delete <b>{deleteConfirm.name}</b>?
-          </p>
-          <div className="modal-action flex gap-3">
-            <button className="btn btn-error" onClick={confirmDelete}>
-              Yes, Delete
-            </button>
-            <button className="btn" onClick={() => setDeleteConfirm(null)}>
-              Cancel
-            </button>
           </div>
-        </Modal>
+        </dialog>
       )}
     </div>
   );
 };
-const Input = ({ label, type = "text", value, onChange }) => (
-  <div>
-    <label className="block text-sm font-medium mb-1 capitalize">{label}</label>
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="input input-bordered w-full"
-      required
-    />
-  </div>
-);
-
-const Select = ({ label, value, options, onChange }) => (
-  <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="select select-bordered w-full"
-    >
-      <option value="">Select {label}</option>
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-const Modal = ({ title, children, onClose }) => (
-  <dialog open className="modal modal-open">
-    <div className="modal-box w-11/12 max-w-lg bg-white relative">
-      <button
-        type="button"
-        className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-        onClick={onClose}
-      >
-        <X size={20} />
-      </button>
-      <h3 className="font-bold text-lg mb-4">{title}</h3>
-      {children}
-    </div>
-  </dialog>
-);
 
 export default UserManagement;

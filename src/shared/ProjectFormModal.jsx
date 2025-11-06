@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
-    client_code: "Cli-1234",
+    client_code: "",
     status: "Active",
   });
 
@@ -12,13 +12,13 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
     if (project) {
       setFormData({
         name: project.name || "",
-        client_code: project.client_code || "Cli-1234",
+        client_code: project.client_code || "",
         status: project.statusText || "Active",
       });
     } else {
       setFormData({
         name: "",
-        client_code: "Cli-1234",
+        client_code: "",
         status: "Active",
       });
     }

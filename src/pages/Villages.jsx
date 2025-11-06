@@ -5,9 +5,10 @@ import { odishaDistricts } from "../utils/constants";
 import VillageTable from "../pages/village/VillageTable";
 import VillageFilter from "../pages/village/VillageFilter";
 import VillageFormModal from "../pages/village/VillageFormModal";
-import ConfirmModal from "../shared/ConfirmModal";
+import ConfirmDelete from "../shared/ConfirmDelete";
 
 const Villages = () => {
+  
   const { user, userToken: token } = useSelector((s) => s.auth);
   const { projects } = useSelector((s) => s.list);
   const role = user?.role_name;
@@ -70,7 +71,7 @@ const Villages = () => {
 
   const filteredVillages = villages.filter(
     (v) =>
-      (!filter.project_id || v.project_id === Number(filter.project_id)) &&
+      // (!filter.project_id || v.project_id === Number(filter.project_id)) &&
       (!filter.district || v.district === filter.district) &&
       (!filter.tahasil || v.tahasil?.toLowerCase().includes(filter.tahasil.toLowerCase()))
   );
@@ -122,7 +123,7 @@ const Villages = () => {
           fetchVillages={fetchVillages}
         />
       )}
-      <ConfirmModal
+      <ConfirmDelete
         isOpen={isDeleteModalOpen}
         title="Confirm Delete"
         message={`Are you sure you want to delete "${deleteVillage?.village_name}"?`}

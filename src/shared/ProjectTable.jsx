@@ -1,45 +1,30 @@
 import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
-import { useSelector } from "react-redux";
 
-const ProjectTable = ({ projects = [], canModify, onEdit, onDelete, loading }) => {
-  const selectedProject = useSelector((state) => state.selectedProject.project);
-
+const ProjectTable = ({ projects, canModify, onEdit, onDelete, loading }) => {
   if (loading) return <p className="text-center py-6">Loading...</p>;
-
-  // ✅ If a project is selected globally, show only that one
-  const displayProjects = selectedProject ? [selectedProject] : projects;
 
   return (
     <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
       <div className="max-h-[400px] overflow-y-auto overflow-x-auto">
         <table className="table w-full">
-          <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
+          <thead className="bg-gray-100 text-gray-700 sticky top-0">
             <tr>
               <th>Sl/No</th>
               <th>Project Name</th>
               <th>Status</th>
-              <th>Client Code</th>
+               <th>Client Code</th>
               <th>Created</th>
               <th className="text-right pr-6">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {displayProjects.length > 0 ? (
-              displayProjects.map((p, idx) => (
-                <tr
-                  key={p.id || idx}
-                  className="hover:bg-gray-50 transition-colors whitespace-nowrap"
-                >
+            {projects.length > 0 ? (
+              projects.map((p, idx) => (
+                <tr key={p.id} className="hover:bg-gray-50 transition-colors whitespace-nowrap">
                   <td>{idx + 1}</td>
-
-                  {/* ✅ Consistent naming support */}
-                  <td className="font-medium text-gray-800">
-                    {p.project_name || p.name || "—"}
-                  </td>
-
-                  {/* ✅ Status display with proper mapping */}
+                  <td>{p.name}</td>
                   <td>
                     <span
                       className={`badge w-24 justify-center ${
@@ -50,43 +35,32 @@ const ProjectTable = ({ projects = [], canModify, onEdit, onDelete, loading }) =
                           : "badge-error"
                       }`}
                     >
-                      {p.status === 1
-                        ? "Active"
-                        : p.status === 0
-                        ? "Pending"
-                        : "Closed"}
+                      {p.status === 1 ? "Active" : p.status === 0 ? "Pending" : "Closed" }
                     </span>
                   </td>
-
-                  <td>{p.client_code || p.clientCode || "—"}</td>
-
-                  <td>
-                    {p.created
-                      ? moment(p.created).format("DD-MM-YYYY")
-                      : moment(p.created_at).format("DD-MM-YYYY")}
-                  </td>
-
-                  {/* ✅ Action buttons with permissions */}
+                   <td>{p.client_code}</td>
+                  <td>{moment(p.created).format("DD-MM-YYYY")}</td>
                   <td className="text-right space-x-2">
                     <button
-                      className={`btn btn-xs btn-warning text-white ${
-                        !canModify
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() => canModify && onEdit(p)}
+                      // className="btn btn-xs btn-warning text-white"
+                       className={`btn btn-xs btn-warning text-white ${
+                          !canModify
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
+                      onClick={() => onEdit(p)}
                       disabled={!canModify}
                     >
                       <Pencil size={14} /> Edit
                     </button>
-
                     <button
-                      className={`btn btn-xs btn-error text-white ${
-                        !canModify
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() => canModify && onDelete(p)}
+                      // className="btn btn-xs btn-error text-white"
+                       className={`btn btn-xs btn-error text-white ${
+                          !canModify
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
+                      onClick={() => onDelete(p)}
                       disabled={!canModify}
                     >
                       <Trash2 size={14} /> Delete
@@ -96,7 +70,7 @@ const ProjectTable = ({ projects = [], canModify, onEdit, onDelete, loading }) =
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
+                <td colSpan="5" className="text-center py-6 text-gray-500">
                   No projects found.
                 </td>
               </tr>

@@ -56,28 +56,28 @@ const Khata = () => {
     },
   ];
 
-  const villages = useMemo(() => {
-    if (!khatas || khatas.length === 0) return [];
+  // const villages = useMemo(() => {
+  //   if (!khatas || khatas.length === 0) return [];
 
-    const filtered = filterProject
-      ? khatas.filter((k) => String(k.project_id) === String(filterProject))
-      : khatas;
+  //   const filtered = filterProject
+  //     ? khatas.filter((k) => String(k.project_id) === String(filterProject))
+  //     : khatas;
 
-    const unique = [];
-    const seen = new Set();
+  //   const unique = [];
+  //   const seen = new Set();
 
-    for (const k of filtered) {
-      if (!seen.has(k.village_id)) {
-        seen.add(k.village_id);
-        unique.push({
-          id: k.village_id,
-          name: k.village_name,
-          project_id: k.project_id,
-        });
-      }
-    }
-    return unique;
-  }, [khatas, filterProject]);
+  //   for (const k of filtered) {
+  //     if (!seen.has(k.village_id)) {
+  //       seen.add(k.village_id);
+  //       unique.push({
+  //         id: k.village_id,
+  //         name: k.village_name,
+  //         project_id: k.project_id,
+  //       });
+  //     }
+  //   }
+  //   return unique;
+  // }, [khatas, filterProject]);
 
   return (
     <div className="p-6 space-y-6">
@@ -106,7 +106,7 @@ const Khata = () => {
           </button>
         </div>
       </div>
-      <div className="flex space-x-4">
+      {/* <div className="flex space-x-4">
         <select
           value={filterProject}
           onChange={(e) => {
@@ -136,7 +136,7 @@ const Khata = () => {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
       <KhataTable
         khatas={filteredKhatas}
         onEdit={handlers.openEditModal}

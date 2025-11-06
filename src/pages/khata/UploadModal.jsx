@@ -45,37 +45,57 @@ export default function UploadModal({ khata = { number: "KH-001" }, onClose }) {
     return sheetKeywords.some((keyword) => type.includes(keyword));
   };
 
-  // Handle local file uploads
-  const handleFileUpload = (e, docType) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+ const handleFileUpload = (e, docType) => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
 
-    if ((uploadedDocs[docType]?.length || 0) + files.length > 3) {
-      alert(`You can upload a maximum of 3 files for "${docType}".`);
+  // Max 3 file rule
+  if ((uploadedDocs[docType]?.length || 0) + files.length > 3) {
+    alert(`You can upload a maximum of 3 files for "${docType}".`);
+    e.target.value = "";
+    return;
+  }
+
+  setUploading(docType);
+
+  setTimeout(() => {
+    // Existing file names for this docType
+    const existingNames = (uploadedDocs[docType] || []).map((doc) =>
+      doc.name.toLowerCase()
+    );
+
+    // Filter out duplicates
+    const uniqueFiles = files.filter(
+      (file) => !existingNames.includes(file.name.toLowerCase())
+    );
+
+    if (uniqueFiles.length === 0) {
+      alert(`All selected files are already uploaded for "${docType}".`);
+      setUploading(null);
       e.target.value = "";
       return;
     }
 
-    setUploading(docType);
+    // Prepare new file objects
+    const newDocs = uniqueFiles.map((file) => ({
+      id: Date.now() + Math.random(),
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
 
-    // Simulate upload delay
-    setTimeout(() => {
-      const newDocs = files.map((file) => ({
-        id: Date.now() + Math.random(),
-        name: file.name,
-        url: URL.createObjectURL(file),
-      }));
+    // Update state
+    setUploadedDocs((prev) => ({
+      ...prev,
+      [docType]: [...(prev[docType] || []), ...newDocs],
+    }));
 
-      setUploadedDocs((prev) => ({
-        ...prev,
-        [docType]: [...(prev[docType] || []), ...newDocs],
-      }));
-
-      setSuccessMsg(`Uploaded successfully to "${docType}"`);
-      setUploading(null);
-      e.target.value = "";
-    }, 800);
-  };
+    setSuccessMsg(
+      `${uniqueFiles.length} file(s) uploaded successfully to "${docType}".`
+    );
+    setUploading(null);
+    e.target.value = "";
+  }, 800);
+};
 
   // Handle delete
   const handleDelete = (docType, id) => {

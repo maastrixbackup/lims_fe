@@ -44,27 +44,6 @@ const PlotListModal = ({ plots = [], onClose }) => {
                     <td>{plot.area || "—"}</td>
                     <td>{plot.village_name || "—"}</td>
                     <td>{plot.owner_name || "—"}</td>
-                    {/* <td>
-                      <span
-                        className={`badge ${
-                          plot.status === "Completed"
-                            ? "badge-success"
-                            : plot.status === "Pending"
-                            ? "badge-warning"
-                            : "badge-ghost"
-                        }`}
-                      >
-                        {plot.status || "N/A"}
-                      </span>
-                    </td> */}
-                    {/* <td className="flex justify-center">
-                      <button
-                        onClick={() => alert(`Viewing details for ${plot.plot_no}`)}
-                        className="btn btn-outline btn-xs btn-primary"
-                      >
-                        <Eye size={14} className="mr-1" /> View
-                      </button>
-                    </td> */}
                   </tr>
                 ))
               ) : (

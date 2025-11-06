@@ -12,6 +12,8 @@ import {
   LandPlot,
   TreeDeciduous,
   Trash,
+  Projector,
+  LandPlotIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
@@ -35,17 +37,17 @@ export default function Sidebar({ open, setOpen }) {
       path: "dashboard",
       roles: ["Admin", "Data Entry User", "Viewer"],
     },
+     {
+      name: "Project",
+      icon: <LandPlotIcon size={20} />,
+      path: "projects",
+      roles: ["Admin", "Data Entry User", "Viewer"],
+    },
     {
       name: "Private Land",
       icon: <Map size={20} />,
-      submenu: ["Villages", "Khatas", "Plots", "Compensation", "Servey"],
+      submenu: ["Villages", "Khatas", "Plots", "Compensation", "Social-Survey"],
       roles: ["Admin","Data Entry User", "Viewer"],
-    },
-    {
-      name: "User Management",
-      icon: <User2Icon size={20} />,
-      path: "usersmanagement",
-      roles: ["Admin", ],
     },
     {
       name: "Govt Land",
@@ -58,6 +60,12 @@ export default function Sidebar({ open, setOpen }) {
       icon: <TreeDeciduous size={20} />,
       // submenu: ["Projects", "Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
       roles: ["Admin",],
+    },
+       {
+      name: "User Management",
+      icon: <User2Icon size={20} />,
+      path: "usersmanagement",
+      roles: ["Admin", ],
     },
     {
       name: "Import/Export",

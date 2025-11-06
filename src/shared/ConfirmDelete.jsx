@@ -1,6 +1,6 @@
 import React from "react";
 
-const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
+const ConfirmDelete = ({ isOpen, title, message, onConfirm, onCancel }) => {
   if (!isOpen) return null;
 
   return (
@@ -21,4 +21,4 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
   );
 };
 
-export default ConfirmModal;
+export default ConfirmDelete;

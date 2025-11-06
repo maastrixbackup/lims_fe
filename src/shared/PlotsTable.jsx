@@ -26,6 +26,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return [...uniqueVillages];
   }, [plots]);
 
+// const display
+
   //  filter options
   const khataOptions = useMemo(() => {
     const uniqueKhata = new Set(plots?.map((p) => p.khata_no).filter(Boolean));

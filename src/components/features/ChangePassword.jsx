@@ -13,7 +13,6 @@ const ChangePassword = () => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
-  // --- Handle input changes ---
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -32,10 +31,7 @@ const ChangePassword = () => {
       setLoading(true);
       setError(null);
       setMessage(null);
-
-      // --- API call ---
       const response = await fetch(
-        // "http://localhost:3000/api/user/changePassword",
         `${API_BASE_URL}/user/changePassword`,
         {
           method: "POST",
@@ -55,8 +51,6 @@ const ChangePassword = () => {
       if (!response.ok) {
         throw new Error(data?.message || "Failed to change password");
       }
-
-      // --- Success ---
       setMessage(data?.message || "Password changed successfully!");
       setFormData({
         currentPassword: "",
@@ -74,11 +68,10 @@ const ChangePassword = () => {
     <main className="flex-1 flex justify-center items-center bg-gradient-to-br p-6">
       <div className="card w-full max-w-md bg-white shadow-2xl rounded-2xl p-8 border border-gray-100">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          🔒 Change Password
+           Change Password
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Current Password */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Current Password
@@ -93,8 +86,6 @@ const ChangePassword = () => {
               required
             />
           </div>
-
-          {/* New Password */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               New Password
@@ -110,8 +101,6 @@ const ChangePassword = () => {
               minLength={6}
             />
           </div>
-
-          {/* Confirm New Password */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Confirm New Password
@@ -127,14 +116,10 @@ const ChangePassword = () => {
               minLength={6}
             />
           </div>
-
-          {/* Error or Success Message */}
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           {message && (
             <p className="text-green-600 text-sm text-center">{message}</p>
           )}
-
-          {/* Submit Button */}
           <button
             type="submit"
             className="btn btn-primary w-full rounded-xl font-semibold text-white tracking-wide shadow-md hover:shadow-lg transition"

@@ -1,20 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  Menu,
-  LayoutDashboard,
-  Map,
-  ChevronDown,
-  ChevronRight,
-  ChartBarBig,
-  ImageUp,
-  User2Icon,
-  Logs,
-  LandPlot,
-  TreeDeciduous,
-  Trash,
-  Projector,
-  LandPlotIcon,
-} from "lucide-react";
+import {Menu,LayoutDashboard,Map,ChevronDown,ChevronRight,ChartBarBig,ImageUp,User2Icon,Logs,LandPlot,TreeDeciduous,Trash,LandPlotIcon,MapPinHouse,} from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.jpeg";
 import { useNavigate, useLocation } from "react-router";
@@ -51,7 +36,7 @@ export default function Sidebar({ open, setOpen }) {
     },
     {
       name: "Govt Land",
-      icon: <LandPlot size={20} />,
+      icon: <MapPinHouse size={20} />,
       // submenu: ["Projects", "Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
       roles: ["Admin",],
     },
@@ -134,7 +119,6 @@ export default function Sidebar({ open, setOpen }) {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50"
     >
-      {/* Header with Logo */}
       <div className="flex items-center justify-between p-4 border-b border-white/20">
         <div className="flex items-center gap-3">
           {open && (
@@ -166,12 +150,10 @@ export default function Sidebar({ open, setOpen }) {
         </button>
       </div>
 
-      {/* Navigation */}
      <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent hover:scrollbar-thumb-white/60">
 
         {filteredMenu.map((item) => (
           <div key={item.name}>
-            {/* Main Menu */}
             <motion.div
               onClick={() => {
                 if (item.submenu) {
@@ -216,8 +198,6 @@ export default function Sidebar({ open, setOpen }) {
                 </span>
               )}
             </motion.div>
-
-            {/* Submenu */}
             {item.submenu && expanded === item.name && open && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -249,7 +229,6 @@ export default function Sidebar({ open, setOpen }) {
         ))}
       </nav>
 
-      {/* Footer */}
       <div className="p-4 border-t border-white/20 text-xs text-white/80">
         {open ? "© 2025 LIMS" : "©"}
       </div>

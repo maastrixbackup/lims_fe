@@ -9,36 +9,48 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const [selectedVillage, setSelectedVillage] = useState("");
   const [selectedKhata, setSelectedKhata] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-   const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
   const isRestricted = role === "Data Entry User" || role === "Viewer";
-
+  const selectedProject = useSelector((state) => state.selectedProject.project);
+  
   // Sort plots in ascending order by `id`
   const sortedPlots = useMemo(() => {
     if (!plots || plots.length === 0) return [];
     return [...plots].sort((a, b) => (a.id || 0) - (b.id || 0));
   }, [plots]);
 
-  const villageOptions = useMemo(() => {
+    const projectFilteredPlots = useMemo(() => {
+    if (!selectedProject) return sortedPlots;
+    return sortedPlots.filter(
+      (plot) =>
+        plot.project_id === selectedProject.id ||
+        plot.project_name === selectedProject.project_name
+    );
+  }, [sortedPlots, selectedProject]);
+
+
+const villageOptions = useMemo(() => {
     const uniqueVillages = new Set(
-      plots?.map((p) => p.village_name).filter(Boolean)
+      projectFilteredPlots.map((p) => p.village_name).filter(Boolean)
     );
     return [...uniqueVillages];
-  }, [plots]);
+  }, [projectFilteredPlots]);
 
   //  filter options
-  const khataOptions = useMemo(() => {
-    const uniqueKhata = new Set(plots?.map((p) => p.khata_no).filter(Boolean));
+ const khataOptions = useMemo(() => {
+    const uniqueKhata = new Set(
+      projectFilteredPlots.map((p) => p.khata_no).filter(Boolean)
+    );
     return [...uniqueKhata];
-  }, [plots]);
+  }, [projectFilteredPlots]);
 
   // Apply filters and search
-  const filteredPlots = useMemo(() => {
-    return sortedPlots.filter((plot) => {
+   const filteredPlots = useMemo(() => {
+    return projectFilteredPlots.filter((plot) => {
       const matchVillage =
         !selectedVillage || plot.village_name === selectedVillage;
       const matchKhata = !selectedKhata || plot.khata_no === selectedKhata;
-
       const query = searchQuery.toLowerCase();
       const matchSearch =
         !searchQuery ||
@@ -46,8 +58,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
       return matchVillage && matchKhata && matchSearch;
     });
-  }, [sortedPlots, selectedVillage, selectedKhata, searchQuery]);
-
+  }, [projectFilteredPlots, selectedVillage, selectedKhata, searchQuery]);
   // Reset filters
   const resetFilters = () => {
     setSelectedVillage("");
@@ -55,12 +66,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     setSearchQuery("");
   };
 
-  // Sort plots by ID ascending
   const navigate = useNavigate();
-  // const filteredPlots = useMemo(() => {
-  //   if (!plots || plots.length === 0) return [];
-  //   return [...plots].sort((a, b) => a.id - b.id);
-  // }, [plots]);
 
   if (!filteredPlots.length) {
     return (
@@ -82,7 +88,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 rounded-t-md shadow-sm">
         {title}
       </h2>
-      {/* Scroll wrapper */}
       <div className="overflow-x-auto max-h-[400px] overflow-y-auto rounded-xl shadow-md bg-white">
         <table className="min-w-full text-xs relative">{children}</table>
       </div>
@@ -92,22 +97,22 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const ActionButtons = (plot) => (
     <div className="flex justify-end gap-2">
       <button
-          className={`btn btn-xs btn-warning text-white ${
-                        isRestricted
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
+        className={`btn btn-xs btn-warning text-white ${
+          isRestricted
+            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+            : ""
+        }`}
         onClick={() => navigate("/plot-form", { state: { plot } })}
         disabled={isRestricted}
       >
         <Pencil size={12} /> Edit
       </button>
       <button
-         className={`btn btn-xs btn-error text-white ${
-                        isRestricted
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
+        className={`btn btn-xs btn-error text-white ${
+          isRestricted
+            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+            : ""
+        }`}
         onClick={() => setDeleteConfirm(plot)}
         disabled={isRestricted}
       >
@@ -276,8 +281,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
-               <td className="p-3">{plot.project_name || "N/A"}</td>
-               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{plot.project_name || "N/A"}</td>
+              <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.bank_name || "N/A"}</td>
               <td className="p-3">{plot.bank_account_no || "N/A"}</td>
               <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
@@ -344,18 +349,22 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               className="hover:bg-gray-50 shadow-sm transition"
             >
               <td className="p-3">{idx + 1}</td>
-               <td className="p-3">{plot.project_name || "N/A"}</td>
-               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{plot.project_name || "N/A"}</td>
+              <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
               <td className="p-3">{plot.land_category || "N/A"}</td>
               <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
               <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
               <td className="p-3">{plot.land_area_total_hectares || "N/A"}</td>
               <td className="p-3">{plot.land_area_acquired_acres || "N/A"}</td>
-              <td className="p-3">{plot.land_area_acquired_hectares || "N/A"}</td>
+              <td className="p-3">
+                {plot.land_area_acquired_hectares || "N/A"}
+              </td>
               <td className="p-3">{plot.legal_heir_certificate_no || "N/A"}</td>
               <td className="p-3">{plot.land_case_no || "N/A"}</td>
-              <td className="p-3">{formatDate(plot.land_case_date) || "N/A"}</td>
+              <td className="p-3">
+                {formatDate(plot.land_case_date) || "N/A"}
+              </td>
               <td className="p-3">{plot.land_case_type || "N/A"}</td>
               <td className="p-3">{plot.land_case_status || "N/A"}</td>
               <td className="p-3">{plot.land_case_action || "N/A"}</td>
@@ -366,7 +375,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.total_value_of_trees || "N/A"}</td>
               <td className="p-3">{plot.no_of_house || "N/A"}</td>
               <td className="p-3">{plot.value_of_house || "N/A"}</td>
-              <td className="p-3">{plot.details_of_other_structures || "N/A"}</td>
+              <td className="p-3">
+                {plot.details_of_other_structures || "N/A"}
+              </td>
               <td className="p-3">{plot.value_of_other_structures || "N/A"}</td>
               <td className="p-3">{plot.total_value || "N/A"}</td>
               <td className="p-3">{plot.solatium_100 || "N/A"}</td>
@@ -399,7 +410,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">RR Transit Shed</th>
             <th className="p-3 text-left">RR Transport Allowance</th>
             <th className="p-3 text-left">RR Maintenance Allowance</th>
-            <th className="p-3 text-left">RR Multiple Displacement Allowance</th>
+            <th className="p-3 text-left">
+              RR Multiple Displacement Allowance
+            </th>
             <th className="p-3 text-left">RR Ex-Gratia</th>
             <th className="p-3 text-left">RR Other Benefits</th>
             <th className={stickyActionHeader}>Actions</th>
@@ -410,20 +423,28 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
-               <td className="p-3">{plot.project_name || "N/A"}</td>
-               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{plot.project_name || "N/A"}</td>
+              <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.rr_employment || "N/A"}</td>
               <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
-              <td className="p-3">{plot.rr_training_skill_upgradation || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_training_skill_upgradation || "N/A"}
+              </td>
               <td className="p-3">{plot.rr_self_employment || "N/A"}</td>
-              <td className="p-3">{plot.rr_special_allowance_st_ntfp || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_special_allowance_st_ntfp || "N/A"}
+              </td>
               <td className="p-3">{plot.rr_homestead_allotment || "N/A"}</td>
-              <td className="p-3">{plot.rr_house_building_assistance || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_house_building_assistance || "N/A"}
+              </td>
               <td className="p-3">{plot.rr_constructed_by || "N/A"}</td>
               <td className="p-3">{plot.rr_transit_shed || "N/A"}</td>
               <td className="p-3">{plot.rr_transport_allowance || "N/A"}</td>
               <td className="p-3">{plot.rr_maintenance_allowance || "N/A"}</td>
-              <td className="p-3">{plot.rr_multiple_displacement_allowance || "N/A"}</td>
+              <td className="p-3">
+                {plot.rr_multiple_displacement_allowance || "N/A"}
+              </td>
               <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
               <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
@@ -462,15 +483,19 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               className="hover:bg-gray-50 shadow-sm transition"
             >
               <td className="p-3">{idx + 1}</td>
-               <td className="p-3">{plot.project_name || "N/A"}</td>
-               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{plot.project_name || "N/A"}</td>
+              <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.grievance_no || "N/A"}</td>
-              <td className="p-3">{formatDate(plot.grievance_date) || "N/A"}</td>
+              <td className="p-3">
+                {formatDate(plot.grievance_date) || "N/A"}
+              </td>
               <td className="p-3">{plot.grievance_subject || "N/A"}</td>
               <td className="p-3">{plot.grievance_status || "N/A"}</td>
               <td className="p-3">{plot.grievance_action || "N/A"}</td>
               <td className="p-3">{plot.tribunal === "Y" ? "Yes" : "No"}</td>
-              <td className="p-3">{formatDate(plot.tribunal_deposit_date) || "N/A"}</td>
+              <td className="p-3">
+                {formatDate(plot.tribunal_deposit_date) || "N/A"}
+              </td>
               <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
               <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
               <td className="p-3">{plot.cess ?? "N/A"}</td>
@@ -504,8 +529,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           {filteredPlots.map((plot, idx) => (
             <tr key={plot.id || idx} className={rowClass}>
               <td className="p-3">{idx + 1}</td>
-               <td className="p-3">{plot.project_name || "N/A"}</td>
-               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{plot.project_name || "N/A"}</td>
+              <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
               <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
               <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
               <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>
@@ -513,7 +538,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.family_major_transgender ?? "N/A"}</td>
               <td className="p-3">{plot.family_minor_transgender ?? "N/A"}</td>
               <td className="p-3">{plot.persons_with_disability ?? "N/A"}</td>
-              <td className="p-3">{plot.family_with_orphan_members === "Y" ? "Yes" : "No"}</td>
+              <td className="p-3">
+                {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
+              </td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}

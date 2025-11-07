@@ -1,10 +1,4 @@
-import {
-  Bell,
-  User,
-  LogOut,
-  LockKeyhole,
-  ChevronDown,
-} from "lucide-react";
+import {Bell,User,LogOut,LockKeyhole,ChevronDown} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -30,20 +24,16 @@ export default function Header({ heading, sidebarWidth }) {
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
 
-  // ✅ Automatically select the first project if none is selected
   useEffect(() => {
     if (projects && projects.length > 0 && !selectedProject) {
       dispatch(setSelectedProject(projects[0]));
     }
   }, [projects, selectedProject, dispatch]);
-
-  // ✅ Handle manual project selection
   const handleProjectSelect = (project) => {
     dispatch(setSelectedProject(project)); // Store globally
     setProjectDropdownOpen(false);
   };
 
-  // ✅ Handle clicks outside dropdowns
   useEffect(() => {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
@@ -60,7 +50,6 @@ export default function Header({ heading, sidebarWidth }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Logout Handler
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -84,14 +73,10 @@ export default function Header({ heading, sidebarWidth }) {
         width: `calc(100% - ${sidebarWidth}px)`,
       }}
     >
-      {/* Left — Page Title */}
       <h2 className="text-xl font-semibold text-indigo-600 tracking-wide">
         {heading}
       </h2>
-
-      {/* Right Section */}
       <div className="flex items-center gap-6 ml-auto">
-        {/* Project Dropdown */}
         <div className="relative" ref={projectRef}>
           <button
             onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
@@ -127,8 +112,6 @@ export default function Header({ heading, sidebarWidth }) {
             </div>
           )}
         </div>
-
-        {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -157,8 +140,6 @@ export default function Header({ heading, sidebarWidth }) {
             </div>
           )}
         </div>
-
-        {/* Profile Menu */}
         <div className="relative" ref={profileRef}>
           <div
             className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-2 py-1.5 rounded-lg transition-colors duration-200"

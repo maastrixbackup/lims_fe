@@ -165,3 +165,28 @@ export const getTypeName = (type) => {
       return "-";
   }
 };
+
+ export const showToast = (message, type = "info") => {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "10px 16px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "#fff";
+    toast.style.fontSize = "14px";
+    toast.style.zIndex = "9999";
+    toast.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.3s ease";
+    toast.style.backgroundColor =
+      type === "success" ? "#16a34a" : type === "error" ? "#dc2626" : "#2563eb";
+
+    document.body.appendChild(toast);
+    setTimeout(() => (toast.style.opacity = "1"), 10);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+  };

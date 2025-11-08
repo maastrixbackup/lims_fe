@@ -11,8 +11,6 @@ const Logs = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // 🔹 Fetch logs
   const fetchLogs = async (pageNo = 1) => {
     try {
       setLoading(true);
@@ -39,8 +37,6 @@ const Logs = () => {
   useEffect(() => {
     fetchLogs(page);
   }, [token, page]);
-
-  // 🔹 Filter logs by search term
   const filteredLogs = useMemo(() => {
     if (!search) return logs;
     return logs.filter((log) =>
@@ -56,7 +52,6 @@ const Logs = () => {
 
   return (
     <main className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <h2 className="text-xl font-bold">📜 System Logs</h2>
         <input
@@ -69,11 +64,8 @@ const Logs = () => {
         />
       </div>
 
-      {/* Loading / Error */}
       {loading && <p>Loading logs...</p>}
       {error && <p className="text-red-500">{error}</p>}
-
-      {/* Logs Table */}
       {!loading && !error && (
         <div className="overflow-auto max-h-[600px] border rounded-md shadow-sm">
           <table className="min-w-full text-sm text-left border-collapse">
@@ -131,8 +123,6 @@ const Logs = () => {
           </table>
         </div>
       )}
-
-      {/* Pagination */}
       <div className="flex justify-center items-center gap-3 mt-4">
         <button
           onClick={() => setPage((p) => Math.max(p - 1, 1))}

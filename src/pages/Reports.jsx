@@ -19,14 +19,12 @@ export default function Reports() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <FileText className="w-6 h-6 text-primary" /> Reports
         </h1>
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          {/* Search */}
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
             <input
@@ -37,8 +35,6 @@ export default function Reports() {
               className="input input-bordered w-full pl-10"
             />
           </div>
-
-          {/* Filter */}
           <select
             className="select select-bordered w-32"
             value={filter}
@@ -51,8 +47,6 @@ export default function Reports() {
           </select>
         </div>
       </div>
-
-      {/* Table */}
       <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table w-full text-sm sm:text-base">

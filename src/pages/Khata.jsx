@@ -84,7 +84,6 @@ const Khata = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Khata List</h2>
 
-        {/* Buttons on Right Side */}
         <div className="flex gap-3">
           <button
             className="btn btn-outline btn-primary"

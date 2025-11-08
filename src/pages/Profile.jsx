@@ -167,7 +167,6 @@ const Profile = () => {
         )}
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Profile Avatar */}
           <div className="bg-white rounded-2xl shadow-all p-6 flex flex-col items-center text-center border-gray-300">
             <div className="relative">
               <img
@@ -214,7 +213,6 @@ const Profile = () => {
               </p>
             </div>
           </div>
-          {/* Profile Details */}
           <div className="bg-white rounded-2xl shadow-all p-6 md:col-span-2 relative">
             <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
               <User size={20} /> Profile Details

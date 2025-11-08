@@ -18,7 +18,6 @@ const Plots = () => {
   
   const navigate = useNavigate();
 
-  // Fetch plots list
   const fetchPlots = async (currentPage = 1) => {
     setLoading(true);
     try {
@@ -26,8 +25,6 @@ const Plots = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      // console.log("Plot List Data:", data);
-
       if (data.success) {
         setPlots(data.plots || []);
         setTotalPages(data.totalPages || 1);
@@ -43,7 +40,6 @@ const Plots = () => {
     if (token) fetchPlots(page);
   }, [page, token]);
 
-  // Delete Plot API Integration
   const confirmDelete = async () => {
     if (!deleteConfirm?.id) return;
 
@@ -59,7 +55,6 @@ const Plots = () => {
       console.log("Delete Response:", data);
 
       if (data.success) {
-        //Remove deleted plot from UI
         setPlots((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
         setDeleteConfirm(null);
       } else {
@@ -71,7 +66,6 @@ const Plots = () => {
     }
   };
 
-  // Pagination Handlers
   const handlePrev = () => {
     if (page > 1) setPage((prev) => prev - 1);
   };
@@ -81,7 +75,6 @@ const Plots = () => {
 
   return (
     <main className="flex-1 p-6 overflow-y-auto space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Plots List</h2>
         <button
@@ -103,8 +96,6 @@ const Plots = () => {
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}
-
-      {/* Pagination */}
       <div className="flex justify-center items-center gap-4 mt-6">
         <button
           className="btn btn-outline btn-sm"
@@ -124,8 +115,6 @@ const Plots = () => {
           Next →
         </button>
       </div>
-
-      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box max-w-md">

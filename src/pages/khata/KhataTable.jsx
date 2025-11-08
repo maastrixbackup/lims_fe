@@ -41,6 +41,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
               <th>Village</th>
               <th>Khata No.</th>
               <th>Khata Type</th>
+              <th>Unique ID</th>
               <th>Created</th>
               <th className="text-right pr-6">Actions</th>
             </tr>
@@ -57,6 +58,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                   <td>{khata.village_name}</td>
                   <td>{khata.khata_no}</td>
                   <td>{getTypeName(khata.type)}</td>
+                   <td>{khata.unique_id}</td>
                   <td className="text-gray-500">
                     {moment(khata.created_at).format("DD-MM-YYYY")}
                   </td>

@@ -4,21 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === Force modal to stay light no matter what system theme is === */
-
-/* Force DaisyUI backdrop to stay semi-transparent gray */
 html.dark .modal::backdrop,
 html[data-theme='dark'] .modal::backdrop,
 .modal::backdrop {
   background-color: rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Ensure modal box never turns dark */
 html.dark .modal-box,
 html[data-theme='dark'] .modal-box,
 .modal-box {
   background-color: #ffffff !important;
-  color: #1f2937 !important; /* gray-800 text */
+  color: #1f2937 !important;
 }
 
 .shadow-all {
@@ -31,5 +27,8 @@ html[data-theme='dark'] .modal-box,
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
+}
+.body{
+  overflow-y: hidden;
 }
 

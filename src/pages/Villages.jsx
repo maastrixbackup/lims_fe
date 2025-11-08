@@ -77,7 +77,7 @@ const Villages = () => {
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 overflow-hidden">
       <header className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Villages List</h2>
         <button

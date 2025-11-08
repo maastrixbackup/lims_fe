@@ -5,7 +5,7 @@ const PlotListModal = ({ plots = [], onClose }) => {
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-6xl bg-white relative">
-        {/* ❌ Close Button */}
+     
         <button
           onClick={onClose}
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -13,13 +13,13 @@ const PlotListModal = ({ plots = [], onClose }) => {
           <X size={20} />
         </button>
 
-        {/* 🧭 Title */}
+
         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
           <MapPin size={20} className="text-blue-500" />
           Plot List
         </h3>
 
-        {/* 📋 Table Section */}
+      
         <div className="overflow-x-auto max-h-[65vh]">
           <table className="table table-zebra w-full border border-gray-200">
             <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
@@ -56,8 +56,7 @@ const PlotListModal = ({ plots = [], onClose }) => {
             </tbody>
           </table>
         </div>
-
-        {/* 🎯 Footer Action */}
+ 
         <div className="modal-action">
           <button className="btn" onClick={onClose}>
             Close

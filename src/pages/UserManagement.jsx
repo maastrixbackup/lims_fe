@@ -78,10 +78,10 @@ const UserManagement = () => {
           </div>
         </div>
 
-        <div className="card bg-white rounded-2xl shadow">
-          <div className="max-h-[400px] overflow-auto">
-            <table className="table w-full text-sm sm:text-base">
-              <thead className="bg-gray-100 sticky top-0 text-gray-700">
+        <div className="card bg-white shadow-lg overflow-hidden">
+          <div className="max-h-[400px] overflow-x-auto">
+            <table className="table w-full">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
                 <tr>
                   {["#", "Name", "Email", "Role", "Projects", "Actions"].map(
                     (h) => (
@@ -273,9 +273,7 @@ const UserManagement = () => {
                 >
                   <option value="">Select Project</option>
                   {projects
-                    .filter(
-                      (p) => !formData.accessed_projects.includes(p.id)
-                    )
+                    .filter((p) => !formData.accessed_projects.includes(p.id))
                     .map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.project_name}

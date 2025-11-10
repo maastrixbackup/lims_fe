@@ -11,17 +11,13 @@ const PlotForm = () => {
   const editingPlot = location.state?.plot || null;
   const { projects, villages } = useSelector((s) => s.list);
 
-  console.log("village in plot", villages);
-
-  // Dropdowns for specific fields
+  // console.log("village in plot", villages);
   const dropdownFields = {
     displaced_affected_person: ["PAF", "PDF"],
     family_with_orphan_members: ["Y", "N"],
     tribunal: ["Y", "N"],
     abatement: ["Yes", "No"],
   };
-
-  // Fields that must be filled
   const requiredFields = [
     "name_of_recorded_tenant",
     "name_of_present_tenant",
@@ -168,9 +164,7 @@ const PlotForm = () => {
           </button>
         </div>
 
-        {/* Project Name + Village Code side by side */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          {/* Project Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-1">
               Project Name <span className="text-red-500">*</span>
@@ -189,24 +183,7 @@ const PlotForm = () => {
               ))}
             </select>
           </div>
-
-          {/* Village Code (auto-filled) */}
-          {/* <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">
-              Village Code <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="village_code"
-              value={formData.village_code || ""}
-              readOnly
-              placeholder="Auto-filled based on village name"
-              className="input input-bordered w-full bg-gray-100"
-            />
-          </div> */}
         </div>
-
-        {/* Form Sections */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {Object.entries(sections).map(([section, fields]) => (
             <div
@@ -229,8 +206,6 @@ const PlotForm = () => {
                         <span className="text-red-500 ml-1">*</span>
                       )}
                     </label>
-
-                    {/* Conditional input type rendering */}
                     {field === "village_name" ? (
                       <select
                         id={field}
@@ -296,7 +271,6 @@ const PlotForm = () => {
             </div>
           ))}
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"

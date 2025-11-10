@@ -190,3 +190,36 @@ export const getTypeName = (type) => {
       setTimeout(() => document.body.removeChild(toast), 300);
     }, 3000);
   };
+
+  export const DOCUMENT_TYPES = [
+  "Order Sheet",
+  "Notice by GMDC",
+  "Attendance Sheet",
+  "Consent Form",
+  "Genealogy Sheet",
+  "Legal Heir Certificate",
+  "Yadast Register Copy",
+  "Self-Attested RoR",
+  "Certified Copy of RoR",
+  "Patta Original",
+  "Encumbrance Certificate",
+  "Rent Receipt",
+  "Trace Map",
+  "Application to Claim for Land Compensation",
+  "Calculation of Compensation",
+  "Form 9A + Sample Photo (if any)",
+  "Form 9B + Sample Photo (if any)",
+  "Form 9C + Sample Photo (if any)",
+  "Land Acquisition Award",
+  "Indemnity Bond",
+  "Physical Possession Certificate (Bond Paper)",
+  "Apportionment Affidavit (if applicable)",
+  "Affidavit for Legal Issues (if any)",
+  "Aadhaar / Voter Card Copy",
+  "PAN Proof",
+  "Bank Passbook / Cancelled Cheque Copy",
+  "Electronic Fund Transfer Form",
+  "Receipt of Compensation",
+  "Payment Voucher",
+  "Photo of Physical Possession",
+];

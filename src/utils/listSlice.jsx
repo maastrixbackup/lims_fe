@@ -1,8 +1,5 @@
-// src/utils/listSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API_BASE_URL } from "../utils/config";
-
-// ✅ Fetch Projects
 export const fetchProjects = createAsyncThunk(
   "list/fetchProjects",
   async (_, { getState, rejectWithValue }) => {
@@ -22,8 +19,6 @@ export const fetchProjects = createAsyncThunk(
     }
   }
 );
-
-// ✅ Fetch Villages
 export const fetchVillages = createAsyncThunk(
   "list/fetchVillages",
   async (_, { getState, rejectWithValue }) => {
@@ -35,7 +30,7 @@ export const fetchVillages = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log("village data redux", data)
+      // console.log("village data redux", data)
 
       if (!data.success) throw new Error(data.message || "Failed to fetch villages");
       return data.villages || [];
@@ -44,8 +39,6 @@ export const fetchVillages = createAsyncThunk(
     }
   }
 );
-
-// ✅ Slice
 const listSlice = createSlice({
   name: "list",
   initialState: {
@@ -57,7 +50,6 @@ const listSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 🔹 Projects
       .addCase(fetchProjects.pending, (state) => {
         state.loading = true;
       })
@@ -69,8 +61,6 @@ const listSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // 🔹 Villages
       .addCase(fetchVillages.pending, (state) => {
         state.loading = true;
       })

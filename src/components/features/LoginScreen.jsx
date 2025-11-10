@@ -33,7 +33,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
-      console.log("Login response data:", data);
+      // console.log("Login response data:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -44,8 +44,6 @@ export default function LandingPage() {
       dispatch(login({ user: data.user, token: data.token, accessed_projects: data.accessed_projects || [], }));
 
       const roleName = data.user?.role_name?.trim();
-      // console.log("👤 Detected role:", roleName);
-
       switch (roleName) {
         case "Admin":
         case "Data Entry User":
@@ -66,7 +64,6 @@ export default function LandingPage() {
 
   return (
     <div data-theme="light" className="h-screen flex flex-col lg:flex-row overflow-hidden">
-      {/* Left section */}
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-green-700 via-emerald-500 to-teal-400 items-center justify-center relative">
         <div className="absolute top-10 left-10 w-32 h-32 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-40 h-40 bg-emerald-300/30 rounded-full blur-2xl animate-bounce"></div>
@@ -81,8 +78,6 @@ export default function LandingPage() {
           </p>
         </div>
       </div>
-
-      {/* Right section (Login Form) */}
       <div className="flex flex-1 items-center justify-center bg-base-200 relative">
         <div className="card w-full max-w-md shadow-2xl bg-white/80 backdrop-blur-md">
           <div className="card-body">
@@ -91,7 +86,6 @@ export default function LandingPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
               <div className="form-control">
                 <label className="label pb-1">
                   <span className="label-text">Email</span>

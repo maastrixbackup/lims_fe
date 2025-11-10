@@ -123,11 +123,8 @@ const UploadPlots = () => {
 
   return (
     <main className="p-6 space-y-8">
-      {/* 🔹 Project and Type Section */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
-
-        {/* Project Dropdown */}
         <select
           className="select select-bordered w-full md:w-1/3"
           value={selectedProject}
@@ -141,7 +138,6 @@ const UploadPlots = () => {
           ))}
         </select>
 
-        {/* Type Dropdown */}
         <select
           className="select select-bordered w-full md:w-1/4"
           value={selectedType}
@@ -153,7 +149,6 @@ const UploadPlots = () => {
           <option value="3">Forest Land</option>
         </select>
 
-        {/* File Input — Always Visible */}
         <input
           type="file"
           accept=".csv, .xlsx, .xls"
@@ -172,7 +167,6 @@ const UploadPlots = () => {
         />
       </div>
 
-      {/* Messages */}
       {error && <p className="text-red-500">{error}</p>}
       {success && (
         <p className="text-green-600 font-medium">
@@ -180,7 +174,6 @@ const UploadPlots = () => {
         </p>
       )}
 
-      {/* Upload Button */}
       {file && (
         <div className="flex justify-end">
           <button
@@ -193,7 +186,6 @@ const UploadPlots = () => {
         </div>
       )}
 
-      {/* File Preview Table */}
       {plots.length > 0 && (
         <div className="overflow-auto max-h-[400px] border rounded-md">
           <table className="table table-zebra w-full">
@@ -221,7 +213,6 @@ const UploadPlots = () => {
         </div>
       )}
 
-      {/* Uploaded Plot Documents */}
       <section>
         <h3 className="text-lg font-semibold mb-3">
           📄 Uploaded Plot Documents

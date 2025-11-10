@@ -1,7 +1,6 @@
 // src/utils/userSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
-// ✅ Load persisted data from localStorage
 const storedUser = localStorage.getItem("user");
 const storedToken = localStorage.getItem("userToken");
 const storedAccess = localStorage.getItem("accessed_projects");
@@ -47,8 +46,6 @@ const userSlice = createSlice({
       localStorage.removeItem("user");
       localStorage.removeItem("accessed_projects");
     },
-
-    // ✅ new action
     updateUser: (state, action) => {
       const updatedUser = {
         ...state.user,

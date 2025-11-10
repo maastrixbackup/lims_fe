@@ -18,7 +18,7 @@ const VillageFormModal = ({
     type: "",
     village_code: "",
   });
-  const [successMessage, setSuccessMessage] = useState(""); // ✅ new state for message
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -62,8 +62,6 @@ const VillageFormModal = ({
           : "Village added successfully!"
       );
       fetchVillages();
-
-      // ✅ Auto-close modal after 1.5 seconds
       setTimeout(() => {
         setSuccessMessage("");
         onClose();
@@ -89,7 +87,6 @@ const VillageFormModal = ({
         </h3>
 
         {successMessage ? (
-          // ✅ Success message section
           <div className="flex flex-col items-center justify-center text-center space-y-3 py-6">
             <CheckCircle className="text-green-500 w-12 h-12" />
             <p className="text-lg font-semibold text-green-600">
@@ -97,7 +94,6 @@ const VillageFormModal = ({
             </p>
           </div>
         ) : (
-          // ✅ Form section
           <form onSubmit={handleSubmit} className="space-y-3">
             <level>Project Name</level>
             <select

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../utils/userSlice";
 import { API_BASE_URL } from "../../utils/config";
 
@@ -13,6 +13,7 @@ export default function LandingPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { userToken } =useSelector((state) => state.auth);
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
@@ -62,6 +63,12 @@ export default function LandingPage() {
     }
   };
 
+    // ✅ Redirect if already logged in
+  useEffect(() => {
+    if (userToken) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [userToken, navigate]);
   return (
     <div data-theme="light" className="h-screen flex flex-col lg:flex-row overflow-hidden">
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-green-700 via-emerald-500 to-teal-400 items-center justify-center relative">

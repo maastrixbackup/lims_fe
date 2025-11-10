@@ -3,7 +3,7 @@ import { X, MapPin, Eye } from "lucide-react";
 
 const PlotListModal = ({ plots = [], onClose }) => {
   return (
-    <dialog open className="modal modal-open">
+    <dialog open className="modal modal-open bg-white">
       <div className="modal-box max-w-6xl bg-white relative">
      
         <button

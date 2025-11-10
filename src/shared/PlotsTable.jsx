@@ -14,7 +14,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
   
-  // Sort plots in ascending order by `id`
   const sortedPlots = useMemo(() => {
     if (!plots || plots.length === 0) return [];
     return [...plots].sort((a, b) => (a.id || 0) - (b.id || 0));
@@ -74,7 +73,8 @@ const villageOptions = useMemo(() => {
     return (
       <div className="text-center py-10 text-gray-500">
         No plots found. Click{" "}
-        <span className="font-semibold text-blue-600">+ Add Plot</span> to
+        <span className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200" 
+         onClick={() => navigate("/plot-form")}>+ Add Plot</span> to
         create one.
       </div>
     );

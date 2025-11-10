@@ -18,7 +18,7 @@ const Plots = () => {
   
   const navigate = useNavigate();
 
-  const fetchPlots = async (currentPage = 1) => {
+  const fetchPlots = async (currentPage) => {
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/plots/plotList?page=${currentPage}`, {

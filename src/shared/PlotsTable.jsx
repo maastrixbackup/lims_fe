@@ -37,6 +37,8 @@ const villageOptions = useMemo(() => {
     return [...uniqueVillages];
   }, [projectFilteredPlots]);
 
+// const display
+
   //  filter options
  const khataOptions = useMemo(() => {
     const uniqueKhata = new Set(

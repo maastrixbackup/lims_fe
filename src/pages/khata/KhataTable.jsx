@@ -1,12 +1,14 @@
-import React from "react";
-import { Pencil, Trash2, Upload, Map as MapIcon } from "lucide-react";
+import React, { useState } from "react";
+import { Pencil, Trash2, Upload, Map as MapIcon, LandPlot } from "lucide-react";
 import { useSelector } from "react-redux";
 import moment from "moment";
+import PlotListModal from "../../pages/Khata/PlotListModal";
 
 const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
   const selectedProject = useSelector((state) => state.selectedProject.project);
+  const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
 
   //  Filter khatas by selected project (if selected)
   const displayKhatas = selectedProject
@@ -26,6 +28,35 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
         return "-";
     }
   };
+  const plots = [
+    {
+      id: 1,
+      plot_no: "P-101",
+      survey_no: "SR-5001",
+      area: 2400,
+      village_name: "Rampur",
+      owner_name: "Ramesh Patel",
+      status: "Completed",
+    },
+    {
+      id: 2,
+      plot_no: "P-102",
+      survey_no: "SR-5002",
+      area: 1800,
+      village_name: "Rampur",
+      owner_name: "Suresh Mehta",
+      status: "Pending",
+    },
+    {
+      id: 3,
+      plot_no: "P-103",
+      survey_no: "SR-5003",
+      area: 2200,
+      village_name: "Bhavnagar",
+      owner_name: "Meena Shah",
+      status: "In Progress",
+    },
+  ];
 
   // Check if user has restricted role
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
@@ -58,12 +89,29 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                   <td>{khata.village_name}</td>
                   <td>{khata.khata_no}</td>
                   <td>{getTypeName(khata.type)}</td>
-                   <td>{khata.unique_id}</td>
+                  <td>{khata.unique_id}</td>
                   <td className="text-gray-500">
                     {moment(khata.created_at).format("DD-MM-YYYY")}
                   </td>
                   <td className="text-right">
                     <div className="flex space-x-2 justify-end">
+                      <button
+                        className={`btn btn-xs btn-accent text-white ${
+                          isRestricted
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
+                        onClick={() => setIsPlotModalOpen(true)}
+                        disabled={isRestricted}
+                      >
+                       <LandPlot size={14} />  View Plots
+                      </button>
+                      {isPlotModalOpen && (
+                        <PlotListModal
+                          plots={plots}
+                          onClose={() => setIsPlotModalOpen(false)}
+                        />
+                      )}
                       <button
                         className={`btn btn-xs btn-warning text-white ${
                           isRestricted

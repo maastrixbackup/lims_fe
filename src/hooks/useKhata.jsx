@@ -74,18 +74,19 @@ export const useKhata = () => {
   };
 
   const handlers = {
-    openEditModal: (khata) =>
-      setModals((m) => ({
-        ...m,
-        isFormOpen: true,
-        formProps: { khata, setKhatas, token, projects, villages },
-      })),
-    openAddModal: () =>
-      setModals((m) => ({
-        ...m,
-        isFormOpen: true,
-        formProps: { khata: null, setKhatas, token, projects, villages },
-      })),
+  openAddModal: () =>
+  setModals((m) => ({
+    ...m,
+    isFormOpen: true,
+    formProps: { khata: null, setKhatas, token, projects, villages, fetchKhatas }, // 🟢 add fetchKhatas
+  })),
+openEditModal: (khata) =>
+  setModals((m) => ({
+    ...m,
+    isFormOpen: true,
+    formProps: { khata, setKhatas, token, projects, villages, fetchKhatas }, // 🟢 add fetchKhatas
+  })),
+
     closeForm: () => setModals((m) => ({ ...m, isFormOpen: false })),
 
     openDeleteModal: (khata) =>

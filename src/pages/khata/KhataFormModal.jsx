@@ -9,6 +9,7 @@ const KhataFormModal = ({
   token,
   projects,
   villages,
+  fetchKhatas,
 }) => {
   const [formData, setFormData] = useState({
     project_id: "",
@@ -74,48 +75,30 @@ const handleSubmit = async (e) => {
     const data = await res.json();
     console.log("Khata API response:", data);
 
-    if (!res.status==="201") {
+    // 🛠️ Fix this condition
+    if (res.status !== 201 && res.status !== 200) {
       alert(data.message || "Failed to save khata");
       return;
     }
 
-    const updatedKhata = {
-      id: data.id || khata?.id,
-      project_id: formData.project_id,
-      village_id: formData.village_id,
-      project_name:
-        projects.find((p) => p.id === formData.project_id)?.project_name ||
-        data.project_name,
-      village_name:
-        villages.find((v) => v.id === formData.village_id)?.village_name ||
-        data.village_name,
-      khata_no: formData.khata_no,
-      type: formData.type,
-      created_at:
-        data.created_at || khata?.created_at || new Date().toISOString(),
-    };
+    // ✅ Refresh khata list from backend
+    if (fetchKhatas) await fetchKhatas();
 
-    // Update list
-    setKhatas((prev) =>
-      khata
-        ? prev.map((k) => (k.id === khata.id ? updatedKhata : k))
-        : [...prev, updatedKhata]
-    );
-
-
+    // ✅ Toast
     const toast = document.createElement("div");
-    toast.textContent = khata ? "Khata updated successfully!" : "Khata added successfully!";
+    toast.textContent = khata
+      ? "Khata updated successfully!"
+      : "Khata added successfully!";
     toast.className =
       "fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md shadow-md animate-fade-in";
     document.body.appendChild(toast);
 
-    // Auto-remove toast & close modal
     setTimeout(() => {
       toast.classList.add("opacity-0", "transition-opacity", "duration-500");
       setTimeout(() => {
         document.body.removeChild(toast);
       }, 500);
-      onClose(); 
+      onClose();
     }, 1000);
   } catch (err) {
     console.error(err);

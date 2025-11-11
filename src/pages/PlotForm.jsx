@@ -178,7 +178,7 @@ const PlotForm = () => {
               <option value="">Select Project</option>
               {projects.map((proj) => (
                 <option key={proj.id} value={proj.id}>
-                  {proj.project_name}
+                  {proj.name}
                 </option>
               ))}
             </select>

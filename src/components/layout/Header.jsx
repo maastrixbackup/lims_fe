@@ -19,6 +19,7 @@ export default function Header({ heading, sidebarWidth }) {
 
   const user = useSelector((state) => state.auth.user);
   const { projects } = useSelector((s) => s.list);
+  
   const selectedProject = useSelector((s) => s.selectedProject.project);
 
   const username = user?.name || "User";

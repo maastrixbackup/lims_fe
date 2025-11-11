@@ -108,7 +108,7 @@ const VillageFormModal = ({
               <option value="">Select Project</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.project_name}
+                  {p.name}
                 </option>
               ))}
             </select>

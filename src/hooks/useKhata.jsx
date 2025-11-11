@@ -49,7 +49,7 @@ export const useKhata = () => {
       //   allKhatas = allKhatas.filter((k) => allowedIds.includes(k.project_id));
       // }
       setKhatas(allKhatas);
-      console.log("Khatas fetched:", allKhatas);
+      // console.log("Khatas fetched:", allKhatas);
     }
   };
 

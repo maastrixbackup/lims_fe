@@ -104,7 +104,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                         onClick={() => setIsPlotModalOpen(true)}
                         disabled={isRestricted}
                       >
-                       <LandPlot size={14} />  View Plots
+                        <LandPlot size={14} /> View Plots
                       </button>
                       {isPlotModalOpen && (
                         <PlotListModal
@@ -141,7 +141,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                       >
                         <MapIcon size={14} /> Maps
                       </button>
-                      
+
                       <button
                         className={`btn btn-xs btn-error text-white ${
                           isRestricted
@@ -153,7 +153,6 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                       >
                         <Trash2 size={14} /> Delete
                       </button>
-
                     </div>
                   </td>
                 </tr>
@@ -161,7 +160,18 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center py-6 text-gray-500">
-                  No khatas found.
+                  {/* <div className="bg-gray-50 border border-dashed border-gray-300 px-6 py-4 rounded-xl shadow-sm"> */}
+                    <p className="text-base font-medium text-gray-700">
+                      No Khata found for the{" "}
+                      <span className="text-primary font-semibold">
+                        selected project
+                      </span>
+                      .
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Try selecting a different project or add a new Khata.
+                    </p>
+                  {/* </div> */}
                 </td>
               </tr>
             )}

@@ -12,7 +12,8 @@ export const fetchProjects = createAsyncThunk(
       });
       const data = await res.json();
 
-      if (!data.success) throw new Error(data.message || "Failed to fetch projects");
+      if (!data.success)
+        throw new Error(data.message || "Failed to fetch projects");
       return data.projects || [];
     } catch (err) {
       return rejectWithValue(err.message);
@@ -32,7 +33,8 @@ export const fetchVillages = createAsyncThunk(
       const data = await res.json();
       // console.log("village data redux", data)
 
-      if (!data.success) throw new Error(data.message || "Failed to fetch villages");
+      if (!data.success)
+        throw new Error(data.message || "Failed to fetch villages");
       return data.villages || [];
     } catch (err) {
       return rejectWithValue(err.message);
@@ -55,8 +57,18 @@ const listSlice = createSlice({
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
         state.loading = false;
-        state.projects = action.payload;
+
+        state.projects = (action.payload?.projects || action.payload || []).map(
+          (p) => ({
+            id: p.id || p.project_id,
+            name: p.project_name || p.name,
+            status: p.status,
+            client_code: p.client_code || "",
+            created_at: p.created_at,
+          })
+        );
       })
+
       .addCase(fetchProjects.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

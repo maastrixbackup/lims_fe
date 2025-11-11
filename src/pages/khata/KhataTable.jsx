@@ -114,16 +114,34 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                       )}
                       <button
                         className={`btn btn-xs btn-warning text-white ${
-                          isRestricted
+                          userRole === "Viewer"
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : ""
                         }`}
                         onClick={() => onEdit(khata)}
-                        disabled={isRestricted}
+                        disabled={userRole === "Viewer"}
                       >
                         <Pencil size={14} /> Edit
                       </button>
 
+                      <button
+                        className={`btn btn-xs btn-info text-white ${
+                          userRole === "Viewer"
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : ""
+                        }`}
+                        onClick={() => onUpload(khata)}
+                        disabled={userRole === "Viewer"}
+                      >
+                        <Upload size={14} /> Upload
+                      </button>
+                      <button
+                        className="btn btn-xs btn-success text-white"
+                        onClick={() => onMap(khata)}
+                      >
+                        <MapIcon size={14} /> Maps
+                      </button>
+                      
                       <button
                         className={`btn btn-xs btn-error text-white ${
                           isRestricted
@@ -136,24 +154,6 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                         <Trash2 size={14} /> Delete
                       </button>
 
-                      <button
-                        className={`btn btn-xs btn-info text-white ${
-                          isRestricted
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : ""
-                        }`}
-                        onClick={() => onUpload(khata)}
-                        disabled={isRestricted}
-                      >
-                        <Upload size={14} /> Upload
-                      </button>
-
-                      <button
-                        className="btn btn-xs btn-success text-white"
-                        onClick={() => onMap(khata)}
-                      >
-                        <MapIcon size={14} /> Maps
-                      </button>
                     </div>
                   </td>
                 </tr>

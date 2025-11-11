@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { API_BASE_URL } from "../../utils/config";
+import { useSelector } from "react-redux";
 
 const KhataFormModal = ({
   khata,
@@ -19,8 +20,10 @@ const KhataFormModal = ({
   });
 
   const initializing = useRef(false);
+   const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role_name || "";
+    const isRestricted = userRole === "Data Entry User"
 
-  // Initialize form when khata is provided (Edit mode)
   useEffect(() => {
     if (khata) {
       initializing.current = true;
@@ -36,14 +39,12 @@ const KhataFormModal = ({
     }
   }, [khata]);
 
-  // Reset village when project changes (except during initialization)
   useEffect(() => {
     if (!initializing.current) {
       setFormData((prev) => ({ ...prev, village_id: "" }));
     }
   }, [formData.project_id]);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -75,16 +76,15 @@ const handleSubmit = async (e) => {
     const data = await res.json();
     console.log("Khata API response:", data);
 
-    // 🛠️ Fix this condition
     if (res.status !== 201 && res.status !== 200) {
       alert(data.message || "Failed to save khata");
       return;
     }
 
-    // ✅ Refresh khata list from backend
+    
     if (fetchKhatas) await fetchKhatas();
 
-    // ✅ Toast
+
     const toast = document.createElement("div");
     toast.textContent = khata
       ? "Khata updated successfully!"
@@ -123,7 +123,6 @@ const handleSubmit = async (e) => {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Project */}
           <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <select
@@ -142,7 +141,6 @@ const handleSubmit = async (e) => {
             </select>
           </div>
 
-          {/* Village */}
           <div>
             <label className="block text-sm font-medium mb-1">Village</label>
             <select
@@ -162,7 +160,6 @@ const handleSubmit = async (e) => {
             </select>
           </div>
 
-          {/* Khata No */}
           <div>
             <label className="block text-sm font-medium mb-1">Khata No.</label>
             <input
@@ -172,10 +169,10 @@ const handleSubmit = async (e) => {
               onChange={handleChange}
               className="input input-bordered w-full"
               required
+              disabled={isRestricted}
             />
           </div>
 
-          {/* Type */}
           <div>
             <label className="block text-sm font-medium mb-1">Type</label>
             <select

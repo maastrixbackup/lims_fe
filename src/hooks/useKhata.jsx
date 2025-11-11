@@ -44,13 +44,12 @@ export const useKhata = () => {
     const data = await api("/khata/khataList");
     if (data.success) {
       let allKhatas = data.khatas || [];
-      if (role === "Data Entry User" || role === "Viewer") {
-        const allowedIds = accessed_projects.map((p) => p.id);
-        allKhatas = allKhatas.filter((k) => allowedIds.includes(k.project_id));
-      }
-
+      // if (role === "Data Entry User" || role === "Viewer") {
+      //   const allowedIds = accessed_projects.map((p) => p.id);
+      //   allKhatas = allKhatas.filter((k) => allowedIds.includes(k.project_id));
+      // }
       setKhatas(allKhatas);
-      // console.log("Khatas fetched:", allKhatas);
+      console.log("Khatas fetched:", allKhatas);
     }
   };
 

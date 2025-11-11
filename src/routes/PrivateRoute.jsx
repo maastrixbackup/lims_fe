@@ -20,18 +20,18 @@ export default function PrivateRoute({ allowedRoles }) {
     return <Navigate to="/" replace />;
   }
 
-  const userRole =
-    currentUser.role_name ||
-    currentUser.role?.name ||
-    currentUser.role ||
-    "Unknown";
+  // const userRole =
+  //   currentUser.role_name ||
+  //   currentUser.role?.name ||
+  //   currentUser.role ||
+  //   "Unknown";
 
-  // console.log("🔍 Detected role:", userRole);
+  // // console.log("🔍 Detected role:", userRole);
 
-  if (!allowedRoles.includes(userRole)) {
-    // console.warn(`Role '${userRole}' not allowed`);
-    return <Navigate to="/unauthorized" replace />;
-  }
+  // if (!allowedRoles.includes(userRole)) {
+  //   // console.warn(`Role '${userRole}' not allowed`);
+  //   return <Navigate to="/unauthorized" replace />;
+  // }
 
   // console.log("Access granted to:", userRole);
   return <Outlet />;

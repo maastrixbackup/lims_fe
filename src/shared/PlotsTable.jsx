@@ -13,13 +13,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const role = user?.role_name;
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
-  
+
   const sortedPlots = useMemo(() => {
     if (!plots || plots.length === 0) return [];
     return [...plots].sort((a, b) => (a.id || 0) - (b.id || 0));
   }, [plots]);
 
-    const projectFilteredPlots = useMemo(() => {
+  const projectFilteredPlots = useMemo(() => {
     if (!selectedProject) return sortedPlots;
     return sortedPlots.filter(
       (plot) =>
@@ -28,18 +28,17 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     );
   }, [sortedPlots, selectedProject]);
 
-
-const villageOptions = useMemo(() => {
+  const villageOptions = useMemo(() => {
     const uniqueVillages = new Set(
       projectFilteredPlots.map((p) => p.village_name).filter(Boolean)
     );
     return [...uniqueVillages];
   }, [projectFilteredPlots]);
 
-// const display
+  // const display
 
   //  filter options
- const khataOptions = useMemo(() => {
+  const khataOptions = useMemo(() => {
     const uniqueKhata = new Set(
       projectFilteredPlots.map((p) => p.khata_no).filter(Boolean)
     );
@@ -47,7 +46,7 @@ const villageOptions = useMemo(() => {
   }, [projectFilteredPlots]);
 
   // Apply filters and search
-   const filteredPlots = useMemo(() => {
+  const filteredPlots = useMemo(() => {
     return projectFilteredPlots.filter((plot) => {
       const matchVillage =
         !selectedVillage || plot.village_name === selectedVillage;
@@ -73,9 +72,13 @@ const villageOptions = useMemo(() => {
     return (
       <div className="text-center py-10 text-gray-500">
         No plots found. Click{" "}
-        <span className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200" 
-         onClick={() => navigate("/plot-form")}>+ Add Plot</span> to
-        create one.
+        <span
+          className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200"
+          onClick={() => navigate("/plot-form")}
+        >
+          + Add Plot
+        </span>{" "}
+        to create one.
       </div>
     );
   }
@@ -215,8 +218,10 @@ const villageOptions = useMemo(() => {
           <tr>
             <th className="p-3 text-left">#</th>
             <th className="p-3 text-left">Project Name</th>
-            <th className="p-3 text-left">SES Survey No</th>
             <th className="p-3 text-left">LA Case File No</th>
+            <th className="p-3 text-left">Khata No</th>
+            <th className="p-3 text-left">Plot No</th>
+            <th className="p-3 text-left">SES Survey No</th>
             <th className="p-3 text-left">Date of Award</th>
             <th className="p-3 text-left">Recorded Tenant</th>
             <th className="p-3 text-left">Present Tenant</th>
@@ -226,8 +231,7 @@ const villageOptions = useMemo(() => {
             <th className="p-3 text-left">Tahasil</th>
             <th className="p-3 text-left">RI Circle</th>
             <th className="p-3 text-left">Thana No</th>
-            <th className="p-3 text-left">Khata No</th>
-            <th className="p-3 text-left">Plot No</th>
+
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -237,8 +241,10 @@ const villageOptions = useMemo(() => {
             <tr key={plot.id || idx} className="hover:bg-gray-50 transition">
               <td className="p-3">{idx + 1}</td>
               <td className="p-3">{plot.project_name || "N/A"}</td>
-              <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
               <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+              <td className="p-3">{plot.khata_no || "N/A"}</td>
+              <td className="p-3">{plot.plot_no || "N/A"}</td>
+              <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
               <td className="p-3">{formatDate(plot.date_of_award)}</td>
               <td className="p-3">{plot.name_of_recorded_tenant || "N/A"}</td>
               <td className="p-3">{plot.name_of_present_tenant || "N/A"}</td>
@@ -248,8 +254,7 @@ const villageOptions = useMemo(() => {
               <td className="p-3">{plot.tahasil_name || "N/A"}</td>
               <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
               <td className="p-3">{plot.thana_no || "N/A"}</td>
-              <td className="p-3">{plot.khata_no || "N/A"}</td>
-              <td className="p-3">{plot.plot_no || "N/A"}</td>
+
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}

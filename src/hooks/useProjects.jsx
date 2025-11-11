@@ -43,19 +43,19 @@ export default function useProjects(token) {
       let visibleProjects = allProjects;
 
       // 🔐 Restrict non-admin users
-      if (user?.role_name !== "Admin") {
-        const accessIds = accessedProjects.map((p) => p.project_id || p.id);
+      // if (user?.role_name !== "Admin") {
+      //   const accessIds = accessedProjects.map((p) => p.project_id || p.id);
 
-        visibleProjects = allProjects.filter((project) => {
-          const access = accessedProjects.find(
-            (ap) => ap.project_id === project.id || ap.id === project.id
-          );
-          if (!access) return false;
-          return access.status !== undefined
-            ? access.status === project.status
-            : true;
-        });
-      }
+      //   visibleProjects = allProjects.filter((project) => {
+      //     const access = accessedProjects.find(
+      //       (ap) => ap.project_id === project.id || ap.id === project.id
+      //     );
+      //     if (!access) return false;
+      //     return access.status !== undefined
+      //       ? access.status === project.status
+      //       : true;
+      //   });
+      // }
 
       setProjects(visibleProjects);
     } catch (e) {

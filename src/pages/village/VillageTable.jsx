@@ -42,7 +42,7 @@ const VillageTable = ({
                 return (
                   <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
                     <td>{i + 1}</td>
-                    <td>{project?.project_name || "N/A"}</td>
+                    <td>{project?.name || "N/A"}</td>
                     <td>{v.village_name}</td>
                     <td>{v.district}</td>
                     <td>{v.tahasil}</td>

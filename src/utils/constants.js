@@ -223,3 +223,34 @@ export const getTypeName = (type) => {
   "Payment Voucher",
   "Photo of Physical Possession",
 ];
+
+export const validateForm = () => {
+  const newErrors = {};
+
+  if (!formData.name.trim()) newErrors.name = "Full name is required.";
+
+
+  if (!formData.email.trim()) newErrors.email = "Email is required.";
+  else if (!/\S+@\S+\.\S+/.test(formData.email))
+    newErrors.email = "Invalid email address.";
+
+  if (!formData.phone_number) newErrors.phone_number = "Phone number is required.";
+  else if (!/^\d{10}$/.test(formData.phone_number))
+    newErrors.phone_number = "Phone number must be 10 digits.";
+
+
+  if (!editingUser) {
+    if (!formData.password) newErrors.password = "Password is required.";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters.";
+
+    if (!formData.confirmPassword)
+      newErrors.confirmPassword = "Confirm password is required.";
+    else if (formData.confirmPassword !== formData.password)
+      newErrors.confirmPassword = "Passwords do not match.";
+  }
+
+  if (!formData.role_id) newErrors.role_id = "Role selection is required.";
+
+  return newErrors;
+};

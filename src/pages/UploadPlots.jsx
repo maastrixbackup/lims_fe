@@ -133,7 +133,7 @@ const UploadPlots = () => {
           <option value="">Select Project</option>
           {projects.map((proj) => (
             <option key={proj.id} value={proj.id}>
-              {proj.project_name}
+              {proj.name}
             </option>
           ))}
         </select>
@@ -143,7 +143,7 @@ const UploadPlots = () => {
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
         >
-          <option value="">Select Type</option>
+          <option value="">Select Type</option> 
           <option value="1">Pvt Land</option>
           <option value="2">Govt Land</option>
           <option value="3">Forest Land</option>

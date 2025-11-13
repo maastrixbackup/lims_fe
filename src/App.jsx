@@ -6,13 +6,13 @@ import PrivateRoute from "./routes/PrivateRoute";
 import "./App.css";
 import Loader from "./shared/Loader";
 import { fetchProjects, fetchVillages } from "./utils/listSlice";
-import ForestVillage from "./pages/forest/Village";
-import ForestKhata from "./pages/forest/khata";
-import ForestPlot from "./pages/forest/Plot";
+// import ForestVillage from "./pages/forest/Village";
+// import ForestKhata from "./pages/forest/khata";
+// import ForestPlot from "./pages/forest/Plot";
 
-import GovtVillage from "./pages/govt/GovtVillage";
-import GovtKhata from "./pages/govt/GovtKhata";
-import GovtPlot from "./pages/govt/plot";
+// import GovtVillage from "./pages/govt/GovtVillage";
+// import GovtKhata from "./pages/govt/GovtKhata";
+// import GovtPlot from "./pages/govt/plot";
 
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const Unauthorized = lazy(() => import("./pages/Unathorize"));
@@ -36,6 +36,13 @@ const DeletedRecords = lazy(() => import("./pages/trash/DeletedRecords"));
 const SocialSurvey = lazy(() => import("./pages/SocialSurvey"));
 const ProjectTable = lazy(() => import("./shared/ProjectTable"));
 
+const ForestVillage = lazy(() => import("./pages/forest/Village"));
+const ForestKhata = lazy(() => import("./pages/forest/khata"));
+const ForestPlot = lazy(() => import("./pages/forest/Plot"));
+
+const GovtVillage = lazy(() => import("./pages/govt/GovtVillage"));
+const GovtKhata = lazy(() => import("./pages/govt/GovtKhata"));
+const GovtPlot = lazy(() => import("./pages/govt/plot"));
 export default function App() {
   const dispatch = useDispatch();
   const { userToken } = useSelector((s) => s.auth);

@@ -3,7 +3,7 @@ import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
 
 export default function useUserManagement(token) {
-  const { projects} = useSelector((s) => s.list);
+  const { projects } = useSelector((s) => s.list);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function useUserManagement(token) {
     if (!token) return;
     setLoading(true);
     try {
-      const [usersRes, rolesRes, ] = await Promise.all([
+      const [usersRes, rolesRes] = await Promise.all([
         fetch(`${API_BASE_URL}/user/usersList`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -40,6 +40,7 @@ export default function useUserManagement(token) {
 
       setUsers(Array.isArray(usersData.users) ? usersData.users : []);
       setRoles(Array.isArray(rolesData.roles) ? rolesData.roles : []);
+      console.log("accesseddddd users project^^^^^^^^^^^", usersData.users);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
@@ -49,43 +50,51 @@ export default function useUserManagement(token) {
   useEffect(() => {
     fetchData();
   }, [token]);
- console.log('accesseddddd project',formData.accessed_projects)
-  const openModal = (user = null) => {
-    if (user) {
-      setEditingUser(user);
-      let parsedProjects = [];
-      if (Array.isArray(user.accessed_projects)) {
-        parsedProjects = user.accessed_projects.map((p) =>
-          typeof p === "object" ? p.id : +p
-        );
-      } else if (
-        typeof user.accessed_projects === "string" &&
-        user.accessed_projects
-      ) {
-        const matched = projects.find(
-          (p) =>
-            p.project_name.toLowerCase() ===
-            user.accessed_projects.toLowerCase()
-        );
-        parsedProjects = matched ? [matched.id] : [];
-      }
+  // console.log("accesseddddd project^^^^^^^^^^^", formData.accessed_projects);
+ const openModal = (user = null) => {
+  if (user) {
+    setEditingUser(user);
 
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        password: "",
-        confirmPassword: "",
-        role_id: user.role_id || "",
-        accessed_projects: parsedProjects || [],
-        phone_number: user.phone_number || "",
-        profile_pic: user.profile_pic || "",
-      });
-     
-    } else {
-      resetForm();
+    let parsedProjects = [];
+    if (typeof user.accessed_projects === "string") {
+      const names = user.accessed_projects
+        .split(",")
+        .map((n) => n.trim())
+        .filter(Boolean);
+
+      parsedProjects = names
+        .map((name) => {
+          const matchedProject = projects.find(
+            (p) => p.name.toLowerCase() === name.toLowerCase()
+          );
+          return matchedProject ? matchedProject.id : null;
+        })
+        .filter(Boolean);
     }
-    setIsModalOpen(true);
-  };
+
+    else if (Array.isArray(user.accessed_projects)) {
+      parsedProjects = user.accessed_projects.map((p) =>
+        typeof p === "object" ? p.id : Number(p)
+      );
+    }
+
+    setFormData({
+      name: user.name || "",
+      email: user.email || "",
+      password: "",
+      confirmPassword: "",
+      role_id: user.role_id || "",
+      accessed_projects: parsedProjects,
+      phone_number: user.phone_number || "",
+      profile_pic: user.profile_pic || "",
+    });
+  } else {
+    resetForm();
+  }
+
+  setIsModalOpen(true);
+};
+
 
   const resetForm = () => {
     setEditingUser(null);
@@ -110,7 +119,7 @@ export default function useUserManagement(token) {
     e.preventDefault();
 
     if (!editingUser && formData.password !== formData.confirmPassword) {
-      alert("⚠️ Passwords do not match!");
+      alert(" Passwords do not match!");
       return;
     }
 
@@ -125,7 +134,9 @@ export default function useUserManagement(token) {
       form.append("email", formData.email);
       form.append("role_id", formData.role_id);
       // form.append("status", formData.status || "active");
-      form.append("phone_number", formData.phone_number || "");
+      // form.append("phone_number", formData.phone_number || "");
+      form.append("phone_number", `+91${formData.phone_number}`);
+
 
       if (!editingUser || formData.password)
         form.append("password", formData.password);

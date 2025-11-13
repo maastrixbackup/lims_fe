@@ -8,14 +8,12 @@ import MapModal from "../shared/MapModal";
 import { useSelector } from "react-redux";
 
 const Khata = () => {
-  const {
-    khatas,
-    modals,
-    handlers,
-  } = useKhata();
+  
+  const { khatas, modals, handlers } = useKhata();
 
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
+  
 
   const [filterVillage, setFilterVillage] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -26,8 +24,9 @@ const Khata = () => {
     khatas.forEach((k) => {
       if (k.village_name) set.add(k.village_name);
     });
-    return Array.from(set);
+    return Array.from(set).sort((a, b) => a.localeCompare(b)); 
   }, [khatas]);
+  console.log('village listttt', villages)
 
   const types = [
     { id: 1, label: "Pvt Land" },
@@ -35,17 +34,17 @@ const Khata = () => {
     { id: 3, label: "Forest Land" },
   ];
 
+
   const filteredKhatas = useMemo(() => {
     return khatas.filter((k) => {
       const matchVillage = !filterVillage || k.village_name === filterVillage;
       const matchType = !filterType || Number(k.type) === Number(filterType);
-      return  matchVillage && matchType;
+      return matchVillage && matchType;
     });
   }, [khatas, filterVillage, filterType]);
 
   return (
     <div className="p-6 space-y-6">
-    
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Khata List</h2>
 
@@ -67,7 +66,6 @@ const Khata = () => {
           value={filterVillage}
           onChange={(e) => setFilterVillage(e.target.value)}
           className="select select-bordered w-48"
-       
         >
           <option value="">All Villages</option>
           {villages.map((v) => (
@@ -90,7 +88,6 @@ const Khata = () => {
           ))}
         </select>
       </div>
-
 
       <KhataTable
         khatas={filteredKhatas}

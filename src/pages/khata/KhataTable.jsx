@@ -161,7 +161,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
               <tr>
                 <td colSpan="7" className="text-center py-6 text-gray-500">
                   {/* <div className="bg-gray-50 border border-dashed border-gray-300 px-6 py-4 rounded-xl shadow-sm"> */}
-                    <p className="text-base font-medium text-gray-700">
+                    <p className="text-md font-medium text-gray-500">
                       No Khata found for the{" "}
                       <span className="text-primary font-semibold">
                         selected project

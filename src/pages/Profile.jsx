@@ -36,6 +36,7 @@ const Profile = () => {
         });
 
         const data = await response.json();
+        console.log('profile dataaa',data)
         if (!response.ok || !data.success)
           throw new Error(data.message || "Failed to load profile");
 

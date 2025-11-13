@@ -6,7 +6,8 @@ import useUserManagement from "../hooks/useUserManagement";
 const UserManagement = () => {
   const { userToken: token, user } = useSelector((s) => s.auth);
   const userRole = user.role_name;
-  const userId = user?.role_id;
+   const [errors, setErrors] = useState({}); // <-- form error stat
+  // const userId = user?.role_id;
   const {
     users,
     roles,
@@ -37,6 +38,45 @@ const UserManagement = () => {
   }, [users, filters]);
 
   const isRestricted = ["data entry user", "viewer"].includes(userRole);
+   const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim())
+      newErrors.name = "Full name is required.";
+    else if (!/^[a-zA-Z\s]+$/.test(formData.name))
+      newErrors.name = "Name can only contain letters and spaces.";
+
+    if (!formData.email.trim())
+      newErrors.email = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = "Invalid email format.";
+ if (!formData.phone_number) newErrors.phone_number = "Phone number is required.";
+  else if (!/^\d{10}$/.test(formData.phone_number))
+    newErrors.phone_number = "Phone number must be 10 digits.";
+
+    if (!editingUser) {
+      if (!formData.password)
+        newErrors.password = "Password is required.";
+      else if (formData.password.length < 6)
+        newErrors.password = "Password must be at least 6 characters.";
+
+      if (formData.password !== formData.confirmPassword)
+        newErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (!formData.role_id)
+      newErrors.role_id = "Please select a role.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ✅ Wrap your handleSubmit
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) handleSubmit(e);
+  };
+
 
   return (
     <div className="bg-gray-50 text-gray-800">
@@ -60,11 +100,13 @@ const UserManagement = () => {
               className="select select-bordered w-full sm:w-48"
             >
               <option value="all">All Roles</option>
-              {roles.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
+              {roles
+                .filter((r) => !(userRole === "Admin" && r.name === "Admin"))
+                .map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
             </select>
             <button
               className={`btn btn-primary ${
@@ -149,51 +191,66 @@ const UserManagement = () => {
               {editingUser ? "Edit User" : "Add User"}
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={onSubmit}  className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Full Name
                 </label>
                 <input
                   type="text"
+                  placeholder="Enter Full Name"
                   className="input input-bordered w-full"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData((p) => ({ ...p, name: e.target.value }))
                   }
-                  required
+                  // required
                 />
+                   {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
                   type="email"
+                  placeholder="EnterEmail"
                   className="input input-bordered w-full"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData((p) => ({ ...p, email: e.target.value }))
                   }
-                  required
+                  // required
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="number"
-                  className="input input-bordered w-full"
-                  value={formData.phone_number}
-                  onChange={(e) =>
-                    setFormData((p) => ({
-                      ...p,
-                      phone_number: e.target.value,
-                    }))
-                  }
-                />
-              </div>
+          <div>
+  <label className="block text-sm font-medium mb-1">Phone Number</label>
+  <div className="flex items-center border rounded-lg overflow-hidden">
+    <span className="bg-gray-100 px-3 text-gray-600 select-none">+91</span>
+    <input
+      type="text"
+      className="input input-bordered w-full border-0 focus:ring-0"
+      placeholder="Enter Mobile Number"
+      value={formData.phone_number}
+      onChange={(e) => {
+        const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+        if (value.length <= 10) {
+          setFormData((p) => ({ ...p, phone_number: value }));
+        }
+      }}
+      maxLength={10}
+    />
+  </div>
+  {errors.phone_number && (
+    <p className="text-red-500 text-xs mt-1">{errors.phone_number}</p>
+  )}
+</div>
+
 
               {!editingUser && (
                 <>
@@ -203,6 +260,7 @@ const UserManagement = () => {
                     </label>
                     <input
                       type="password"
+                      placeholder="Enter Password"
                       className="input input-bordered w-full"
                       value={formData.password}
                       onChange={(e) =>
@@ -211,8 +269,13 @@ const UserManagement = () => {
                           password: e.target.value,
                         }))
                       }
-                      required
+                      // required
                     />
+                      {errors.password && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.password}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -221,6 +284,7 @@ const UserManagement = () => {
                     </label>
                     <input
                       type="password"
+                      placeholder="Enter Confirm Password"
                       className="input input-bordered w-full"
                       value={formData.confirmPassword}
                       onChange={(e) =>
@@ -229,8 +293,13 @@ const UserManagement = () => {
                           confirmPassword: e.target.value,
                         }))
                       }
-                      required
+                      // required
                     />
+                     {errors.confirmPassword && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.confirmPassword}
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -243,15 +312,22 @@ const UserManagement = () => {
                   onChange={(e) =>
                     setFormData((p) => ({ ...p, role_id: e.target.value }))
                   }
-                  required
+                  // required
                 >
                   <option value="">Select Role</option>
-                  {roles.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
+                  {roles
+                    .filter(
+                      (r) => !(userRole === "Admin" && r.name === "Admin")
+                    )
+                    .map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.name}
+                      </option>
+                    ))}
                 </select>
+                 {errors.role_id && (
+                  <p className="text-red-500 text-xs mt-1">{errors.role_id}</p>
+                )}
               </div>
 
               <div>
@@ -276,7 +352,7 @@ const UserManagement = () => {
                     .filter((p) => !formData.accessed_projects.includes(p.id))
                     .map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.project_name}
+                        {p.name}
                       </option>
                     ))}
                 </select>
@@ -286,8 +362,7 @@ const UserManagement = () => {
                 {formData.accessed_projects.length ? (
                   formData.accessed_projects.map((id) => {
                     const projectName =
-                      projects.find((p) => p.id === id)?.project_name ||
-                      "Unknown";
+                      projects.find((p) => p.id === id)?.name || "Unknown";
                     return (
                       <span
                         key={id}

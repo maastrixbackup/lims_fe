@@ -18,6 +18,8 @@ const VillageFormModal = ({
     type: "",
     village_code: "",
   });
+
+  const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,10 +43,33 @@ const VillageFormModal = ({
         village_code: "",
       });
     }
+    setErrors({});
   }, [editingVillage]);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.project_id) newErrors.project_id = "Project is required.";
+    if (!formData.district) newErrors.district = "District is required.";
+    if (!formData.tahasil.trim()) newErrors.tahasil = "Tahasil is required.";
+    if (!formData.village_name.trim())
+      newErrors.village_name = "Village name is required.";
+    else if (!/^[A-Za-z\s]+$/.test(formData.village_name))
+      newErrors.village_name = "Village name should contain only letters.";
+    if (!formData.type) newErrors.type = "Type is required.";
+    if (!formData.village_code.trim())
+      newErrors.village_code = "Village code is required.";
+    // else if (!/^[A-Za-z0-9\s-]+$/.test(formData.village_code))
+    //   newErrors.village_code = "Village code must be numeric.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setLoading(true);
 
     const url = editingVillage
@@ -95,15 +120,16 @@ const VillageFormModal = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
-            <level>Project Name</level>
+            <label>Project Name</label>
             <select
               name="project_id"
               value={formData.project_id}
               onChange={(e) =>
                 setFormData({ ...formData, project_id: e.target.value })
               }
-              className="select select-bordered w-full"
-              required
+              className={`select select-bordered w-full ${
+                errors.project_id ? "border-red-500" : ""
+              }`}
             >
               <option value="">Select Project</option>
               {projects.map((p) => (
@@ -112,22 +138,31 @@ const VillageFormModal = ({
                 </option>
               ))}
             </select>
-            <level>District</level>
+            {errors.project_id && (
+              <p className="text-red-500 text-sm">{errors.project_id}</p>
+            )}
+
+            <label>District</label>
             <select
               name="district"
               value={formData.district}
               onChange={(e) =>
                 setFormData({ ...formData, district: e.target.value })
               }
-              className="select select-bordered w-full"
-              required
+              className={`select select-bordered w-full ${
+                errors.district ? "border-red-500" : ""
+              }`}
             >
               <option value="">Select District</option>
               {odishaDistricts.map((d) => (
                 <option key={d}>{d}</option>
               ))}
             </select>
-            <level>Tahashil</level>
+            {errors.district && (
+              <p className="text-red-500 text-sm">{errors.district}</p>
+            )}
+
+            <label>Tahasil</label>
             <input
               type="text"
               name="tahasil"
@@ -135,11 +170,16 @@ const VillageFormModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, tahasil: e.target.value })
               }
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                errors.tahasil ? "border-red-500" : ""
+              }`}
               placeholder="Enter Tahasil"
-              required
             />
-            <level>Village Name</level>
+            {errors.tahasil && (
+              <p className="text-red-500 text-sm">{errors.tahasil}</p>
+            )}
+
+            <label>Village Name</label>
             <input
               type="text"
               name="village_name"
@@ -147,26 +187,36 @@ const VillageFormModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, village_name: e.target.value })
               }
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                errors.village_name ? "border-red-500" : ""
+              }`}
               placeholder="Enter Village Name"
-              required
             />
-            <level>Type</level>
+            {errors.village_name && (
+              <p className="text-red-500 text-sm">{errors.village_name}</p>
+            )}
+
+            <label>Type</label>
             <select
               name="type"
               value={formData.type}
               onChange={(e) =>
                 setFormData({ ...formData, type: e.target.value })
               }
-              className="select select-bordered w-full"
-              required
+              className={`select select-bordered w-full ${
+                errors.type ? "border-red-500" : ""
+              }`}
             >
               <option value="">Select Type</option>
               <option value="1">Pvt land</option>
               <option value="2">Govt land</option>
               <option value="3">Forest land</option>
             </select>
-            <level>Village Code</level>
+            {errors.type && (
+              <p className="text-red-500 text-sm">{errors.type}</p>
+            )}
+
+            <label>Village Code</label>
             <input
               type="text"
               name="village_code"
@@ -174,10 +224,14 @@ const VillageFormModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, village_code: e.target.value })
               }
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                errors.village_code ? "border-red-500" : ""
+              }`}
               placeholder="Enter Village Code"
-              required
             />
+            {errors.village_code && (
+              <p className="text-red-500 text-sm">{errors.village_code}</p>
+            )}
 
             <div className="modal-action">
               <button

@@ -224,33 +224,43 @@ export const getTypeName = (type) => {
   "Photo of Physical Possession",
 ];
 
-export const validateForm = () => {
-  const newErrors = {};
-
-  if (!formData.name.trim()) newErrors.name = "Full name is required.";
-
-
-  if (!formData.email.trim()) newErrors.email = "Email is required.";
-  else if (!/\S+@\S+\.\S+/.test(formData.email))
-    newErrors.email = "Invalid email address.";
-
-  if (!formData.phone_number) newErrors.phone_number = "Phone number is required.";
-  else if (!/^\d{10}$/.test(formData.phone_number))
-    newErrors.phone_number = "Phone number must be 10 digits.";
-
-
-  if (!editingUser) {
-    if (!formData.password) newErrors.password = "Password is required.";
-    else if (formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters.";
-
-    if (!formData.confirmPassword)
-      newErrors.confirmPassword = "Confirm password is required.";
-    else if (formData.confirmPassword !== formData.password)
-      newErrors.confirmPassword = "Passwords do not match.";
-  }
-
-  if (!formData.role_id) newErrors.role_id = "Role selection is required.";
-
-  return newErrors;
-};
+export const documentList = [
+  "Order Sheet",
+  "Notice by GMDC",
+  "Attendance sheet",
+  "Consent Form",
+  "Genealogy Sheet",
+  "Legal Heir Certificate",
+  "Yadast Register Copy",
+  "Self-Attested RoR",
+  "Certified copy of RoR",
+  "Patta original",
+  "Encumbrance Certificate",
+  "Rent Receipt",
+  "Trace Map",
+  "Application to Claim for lands compensation",
+  "Calculation of Compensation",
+  "Form 9A",
+  "Form 9A (Sample photo if any)",
+  "Form 9B",
+  "Form 9B (Sample photo if any)",
+  "Form 9C",
+  "Form 9C (Sample photo if any)",
+  "Land Acquisition Award",
+  "Indemnity Bond",
+  "Physical Possession certificate (Bond paper)",
+  "Apportionment Affidavit, if applicable",
+  "Affidavit any other legal issues",
+  "Aadhaar / Voter Card copy",
+  "PAN proof",
+  "Bank Account Passbook/Cancel Cheque copy",
+  "Electronic Fund Transfer Form",
+  "Receipt of Compensation-80%",
+  "Receipt of Compensation-20%",
+  "Payment Voucher-80%",
+  "Payment Voucher-20%",
+  "Photo of Physical Possession",
+].map((doc) => ({
+  name: `${doc}.pdf`, 
+  url: null,
+}));

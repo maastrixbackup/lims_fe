@@ -1,3 +1,4 @@
+import React from "react";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -6,17 +7,22 @@ import BarChartCard from "../components/dashboard/BarChartCard";
 import RecentProjects from "../components/dashboard/RecentProjects";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import ProgressOverview from "../components/dashboard/ProgressOverview";
-// import useFetch from "../hooks/useFetch";
+import Loader from "../shared/Loader";
 import useFetchDashboard from "../hooks/useFetchDashboard";
 
 export default function Dashboard() {
   const { data, loading, error } = useFetchDashboard();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
+
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-red-600 font-medium">
+        Error: {error.message}
+      </div>
+    );
   }
 
   return (
@@ -33,15 +39,16 @@ export default function Dashboard() {
           gradient="bg-gradient-to-r from-green-400 to-emerald-600"
         />
         <StatsCard
+          title="Khata"
+          value={data ? data.khata : "N/A"}
+          gradient="bg-gradient-to-r from-teal-400 to-cyan-500"
+        />
+        <StatsCard
           title="Plots"
           value={data ? data.plots : "N/A"}
           gradient="bg-gradient-to-r from-orange-400 to-red-500"
         />
-        <StatsCard
-          title="Sub-Plots"
-          value={data ? data.sub_plots : "N/A"}
-          gradient="bg-gradient-to-r from-teal-400 to-cyan-500"
-        />
+
         <StatsCard
           title="Survey Status"
           value={data ? data.survey_status : "N/A"}
@@ -63,15 +70,17 @@ export default function Dashboard() {
           gradient="bg-gradient-to-r from-sky-400 to-blue-600"
         />
       </div>
-    
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BarChartCard  />
+        <BarChartCard />
         <PieChartCard />
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentProjects />
         <RecentActivity />
       </div>
+
       <ProgressOverview />
     </main>
   );

@@ -46,7 +46,6 @@ export default function useProjects(token) {
         throw new Error(data.message || "Failed to save project");
       }
 
-
       dispatch(fetchProjects());
     } catch (err) {
       console.error("Error saving project:", err);

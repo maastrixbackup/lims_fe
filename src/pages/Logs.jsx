@@ -105,7 +105,7 @@ const Logs = () => {
                       {log.response_payload?.name || "N/A"}
                     </td>
                     <td className="px-4 py-2 border">
-                      {moment(log.created_at).format("DD MMM YYYY")}
+                      {moment(log.created_at).format("DD MMM YYYY, h : mm A")}
                     </td>
                   </tr>
                 ))

@@ -1,4 +1,4 @@
-import {Bell,User,LogOut,LockKeyhole,ChevronDown} from "lucide-react";
+import { Bell, User, LogOut, LockKeyhole, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ export default function Header({ heading, sidebarWidth }) {
 
   const user = useSelector((state) => state.auth.user);
   const { projects } = useSelector((s) => s.list);
-  
+
   const selectedProject = useSelector((s) => s.selectedProject.project);
 
   const username = user?.name || "User";
@@ -81,12 +81,19 @@ export default function Header({ heading, sidebarWidth }) {
         <div className="relative" ref={projectRef}>
           <button
             onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
-            className="flex items-center gap-1 font-medium text-gray-800 hover:text-indigo-600 transition-colors duration-200 cursor-pointer"
+            className="flex items-center justify-between w-56 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-medium px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none"
           >
-            {selectedProject
-              ? selectedProject.project_name || selectedProject.name
-              : "Select Project"}{" "}
-            <ChevronDown size={16} />
+            <span className="truncate">
+              {selectedProject
+                ? selectedProject.project_name || selectedProject.name
+                : "Select Project"}
+            </span>
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-300 ${
+                projectDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
           {projectDropdownOpen && (
@@ -97,9 +104,9 @@ export default function Header({ heading, sidebarWidth }) {
                     <li
                       key={project.id}
                       onClick={() => handleProjectSelect(project)}
-                      className="p-2 hover:bg-indigo-50 rounded-md cursor-pointer"
+                      className="p-2 bg-gray-50 hover:bg-indigo-500 hover:text-white rounded-md cursor-pointer transition-all duration-200 mb-1"
                     >
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium">
                         {project.project_name || project.name}
                       </span>
                     </li>
@@ -113,6 +120,7 @@ export default function Header({ heading, sidebarWidth }) {
             </div>
           )}
         </div>
+
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -169,7 +177,8 @@ export default function Header({ heading, sidebarWidth }) {
                   onClick={changePassword}
                   className="p-2 hover:bg-gray-50 rounded-md flex items-center gap-2 cursor-pointer"
                 >
-                  <LockKeyhole size={16} className="text-gray-500" /> Change Password
+                  <LockKeyhole size={16} className="text-gray-500" /> Change
+                  Password
                 </li>
                 <li
                   onClick={handleLogout}

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { API_BASE_URL } from "../utils/config";
-import { sections } from "../utils/constants";
+import { API_BASE_URL } from "../../../utils/config";
+import { sections } from "../../../utils/constants";
 
 const PlotForm = () => {
   const navigate = useNavigate();
@@ -55,11 +55,8 @@ const PlotForm = () => {
     }
   }, [editingPlot]);
 
-  // Field cleaning and validation
   const validateField = (name, value) => {
     const trimmed = value.trim();
-
-    // Comma-separated fields: split, trim each value
     const commaSeparatedFields = ["name_of_recorded_tenant", "village_name"];
     if (commaSeparatedFields.includes(name)) {
       return trimmed
@@ -72,12 +69,11 @@ const PlotForm = () => {
     return trimmed;
   };
 
-  // Handle input change
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const cleaned = validateField(name, value);
 
-    // Auto-fill village code when village name changes
     if (name === "village_name") {
       const selectedVillage = villages.find((v) => v.village_name === value);
       setFormData((prev) => ({
@@ -93,7 +89,6 @@ const PlotForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation for required fields
     const missing = requiredFields.filter(
       (field) => !formData[field] || formData[field].trim() === ""
     );
@@ -109,7 +104,7 @@ const PlotForm = () => {
     setLoading(true);
 
     try {
-      // Clean all values before submission
+  
       const cleanedFormData = Object.fromEntries(
         Object.entries(formData).map(([key, value]) => [
           key,
@@ -157,7 +152,7 @@ const PlotForm = () => {
             {editingPlot ? "Edit Plot" : "Add New Plot"}
           </h2>
           <button
-            onClick={() => navigate("/plots")}
+            onClick={() => navigate("/private-land/plots")}
             className="btn btn-outline btn-sm"
           >
             &larr; Back

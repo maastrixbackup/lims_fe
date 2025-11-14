@@ -1,7 +1,7 @@
 import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
-import { getTypeName } from "../../utils/constants";
+import { getTypeName } from "../../../utils/constants";
 import { useSelector } from "react-redux";
 
 const VillageTable = ({

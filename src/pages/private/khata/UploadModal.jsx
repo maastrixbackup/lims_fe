@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, CheckCircle, Trash2 } from "lucide-react";
-import { API_BASE_URL } from "../../utils/config"; 
-import { DOCUMENT_TYPES, showToast } from "../../utils/constants";
+import { API_BASE_URL } from "../../../utils/config"; 
+import { DOCUMENT_TYPES, showToast } from "../../../utils/constants";
 import { useSelector } from "react-redux";
 
 export default function UploadModal({ khata, onClose }) {

@@ -8,13 +8,14 @@ export const useKhata = () => {
   const [filterProject, setFilterProject] = useState("");
   const [filterVillage, setFilterVillage] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState([]);
+  const [loading, setLoading]=useState(true)
 
   const {
-    user,
+    // user,
     userToken: token,
-    accessed_projects = [],
+    // accessed_projects = [],
   } = useSelector((state) => state.auth);
-  const role = user?.role_name;
+  // const role = user?.role_name;
   const { projects, villages } = useSelector((s) => s.list);
 
   const [modals, setModals] = useState({
@@ -40,18 +41,22 @@ export const useKhata = () => {
     return res.json();
   };
 
-  const fetchKhatas = async () => {
-    const data = await api("/khata/khataList");
-    if (data.success) {
-      let allKhatas = data.khatas || [];
-      // if (role === "Data Entry User" || role === "Viewer") {
-      //   const allowedIds = accessed_projects.map((p) => p.id);
-      //   allKhatas = allKhatas.filter((k) => allowedIds.includes(k.project_id));
-      // }
-      setKhatas(allKhatas);
-      // console.log("Khatas fetched:", allKhatas);
+const fetchKhatas = async () => {
+    setLoading(true);
+    try {
+      const data = await api("/khata/khataList");
+      if (data.success) {
+        setKhatas(data.khatas || []);
+      } else {
+        console.error("Failed to fetch khatas:", data.message);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
     }
   };
+
 
   useEffect(() => {
     if (token) {
@@ -127,5 +132,6 @@ export const useKhata = () => {
     setFilterVillage,
     modals,
     handlers,
+    loading
   };
 };

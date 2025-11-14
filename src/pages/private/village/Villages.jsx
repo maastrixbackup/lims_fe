@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { API_BASE_URL } from "../utils/config";
-import { odishaDistricts } from "../utils/constants";
-import VillageTable from "../pages/village/VillageTable";
-import VillageFilter from "../pages/village/VillageFilter";
-import VillageFormModal from "../pages/village/VillageFormModal";
-import ConfirmDelete from "../shared/ConfirmDelete";
+import { API_BASE_URL } from "../../../utils/config";
+import { odishaDistricts } from "../../../utils/constants";
+import VillageTable from "./VillageTable";
+import VillageFilter from "./VillageFilter";
+import VillageFormModal from "./VillageFormModal";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
+import Loader from "../../../shared/Loader";
 
 const Villages = () => {
-  
   const { user, userToken: token } = useSelector((s) => s.auth);
   const { projects } = useSelector((s) => s.list);
   const role = user?.role_name;
   const isRestricted = role === "Data Entry User" || role === "Viewer";
 
   const [villages, setVillages] = useState([]);
-  const [filter, setFilter] = useState({ project_id: "", district: "", tahasil: "" });
+  const [filter, setFilter] = useState({
+    project_id: "",
+    district: "",
+    tahasil: "",
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVillage, setEditingVillage] = useState(null);
 
   const [deleteVillage, setDeleteVillage] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const api = async (url, method = "GET", body) => {
     const res = await fetch(`${API_BASE_URL}${url}`, {
@@ -33,13 +38,15 @@ const Villages = () => {
     });
     return res.json();
   };
-
   const fetchVillages = async () => {
     try {
+      setLoading(true);
       const data = await api("/village/villageList");
       if (data.success) setVillages(data.villages || []);
     } catch (err) {
       console.error("Error fetching villages:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,7 +62,10 @@ const Villages = () => {
   const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
-      const data = await api(`/village/deleteVillage/${deleteVillage.id}`, "DELETE");
+      const data = await api(
+        `/village/deleteVillage/${deleteVillage.id}`,
+        "DELETE"
+      );
       if (data.success) {
         alert("Village deleted successfully!");
         fetchVillages();
@@ -73,7 +83,8 @@ const Villages = () => {
     (v) =>
       // (!filter.project_id || v.project_id === Number(filter.project_id)) &&
       (!filter.district || v.district === filter.district) &&
-      (!filter.tahasil || v.tahasil?.toLowerCase().includes(filter.tahasil.toLowerCase()))
+      (!filter.tahasil ||
+        v.tahasil?.toLowerCase().includes(filter.tahasil.toLowerCase()))
   );
 
   return (
@@ -101,16 +112,22 @@ const Villages = () => {
         role={role}
       />
 
-      <VillageTable
-        villages={filteredVillages}
-        projects={projects}
-        isRestricted={isRestricted}
-        onEdit={openModal}
-        onDelete={(village) => {
-          setDeleteVillage(village);
-          setIsDeleteModalOpen(true);
-        }}
-      />
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <Loader />
+        </div>
+      ) : (
+        <VillageTable
+          villages={filteredVillages}
+          projects={projects}
+          isRestricted={isRestricted}
+          onEdit={openModal}
+          onDelete={(village) => {
+            setDeleteVillage(village);
+            setIsDeleteModalOpen(true);
+          }}
+        />
+      )}
 
       {isModalOpen && (
         <VillageFormModal

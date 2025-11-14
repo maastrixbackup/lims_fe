@@ -29,10 +29,9 @@ export default function Sidebar({ open, setOpen }) {
     localStorage.getItem("activeMenu") || "Dashboard"
   );
 
-  const storedExpanded = localStorage.getItem("expandedMenu");
-  const [expanded, setExpanded] = useState(
-    storedExpanded !== "null" ? storedExpanded : null
-  );
+  // 🔥 Correct: expanded must be an ARRAY
+  const storedExpanded = JSON.parse(localStorage.getItem("expandedMenu")) || [];
+  const [expanded, setExpanded] = useState(storedExpanded);
 
   const sanitize = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
@@ -55,7 +54,13 @@ export default function Sidebar({ open, setOpen }) {
         name: "Private Land",
         icon: Map,
         basePath: "private-land",
-        submenu: ["Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
+        submenu: [
+          "Villages",
+          "Khatas",
+          "Plots",
+          "Compensation",
+          "Social Survey",
+        ],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
@@ -106,13 +111,17 @@ export default function Sidebar({ open, setOpen }) {
     [menuItems, userRole]
   );
 
-  useEffect(() => localStorage.setItem("activeMenu", active), [active]);
+  // Save active menu
   useEffect(() => {
-    expanded
-      ? localStorage.setItem("expandedMenu", expanded)
-      : localStorage.removeItem("expandedMenu");
+    localStorage.setItem("activeMenu", active);
+  }, [active]);
+
+  // Save expanded menus
+  useEffect(() => {
+    localStorage.setItem("expandedMenu", JSON.stringify(expanded));
   }, [expanded]);
 
+  // Auto-detect menu from URL
   useEffect(() => {
     const path = location.pathname.replace("/", "");
     if (!path) return;
@@ -124,7 +133,10 @@ export default function Sidebar({ open, setOpen }) {
     );
 
     if (foundMain) {
-      setExpanded(foundMain.submenu ? foundMain.name : null);
+      // Expand main menu if it has submenu
+      if (foundMain.submenu && !expanded.includes(foundMain.name)) {
+        setExpanded((prev) => [...prev, foundMain.name]);
+      }
 
       if (
         sub &&
@@ -141,18 +153,30 @@ export default function Sidebar({ open, setOpen }) {
     }
   }, [location.pathname]);
 
+  // Handle main menu click
   const handleClick = (item) => {
-    if (item.submenu)
-      return setExpanded(expanded === item.name ? null : item.name);
+    if (item.submenu) {
+      // Toggle expansion
+      setExpanded((prev) =>
+        prev.includes(item.name)
+          ? prev.filter((x) => x !== item.name)
+          : [...prev, item.name]
+      );
+      return;
+    }
+
     setActive(item.name);
     navigate("/" + item.path.toLowerCase());
   };
 
+  // Handle submenu click
   const handleSubClick = (parent, sub) => {
     setActive(sub);
+
     const path = `/${parent.basePath}/${sub
       .toLowerCase()
       .replace(/\s+/g, "-")}`;
+
     navigate(path);
   };
 
@@ -197,10 +221,11 @@ export default function Sidebar({ open, setOpen }) {
         {filteredMenu.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.name;
-          const isExpanded = expanded === item.name;
+          const isExpanded = expanded.includes(item.name);
 
           return (
             <div key={item.name}>
+              {/* Main Menu Item */}
               <motion.div
                 onClick={() => handleClick(item)}
                 whileHover={{ x: 4 }}
@@ -229,6 +254,7 @@ export default function Sidebar({ open, setOpen }) {
                     </span>
                   )}
                 </div>
+
                 {open &&
                   item.submenu &&
                   (isExpanded ? (
@@ -238,11 +264,11 @@ export default function Sidebar({ open, setOpen }) {
                   ))}
               </motion.div>
 
+              {/* Submenu */}
               {item.submenu && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                   className="ml-10 mt-2 space-y-1"
                 >
@@ -269,6 +295,7 @@ export default function Sidebar({ open, setOpen }) {
         })}
       </nav>
 
+      {/* Footer */}
       <div className="p-4 border-t border-white/20 text-xs text-white/80">
         {open ? "© 2025 LIMS" : "©"}
       </div>

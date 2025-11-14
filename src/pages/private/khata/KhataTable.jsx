@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pencil, Trash2, Upload, Map as MapIcon, LandPlot } from "lucide-react";
 import { useSelector } from "react-redux";
 import moment from "moment";
-import PlotListModal from "../../pages/Khata/PlotListModal";
+import PlotListModal from "./PlotListModal";
 
 const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
   const user = useSelector((state) => state.auth.user);

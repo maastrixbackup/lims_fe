@@ -40,7 +40,7 @@ export default function useUserManagement(token) {
 
       setUsers(Array.isArray(usersData.users) ? usersData.users : []);
       setRoles(Array.isArray(rolesData.roles) ? rolesData.roles : []);
-      console.log("accesseddddd users project^^^^^^^^^^^", usersData.users);
+      // console.log("accesseddddd users project^^^^^^^^^^^", usersData.users);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
@@ -155,7 +155,7 @@ export default function useUserManagement(token) {
       });
 
       const data = await res.json();
-      console.log("User save response:", data);
+      // console.log("User save response:", data);
       if (data.success) {
         fetchData();
         closeModal();

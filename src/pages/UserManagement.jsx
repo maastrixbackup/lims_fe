@@ -276,7 +276,7 @@ const UserManagement = () => {
                     .filter((p) => !formData.accessed_projects.includes(p.id))
                     .map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.project_name}
+                        {p.name}
                       </option>
                     ))}
                 </select>
@@ -286,7 +286,7 @@ const UserManagement = () => {
                 {formData.accessed_projects.length ? (
                   formData.accessed_projects.map((id) => {
                     const projectName =
-                      projects.find((p) => p.id === id)?.project_name ||
+                      projects.find((p) => p.id === id)?.name ||
                       "Unknown";
                     return (
                       <span

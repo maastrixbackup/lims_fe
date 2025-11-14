@@ -121,34 +121,50 @@ export default function Header({ heading, sidebarWidth }) {
           )}
         </div>
 
-        <div className="relative" ref={notifRef}>
-          <button
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-          >
-            <Bell size={20} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+    <div className="relative" ref={notifRef}>
+  <button
+    onClick={() => setNotificationsOpen(!notificationsOpen)}
+    className="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+  >
+    <Bell size={20} />
+    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+  </button>
 
-          {notificationsOpen && (
-            <div className="absolute right-0 mt-3 w-64 bg-white shadow-lg rounded-xl border border-gray-100 p-3 z-50">
-              <h4 className="font-semibold text-gray-700 mb-2 text-sm">
-                Notifications
-              </h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  🔹 New project created
-                </li>
-                <li className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  🏡 Village added
-                </li>
-                <li className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  📋 Plot updated
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
+  {notificationsOpen && (
+    <div className="
+        absolute
+        left-1/2
+        mt-3
+        -translate-x-1/2
+        bg-white
+        shadow-lg
+        rounded-xl
+        border
+        border-gray-100
+        p-3
+        z-50
+        w-64
+      "
+    >
+      <h4 className="font-semibold text-gray-700 mb-2 text-sm">
+        Notifications
+      </h4>
+
+      <ul className="space-y-1 text-sm text-gray-600">
+        <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
+          🔹 New project created
+        </li>
+        <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
+          🏡 Village added
+        </li>
+        <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
+          📋 Plot updated
+        </li>
+      </ul>
+    </div>
+  )}
+</div>
+
         <div className="relative" ref={profileRef}>
           <div
             className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-2 py-1.5 rounded-lg transition-colors duration-200"
@@ -169,20 +185,20 @@ export default function Header({ heading, sidebarWidth }) {
               <ul className="text-sm text-gray-700">
                 <li
                   onClick={goToProfile}
-                  className="p-2 hover:bg-gray-50 rounded-md flex items-center gap-2 cursor-pointer"
+                  className="p-2 hover:bg-indigo-500 hover:text-white rounded-md flex items-center gap-2 cursor-pointer"
                 >
                   <User size={16} className="text-gray-500" /> Profile
                 </li>
                 <li
                   onClick={changePassword}
-                  className="p-2 hover:bg-gray-50 rounded-md flex items-center gap-2 cursor-pointer"
+                  className="p-2 hover:bg-indigo-500 hover:text-white rounded-md flex items-center gap-2 cursor-pointer"
                 >
                   <LockKeyhole size={16} className="text-gray-500" /> Change
                   Password
                 </li>
                 <li
                   onClick={handleLogout}
-                  className="p-2 hover:bg-red-50 rounded-md flex items-center gap-2 text-red-600 cursor-pointer"
+                  className="p-2 hover:bg-indigo-500 hover:text-white rounded-md flex items-center gap-2 text-red-600 cursor-pointer"
                 >
                   <LogOut size={16} /> Logout
                 </li>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import PlotTable from "../shared/PlotsTable";
+import PlotTable from "../plot/PlotsTable";
 import { useSelector } from "react-redux";
-import { API_BASE_URL } from "../utils/config";
+import { API_BASE_URL } from "../../../utils/config";
+import Loader from "../../../shared/Loader";
 
 const Plots = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -92,7 +93,9 @@ const Plots = () => {
       </div>
 
       {loading ? (
-        <p>Loading plots...</p>
+        <div>
+          <Loader />
+        </div>
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}

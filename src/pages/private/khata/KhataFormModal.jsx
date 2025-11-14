@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { API_BASE_URL } from "../../utils/config";
+import { API_BASE_URL } from "../../../utils/config";
 import { useSelector } from "react-redux";
 
 const KhataFormModal = ({
@@ -20,9 +20,9 @@ const KhataFormModal = ({
   });
 
   const initializing = useRef(false);
-   const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
-    const isRestricted = userRole === "Data Entry User"
+  const isRestricted = userRole === "Data Entry User";
 
   useEffect(() => {
     if (khata) {
@@ -56,56 +56,53 @@ const KhataFormModal = ({
     }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const method = khata ? "PUT" : "POST";
-    const url = khata
-      ? `${API_BASE_URL}/khata/updateKhata/${khata.id}`
-      : `${API_BASE_URL}/khata/addKhata`;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const method = khata ? "PUT" : "POST";
+      const url = khata
+        ? `${API_BASE_URL}/khata/updateKhata/${khata.id}`
+        : `${API_BASE_URL}/khata/addKhata`;
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(formData),
-    });
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-    const data = await res.json();
-    console.log("Khata API response:", data);
+      const data = await res.json();
+      console.log("Khata API response:", data);
 
-    if (res.status !== 201 && res.status !== 200) {
-      alert(data.message || "Failed to save khata");
-      return;
-    }
+      if (res.status !== 201 && res.status !== 200) {
+        alert(data.message || "Failed to save khata");
+        return;
+      }
 
-    
-    if (fetchKhatas) await fetchKhatas();
+      if (fetchKhatas) await fetchKhatas();
 
+      const toast = document.createElement("div");
+      toast.textContent = khata
+        ? "Khata updated successfully!"
+        : "Khata added successfully!";
+      toast.className =
+        "fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md shadow-md animate-fade-in";
+      document.body.appendChild(toast);
 
-    const toast = document.createElement("div");
-    toast.textContent = khata
-      ? "Khata updated successfully!"
-      : "Khata added successfully!";
-    toast.className =
-      "fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md shadow-md animate-fade-in";
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.classList.add("opacity-0", "transition-opacity", "duration-500");
       setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 500);
-      onClose();
-    }, 1000);
-  } catch (err) {
-    console.error(err);
-    alert("Error saving khata");
-  }
-};
-
+        toast.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 500);
+        onClose();
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+      alert("Error saving khata");
+    }
+  };
 
   return (
     <dialog open className="modal modal-open">

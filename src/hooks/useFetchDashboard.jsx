@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../utils/config";
+import { logout } from "../utils/userSlice"; // make sure logout removes token
+import { showToast } from "../utils/constants";
 
 export default function useFetchDashboard() {
   const [data, setData] = useState(null);
@@ -8,11 +11,12 @@ export default function useFetchDashboard() {
   const [error, setError] = useState(null);
 
   const token = useSelector((state) => state.auth.userToken);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // console.log("Fetching dashboard data...");
         const response = await fetch(`${API_BASE_URL}/getDashboardData`, {
           method: "GET",
           headers: {
@@ -21,10 +25,16 @@ export default function useFetchDashboard() {
           },
         });
 
+        if (response.status === 401) {
+          dispatch(logout());       
+          navigate("/");
+          showToast("This Session Time is Out Please login Again")        
+          return;
+        }
+
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const result = await response.json();
-        // console.log("Dashboard API response:", result);
         setData(result.data);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
@@ -35,7 +45,7 @@ export default function useFetchDashboard() {
     };
 
     if (token) fetchData();
-  }, [token]);
+  }, [token, dispatch, navigate]);
 
   return { data, loading, error };
 }

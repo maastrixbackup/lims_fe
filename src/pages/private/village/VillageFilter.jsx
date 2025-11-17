@@ -16,7 +16,6 @@ const VillageFilter = ({ filter, setFilter, projects, odishaDistricts, role }) =
           </option>
         ))}
       </select> */}
-
       <select
         name="district"
         value={filter.district}

@@ -89,44 +89,45 @@ const Villages = () => {
 
   return (
     <div className="p-6 overflow-hidden">
-      <header className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Villages List</h2>
-        <button
-          className={`btn btn-primary text-white ${
-            isRestricted
-              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-              : ""
-          }`}
-          onClick={() => openModal()}
-          disabled={isRestricted}
-        >
-          + Add Village
-        </button>
-      </header>
-
-      <VillageFilter
-        filter={filter}
-        setFilter={setFilter}
-        projects={projects}
-        odishaDistricts={odishaDistricts}
-        role={role}
-      />
-
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
         </div>
       ) : (
-        <VillageTable
-          villages={filteredVillages}
-          projects={projects}
-          isRestricted={isRestricted}
-          onEdit={openModal}
-          onDelete={(village) => {
-            setDeleteVillage(village);
-            setIsDeleteModalOpen(true);
-          }}
-        />
+        <>
+          <header className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold">Villages List</h2>
+            <button
+              className={`btn btn-primary text-white ${
+                isRestricted
+                  ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                  : ""
+              }`}
+              onClick={() => openModal()}
+              disabled={isRestricted}
+            >
+              + Add Village
+            </button>
+          </header>
+
+          <VillageFilter
+            filter={filter}
+            setFilter={setFilter}
+            projects={projects}
+            odishaDistricts={odishaDistricts}
+            role={role}
+          />
+          <VillageTable
+            villages={filteredVillages}
+            projects={projects}
+            isRestricted={isRestricted}
+            onEdit={openModal}
+            onDelete={(village) => {
+              setDeleteVillage(village);
+              setIsDeleteModalOpen(true);
+            }}
+          />
+        </>
       )}
 
       {isModalOpen && (

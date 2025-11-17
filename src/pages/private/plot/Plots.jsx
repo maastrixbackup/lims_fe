@@ -15,17 +15,34 @@ const Plots = () => {
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
+
+
+  const projectId = useSelector((state) => state.selectedProject?.project?.id);
+  console.log("Selected Project ID:", projectId);
+
   const isRestricted = role === "Data Entry User" || role === "Viewer";
-  
   const navigate = useNavigate();
 
+
   const fetchPlots = async (currentPage) => {
+    if (!projectId) {
+      console.warn("Project ID not available yet.");
+      return;
+    }
+
     setLoading(true);
+
     try {
-      const res = await fetch(`${API_BASE_URL}/plots/plotList?page=${currentPage}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/plots/plotList?project_id=${projectId}&page=${currentPage}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       const data = await res.json();
+      console.log("Plot Data Response:", data);
+
       if (data.success) {
         setPlots(data.plots || []);
         setTotalPages(data.totalPages || 1);
@@ -37,20 +54,25 @@ const Plots = () => {
     }
   };
 
+ 
   useEffect(() => {
-    if (token) fetchPlots(page);
-  }, [page, token]);
+    if (token && projectId) {
+      fetchPlots(page);
+    }
+  }, [page, token, projectId]);
+
 
   const confirmDelete = async () => {
     if (!deleteConfirm?.id) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/plots/deletePlot/${deleteConfirm.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/plots/deletePlot/${deleteConfirm.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await res.json();
       console.log("Delete Response:", data);
@@ -67,65 +89,71 @@ const Plots = () => {
     }
   };
 
-  const handlePrev = () => {
-    if (page > 1) setPage((prev) => prev - 1);
-  };
-  const handleNext = () => {
-    if (page < totalPages) setPage((prev) => prev + 1);
-  };
-
   return (
     <main className="flex-1 p-6 overflow-y-auto space-y-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Plots List</h2>
+
         <button
-            className={`btn btn-primary text-white ${
+          className={`btn btn-primary text-white ${
             isRestricted
               ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
               : ""
           }`}
           disabled={isRestricted}
           onClick={() => navigate("/plot-form")}
-        
         >
           + Add Plot
         </button>
       </div>
 
-      {loading ? (
-        <div>
-          <Loader />
-        </div>
+      {!projectId ? (
+        <p className="text-center text-gray-600">
+          ⚠️ Please select a project to view plots.
+        </p>
+      ) : loading ? (
+        <Loader />
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}
-      <div className="flex justify-center items-center gap-4 mt-6">
-        <button
-          className="btn btn-outline btn-sm"
-          onClick={handlePrev}
-          disabled={page === 1}
-        >
-          ← Previous
-        </button>
-        <span className="text-sm">
-          Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-        </span>
-        <button
-          className="btn btn-outline btn-sm"
-          onClick={handleNext}
-          disabled={page === totalPages}
-        >
-          Next →
-        </button>
-      </div>
+
+ 
+      {projectId && (
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+          >
+            ← Previous
+          </button>
+
+          <span className="text-sm">
+            Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+          </span>
+
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page === totalPages}
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box max-w-md">
             <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
             <p>
               Are you sure you want to delete plot{" "}
-              <span className="font-semibold">{deleteConfirm.code || deleteConfirm.id}</span>?
+              <span className="font-semibold">
+                {deleteConfirm.code || deleteConfirm.id}
+              </span>
+              ?
             </p>
+
             <div className="modal-action">
               <button className="btn btn-error" onClick={confirmDelete}>
                 Yes, Delete

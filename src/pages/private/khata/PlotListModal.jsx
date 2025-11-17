@@ -1,11 +1,50 @@
-import React from "react";
-import { X, MapPin, Eye } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { X, MapPin } from "lucide-react";
+import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../../../utils/config";
 
-const PlotListModal = ({ plots = [], onClose }) => {
+const PlotListModal = ({ onClose }) => {
+  const token = useSelector((s) => s.auth.userToken);
+  const khataId = useSelector((s) => s.khata.selectedKhataId);
+  console.log("khata_id", khataId);
+
+  const [plots, setPlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!khataId) return;
+
+    const fetchPlots = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/khata/viewPlotsByKhata/${khataId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        console.log("khata plots", data);
+
+        // FIXED: Correct path
+        setPlots(data?.data?.plots || []);
+      } catch (err) {
+        console.error("Error fetching plots:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlots();
+  }, [khataId, token]);
+
   return (
-    <dialog open className="modal modal-open bg-white">
-      <div className="modal-box max-w-6xl bg-white relative">
-     
+    <dialog open className="modal modal-open">
+      <div className="modal-box max-w-4xl relative">
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -13,50 +52,51 @@ const PlotListModal = ({ plots = [], onClose }) => {
           <X size={20} />
         </button>
 
-
+        {/* Title */}
         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
           <MapPin size={20} className="text-blue-500" />
           Plot List
         </h3>
 
-      
-        <div className="overflow-x-auto max-h-[65vh]">
-          <table className="table table-zebra w-full border border-gray-200">
-            <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
-              <tr>
-                <th>#</th>
-                <th>Plot No.</th>
-                {/* <th>Survey No.</th> */}
-                <th>Area (in sq.m)</th>
-                <th>Village</th>
-                <th>Owner</th>
-                {/* <th>Status</th>
-                <th className="text-center">Actions</th> */}
-              </tr>
-            </thead>
-            <tbody>
-              {plots.length > 0 ? (
-                plots.map((plot, index) => (
-                  <tr key={plot.id || index}>
-                    <td>{index + 1}</td>
-                    <td className="font-semibold">{plot.plot_no}</td>
-                    {/* <td>{plot.survey_no}</td> */}
-                    <td>{plot.area || "—"}</td>
-                    <td>{plot.village_name || "—"}</td>
-                    <td>{plot.owner_name || "—"}</td>
-                  </tr>
-                ))
-              ) : (
+        {/* Loading indicator */}
+        {loading ? (
+          <p className="text-center py-6">Loading plots...</p>
+        ) : (
+          <div className="overflow-x-auto max-h-[65vh]">
+            <table className="table table-zebra w-full border border-gray-200">
+              <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
                 <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
-                    No plots available.
-                  </td>
+                  <th>#</th>
+                  <th>Plot No.</th>
+                  <th>Area (sq.m)</th>
+                  <th>Village</th>
+                  <th>Owner</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
- 
+              </thead>
+              <tbody>
+                {plots.length > 0 ? (
+                  plots.map((plot, index) => (
+                    <tr key={plot.id || index}>
+                      <td>{index + 1}</td>
+                      <td className="font-semibold">{plot.plot_no}</td>
+                      <td>{plot.land_area_total_acres || "—"}</td>
+                      <td>{plot.village_name || "—"}</td>
+                      <td>{plot.name_of_present_tenant || "—"}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-6 text-gray-500">
+                      No plots available for this Khata.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Footer */}
         <div className="modal-action">
           <button className="btn" onClick={onClose}>
             Close

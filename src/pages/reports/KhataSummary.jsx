@@ -1,5 +1,5 @@
 import React from "react";
-import { Download } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 
 export default function KhataSummaryReport() {
   const mockData = [
@@ -54,14 +54,17 @@ export default function KhataSummaryReport() {
   ];
 
   return (
-    <div className="bg-white shadow rounded-xl">
+    <div className="p-6 bg-white shadow rounded-xl">
+      <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
+        <FileText className="text-primary" /> Khata Summary Report
+      </h2>
 
       {/* Scroll area */}
       <div
         className="overflow-auto"
         style={{
-          maxHeight: "350px",           
-          scrollbarWidth: "thin",  
+          maxHeight: "400px",           
+          scrollbarWidth: "thin",       // Firefox
         }}
       >
   

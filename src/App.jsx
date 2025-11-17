@@ -6,13 +6,6 @@ import PrivateRoute from "./routes/PrivateRoute";
 import "./App.css";
 import Loader from "./shared/Loader";
 import { fetchProjects, fetchVillages } from "./utils/listSlice";
-// import ForestVillage from "./pages/forest/Village";
-// import ForestKhata from "./pages/forest/khata";
-// import ForestPlot from "./pages/forest/Plot";
-
-// import GovtVillage from "./pages/govt/GovtVillage";
-// import GovtKhata from "./pages/govt/GovtKhata";
-// import GovtPlot from "./pages/govt/plot";
 
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const Unauthorized = lazy(() => import("./pages/Unathorize"));
@@ -43,6 +36,7 @@ const ForestPlot = lazy(() => import("./pages/forest/Plot"));
 const GovtVillage = lazy(() => import("./pages/govt/GovtVillage"));
 const GovtKhata = lazy(() => import("./pages/govt/GovtKhata"));
 const GovtPlot = lazy(() => import("./pages/govt/plot"));
+const KhataSummary =lazy(()=> import("./pages/reports/KhataSummary"))
 export default function App() {
   const dispatch = useDispatch();
   const { userToken } = useSelector((s) => s.auth);
@@ -85,7 +79,8 @@ export default function App() {
                 <Route path="/import" element={<UploadPlots />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/changepassword" element={<ChangePassword />} />
-                <Route path="/reports" element={<Reports />} />
+                {/* <Route path="/reports" element={<Reports />} /> */}
+                <Route path="/reports/khata-reports/khata-summary" element={<KhataSummary />} />
                 <Route path="/plot-form" element={<PlotForm />} />
                 <Route path="/logs" element={<Logs />} />
                 <Route path="/project-table" element={<ProjectTable />} />

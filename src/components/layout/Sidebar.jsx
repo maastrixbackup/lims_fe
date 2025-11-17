@@ -88,7 +88,8 @@ export default function Sidebar({ open, setOpen }) {
       {
         name: "Reports",
         icon: ChartBarBig,
-        path: "reports",
+        basePath: "reports/khata-reports",
+        submenu: ["Khata Summary"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       { name: "Logs", icon: Logs, path: "logs", roles: ["Admin"] },
@@ -107,7 +108,7 @@ export default function Sidebar({ open, setOpen }) {
     [menuItems, userRole]
   );
 
-  // ✅ Persist active & expanded menus
+ 
   useEffect(() => localStorage.setItem("activeMenu", active), [active]);
   useEffect(() => {
     expanded
@@ -115,7 +116,7 @@ export default function Sidebar({ open, setOpen }) {
       : localStorage.removeItem("expandedMenu");
   }, [expanded]);
 
-  // ✅ Update active state on route change
+
   useEffect(() => {
     const path = location.pathname.replace("/", "");
     if (!path) return;

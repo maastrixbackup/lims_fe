@@ -83,7 +83,7 @@ const UserManagement = () => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
                 <tr>
-                  {["#", "Name", "Email", "Role", "Projects", "Actions"].map(
+                  {["#", "User", "Email", "Role", "Projects", "Actions"].map(
                     (h) => (
                       <th
                         key={h}
@@ -103,7 +103,15 @@ const UserManagement = () => {
                       className="hover:bg-gray-50 transition whitespace-nowrap"
                     >
                       <td>{i + 1}</td>
-                      <td>{u.name}</td>
+                      <td className="flex items-center gap-3">
+  <img
+    src={u.profile_pic ? `${u.profile_pic}` : "/default-avatar.png"}
+    alt={u.name}
+    className="w-10 h-10 rounded-full object-cover border"
+  />
+  <span>{u.name}</span>
+</td>
+
                       <td>{u.email}</td>
                       <td>{u.role_name}</td>
                       <td>{u.accessed_projects || "—"}</td>

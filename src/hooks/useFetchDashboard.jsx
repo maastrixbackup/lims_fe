@@ -35,6 +35,7 @@ export default function useFetchDashboard() {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const result = await response.json();
+        console.log('dashboard data', result)
         setData(result.data);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);

@@ -9,10 +9,10 @@ const dummySummary = {
 
 const MapSummaryReport = ({ summary = dummySummary }) => {
   return (
-    <div>
-      {/* <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
         <Map /> Map Summary Report
-      </h2> */}
+      </h2>
 
       <table className="w-full border">
         <thead className="bg-gray-100">
@@ -34,3 +34,4 @@ const MapSummaryReport = ({ summary = dummySummary }) => {
 };
 
 export default MapSummaryReport;
+   

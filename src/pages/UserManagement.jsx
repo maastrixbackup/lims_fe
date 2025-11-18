@@ -104,13 +104,17 @@ const UserManagement = () => {
                     >
                       <td>{i + 1}</td>
                       <td className="flex items-center gap-3">
-  <img
-    src={u.profile_pic ? `${u.profile_pic}` : "/default-avatar.png"}
-    alt={u.name}
-    className="w-10 h-10 rounded-full object-cover border"
-  />
-  <span>{u.name}</span>
-</td>
+                        <img
+                          src={
+                            u.profile_pic
+                              ? `${u.profile_pic}`
+                              : "/default-avatar.png"
+                          }
+                          alt={u.name}
+                          className="w-10 h-10 rounded-full object-cover border"
+                        />
+                        <span>{u.name}</span>
+                      </td>
 
                       <td>{u.email}</td>
                       <td>{u.role_name}</td>
@@ -294,8 +298,7 @@ const UserManagement = () => {
                 {formData.accessed_projects.length ? (
                   formData.accessed_projects.map((id) => {
                     const projectName =
-                      projects.find((p) => p.id === id)?.name ||
-                      "Unknown";
+                      projects.find((p) => p.id === id)?.name || "Unknown";
                     return (
                       <span
                         key={id}

@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../utils/config";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../utils/userSlice"; 
+import { useNavigate } from "react-router-dom";
+
 
 export default function useUserManagement(token) {
   const { projects } = useSelector((s) => s.list);
@@ -20,6 +23,8 @@ export default function useUserManagement(token) {
     phone_number: "",
     profile_pic: "",
   });
+  const dispatch= useDispatch()
+    const navigate = useNavigate();
   const fetchData = async () => {
     if (!token) return;
     setLoading(true);
@@ -40,6 +45,12 @@ export default function useUserManagement(token) {
 
       setUsers(Array.isArray(usersData.users) ? usersData.users : []);
       setRoles(Array.isArray(rolesData.roles) ? rolesData.roles : []);
+       if (usersRes.status === 401) {
+                dispatch(logout());       
+                navigate("/");
+                alert("This Session Time is Out Please login Again")        
+                return;
+              }
       // console.log("accesseddddd users project^^^^^^^^^^^", usersData.users);
     } catch (err) {
       console.error("Error fetching data:", err);

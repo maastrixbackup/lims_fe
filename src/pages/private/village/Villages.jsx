@@ -88,7 +88,7 @@ const Villages = () => {
   );
 
   return (
-    <div className="p-6 overflow-hidden">
+    <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />

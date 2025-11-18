@@ -138,9 +138,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   return (
     <div className="space-y-10">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4">
-          {/* 🌾 Village Filter */}
+           <div className="card bg-white shadow-lg rounded-2xl p-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="flex flex-col">
             <label className="text-xs font-medium text-gray-600 mb-1">
               Village

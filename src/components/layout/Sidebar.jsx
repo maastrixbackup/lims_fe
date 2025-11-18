@@ -34,10 +34,14 @@ export default function Sidebar({ open, setOpen }) {
     storedExpanded !== "null" ? storedExpanded : null
   );
 
-  // ✅ Helper function — moved above useEffect to fix hoisting bug
+  const [reportGroupExpanded, setReportGroupExpanded] = useState(
+    JSON.parse(localStorage.getItem("reportGroups")) || {}
+  );
+
   const sanitize = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
 
+  // ===================== MENU ITEMS ===========================
   const menuItems = useMemo(
     () => [
       {
@@ -85,13 +89,53 @@ export default function Sidebar({ open, setOpen }) {
         path: "import",
         roles: ["Admin", "Data Entry User"],
       },
+
+      // ===================== REPORTS ===========================
       {
         name: "Reports",
         icon: ChartBarBig,
-        basePath: "reports/khata-reports",
-        submenu: ["Khata Summary"],
+        basePath: "reports",
+        submenuGroups: [
+          {
+            title: "Khata Reports",
+            base: "khata-reports",
+            children: ["Khata Summary", "Khata Document"],
+          },
+          {
+            title: "Village Reports",
+            base: "village-reports",
+            children: ["Village Land Register", "Village Document Report"],
+          },
+          {
+            title: "Plot Reports",
+            base: "plot-reports",
+            children: ["Plot Details", "Plot Owner History"],
+          },
+           {
+            title: "Project Reports",
+            base: "project-reports",
+            children: ["Project Summary", "Project Document Register"],
+          },
+           {
+            title: "Document Reports",
+            base: "document-reports",
+            children: ["Document Upload Report", "Missing Documents Report"],
+          },
+             {
+            title: "GIS / Maps Reports",
+            base: "maps-reports",
+            children: ["KMZ Availability", "Map Summary Report"],
+          },
+             {
+            title: "User Reports",
+            base: "user-reports",
+            children: ["Activity Log", "Audit Trail"],
+          },
+            
+        ],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
+
       { name: "Logs", icon: Logs, path: "logs", roles: ["Admin"] },
       {
         name: "Deleted Records",
@@ -108,55 +152,64 @@ export default function Sidebar({ open, setOpen }) {
     [menuItems, userRole]
   );
 
- 
+  // Save menu + report state
   useEffect(() => localStorage.setItem("activeMenu", active), [active]);
   useEffect(() => {
     expanded
       ? localStorage.setItem("expandedMenu", expanded)
       : localStorage.removeItem("expandedMenu");
   }, [expanded]);
+  useEffect(() => {
+    localStorage.setItem("reportGroups", JSON.stringify(reportGroupExpanded));
+  }, [reportGroupExpanded]);
 
-
+  // Auto activate based on URL
   useEffect(() => {
     const path = location.pathname.replace("/", "");
     if (!path) return;
 
-    const [main, sub] = path.split("/");
+    const [main, group, sub] = path.split("/");
 
     const foundMain = menuItems.find(
       (m) => m.path?.toLowerCase() === main || m.basePath === main
     );
 
     if (foundMain) {
-      setExpanded(foundMain.submenu ? foundMain.name : null);
+      setExpanded(foundMain.submenu || foundMain.submenuGroups ? foundMain.name : null);
 
-      if (
-        sub &&
-        foundMain.submenu?.some(
-          (s) => s.toLowerCase().replace(/\s+/g, "-") === sub
-        )
-      ) {
-        setActive(sanitize(sub));
+      // Reports
+      if (foundMain.name === "Reports") {
+        const reportMain = foundMain.submenuGroups.find((g) => g.base === group);
+
+        if (reportMain) {
+          setReportGroupExpanded((prev) => ({
+            ...prev,
+            [reportMain.title]: true,
+          }));
+
+          if (sub) setActive(sanitize(sub));
+        }
       } else {
         setActive(foundMain.name);
       }
-    } else {
-      setActive("Dashboard");
     }
   }, [location.pathname]);
 
   const handleClick = (item) => {
-    if (item.submenu)
+    if (item.submenu || item.submenuGroups)
       return setExpanded(expanded === item.name ? null : item.name);
+
     setActive(item.name);
     navigate("/" + item.path.toLowerCase());
   };
 
-  const handleSubClick = (parent, sub) => {
+  const handleSubClick = (parentPath, sub) => {
     setActive(sub);
-    const path = `/${parent.basePath}/${sub
-      .toLowerCase()
-      .replace(/\s+/g, "-")}`;
+    const path =
+      "/" +
+      parentPath +
+      "/" +
+      sub.toLowerCase().replace(/\s+/g, "-");
     navigate(path);
   };
 
@@ -164,10 +217,9 @@ export default function Sidebar({ open, setOpen }) {
     <motion.div
       animate={{ width: open ? 260 : 80 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50" 
-      
+      className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50"
     >
-      {/* Header */}
+      {/* HEADER */}
       <div className="flex items-center justify-between p-4 border-b border-white/20">
         {open && (
           <div className="flex items-center gap-3">
@@ -197,19 +249,19 @@ export default function Sidebar({ open, setOpen }) {
         </button>
       </div>
 
-      {/* Menu */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent hover:scrollbar-thumb-white/60"  style={{
-          // maxHeight: "350px",           
-          scrollbarWidth: "thin",  
-        }}
-    >
+      {/* MENU */}
+      <nav
+        className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent"
+        style={{ scrollbarWidth: "thin" }}
+      >
         {filteredMenu.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.name;
           const isExpanded = expanded === item.name;
 
           return (
-            <div key={item.name} >
+            <div key={item.name}>
+              {/* MAIN MENU ITEM */}
               <motion.div
                 onClick={() => handleClick(item)}
                 whileHover={{ x: 4 }}
@@ -218,29 +270,23 @@ export default function Sidebar({ open, setOpen }) {
                     ? "bg-white/25 text-white shadow-md backdrop-blur-sm"
                     : "hover:bg-white/15 text-gray-100 hover:text-white"
                 }`}
-                
               >
-                <div className="flex items-center gap-3" >
+                <div className="flex items-center gap-3">
                   <Icon
-                    className={`transition-colors duration-300 ${
-                      isActive
-                        ? "text-yellow-300"
-                        : "text-white group-hover:text-yellow-200"
+                    className={`${
+                      isActive ? "text-yellow-300" : "text-white"
                     }`}
                     size={20}
                   />
                   {open && (
-                    <span
-                      className={`tracking-wide transition-colors duration-300 ${
-                        isActive ? "font-semibold" : ""
-                      }`}
-                    >
+                    <span className={`${isActive ? "font-semibold" : ""}`}>
                       {item.name}
                     </span>
                   )}
                 </div>
+
                 {open &&
-                  item.submenu &&
+                  (item.submenu || item.submenuGroups) &&
                   (isExpanded ? (
                     <ChevronDown size={18} />
                   ) : (
@@ -248,11 +294,11 @@ export default function Sidebar({ open, setOpen }) {
                   ))}
               </motion.div>
 
+              {/* SIMPLE SUBMENU (Private land, etc) */}
               {item.submenu && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                   className="ml-10 mt-2 space-y-1"
                 >
@@ -261,17 +307,84 @@ export default function Sidebar({ open, setOpen }) {
                       key={sub}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleSubClick(item, sub);
+                        handleSubClick(item.basePath, sub);
                       }}
-                      className={`cursor-pointer text-sm p-2 rounded-lg transition-all duration-300 ${
+                      className={`cursor-pointer text-sm p-2 rounded-lg ${
                         active.toLowerCase() === sub.toLowerCase()
                           ? "bg-white/25 text-yellow-200"
-                          : "text-gray-100 hover:bg-white/15 hover:text-yellow-100"
+                          : "text-gray-100 hover:bg-white/15"
                       }`}
                     >
                       {sub}
                     </div>
                   ))}
+                </motion.div>
+              )}
+
+              {/* ================= REPORT SUBMENU GROUPS ================= */}
+              {item.submenuGroups && isExpanded && open && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  transition={{ duration: 0.3 }}
+                  className="ml-8 mt-2 space-y-2"
+                >
+                  {item.submenuGroups.map((group) => {
+                    const isGroupOpen = reportGroupExpanded[group.title];
+
+                    return (
+                      <div key={group.title}>
+                        {/* GROUP HEADER */}
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setReportGroupExpanded((prev) => ({
+                              ...prev,
+                              [group.title]: !prev[group.title],
+                            }));
+                          }}
+                          className="flex justify-between cursor-pointer text-white/80 p-2 hover:text-white"
+                        >
+                          <span>{group.title}</span>
+                          {isGroupOpen ? (
+                            <ChevronDown size={16} />
+                          ) : (
+                            <ChevronRight size={16} />
+                          )}
+                        </div>
+
+                        {/* GROUP CHILDREN */}
+                        {isGroupOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            transition={{ duration: 0.25 }}
+                            className="ml-6 space-y-1"
+                          >
+                            {group.children.map((sub) => (
+                              <div
+                                key={sub}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSubClick(
+                                    item.basePath + "/" + group.base,
+                                    sub
+                                  );
+                                }}
+                                className={`cursor-pointer text-sm p-2 rounded-lg ${
+                                  active.toLowerCase() === sub.toLowerCase()
+                                    ? "bg-white/25 text-yellow-200"
+                                    : "text-gray-100 hover:bg-white/15"
+                                }`}
+                              >
+                                {sub}
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </motion.div>
               )}
             </div>

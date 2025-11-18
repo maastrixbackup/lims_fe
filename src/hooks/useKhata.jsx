@@ -121,7 +121,7 @@ const fetchKhatas = async () => {
     closeMapModal: () => setModals((m) => ({ ...m, isMapOpen: false })),
   };
 
-  return {
+return {
     projects,
     villages,
     khatas,
@@ -133,5 +133,6 @@ const fetchKhatas = async () => {
     modals,
     handlers,
     loading
-  };
+};
+
 };

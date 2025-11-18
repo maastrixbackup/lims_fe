@@ -8,6 +8,7 @@ const statusMap = { Pending: 0, Active: 1, Closed: 2 };
 export default function useProjects(token) {
   const dispatch = useDispatch();
   const { projects, loading } = useSelector((state) => state.list);
+
   // console.log('projectsss', projects)
 
 

@@ -30,5 +30,6 @@ html[data-theme='dark'] .modal-box,
 }
 .body{
   overflow-y: hidden;
+  scrollbar-width: thin;
 }
 

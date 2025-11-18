@@ -29,10 +29,12 @@ export default function Sidebar({ open, setOpen }) {
     localStorage.getItem("activeMenu") || "Dashboard"
   );
 
-  // 🔥 Correct: expanded must be an ARRAY
-  const storedExpanded = JSON.parse(localStorage.getItem("expandedMenu")) || [];
-  const [expanded, setExpanded] = useState(storedExpanded);
+  const storedExpanded = localStorage.getItem("expandedMenu");
+  const [expanded, setExpanded] = useState(
+    storedExpanded !== "null" ? storedExpanded : null
+  );
 
+  // ✅ Helper function — moved above useEffect to fix hoisting bug
   const sanitize = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
 
@@ -54,13 +56,7 @@ export default function Sidebar({ open, setOpen }) {
         name: "Private Land",
         icon: Map,
         basePath: "private-land",
-        submenu: [
-          "Villages",
-          "Khatas",
-          "Plots",
-          "Compensation",
-          "Social Survey",
-        ],
+        submenu: ["Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
@@ -92,7 +88,8 @@ export default function Sidebar({ open, setOpen }) {
       {
         name: "Reports",
         icon: ChartBarBig,
-        path: "reports",
+        basePath: "reports/khata-reports",
+        submenu: ["Khata Summary"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       { name: "Logs", icon: Logs, path: "logs", roles: ["Admin"] },
@@ -111,17 +108,15 @@ export default function Sidebar({ open, setOpen }) {
     [menuItems, userRole]
   );
 
-  // Save active menu
+ 
+  useEffect(() => localStorage.setItem("activeMenu", active), [active]);
   useEffect(() => {
-    localStorage.setItem("activeMenu", active);
-  }, [active]);
-
-  // Save expanded menus
-  useEffect(() => {
-    localStorage.setItem("expandedMenu", JSON.stringify(expanded));
+    expanded
+      ? localStorage.setItem("expandedMenu", expanded)
+      : localStorage.removeItem("expandedMenu");
   }, [expanded]);
 
-  // Auto-detect menu from URL
+
   useEffect(() => {
     const path = location.pathname.replace("/", "");
     if (!path) return;
@@ -133,10 +128,7 @@ export default function Sidebar({ open, setOpen }) {
     );
 
     if (foundMain) {
-      // Expand main menu if it has submenu
-      if (foundMain.submenu && !expanded.includes(foundMain.name)) {
-        setExpanded((prev) => [...prev, foundMain.name]);
-      }
+      setExpanded(foundMain.submenu ? foundMain.name : null);
 
       if (
         sub &&
@@ -153,30 +145,18 @@ export default function Sidebar({ open, setOpen }) {
     }
   }, [location.pathname]);
 
-  // Handle main menu click
   const handleClick = (item) => {
-    if (item.submenu) {
-      // Toggle expansion
-      setExpanded((prev) =>
-        prev.includes(item.name)
-          ? prev.filter((x) => x !== item.name)
-          : [...prev, item.name]
-      );
-      return;
-    }
-
+    if (item.submenu)
+      return setExpanded(expanded === item.name ? null : item.name);
     setActive(item.name);
     navigate("/" + item.path.toLowerCase());
   };
 
-  // Handle submenu click
   const handleSubClick = (parent, sub) => {
     setActive(sub);
-
     const path = `/${parent.basePath}/${sub
       .toLowerCase()
       .replace(/\s+/g, "-")}`;
-
     navigate(path);
   };
 
@@ -184,7 +164,8 @@ export default function Sidebar({ open, setOpen }) {
     <motion.div
       animate={{ width: open ? 260 : 80 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50"
+      className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50" 
+      
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/20">
@@ -217,15 +198,18 @@ export default function Sidebar({ open, setOpen }) {
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent hover:scrollbar-thumb-white/60">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent hover:scrollbar-thumb-white/60"  style={{
+          // maxHeight: "350px",           
+          scrollbarWidth: "thin",  
+        }}
+    >
         {filteredMenu.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.name;
-          const isExpanded = expanded.includes(item.name);
+          const isExpanded = expanded === item.name;
 
           return (
-            <div key={item.name}>
-              {/* Main Menu Item */}
+            <div key={item.name} >
               <motion.div
                 onClick={() => handleClick(item)}
                 whileHover={{ x: 4 }}
@@ -234,8 +218,9 @@ export default function Sidebar({ open, setOpen }) {
                     ? "bg-white/25 text-white shadow-md backdrop-blur-sm"
                     : "hover:bg-white/15 text-gray-100 hover:text-white"
                 }`}
+                
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3" >
                   <Icon
                     className={`transition-colors duration-300 ${
                       isActive
@@ -254,7 +239,6 @@ export default function Sidebar({ open, setOpen }) {
                     </span>
                   )}
                 </div>
-
                 {open &&
                   item.submenu &&
                   (isExpanded ? (
@@ -264,11 +248,11 @@ export default function Sidebar({ open, setOpen }) {
                   ))}
               </motion.div>
 
-              {/* Submenu */}
               {item.submenu && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                   className="ml-10 mt-2 space-y-1"
                 >
@@ -295,7 +279,6 @@ export default function Sidebar({ open, setOpen }) {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="p-4 border-t border-white/20 text-xs text-white/80">
         {open ? "© 2025 LIMS" : "©"}
       </div>

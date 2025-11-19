@@ -1,23 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import { sections } from "../../../utils/constants";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
-const PlotForm = () => {
+const PlotForm = ({ fetchPlots }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { userToken: token } = useSelector((s) => s.auth);
-  const editingPlot = location.state?.plot || null;
-  const { projects, villages } = useSelector((s) => s.list);
 
-  // console.log("village in plot", villages);
-  const dropdownFields = {
-    displaced_affected_person: ["PAF", "PDF"],
-    family_with_orphan_members: ["Y", "N"],
-    tribunal: ["Y", "N"],
-    abatement: ["Yes", "No"],
-  };
+  const token = useSelector((s) => s.auth.userToken);
+  const editingPlot = location.state?.plot || null;
+
+  const { projects, villages } = useSelector((s) => s.list);
+  const { landType } = useParams();
+  const typeParam = useLandTypeParam();
+  // console.log("LAND TYPE:", landType, " → type =", typeParam);
+
+  const [formData, setFormData] = useState(() => ({
+    type: typeParam,
+    ...Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""])),
+  }));
+
+  const [selectedProject, setSelectedProject] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editingPlot) {
+      setFormData({
+        ...formData,
+        ...editingPlot,
+        type: editingPlot.type || typeParam,
+      });
+      setSelectedProject(editingPlot.project_id || "");
+    }
+  }, [editingPlot]);
+
   const requiredFields = [
     "name_of_recorded_tenant",
     "name_of_present_tenant",
@@ -37,53 +56,22 @@ const PlotForm = () => {
     "la_case_file_no",
   ];
 
-  const [formData, setFormData] = useState(() =>
-    Object.fromEntries(
-      Object.values(sections)
-        .flat()
-        .map((f) => [f, ""])
-    )
-  );
-  const [selectedProject, setSelectedProject] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  // Prefill data when editing
-  useEffect(() => {
-    if (editingPlot) {
-      setFormData((prev) => ({ ...prev, ...editingPlot }));
-      setSelectedProject(editingPlot.project_id || "");
-    }
-  }, [editingPlot]);
-
-  const validateField = (name, value) => {
-    const trimmed = value.trim();
-    const commaSeparatedFields = ["name_of_recorded_tenant", "village_name"];
-    if (commaSeparatedFields.includes(name)) {
-      return trimmed
-        .split(",")
-        .map((v) => v.trim())
-        .filter((v) => v !== "")
-        .join(", ");
-    }
-
-    return trimmed;
-  };
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const cleaned = validateField(name, value);
 
     if (name === "village_name") {
-      const selectedVillage = villages.find((v) => v.village_name === value);
-      setFormData((prev) => ({
-        ...prev,
-        [name]: cleaned,
-        village_code: selectedVillage?.village_code || "",
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: cleaned }));
+      const found = villages.find((v) => v.village_name === value);
+
+      setFormData({
+        ...formData,
+        village_name: value,
+        village_code: found?.village_code || "",
+      });
+
+      return;
     }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -92,6 +80,7 @@ const PlotForm = () => {
     const missing = requiredFields.filter(
       (field) => !formData[field] || formData[field].trim() === ""
     );
+
     if (missing.length > 0) {
       alert(
         `Please fill all required fields:\n\n${missing
@@ -104,111 +93,119 @@ const PlotForm = () => {
     setLoading(true);
 
     try {
-  
-      const cleanedFormData = Object.fromEntries(
-        Object.entries(formData).map(([key, value]) => [
-          key,
-          typeof value === "string" ? value.trim() : value,
-        ])
-      );
-
       const payload = {
-        ...cleanedFormData,
+        ...formData,
+        type: typeParam,
         project_id: selectedProject,
       };
 
-      const res = await fetch(`${API_BASE_URL}/plots/createPlot`, {
-        method: "POST",
+      const url = editingPlot
+        ? `${API_BASE_URL}/plots/updatePlot/${editingPlot.id}`
+        : `${API_BASE_URL}/plots/createPlot`;
+
+      const method = editingPlot ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      console.log("Add Plot API Response:", data);
+      console.log("SAVE PLOT:", data);
 
       if (data.success) {
         alert("Plot saved successfully!");
-        navigate("/plots");
+        if (fetchPlots) fetchPlots();
+        navigate(`/${landType}/plots`);
       } else {
-        alert(`Failed: ${data.message || "Unknown error"}`);
-        console.log(`Failed: ${data.message || "Unknown error"}`);
+        alert(data.message || "Failed to save plot");
       }
     } catch (err) {
-      console.error("Error adding plot:", err);
-      alert("Something went wrong while saving plot.");
+      console.error("Save Error:", err);
+      alert("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <main className="flex-1 p-6 overflow-y-auto">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg p-6 rounded-lg border border-gray-300">
+      <div className="max-w-6xl mx-auto bg-white shadow-lg p-6 rounded-lg border">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {editingPlot ? "Edit Plot" : "Add New Plot"}
           </h2>
+
           <button
-            onClick={() => navigate("/private-land/plots")}
+            onClick={() => navigate(`/${landType}/plots`)}
             className="btn btn-outline btn-sm"
           >
-            &larr; Back
+            ← Back
           </button>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">
-              Project Name <span className="text-red-500">*</span>
+            <label className="font-semibold text-sm mb-1 block">
+              Project <span className="text-red-500">*</span>
             </label>
             <select
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
               className="select select-bordered w-full"
               required
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
             >
               <option value="">Select Project</option>
-              {projects.map((proj) => (
-                <option key={proj.id} value={proj.id}>
-                  {proj.name}
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>
           </div>
+
+          <div>
+            <label className="font-semibold text-sm mb-1 block">
+              Land Type
+            </label>
+            <input
+              readOnly
+              className="input input-bordered w-full bg-gray-100"
+              value={
+                typeParam === 1
+                  ? "Private Land"
+                  : typeParam === 2
+                  ? "Government Land"
+                  : "Forest Land"
+              }
+            />
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-8">
           {Object.entries(sections).map(([section, fields]) => (
-            <div
-              key={section}
-              className="border rounded-lg p-4 bg-gray-50 shadow-sm"
-            >
-              <h3 className="text-lg font-semibold mb-3 text-gray-700 border-b pb-2">
-                {section}
-              </h3>
+            <div key={section} className="p-4 border rounded-md bg-gray-50">
+              <h3 className="font-semibold text-lg mb-3">{section}</h3>
 
               <div className="grid grid-cols-2 gap-4">
                 {fields.map((field) => (
-                  <div key={field} className="flex flex-col">
-                    <label
-                      htmlFor={field}
-                      className="text-xs font-semibold text-gray-600 mb-1 flex items-center"
-                    >
-                      {field.replace(/_/g, " ").toUpperCase()}
+                  <div key={field}>
+                    <label className="text-xs font-semibold mb-1 block">
+                      {field.replace(/_/g, " ").toUpperCase()}{" "}
                       {requiredFields.includes(field) && (
-                        <span className="text-red-500 ml-1">*</span>
+                        <span className="text-red-500">*</span>
                       )}
                     </label>
+
                     {field === "village_name" ? (
                       <select
-                        id={field}
                         name={field}
-                        value={formData[field] || ""}
-                        onChange={handleChange}
                         className="select select-bordered w-full"
-                        required={requiredFields.includes(field)}
+                        value={formData[field]}
+                        required
+                        onChange={handleChange}
                       >
                         <option value="">Select Village</option>
                         {villages.map((v) => (
@@ -217,47 +214,22 @@ const PlotForm = () => {
                           </option>
                         ))}
                       </select>
-                    ) : dropdownFields[field] ? (
-                      <select
-                        id={field}
-                        name={field}
-                        value={formData[field] || ""}
-                        onChange={handleChange}
-                        className="select select-bordered w-full"
-                        required={requiredFields.includes(field)}
-                      >
-                        <option value="">Select</option>
-                        {dropdownFields[field].map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
                     ) : (
                       <input
-                        id={field}
                         name={field}
-                        value={formData[field] || ""}
+                        value={formData[field]}
                         onChange={handleChange}
-                        placeholder={field.replace(/_/g, " ")}
                         type={
                           field.includes("date")
                             ? "date"
-                            : [
-                                "age",
-                                "amount",
-                                "value",
-                                "area",
-                                "acres",
-                                "hectares",
-                                "income",
-                              ].some((k) => field.includes(k)) &&
-                              !["village_code", "thana_no"].includes(field)
+                            : field.includes("area") ||
+                              field.includes("acres") ||
+                              field.includes("hectares")
                             ? "number"
                             : "text"
                         }
-                        className="input input-bordered w-full"
                         required={requiredFields.includes(field)}
+                        className="input input-bordered w-full"
                       />
                     )}
                   </div>
@@ -266,19 +238,16 @@ const PlotForm = () => {
             </div>
           ))}
 
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3">
             <button
               type="button"
               className="btn"
-              onClick={() => navigate("/plots")}
+              onClick={() => navigate(`/${landType}/plots`)}
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
+
+            <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? "Saving..." : "Save"}
             </button>
           </div>

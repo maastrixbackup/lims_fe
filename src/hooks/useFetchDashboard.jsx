@@ -28,7 +28,7 @@ export default function useFetchDashboard() {
         if (response.status === 401) {
           dispatch(logout());       
           navigate("/");
-          alert("This Session Time is Out Please login Again")        
+          showToast("This Session Time is Out Please login Again")        
           return;
         }
 

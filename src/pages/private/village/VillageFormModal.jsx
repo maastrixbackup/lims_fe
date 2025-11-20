@@ -11,7 +11,7 @@ const VillageFormModal = ({
   api,
   fetchVillages,
 }) => {
-  const { projects } = useSelector((s) => s.list);
+  // const { projects } = useSelector((s) => s.list);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const typeParam = useLandTypeParam();
 

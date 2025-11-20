@@ -67,15 +67,15 @@ export default function Sidebar({ open, setOpen }) {
         name: "Govt Land",
         icon: MapPinHouse,
         basePath: "govt-land",
-        submenu: ["Village", "Khata", "Plot", "Compensation"],
-        roles: ["Admin"],
+        submenu: ["Villages", "Khatas", "Plots", "Compensation"],
+        roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
         name: "Forest Land",
         icon: TreeDeciduous,
         basePath: "forest-land",
         submenu: ["Villages", "Khatas", "Plots", "Compensation"],
-        roles: ["Admin"],
+        roles: ["Admin", "Data Entry User","Viewer"],
       },
       {
         name: "User Management",
@@ -89,8 +89,6 @@ export default function Sidebar({ open, setOpen }) {
         path: "import",
         roles: ["Admin", "Data Entry User"],
       },
-
-      // ===================== REPORTS ===========================
       {
         name: "Reports",
         icon: ChartBarBig,
@@ -111,31 +109,29 @@ export default function Sidebar({ open, setOpen }) {
             base: "plot-reports",
             children: ["Plot Details", "Plot Owner History"],
           },
-           {
+          {
             title: "Project Reports",
             base: "project-reports",
             children: ["Project Summary", "Project Document Register"],
           },
-           {
+          {
             title: "Document Reports",
             base: "document-reports",
             children: ["Document Upload Report", "Missing Documents Report"],
           },
-             {
+          {
             title: "GIS / Maps Reports",
             base: "maps-reports",
             children: ["KMZ Availability", "Map Summary Report"],
           },
-             {
+          {
             title: "User Reports",
             base: "user-reports",
             children: ["Activity Log", "Audit Trail"],
           },
-            
         ],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
-
       { name: "Logs", icon: Logs, path: "logs", roles: ["Admin"] },
       {
         name: "Deleted Records",
@@ -152,7 +148,7 @@ export default function Sidebar({ open, setOpen }) {
     [menuItems, userRole]
   );
 
-  // Save menu + report state
+  // ===================== LOCALSTORAGE =========================
   useEffect(() => localStorage.setItem("activeMenu", active), [active]);
   useEffect(() => {
     expanded
@@ -163,12 +159,14 @@ export default function Sidebar({ open, setOpen }) {
     localStorage.setItem("reportGroups", JSON.stringify(reportGroupExpanded));
   }, [reportGroupExpanded]);
 
-  // Auto activate based on URL
+  // ===================== AUTO ACTIVATE MENU ==================
   useEffect(() => {
-    const path = location.pathname.replace("/", "");
-    if (!path) return;
+    const parts = location.pathname.split("/").filter(Boolean); // remove empty
+    if (!parts.length) return;
 
-    const [main, group, sub] = path.split("/");
+    const main = parts[0]; // e.g., private-land
+    const sub = parts[1];  // e.g., villages
+    const group = parts[2]; // for reports
 
     const foundMain = menuItems.find(
       (m) => m.path?.toLowerCase() === main || m.basePath === main
@@ -178,23 +176,20 @@ export default function Sidebar({ open, setOpen }) {
       setExpanded(foundMain.submenu || foundMain.submenuGroups ? foundMain.name : null);
 
       // Reports
-      if (foundMain.name === "Reports") {
-        const reportMain = foundMain.submenuGroups.find((g) => g.base === group);
-
-        if (reportMain) {
-          setReportGroupExpanded((prev) => ({
-            ...prev,
-            [reportMain.title]: true,
-          }));
-
+      if (foundMain.name === "Reports" && group) {
+        const reportGroup = foundMain.submenuGroups.find((g) => g.base === group);
+        if (reportGroup) {
+          setReportGroupExpanded((prev) => ({ ...prev, [reportGroup.title]: true }));
           if (sub) setActive(sanitize(sub));
         }
       } else {
-        setActive(foundMain.name);
+        if (sub) setActive(sanitize(sub));
+        else setActive(foundMain.name);
       }
     }
   }, [location.pathname]);
 
+  // ===================== NAVIGATION =========================
   const handleClick = (item) => {
     if (item.submenu || item.submenuGroups)
       return setExpanded(expanded === item.name ? null : item.name);
@@ -204,15 +199,21 @@ export default function Sidebar({ open, setOpen }) {
   };
 
   const handleSubClick = (parentPath, sub) => {
+    let subPath = sub.toLowerCase().replace(/\s+/g, "-");
+
+    // Handle land types
+    if (["private-land", "govt-land", "forest-land"].includes(parentPath)) {
+      if (subPath === "khata") subPath = "khatas";
+      if (subPath === "plot") subPath = "plots";
+      if (subPath === "village") subPath = "villages";
+    }
+
+    const path = `/${parentPath}/${subPath}`;
     setActive(sub);
-    const path =
-      "/" +
-      parentPath +
-      "/" +
-      sub.toLowerCase().replace(/\s+/g, "-");
     navigate(path);
   };
 
+  // ===================== RENDER =============================
   return (
     <motion.div
       animate={{ width: open ? 260 : 80 }}
@@ -273,9 +274,7 @@ export default function Sidebar({ open, setOpen }) {
               >
                 <div className="flex items-center gap-3">
                   <Icon
-                    className={`${
-                      isActive ? "text-yellow-300" : "text-white"
-                    }`}
+                    className={`${isActive ? "text-yellow-300" : "text-white"}`}
                     size={20}
                   />
                   {open && (
@@ -285,16 +284,14 @@ export default function Sidebar({ open, setOpen }) {
                   )}
                 </div>
 
-                {open &&
-                  (item.submenu || item.submenuGroups) &&
-                  (isExpanded ? (
-                    <ChevronDown size={18} />
-                  ) : (
-                    <ChevronRight size={18} />
-                  ))}
+                {open && (item.submenu || item.submenuGroups) && (isExpanded ? (
+                  <ChevronDown size={18} />
+                ) : (
+                  <ChevronRight size={18} />
+                ))}
               </motion.div>
 
-              {/* SIMPLE SUBMENU (Private land, etc) */}
+              {/* SIMPLE SUBMENU (Land Types) */}
               {item.submenu && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -321,7 +318,7 @@ export default function Sidebar({ open, setOpen }) {
                 </motion.div>
               )}
 
-              {/* ================= REPORT SUBMENU GROUPS ================= */}
+              {/* REPORT SUBMENU GROUPS */}
               {item.submenuGroups && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -346,11 +343,7 @@ export default function Sidebar({ open, setOpen }) {
                           className="flex justify-between cursor-pointer text-white/80 p-2 hover:text-white"
                         >
                           <span>{group.title}</span>
-                          {isGroupOpen ? (
-                            <ChevronDown size={16} />
-                          ) : (
-                            <ChevronRight size={16} />
-                          )}
+                          {isGroupOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                         </div>
 
                         {/* GROUP CHILDREN */}
@@ -366,10 +359,7 @@ export default function Sidebar({ open, setOpen }) {
                                 key={sub}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleSubClick(
-                                    item.basePath + "/" + group.base,
-                                    sub
-                                  );
+                                  handleSubClick(item.basePath + "/" + group.base, sub);
                                 }}
                                 className={`cursor-pointer text-sm p-2 rounded-lg ${
                                   active.toLowerCase() === sub.toLowerCase()

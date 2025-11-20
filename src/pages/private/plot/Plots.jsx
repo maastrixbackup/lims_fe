@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PlotTable from "../plot/PlotsTable";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import Loader from "../../../shared/Loader";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const Plots = () => {
+  const { landType } = useParams();
+  const typeParam = useLandTypeParam();
+
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [plots, setPlots] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,13 +21,9 @@ const Plots = () => {
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
 
-
   const projectId = useSelector((state) => state.selectedProject?.project?.id);
-  console.log("Selected Project ID:", projectId);
-
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const navigate = useNavigate();
-
 
   const fetchPlots = async (currentPage) => {
     if (!projectId) {
@@ -34,7 +35,7 @@ const Plots = () => {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/plots/plotList?project_id=${projectId}&page=${currentPage}`,
+        `${API_BASE_URL}/plots/plotList?project_id=${projectId}&page=${currentPage}&type=${typeParam}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -54,13 +55,11 @@ const Plots = () => {
     }
   };
 
- 
   useEffect(() => {
     if (token && projectId) {
       fetchPlots(page);
     }
-  }, [page, token, projectId]);
-
+  }, [page, token, projectId, typeParam]);
 
   const confirmDelete = async () => {
     if (!deleteConfirm?.id) return;
@@ -92,7 +91,9 @@ const Plots = () => {
   return (
     <main className="flex-1 p-6 overflow-y-auto space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Plots List</h2>
+        <h2 className="text-lg font-semibold capitalize">
+          {landType?.replace("-", " ") || "Private"} Plots
+        </h2>
 
         <button
           className={`btn btn-primary text-white ${
@@ -101,7 +102,7 @@ const Plots = () => {
               : ""
           }`}
           disabled={isRestricted}
-          onClick={() => navigate("/plot-form")}
+          onClick={() => navigate(`/${landType}/plot-form`)}
         >
           + Add Plot
         </button>
@@ -109,7 +110,7 @@ const Plots = () => {
 
       {!projectId ? (
         <p className="text-center text-gray-600">
-          ⚠️ Please select a project to view plots.
+          Please select a project to view plots.
         </p>
       ) : loading ? (
         <Loader />
@@ -117,7 +118,6 @@ const Plots = () => {
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}
 
- 
       {projectId && (
         <div className="flex justify-center items-center gap-4 mt-6">
           <button

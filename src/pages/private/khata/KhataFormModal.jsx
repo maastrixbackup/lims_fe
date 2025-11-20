@@ -2,57 +2,72 @@ import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { API_BASE_URL } from "../../../utils/config";
 import { useSelector } from "react-redux";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const KhataFormModal = ({
   khata,
   onClose,
-  setKhatas,
   token,
-  projects,
   villages,
   fetchKhatas,
 }) => {
+
+  const typeParam = useLandTypeParam();
+
+  const typeLabel =
+    typeParam === 2 ? "Govt Land" : typeParam === 3 ? "Forest Land" : "Pvt Land";
+
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+
   const [formData, setFormData] = useState({
     project_id: "",
     village_id: "",
     khata_no: "",
-    type: "",
+    type: typeParam,
   });
 
   const initializing = useRef(false);
-  const user = useSelector((state) => state.auth.user);
-  const userRole = user?.role_name || "";
+  const userRole = useSelector((s) => s.auth.user?.role_name || "");
   const isRestricted = userRole === "Data Entry User";
 
+  // ⭐ SET DEFAULT FORM DATA
   useEffect(() => {
     if (khata) {
       initializing.current = true;
       setFormData({
-        project_id: khata.project_id || "",
-        village_id: khata.village_id || "",
+        project_id: khata.project_id,
+        village_id: khata.village_id,
         khata_no: khata.khata_no || khata.number || "",
-        type: khata.type?.toString() || "",
+        type: khata.type || typeParam,
       });
+
       setTimeout(() => (initializing.current = false), 300);
     } else {
-      setFormData({ project_id: "", village_id: "", khata_no: "", type: "" });
+      setFormData({
+        project_id: selectedProject?.id || "",
+        village_id: "",
+        khata_no: "",
+        type: typeParam,
+      });
     }
-  }, [khata]);
+  }, [khata, typeParam, selectedProject]);
 
+  // Reset village on project change (only when editing)
   useEffect(() => {
     if (!initializing.current) {
-      setFormData((prev) => ({ ...prev, village_id: "" }));
+      setFormData((prev) => ({
+        ...prev,
+        village_id: "",
+      }));
     }
   }, [formData.project_id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "project_id" || name === "village_id" || name === "type"
-          ? parseInt(value)
-          : value,
+      [name]: name === "village_id" ? parseInt(value) : value,
     }));
   };
 
@@ -74,15 +89,14 @@ const KhataFormModal = ({
       });
 
       const data = await res.json();
-      console.log("Khata API response:", data);
-
-      if (res.status !== 201 && res.status !== 200) {
+      if (!res.ok) {
         alert(data.message || "Failed to save khata");
         return;
       }
 
-      if (fetchKhatas) await fetchKhatas();
+      await fetchKhatas();
 
+      // Toast
       const toast = document.createElement("div");
       toast.textContent = khata
         ? "Khata updated successfully!"
@@ -93,9 +107,7 @@ const KhataFormModal = ({
 
       setTimeout(() => {
         toast.classList.add("opacity-0", "transition-opacity", "duration-500");
-        setTimeout(() => {
-          document.body.removeChild(toast);
-        }, 500);
+        setTimeout(() => toast.remove(), 500);
         onClose();
       }, 1000);
     } catch (err) {
@@ -120,33 +132,34 @@ const KhataFormModal = ({
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* ⭐ PROJECT NAME (Read Only - Auto from Redux) */}
           <div>
             <label className="block text-sm font-medium mb-1">Project</label>
-            <select
-              name="project_id"
-              value={formData.project_id || ""}
-              onChange={handleChange}
-              className="select select-bordered w-full"
-              required
-            >
-              <option value="">Select Project</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.project_name || p.name}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              className="input input-bordered w-full bg-gray-100 font-medium text-gray-700"
+              value={
+                selectedProject?.project_name ||
+                selectedProject?.name ||
+                "No Project Selected"
+              }
+              // disabled
+            />
+
+            {/* hidden actual project_id */}
+            <input type="hidden" name="project_id" value={formData.project_id} />
           </div>
 
+          {/* Village */}
           <div>
             <label className="block text-sm font-medium mb-1">Village</label>
             <select
               name="village_id"
-              value={formData.village_id || ""}
+              value={formData.village_id}
               onChange={handleChange}
               className="select select-bordered w-full"
               required
-              disabled={!formData.project_id}
             >
               <option value="">Select Village</option>
               {villages.map((v) => (
@@ -157,6 +170,7 @@ const KhataFormModal = ({
             </select>
           </div>
 
+          {/* Khata No */}
           <div>
             <label className="block text-sm font-medium mb-1">Khata No.</label>
             <input
@@ -170,20 +184,15 @@ const KhataFormModal = ({
             />
           </div>
 
+          {/* Land Type */}
           <div>
-            <label className="block text-sm font-medium mb-1">Type</label>
-            <select
-              name="type"
-              value={formData.type || ""}
-              onChange={handleChange}
-              className="select select-bordered w-full"
-              required
-            >
-              <option value="">Select Type</option>
-              <option value={1}>Pvt Land</option>
-              <option value={2}>Govt Land</option>
-              <option value={3}>Forest Land</option>
-            </select>
+            <label className="block text-sm font-medium mb-1">Land Type</label>
+            <input
+              type="text"
+              className="input input-bordered w-full bg-gray-100"
+              value={typeLabel}
+              // disabled
+            />
           </div>
 
           <div className="modal-action">
@@ -194,6 +203,7 @@ const KhataFormModal = ({
               Cancel
             </button>
           </div>
+
         </form>
       </div>
     </dialog>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { API_BASE_URL } from "../../../utils/config";
 import { odishaDistricts } from "../../../utils/constants";
 import VillageTable from "./VillageTable";
@@ -7,6 +9,7 @@ import VillageFilter from "./VillageFilter";
 import VillageFormModal from "./VillageFormModal";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import Loader from "../../../shared/Loader";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
@@ -22,10 +25,12 @@ const Villages = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVillage, setEditingVillage] = useState(null);
-
   const [deleteVillage, setDeleteVillage] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { landType } = useParams();
+  const typeParam = useLandTypeParam();
 
   const api = async (url, method = "GET", body) => {
     const res = await fetch(`${API_BASE_URL}${url}`, {
@@ -38,13 +43,41 @@ const Villages = () => {
     });
     return res.json();
   };
+
+  const normalizeVillages = (data) => {
+    if (!Array.isArray(data)) return [];
+    return data.map((v) => ({
+      id: v.id ?? v.village_id ?? v.uid,
+      village_name: v.village_name ?? v.name ?? v.village,
+      district: v.district ?? v.dist ?? "",
+      tahasil: v.tahasil ?? v.taluka ?? "",
+      project_id: v.project_id ?? v.project ?? "",
+      ...v,
+    }));
+  };
+
   const fetchVillages = async () => {
     try {
       setLoading(true);
-      const data = await api("/village/villageList");
-      if (data.success) setVillages(data.villages || []);
+
+      const params = new URLSearchParams({
+        project_id: filter.project_id || "",
+        district: filter.district || "",
+        tahasil: filter.tahasil || "",
+        type: typeParam,
+      });
+
+      const data = await api(`/village/villageList?${params.toString()}`);
+      console.log("Fetched villages:", data.villages);
+
+      if (data.success && Array.isArray(data.villages)) {
+        setVillages(normalizeVillages(data.villages));
+      } else {
+        setVillages([]);
+      }
     } catch (err) {
       console.error("Error fetching villages:", err);
+      setVillages([]);
     } finally {
       setLoading(false);
     }
@@ -52,7 +85,7 @@ const Villages = () => {
 
   useEffect(() => {
     fetchVillages();
-  }, []);
+  }, [landType, filter]);
 
   const openModal = (v = null) => {
     setEditingVillage(v);
@@ -79,24 +112,30 @@ const Villages = () => {
     setDeleteVillage(null);
   };
 
-  const filteredVillages = villages.filter(
-    (v) =>
-      // (!filter.project_id || v.project_id === Number(filter.project_id)) &&
-      (!filter.district || v.district === filter.district) &&
-      (!filter.tahasil ||
-        v.tahasil?.toLowerCase().includes(filter.tahasil.toLowerCase()))
-  );
+  const filteredVillages = villages.filter((v) => {
+    const matchDistrict =
+      !filter.district ||
+      (v.district || "").toLowerCase() === filter.district.toLowerCase();
+    const matchTahasil =
+      !filter.tahasil ||
+      (v.tahasil || "").toLowerCase().includes(filter.tahasil.toLowerCase());
+    const matchProject =
+      !filter.project_id || Number(v.project_id) === Number(filter.project_id);
+    return matchDistrict && matchTahasil && matchProject;
+  });
 
   return (
-    <div className="card bg-white shadow-lg rounded-2xl overflow-hidden">
+    <div className="card bg-white shadow-lg rounded-2xl overflow-hidden p-4">
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
         </div>
       ) : (
         <>
-          <header className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Villages List</h2>
+          <header className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold capitalize">
+              {landType?.replace("-", " ") || "Private"} Villages
+            </h2>
             <button
               className={`btn btn-primary text-white ${
                 isRestricted
@@ -117,16 +156,26 @@ const Villages = () => {
             odishaDistricts={odishaDistricts}
             role={role}
           />
-          <VillageTable
-            villages={filteredVillages}
-            projects={projects}
-            isRestricted={isRestricted}
-            onEdit={openModal}
-            onDelete={(village) => {
-              setDeleteVillage(village);
-              setIsDeleteModalOpen(true);
-            }}
-          />
+
+          <motion.div
+            key={landType} 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <VillageTable
+              villages={filteredVillages}
+              projects={projects}
+              isRestricted={isRestricted}
+              onEdit={openModal}
+              onDelete={(village) => {
+                setDeleteVillage(village);
+                setIsDeleteModalOpen(true);
+              }}
+              landType={landType}
+            />
+          </motion.div>
         </>
       )}
 
@@ -141,6 +190,7 @@ const Villages = () => {
           fetchVillages={fetchVillages}
         />
       )}
+
       <ConfirmDelete
         isOpen={isDeleteModalOpen}
         title="Confirm Delete"

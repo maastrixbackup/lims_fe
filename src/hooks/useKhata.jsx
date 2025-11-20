@@ -2,6 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 // import { documentList } from "../utils/constants";
 import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useLandTypeParam } from "../utils/landtypes";
+
+
 
 export const useKhata = () => {
   const [khatas, setKhatas] = useState([]);
@@ -9,6 +13,9 @@ export const useKhata = () => {
   const [filterVillage, setFilterVillage] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState([]);
   const [loading, setLoading]=useState(true)
+  // const { landType } = useParams();
+ const typeParam = useLandTypeParam();
+
 
   const {
     // user,
@@ -42,27 +49,32 @@ export const useKhata = () => {
   };
 
 const fetchKhatas = async () => {
-    setLoading(true);
-    try {
-      const data = await api("/khata/khataList");
-      if (data.success) {
-        setKhatas(data.khatas || []);
-      } else {
-        console.error("Failed to fetch khatas:", data.message);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const data = await api(
+      `/khata/khataList?project_id=${filterProject}&village_id=${filterVillage}&type=${typeParam}`
+    );
+
+    if (data.success) {
+      setKhatas(data.khatas || []);
+    } else {
+      console.error("Failed to fetch khatas:", data.message);
     }
-  };
+  } catch (err) {
+    console.error("Fetch error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
-  useEffect(() => {
-    if (token) {
-      fetchKhatas();
-    }
-  }, [token]);
+
+useEffect(() => {
+  if (token) {
+    fetchKhatas();
+  }
+}, [token, filterProject, filterVillage, typeParam]);
+
   const filteredKhatas = useMemo(
     () =>
       khatas.filter(

@@ -126,57 +126,60 @@ export default function useUserManagement(token) {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!editingUser && formData.password !== formData.confirmPassword) {
-      alert(" Passwords do not match!");
-      return;
+  if (!editingUser && formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  try {
+    const method = editingUser ? "PUT" : "POST";
+    const url = editingUser
+      ? `${API_BASE_URL}/auth/updateUser/${editingUser.id}`
+      : `${API_BASE_URL}/auth/createUser`;
+
+    const form = new FormData();
+    form.append("name", formData.name);
+    form.append("email", formData.email);
+    form.append("role_id", formData.role_id);
+    form.append("phone_number", formData.phone_number);
+
+    // Append password only when needed
+    if (!editingUser || formData.password)
+      form.append("password", formData.password);
+
+    // Append projects
+    formData.accessed_projects.forEach((id) =>
+      form.append("accessed_projects[]", id)
+    );
+
+    // ONLY append profile pic if it's a new file
+    if (formData.profile_pic instanceof File) {
+      form.append("profile_pic", formData.profile_pic);
     }
 
-    try {
-      const method = editingUser ? "PUT" : "POST";
-      const url = editingUser
-        ? `${API_BASE_URL}/auth/updateUser/${editingUser.id}`
-        : `${API_BASE_URL}/auth/createUser`;
+    const res = await fetch(url, {
+      method,
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
 
-      const form = new FormData();
-      form.append("name", formData.name);
-      form.append("email", formData.email);
-      form.append("role_id", formData.role_id);
-      // form.append("status", formData.status || "active");
-      // form.append("phone_number", formData.phone_number || "");
-      form.append("phone_number", `+91${formData.phone_number}`);
+    const data = await res.json();
+    console.log('user update', data)
 
-
-      if (!editingUser || formData.password)
-        form.append("password", formData.password);
-
-      formData.accessed_projects.forEach((id) =>
-        form.append("accessed_projects[]", id)
-      );
-
-      if (formData.profile_pic)
-        form.append("profile_pic", formData.profile_pic);
-
-      const res = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-
-      const data = await res.json();
-      // console.log("User save response:", data);
-      if (data.success) {
-        fetchData();
-        closeModal();
-      } else {
-        alert(data.message || "Failed to save user.");
-      }
-    } catch (err) {
-      console.error("Error saving user:", err);
+    if (data.success) {
+      fetchData();
+      closeModal();
+    } else {
+      alert(data.message || "Failed to save user.");
     }
-  };
+  } catch (err) {
+    console.error("Error saving user:", err);
+  }
+};
+
 
   const confirmDelete = async () => {
     if (!deleteConfirm) return;

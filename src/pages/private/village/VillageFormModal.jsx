@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { X, CheckCircle } from "lucide-react";
+import { useLandTypeParam } from "../../../utils/landtypes";
+import { useSelector } from "react-redux";
 
 const VillageFormModal = ({
   isOpen,
   onClose,
   editingVillage,
-  projects,
   odishaDistricts,
   api,
   fetchVillages,
 }) => {
+  const { projects } = useSelector((s) => s.list);
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+  const typeParam = useLandTypeParam();
+
   const [formData, setFormData] = useState({
     project_id: "",
     village_name: "",
@@ -23,6 +28,7 @@ const VillageFormModal = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ⭐ When editing OR adding new, update form values
   useEffect(() => {
     if (editingVillage) {
       setFormData({
@@ -30,42 +36,43 @@ const VillageFormModal = ({
         village_name: editingVillage.village_name,
         district: editingVillage.district,
         tahasil: editingVillage.tahasil,
-        type: editingVillage.type?.toString() || "",
+        type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
       });
     } else {
       setFormData({
-        project_id: "",
+        project_id: selectedProject?.id || "",
         village_name: "",
         district: "",
         tahasil: "",
-        type: "",
+        type: typeParam.toString(),
         village_code: "",
       });
     }
     setErrors({});
-  }, [editingVillage]);
+  }, [editingVillage, selectedProject, typeParam]);
 
+  // ⭐ Validation
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.project_id) newErrors.project_id = "Project is required.";
     if (!formData.district) newErrors.district = "District is required.";
     if (!formData.tahasil.trim()) newErrors.tahasil = "Tahasil is required.";
+
     if (!formData.village_name.trim())
       newErrors.village_name = "Village name is required.";
     else if (!/^[A-Za-z\s]+$/.test(formData.village_name))
       newErrors.village_name = "Village name should contain only letters.";
-    if (!formData.type) newErrors.type = "Type is required.";
+
     if (!formData.village_code.trim())
       newErrors.village_code = "Village code is required.";
-    // else if (!/^[A-Za-z0-9\s-]+$/.test(formData.village_code))
-    //   newErrors.village_code = "Village code must be numeric.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // ⭐ Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -75,6 +82,7 @@ const VillageFormModal = ({
     const url = editingVillage
       ? `/village/updateVillage/${editingVillage.id}`
       : `/village/addVillage`;
+
     const method = editingVillage ? "PUT" : "POST";
 
     const data = await api(url, method, formData);
@@ -86,15 +94,15 @@ const VillageFormModal = ({
           ? "Village updated successfully!"
           : "Village added successfully!"
       );
+
       fetchVillages();
+
       setTimeout(() => {
         setSuccessMessage("");
         onClose();
       }, 1500);
     } else {
-      setSuccessMessage(
-        data.message || "Something went wrong. Please try again."
-      );
+      setSuccessMessage(data.message || "Something went wrong.");
     }
   };
 
@@ -120,28 +128,22 @@ const VillageFormModal = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
-            <label>Project Name</label>
-            <select
-              name="project_id"
-              value={formData.project_id}
-              onChange={(e) =>
-                setFormData({ ...formData, project_id: e.target.value })
-              }
-              className={`select select-bordered w-full ${
-                errors.project_id ? "border-red-500" : ""
-              }`}
-            >
-              <option value="">Select Project</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-            {errors.project_id && (
-              <p className="text-red-500 text-sm">{errors.project_id}</p>
-            )}
 
+            {/* Project Name */}
+            <label>Project Name</label>
+            <input
+              // disabled
+              className="input input-bordered w-full bg-gray-100 font-medium text-gray-700"
+              value={
+                selectedProject
+                  ? selectedProject.project_name || selectedProject.name
+                  : "Select Project"
+              }
+            />
+            {/* Hidden actual value */}
+            <input type="hidden" value={formData.project_id} />
+
+            {/* District */}
             <label>District</label>
             <select
               name="district"
@@ -155,13 +157,16 @@ const VillageFormModal = ({
             >
               <option value="">Select District</option>
               {odishaDistricts.map((d) => (
-                <option key={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
             {errors.district && (
               <p className="text-red-500 text-sm">{errors.district}</p>
             )}
 
+            {/* Tahasil */}
             <label>Tahasil</label>
             <input
               type="text"
@@ -179,6 +184,7 @@ const VillageFormModal = ({
               <p className="text-red-500 text-sm">{errors.tahasil}</p>
             )}
 
+            {/* Village Name */}
             <label>Village Name</label>
             <input
               type="text"
@@ -196,26 +202,23 @@ const VillageFormModal = ({
               <p className="text-red-500 text-sm">{errors.village_name}</p>
             )}
 
-            <label>Type</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
+            {/* Land Type */}
+            <label>Land Type</label>
+            <input
+              type="text"
+              // disabled
+              value={
+                typeParam === 1
+                  ? "Private Land"
+                  : typeParam === 2
+                  ? "Government Land"
+                  : "Forest Land"
               }
-              className={`select select-bordered w-full ${
-                errors.type ? "border-red-500" : ""
-              }`}
-            >
-              <option value="">Select Type</option>
-              <option value="1">Pvt land</option>
-              <option value="2">Govt land</option>
-              <option value="3">Forest land</option>
-            </select>
-            {errors.type && (
-              <p className="text-red-500 text-sm">{errors.type}</p>
-            )}
+              className="input input-bordered w-full bg-gray-100"
+            />
+            <input type="hidden" name="type" value={formData.type} />
 
+            {/* Village Code */}
             <label>Village Code</label>
             <input
               type="text"
@@ -247,6 +250,7 @@ const VillageFormModal = ({
                   ? "Update"
                   : "Save"}
               </button>
+
               <button className="btn" type="button" onClick={onClose}>
                 Cancel
               </button>

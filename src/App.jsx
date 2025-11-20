@@ -41,13 +41,6 @@ const DeletedRecords = lazy(() => import("./pages/trash/DeletedRecords"));
 const SocialSurvey = lazy(() => import("./pages/SocialSurvey"));
 const ProjectTable = lazy(() => import("./shared/ProjectTable"));
 
-const ForestVillage = lazy(() => import("./pages/forest/Village"));
-const ForestKhata = lazy(() => import("./pages/forest/khata"));
-const ForestPlot = lazy(() => import("./pages/forest/Plot"));
-
-const GovtVillage = lazy(() => import("./pages/govt/GovtVillage"));
-const GovtKhata = lazy(() => import("./pages/govt/GovtKhata"));
-const GovtPlot = lazy(() => import("./pages/govt/plot"));
 const KhataSummary = lazy(() => import("./pages/reports/KhataSummary"));
 const ProjectSummary = lazy(() => import("./pages/reports/ProjectSummary"));
 const ProjectDocumentRegister = lazy(() =>
@@ -55,8 +48,8 @@ const ProjectDocumentRegister = lazy(() =>
 );
 const KMZAvailability = lazy(() => import("./pages/reports/KMZAvailability"));
 const MapSummaryReport = lazy(() => import("./pages/reports/MapSummaryReport"));
-const AuditTrail= lazy(()=>import("./pages/reports/AuditTrail"))
-const UserActivity= lazy(()=>import("./pages/reports/UserActivity"))
+const AuditTrail = lazy(() => import("./pages/reports/AuditTrail"));
+const UserActivity = lazy(() => import("./pages/reports/UserActivity"));
 
 export default function App() {
   const dispatch = useDispatch();
@@ -82,34 +75,18 @@ export default function App() {
               <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/projects" element={<Projects />} />
-                <Route path="/private-land/villages" element={<Villages />} />
-                <Route path="/private-land/khatas" element={<Khata />} />
-                <Route path="/private-land/plots" element={<Plots />} />
+                <Route path="/:landType/villages" element={<Villages />} />
+                <Route path="/:landType/khatas" element={<Khata />} />
+                <Route path="/:landType/plots" element={<Plots />} />
                 <Route
-                  path="/private-land/compensation"
+                  path="/:landType/compensation"
                   element={<Compensation />}
                 />
                 <Route
-                  path="/private-land/social-survey"
+                  path="/:landType/social-survey"
                   element={<SocialSurvey />}
                 />
-                <Route path="/govt-land/village" element={<GovtVillage />} />
-                <Route path="/govt-land/khata" element={<GovtKhata />} />
-                <Route path="/govt-land/plot" element={<GovtPlot />} />
-                <Route
-                  path="/govt-land/compensation"
-                  element={<Compensation />}
-                />
-                <Route
-                  path="/forest-land/villages"
-                  element={<ForestVillage />}
-                />
-                <Route path="/forest-land/khatas" element={<ForestKhata />} />
-                <Route path="/forest-land/plots" element={<ForestPlot />} />
-                <Route
-                  path="/forest-land/compensation"
-                  element={<Compensation />}
-                />
+
                 <Route path="/usersmanagement" element={<UserManagement />} />
                 <Route path="/import" element={<UploadPlots />} />
                 <Route path="/profile" element={<Profile />} />
@@ -162,15 +139,15 @@ export default function App() {
                   path="/reports/user-reports/audit-trail"
                   element={<AuditTrail />}
                 />
-                 <Route
+                <Route
                   path="/reports/document-reports/document-upload-report"
-                  element={<DocumentUploadReport/>}
+                  element={<DocumentUploadReport />}
                 />
-                 <Route
+                <Route
                   path="/reports/document-reports/missing-documents-report"
-                  element={<MissingDocument/>}
+                  element={<MissingDocument />}
                 />
-                <Route path="/plot-form" element={<PlotForm />} />
+                <Route path="/:landType/plot-form" element={<PlotForm />} />
                 <Route path="/logs" element={<Logs />} />
                 <Route path="/project-table" element={<ProjectTable />} />
                 <Route path="/deletedrecords" element={<DeletedRecords />} />

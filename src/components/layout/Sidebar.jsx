@@ -84,7 +84,7 @@ export default function Sidebar({ open, setOpen }) {
         roles: ["Admin"],
       },
       {
-        name: "Import/Export",
+        name: "Import Plots",
         icon: ImageUp,
         path: "import",
         roles: ["Admin", "Data Entry User"],
@@ -112,7 +112,7 @@ export default function Sidebar({ open, setOpen }) {
           {
             title: "Project Reports",
             base: "project-reports",
-            children: ["Project Summary", "Project Document Register"],
+            children: ["Project Summary", "Project Document Register", "Total Tentants"],
           },
           {
             title: "Document Reports",

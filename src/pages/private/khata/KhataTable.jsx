@@ -46,8 +46,9 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                 <th>Khata No.</th>
                 <th>Khata Type</th>
                 <th>Unique ID</th>
+                 <th>Plot Count</th>
                 <th>Created</th>
-                <th className="text-right pr-6">Actions</th>
+                <th className="text-right pr-6 no-print">Actions</th>
               </tr>
             </thead>
 
@@ -61,10 +62,11 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                     <td>{khata.khata_no}</td>
                     <td>{getTypeName(khata.type)}</td>
                     <td>{khata.unique_id}</td>
+                    <td>{khata.plot_count || "No Plots"}</td>
                     <td className="text-gray-500">
                       {moment(khata.created_at).format("DD-MM-YYYY")}
                     </td>
-                    <td className="text-right">
+                    <td className="text-right no-print">
                       <div className="flex space-x-2 justify-end">
 
                         {/* View Plots */}

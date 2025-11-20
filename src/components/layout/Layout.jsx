@@ -14,7 +14,7 @@ export default function Layout() {
     "/villages": "Villages",
     "/plots": "Plots",
     "/usersmanagement": "UsersManagement",
-    "/import": "Import/Export",
+    "/import": "Import Plots",
     "/reoprts": "Reports",
     "/profile": "Profile",
     "/changepassword": "Change Password",

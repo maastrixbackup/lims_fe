@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Pencil, Trash2, X, Filter } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
+  const { landType } = useParams();
+  console.log("landType***************", landType)
+  const typeParam =useLandTypeParam();
   // Filter States
   const [selectedVillage, setSelectedVillage] = useState("");
   const [selectedKhata, setSelectedKhata] = useState("");
@@ -74,7 +78,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         No plots found. Click{" "}
         <span
           className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200"
-          onClick={() => navigate("/plot-form")}
+          onClick={() => navigate(`/${landType}/plot-form`)}
         >
           + Add Plot
         </span>{" "}
@@ -107,7 +111,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
             : ""
         }`}
-        onClick={() => navigate("/plot-form", { state: { plot } })}
+        onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
         disabled={isRestricted}
       >
         <Pencil size={12} /> Edit
@@ -126,10 +130,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     </div>
   );
 
-  // Common row class
   const rowClass = "hover:bg-gray-50 transition-colors";
 
-  // Common header cell style (sticky actions)
   const stickyActionHeader =
     "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
 
@@ -140,7 +142,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     <div className="space-y-10">
       <div className="rounded-xl p-4 mb-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
-          {/* 🌾 Village Filter */}
+   
           <div className="flex flex-col">
             <label className="text-xs font-medium text-gray-600 mb-1">
               Village
@@ -159,7 +161,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </select>
           </div>
 
-          {/* 📜 Khata Filter */}
           <div className="flex flex-col">
             <label className="text-xs font-medium text-gray-600 mb-1">
               Khata No.
@@ -178,7 +179,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </select>
           </div>
 
-          {/* 🔍 Search Box */}
           <div className="flex flex-col">
             <label className="text-xs font-medium text-gray-600 mb-1">
               Search
@@ -201,7 +201,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </div>
           </div>
 
-          {/* 📊 Summary */}
           <div className="ml-auto flex items-center gap-2 bg-indigo-100 px-3 py-2 rounded-lg text-sm text-indigo-700 font-medium shadow-inner">
             <Filter size={16} />
             Showing{" "}
@@ -212,7 +211,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </div>
         </div>
       </div>
-      {/* Basic Details */}
+
       <TableWrapper title="Basic Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
@@ -225,6 +224,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Date of Award</th>
             <th className="p-3 text-left">Recorded Tenant</th>
             <th className="p-3 text-left">Present Tenant</th>
+            <th className="p-3 text-left">Number Of Present Tenant</th>
             <th className="p-3 text-left">Present Address</th>
             <th className="p-3 text-left">Displaced/Affected</th>
             <th className="p-3 text-left">Village</th>
@@ -248,6 +248,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{formatDate(plot.date_of_award)}</td>
               <td className="p-3">{plot.name_of_recorded_tenant || "N/A"}</td>
               <td className="p-3">{plot.name_of_present_tenant || "N/A"}</td>
+               <td className="p-3">{plot.number_of_present_tenant || "N/A"}</td>
               <td className="p-3">{plot.present_address || "N/A"}</td>
               <td className="p-3">{plot.displaced_affected_person || "N/A"}</td>
               <td className="p-3">{plot.village_name || "N/A"}</td>
@@ -260,7 +261,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           ))}
         </tbody>
       </TableWrapper>
-      {/* Bank & Personal Details */}
+    
       <TableWrapper title="Bank & Personal Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
@@ -308,7 +309,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           ))}
         </tbody>
       </TableWrapper>
-      {/*  Land Details */}
       <TableWrapper title="Land and Valuation Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
           <tr>
@@ -399,7 +399,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           ))}
         </tbody>
       </TableWrapper>
-      {/*  RR Details */}
       <TableWrapper title="RR Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
@@ -459,7 +458,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           ))}
         </tbody>
       </TableWrapper>
-      {/* Grievance & Tribunal Details */}
       <TableWrapper title="Grievance & Tribunal Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
           <tr>
@@ -514,7 +512,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           ))}
         </tbody>
       </TableWrapper>
-      {/*  Family Details */}
       <TableWrapper title="Family Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>

@@ -9,9 +9,11 @@ import RecentActivity from "../components/dashboard/RecentActivity";
 import ProgressOverview from "../components/dashboard/ProgressOverview";
 import Loader from "../shared/Loader";
 import useFetchDashboard from "../hooks/useFetchDashboard";
+import { useNavigate} from "react-router-dom";
 
 export default function Dashboard() {
   const { data, loading, error } = useFetchDashboard();
+  const navigate= useNavigate()
 
   if (loading) {
     return <Loader />;
@@ -32,6 +34,7 @@ export default function Dashboard() {
           title="Projects"
           value={data ? data.projects : "N/A"}
           gradient="bg-gradient-to-r from-indigo-500 to-purple-600"
+            onClick={() => navigate("/projects")}
         />
         <StatsCard
           title="Villages"

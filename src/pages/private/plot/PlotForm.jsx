@@ -11,9 +11,10 @@ const PlotForm = ({ fetchPlots }) => {
   const location = useLocation();
 
   const token = useSelector((s) => s.auth.userToken);
+    const selectedProject = useSelector((s) => s.selectedProject.project);
   const editingPlot = location.state?.plot || null;
 
-  const { projects, villages } = useSelector((s) => s.list);
+  const { villages } = useSelector((s) => s.list);
   const { landType } = useParams();
   const typeParam = useLandTypeParam();
   // console.log("LAND TYPE:", landType, " → type =", typeParam);
@@ -23,7 +24,7 @@ const PlotForm = ({ fetchPlots }) => {
     ...Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""])),
   }));
 
-  const [selectedProject, setSelectedProject] = useState("");
+  // const [selectedProject, setSelectedProject] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -137,6 +138,7 @@ const PlotForm = ({ fetchPlots }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {editingPlot ? "Edit Plot" : "Add New Plot"}
+             {/* for {landType?.replace("-", " ")} */}
           </h2>
 
           <button
@@ -149,22 +151,16 @@ const PlotForm = ({ fetchPlots }) => {
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="font-semibold text-sm mb-1 block">
-              Project <span className="text-red-500">*</span>
-            </label>
-            <select
-              className="select select-bordered w-full"
-              required
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-            >
-              <option value="">Select Project</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+        <label>Project Name</label>
+            <input
+              // disabled
+              className="input input-bordered w-full bg-gray-100"
+              value={
+                selectedProject
+                  ? selectedProject.project_name || selectedProject.name
+                  : "Select Project"
+              }
+            />
           </div>
 
           <div>

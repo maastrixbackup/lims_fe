@@ -14,10 +14,9 @@ const UploadPlots = () => {
   const [success, setSuccess] = useState(false);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [plotDocs, setPlotDocs] = useState([]);
-  const [selectedProject, setSelectedProject] = useState("");
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+  const projectId = selectedProject?.id;
   const [selectedType, setSelectedType] = useState("");
-
-  const { projects } = useSelector((s) => s.list);
   const token = useSelector((state) => state.auth.userToken);
 
   const fetchPlotDocuments = async () => {
@@ -91,7 +90,7 @@ const UploadPlots = () => {
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("project_id", String(selectedProject));
+      formData.append("project_id", projectId);
       formData.append("type", String(selectedType));
 
       const response = await fetch(`${API_BASE_URL}/plots/upload`, {
@@ -102,11 +101,13 @@ const UploadPlots = () => {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "File upload failed");
-
       setSuccess(true);
       setFile(null);
       setPlots([]);
       fetchPlotDocuments();
+      setTimeout(() => {
+        setSuccess(false);
+      }, 1000);
     } catch (err) {
       console.error("Upload error:", err);
       setError(err.message || "Upload failed. Please try again.");
@@ -123,41 +124,35 @@ const UploadPlots = () => {
 
   return (
     <main className="p-6 space-y-8">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
+      <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <input
+          className="input file-input w-full mt-1 "
+          value={
+            selectedProject
+              ? selectedProject.project_name || selectedProject.name
+              : "Select Project"
+          }
+        />
         <select
-          className="select select-bordered w-full md:w-1/3"
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          <option value="">Select Project</option>
-          {projects.map((proj) => (
-            <option key={proj.id} value={proj.id}>
-              {proj.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="select select-bordered w-full md:w-1/4"
+          className="select select-bordered w-full mt-1"
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
         >
-          <option value="">Select Type</option> 
+          <option value="">Select Type</option>
           <option value="1">Pvt Land</option>
           <option value="2">Govt Land</option>
           <option value="3">Forest Land</option>
         </select>
-
         <input
           type="file"
           accept=".csv, .xlsx, .xls"
           disabled={!isUploadEnabled}
           onChange={handleFileUpload}
-          className={`file-input w-full md:w-auto transition-all duration-300 ${
+          className={`file-input w-full mt-1 ${
             !isUploadEnabled
-              ? "bg-gray-200 border-gray-400 text-gray-600 cursor-not-allowed"
-              : "file-input-bordered file-input-primary bg-white text-gray-900"
+              ? "bg-gray-200 cursor-not-allowed"
+              : "file-input-bordered file-input-primary"
           }`}
           title={
             !isUploadEnabled
@@ -165,26 +160,21 @@ const UploadPlots = () => {
               : "Choose CSV or Excel file"
           }
         />
+        <button
+          onClick={handleUploadToAPI}
+          disabled={!file || uploading}
+          className="btn btn-primary w-full mt-1"
+        >
+          {uploading ? "Uploading..." : "Upload Now"}
+        </button>
+
+        {error && <p className="text-red-500">{error}</p>}
+        {success && (
+          <p className="text-green-600 font-medium">
+            Plots uploaded successfully!
+          </p>
+        )}
       </div>
-
-      {error && <p className="text-red-500">{error}</p>}
-      {success && (
-        <p className="text-green-600 font-medium">
-          Plots uploaded successfully!
-        </p>
-      )}
-
-      {file && (
-        <div className="flex justify-end">
-          <button
-            onClick={handleUploadToAPI}
-            disabled={uploading}
-            className="btn btn-primary"
-          >
-            {uploading ? "Uploading..." : "Upload Now"}
-          </button>
-        </div>
-      )}
 
       {plots.length > 0 && (
         <div className="overflow-auto max-h-[400px] border rounded-md">

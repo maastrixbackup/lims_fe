@@ -1,6 +1,7 @@
-export default function StatsCard({ title, value, gradient }) {
+export default function StatsCard({ title, value, gradient,onClick }) {
   return (
     <div
+    onClick={onClick} 
       className={`
         p-6 rounded-xl text-white ${gradient} shadow-md
         transform transition-all duration-300 ease-in-out

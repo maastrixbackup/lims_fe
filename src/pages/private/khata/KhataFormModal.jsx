@@ -96,7 +96,6 @@ const KhataFormModal = ({
 
       await fetchKhatas();
 
-      // Toast
       const toast = document.createElement("div");
       toast.textContent = khata
         ? "Khata updated successfully!"
@@ -133,7 +132,6 @@ const KhataFormModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* ⭐ PROJECT NAME (Read Only - Auto from Redux) */}
           <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <input
@@ -146,8 +144,6 @@ const KhataFormModal = ({
               }
               // disabled
             />
-
-            {/* hidden actual project_id */}
             <input type="hidden" name="project_id" value={formData.project_id} />
           </div>
 

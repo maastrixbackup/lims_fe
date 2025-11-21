@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Pencil, Trash2, X, Filter } from "lucide-react";
+import { Pencil, Trash2, X, Filter, HandCoins } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../../../utils/landtypes";
@@ -105,6 +105,17 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   const ActionButtons = (plot) => (
     <div className="flex justify-end gap-2">
+         <button
+          className={`btn btn-xs btn-success hover:bg-green-700 text-white flex items-center gap-1 px-3 ${
+        isRestricted
+          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+          : ""
+      }`}
+        onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
+        disabled={isRestricted}
+      >
+        <HandCoins size={12} /> Ready For Payment
+      </button>
       <button
         className={`btn btn-xs btn-warning text-white ${
           isRestricted

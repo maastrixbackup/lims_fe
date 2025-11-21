@@ -13,6 +13,8 @@ import PlotDetails from "./pages/reports/PlotDetails";
 import PlotOwnershipHistory from "./pages/reports/PlotOwnershipHistory";
 import DocumentUploadReport from "./pages/reports/DocumentUploadReport";
 import MissingDocument from "./pages/reports/MissingDocument";
+import TotalTentants from "./pages/reports/TotalTentants";
+import ReadyToPayment from "./pages/payment/ReadyToPayment";
 
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const Unauthorized = lazy(() => import("./pages/Unathorize"));
@@ -123,6 +125,10 @@ export default function App() {
                   path="reports/project-reports/project-document-register"
                   element={<ProjectDocumentRegister />}
                 />
+                 <Route
+                  path="reports/project-reports/total-tentants"
+                  element={<TotalTentants/>}
+                />
                 <Route
                   path="reports/maps-reports/kmz-availability"
                   element={<KMZAvailability />}
@@ -151,6 +157,7 @@ export default function App() {
                 <Route path="/logs" element={<Logs />} />
                 <Route path="/project-table" element={<ProjectTable />} />
                 <Route path="/deletedrecords" element={<DeletedRecords />} />
+                <Route path="/payment/ready-to-payment" element={<ReadyToPayment />} />
               </Route>
             </Route>
 

@@ -54,7 +54,7 @@ const fetchKhatas = async () => {
     const data = await api(
       `/khata/khataList?project_id=${filterProject}&village_id=${filterVillage}&type=${typeParam}`
     );
-
+  console.log("khata list", data)
     if (data.success) {
       setKhatas(data.khatas || []);
     } else {

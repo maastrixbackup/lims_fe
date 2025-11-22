@@ -15,9 +15,9 @@ export default function PieChartCard() {
   console.log('piechart dataaaa', landObj)
 
   const lands = [
-    { name: "Govt Land", value: Number(landObj.govt_land || 0) },
-    { name: "Pvt Land", value: Number(landObj.pvt_land || 0) },
-    { name: "Forest Land", value: Number(landObj.forest_land || 0) },
+    { name: "Govt Land", value: Number(landObj.govt_land || 1) },
+    { name: "Pvt Land", value: Number(landObj.pvt_land || 2) },
+    { name: "Forest Land", value: Number(landObj.forest_land || 3) },
   ];
 
   return (

@@ -34,7 +34,7 @@ const PlotForm = ({ fetchPlots }) => {
         ...editingPlot,
         type: editingPlot.type || typeParam,
       });
-      setSelectedProject(editingPlot.project_id || "");
+      // setSelectedProject(editingPlot.project_id || "");
     }
   }, [editingPlot]);
 
@@ -97,7 +97,7 @@ const PlotForm = ({ fetchPlots }) => {
       const payload = {
         ...formData,
         type: typeParam,
-        project_id: selectedProject,
+        project_id: selectedProject?.id || selectedProject,
       };
 
       const url = editingPlot

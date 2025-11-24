@@ -21,9 +21,9 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
   const getTypeName = (type) => {
     switch (Number(type)) {
       case 1:
-        return "Pvt Land";
+        return "Private Land";
       case 2:
-        return "Govt Land";
+        return "Government Land";
       case 3:
         return "Forest Land";
       default:

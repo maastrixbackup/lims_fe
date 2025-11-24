@@ -10,19 +10,24 @@ import VillageFormModal from "./VillageFormModal";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import ExportButtons from "../../../shared/ExportButtons";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
   const { projects } = useSelector((s) => s.list);
   const role = user?.role_name;
   const isRestricted = role === "Data Entry User" || role === "Viewer";
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const [villages, setVillages] = useState([]);
   const [filter, setFilter] = useState({
     project_id: "",
-    district: "",
-    tahasil: "",
+    districts: [],
+    tahasils: [],
+    villageNames: [],
   });
+  const tahasils = [...new Set(villages.map((v) => v.tahasil).filter(Boolean))];
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVillage, setEditingVillage] = useState(null);
   const [deleteVillage, setDeleteVillage] = useState(null);
@@ -114,15 +119,24 @@ const Villages = () => {
 
   const filteredVillages = villages.filter((v) => {
     const matchDistrict =
-      !filter.district ||
-      (v.district || "").toLowerCase() === filter.district.toLowerCase();
+      filter.districts.length === 0 || filter.districts.includes(v.district);
+
     const matchTahasil =
-      !filter.tahasil ||
-      (v.tahasil || "").toLowerCase().includes(filter.tahasil.toLowerCase());
+      filter.tahasils.length === 0 || filter.tahasils.includes(v.tahasil);
+
+    const matchVillage =
+      filter.villageNames.length === 0 ||
+      filter.villageNames.includes(v.village_name);
+
     const matchProject =
       !filter.project_id || Number(v.project_id) === Number(filter.project_id);
-    return matchDistrict && matchTahasil && matchProject;
+
+    return matchDistrict && matchTahasil && matchVillage && matchProject;
   });
+
+  const projectFilteredData = selectedProject
+    ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
+    : filteredVillages;
 
   return (
     <div className="card bg-white shadow-lg rounded-2xl overflow-hidden p-4">
@@ -136,29 +150,45 @@ const Villages = () => {
             <h2 className="text-lg font-semibold capitalize">
               {landType?.replace("-", " ") || "Private"} Villages
             </h2>
-            <button
-              className={`btn btn-primary text-white ${
-                isRestricted
-                  ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                  : ""
-              }`}
-              onClick={() => openModal()}
-              disabled={isRestricted}
-            >
-              + Add Village
-            </button>
+            <div className="flex items-center gap-3">
+              <ExportButtons
+                data={projectFilteredData}
+                fileName="villages"
+                columns={[
+                  { label: "ID", key: "id" },
+                  { label: "Project Name", key: "project_name" },
+                  { label: "Village", key: "village_name" },
+                  { label: "District", key: "district" },
+                  { label: "Tahasil", key: "tahasil" },
+                  { label: "Type", key: "type" },
+                  { label: "Village Code", key: "village_code" },
+                ]}
+              />
+
+              <button
+                className={`btn btn-primary text-white shadow-md ${
+                  isRestricted
+                    ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                    : ""
+                }`}
+                onClick={() => openModal()}
+                disabled={isRestricted}
+              >
+                + Add Village
+              </button>
+            </div>
           </header>
 
           <VillageFilter
             filter={filter}
             setFilter={setFilter}
-            projects={projects}
             odishaDistricts={odishaDistricts}
-            role={role}
+            tahasils={tahasils}
+            villages={villages}
           />
 
           <motion.div
-            key={landType} 
+            key={landType}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

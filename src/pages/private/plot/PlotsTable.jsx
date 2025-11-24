@@ -3,12 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Pencil, Trash2, X, Filter, HandCoins } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { useLandTypeParam } from "../../../utils/landtypes";
+import { API_BASE_URL } from "../../../utils/config";
+// import { useLandTypeParam } from "../../../utils/landtypes";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
   const { landType } = useParams();
-  console.log("landType***************", landType)
-  const typeParam =useLandTypeParam();
+  console.log("landType***************", landType);
+  // const typeParam = useLandTypeParam();
   // Filter States
   const [selectedVillage, setSelectedVillage] = useState("");
   const [selectedKhata, setSelectedKhata] = useState("");
@@ -17,6 +18,49 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const role = user?.role_name;
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
+  const token = useSelector((state) => state.auth.userToken);
+  console.log("tokennnn", token);
+  const [paymentStatusMap, setPaymentStatusMap] = useState({});
+  const [loadingPlotId, setLoadingPlotId] = useState(null);
+
+  const handlePaymentReady = async (plot) => {
+    if (isRestricted) return;
+
+    setLoadingPlotId(plot.id);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ plot_id: plot.id }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        window.toast?.success(data.message || "Payment processed successfully");
+
+        // Update local status map
+        setPaymentStatusMap((prev) => ({
+          ...prev,
+          [plot.id]: "success",
+        }));
+        navigate(`/${landType}/compensation`, { state: { plot } });
+
+        setTimeout(() => refreshPlots && refreshPlots(), 1000);
+      } else {
+        window.toast?.error(data.message || "Payment request failed");
+      }
+    } catch (error) {
+      console.error("Payment API error:", error);
+      window.toast?.error("Network error, please try again");
+    }
+
+    setLoadingPlotId(null);
+  };
 
   const sortedPlots = useMemo(() => {
     if (!plots || plots.length === 0) return [];
@@ -39,9 +83,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return [...uniqueVillages];
   }, [projectFilteredPlots]);
 
-  // const display
-
-  //  filter options
   const khataOptions = useMemo(() => {
     const uniqueKhata = new Set(
       projectFilteredPlots.map((p) => p.khata_no).filter(Boolean)
@@ -49,7 +90,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return [...uniqueKhata];
   }, [projectFilteredPlots]);
 
-  // Apply filters and search
   const filteredPlots = useMemo(() => {
     return projectFilteredPlots.filter((plot) => {
       const matchVillage =
@@ -105,17 +145,34 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   const ActionButtons = (plot) => (
     <div className="flex justify-end gap-2">
-         <button
-          className={`btn btn-xs btn-success hover:bg-green-700 text-white flex items-center gap-1 px-3 ${
-        isRestricted
-          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-          : ""
-      }`}
-        onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
-        disabled={isRestricted}
+      {/* <button
+        className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+          isRestricted || loadingPlotId === plot.id
+            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+            : "hover:bg-green-700"
+        }`}
+        onClick={() => handlePaymentReady(plot)}
+        disabled={
+          isRestricted ||
+          loadingPlotId === plot.id ||
+          paymentStatusMap[plot.id] === "success"
+        }
       >
-        <HandCoins size={12} /> Ready For Payment
-      </button>
+        {loadingPlotId === plot.id ? (
+          <span className="loading loading-spinner loading-xs"></span>
+        ) : (
+          <HandCoins size={12} />
+        )}
+
+        {loadingPlotId === plot.id
+          ? "Processing..."
+          : paymentStatusMap[plot.id] === "success"
+          ? "Success"
+          : plot.payment_status === null
+          ? "Ready For Payment"
+          : "Processing"}
+      </button> */}
+
       <button
         className={`btn btn-xs btn-warning text-white ${
           isRestricted
@@ -153,7 +210,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     <div className="space-y-10">
       <div className="rounded-xl p-4 mb-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
-   
           <div className="flex flex-col">
             <label className="text-xs font-medium text-gray-600 mb-1">
               Village
@@ -242,6 +298,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Tahasil</th>
             <th className="p-3 text-left">RI Circle</th>
             <th className="p-3 text-left">Thana No</th>
+            <th className="p-3 text-left">Payment Status</th>
 
             <th className={stickyActionHeader}>Actions</th>
           </tr>
@@ -259,20 +316,49 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{formatDate(plot.date_of_award)}</td>
               <td className="p-3">{plot.name_of_recorded_tenant || "N/A"}</td>
               <td className="p-3">{plot.name_of_present_tenant || "N/A"}</td>
-               <td className="p-3">{plot.number_of_present_tenant || "N/A"}</td>
+              <td className="p-3">{plot.number_of_present_tenant || "N/A"}</td>
               <td className="p-3">{plot.present_address || "N/A"}</td>
               <td className="p-3">{plot.displaced_affected_person || "N/A"}</td>
               <td className="p-3">{plot.village_name || "N/A"}</td>
               <td className="p-3">{plot.tahasil_name || "N/A"}</td>
               <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
               <td className="p-3">{plot.thana_no || "N/A"}</td>
+              <td className="p-3">
+                <button
+                  className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    isRestricted || loadingPlotId === plot.id
+                      ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
+                  onClick={() => handlePaymentReady(plot)}
+                  disabled={
+                    isRestricted ||
+                    loadingPlotId === plot.id ||
+                    paymentStatusMap[plot.id] === "success"
+                  }
+                >
+                  {loadingPlotId === plot.id ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <HandCoins size={12} />
+                  )}
+
+                  {loadingPlotId === plot.id
+                    ? "Processing..."
+                    : paymentStatusMap[plot.id] === "success"
+                    ? "Success"
+                    : plot.payment_status === null
+                    ? "Ready For Payment"
+                    : "Processing..."}
+                </button>
+              </td>
 
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}
         </tbody>
       </TableWrapper>
-    
+
       <TableWrapper title="Bank & Personal Details">
         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
           <tr>
@@ -292,6 +378,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Annual Income (₹)</th>
             <th className="p-3 text-left">Skill Acquired</th>
             <th className="p-3 text-left">Affidavit Details</th>
+             <th className="p-3 text-left">Payment Status</th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -315,6 +402,35 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.annual_income || "N/A"}</td>
               <td className="p-3">{plot.skill_acquired || "N/A"}</td>
               <td className="p-3">{plot.affidavit_details || "N/A"}</td>
+                 <td className="p-3">
+                <button
+                  className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    isRestricted || loadingPlotId === plot.id
+                      ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
+                  onClick={() => handlePaymentReady(plot)}
+                  disabled={
+                    isRestricted ||
+                    loadingPlotId === plot.id ||
+                    paymentStatusMap[plot.id] === "success"
+                  }
+                >
+                  {loadingPlotId === plot.id ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <HandCoins size={12} />
+                  )}
+
+                  {loadingPlotId === plot.id
+                    ? "Processing..."
+                    : paymentStatusMap[plot.id] === "success"
+                    ? "Success"
+                    : plot.payment_status === null
+                    ? "Ready For Payment"
+                    : "Processing..."}
+                </button>
+              </td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}
@@ -356,6 +472,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Priority / Urgency</th>
             <th className="p-3 text-left">Land Use Plan</th>
             <th className="p-3 text-left">LA21 Remarks</th>
+             <th className="p-3 text-left">Payment Status</th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -405,6 +522,35 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.priority_urgency || "N/A"}</td>
               <td className="p-3">{plot.land_use_plan || "N/A"}</td>
               <td className="p-3">{plot.la21_remarks || "N/A"}</td>
+                 <td className="p-3">
+                <button
+                  className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    isRestricted || loadingPlotId === plot.id
+                      ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
+                  onClick={() => handlePaymentReady(plot)}
+                  disabled={
+                    isRestricted ||
+                    loadingPlotId === plot.id ||
+                    paymentStatusMap[plot.id] === "success"
+                  }
+                >
+                  {loadingPlotId === plot.id ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <HandCoins size={12} />
+                  )}
+
+                  {loadingPlotId === plot.id
+                    ? "Processing..."
+                    : paymentStatusMap[plot.id] === "success"
+                    ? "Success"
+                    : plot.payment_status === null
+                    ? "Ready For Payment"
+                    : "Processing..."}
+                </button>
+              </td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}
@@ -432,6 +578,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </th>
             <th className="p-3 text-left">RR Ex-Gratia</th>
             <th className="p-3 text-left">RR Other Benefits</th>
+            <th className="p-3 text-left">Payment Status</th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -464,6 +611,35 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </td>
               <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
               <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
+                 <td className="p-3">
+                <button
+                  className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    isRestricted || loadingPlotId === plot.id
+                      ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
+                  onClick={() => handlePaymentReady(plot)}
+                  disabled={
+                    isRestricted ||
+                    loadingPlotId === plot.id ||
+                    paymentStatusMap[plot.id] === "success"
+                  }
+                >
+                  {loadingPlotId === plot.id ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <HandCoins size={12} />
+                  )}
+
+                  {loadingPlotId === plot.id
+                    ? "Processing..."
+                    : paymentStatusMap[plot.id] === "success"
+                    ? "Success"
+                    : plot.payment_status === null
+                    ? "Ready For Payment"
+                    : "Processing..."}
+                </button>
+              </td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}
@@ -488,6 +664,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Incidental Charges (₹)</th>
             <th className="p-3 text-left">Total (₹)</th>
             <th className="p-3 text-left">Abatement</th>
+            <th className="p-3 text-left">Payment Status</th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -518,6 +695,35 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
               <td className="p-3">{plot.total ?? "N/A"}</td>
               <td className="p-3">{plot.abatement || "N/A"}</td>
+                 <td className="p-3">
+                <button
+                  className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    isRestricted || loadingPlotId === plot.id
+                      ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
+                  onClick={() => handlePaymentReady(plot)}
+                  disabled={
+                    isRestricted ||
+                    loadingPlotId === plot.id ||
+                    paymentStatusMap[plot.id] === "success"
+                  }
+                >
+                  {loadingPlotId === plot.id ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <HandCoins size={12} />
+                  )}
+
+                  {loadingPlotId === plot.id
+                    ? "Processing..."
+                    : paymentStatusMap[plot.id] === "success"
+                    ? "Success"
+                    : plot.payment_status === null
+                    ? "Ready For Payment"
+                    : "Processing..."}
+                </button>
+              </td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>
           ))}
@@ -537,6 +743,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Minor Transgender</th>
             <th className="p-3 text-left">PwD Members</th>
             <th className="p-3 text-left">Orphan Members</th>
+            <th className="p-3 text-left">Payment Status</th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -555,6 +762,35 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.persons_with_disability ?? "N/A"}</td>
               <td className="p-3">
                 {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
+              </td>
+                 <td className="p-3">
+                <button
+                  className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    isRestricted || loadingPlotId === plot.id
+                      ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                      : "hover:bg-green-700"
+                  }`}
+                  onClick={() => handlePaymentReady(plot)}
+                  disabled={
+                    isRestricted ||
+                    loadingPlotId === plot.id ||
+                    paymentStatusMap[plot.id] === "success"
+                  }
+                >
+                  {loadingPlotId === plot.id ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <HandCoins size={12} />
+                  )}
+
+                  {loadingPlotId === plot.id
+                    ? "Processing..."
+                    : paymentStatusMap[plot.id] === "success"
+                    ? "Success"
+                    : plot.payment_status === null
+                    ? "Ready For Payment"
+                    : "Processing..."}
+                </button>
               </td>
               <td className={stickyActionCell}>{ActionButtons(plot)}</td>
             </tr>

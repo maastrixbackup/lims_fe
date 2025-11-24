@@ -129,53 +129,52 @@ export default function Khata() {
                     : ""
                 }`}
                 onClick={handlers.openAddModal}
-                disabled={userRole === "Data Entry User" || userRole === "Viewer"}
+                disabled={
+                  userRole === "Data Entry User" || userRole === "Viewer"
+                }
               >
                 + Add Khata
               </button>
             </div>
           </div>
-
-          {/* Checkbox Dropdown */}
-          <div className="relative w-64 print:hidden">
-            <button
-              className="w-full border rounded-lg p-2 flex justify-between items-center bg-white shadow-sm"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+          <div className="dropdown print:hidden ">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn w-64 justify-between border border-gray-300"
             >
-              <span className="text-sm text-gray-700">
-                Select Villages
-                {/* {filterVillages.length === 0
-                  ? "Select Villages"
-                  : `${filterVillages.length} selected`} */}
-              </span>
-              <ChevronDown />
-            </button>
+              {filterVillages.length > 0
+                ? `${filterVillages.length} selected`
+                : "Select Villages"}
+            </div>
 
-            {dropdownOpen && (
-              <div className="absolute z-20 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-64 overflow-auto">
-                <div className="p-2 border-b">
-                  <button
-                    className="text-blue-600 text-sm"
-                    onClick={() => setFilterVillages([])}
-                  >
-                    Clear All
-                  </button>
-                </div>
-                {villages.map((v) => (
-                  <label
-                    key={v}
-                    className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer"
-                  >
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu bg-base-100 rounded-box w-64 p-2 shadow max-h-64 overflow-auto"
+            >
+              <li>
+                <button
+                  className="text-blue-600"
+                  onClick={() => setFilterVillages([])}
+                >
+                  Clear All
+                </button>
+              </li>
+
+              {villages.map((v) => (
+                <li key={v}>
+                  <label className="label cursor-pointer justify-start gap-2">
                     <input
                       type="checkbox"
+                      className="checkbox checkbox-sm"
                       checked={filterVillages.includes(v)}
                       onChange={() => toggleVillage(v)}
                     />
                     <span>{v}</span>
                   </label>
-                ))}
-              </div>
-            )}
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div id="khataTablePrint">
@@ -190,10 +189,24 @@ export default function Khata() {
         </>
       )}
 
-      {modals.isFormOpen && <KhataFormModal {...modals.formProps} onClose={handlers.closeForm} />}
-      {modals.isDeleteOpen && <DeleteConfirmModal {...modals.deleteProps} onCancel={handlers.closeDeleteModal} />}
-      {modals.isUploadOpen && <UploadModal {...modals.uploadProps} onClose={handlers.closeUploadModal} />}
-      {modals.isMapOpen && <MapModal {...modals.mapProps} onClose={handlers.closeMapModal} />}
+      {modals.isFormOpen && (
+        <KhataFormModal {...modals.formProps} onClose={handlers.closeForm} />
+      )}
+      {modals.isDeleteOpen && (
+        <DeleteConfirmModal
+          {...modals.deleteProps}
+          onCancel={handlers.closeDeleteModal}
+        />
+      )}
+      {modals.isUploadOpen && (
+        <UploadModal
+          {...modals.uploadProps}
+          onClose={handlers.closeUploadModal}
+        />
+      )}
+      {modals.isMapOpen && (
+        <MapModal {...modals.mapProps} onClose={handlers.closeMapModal} />
+      )}
     </div>
   );
 }

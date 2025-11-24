@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import ExportButtons from "../../../shared/ExportButtons";
+import {columns} from "../../../utils/constants"
 
 const Plots = () => {
   const { landType } = useParams();
@@ -94,18 +96,25 @@ const Plots = () => {
         <h2 className="text-lg font-semibold capitalize">
           {landType?.replace("-", " ") || "Private"} Plots
         </h2>
+        <div className="flex items-center gap-3">
+        <ExportButtons
+        data={plots}
+  fileName="Plots"
+columns={columns}
+/>
 
-        <button
-          className={`btn btn-primary text-white ${
-            isRestricted
-              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-              : ""
-          }`}
-          disabled={isRestricted}
-          onClick={() => navigate(`/${landType}/plot-form`)}
-        >
-          + Add Plot
-        </button>
+          <button
+            className={`btn btn-primary text-white ${
+              isRestricted
+                ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                : ""
+            }`}
+            disabled={isRestricted}
+            onClick={() => navigate(`/${landType}/plot-form`)}
+          >
+            + Add Plot
+          </button>
+        </div>
       </div>
 
       {!projectId ? (

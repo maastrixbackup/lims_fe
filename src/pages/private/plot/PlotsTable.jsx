@@ -8,7 +8,7 @@ import { API_BASE_URL } from "../../../utils/config";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
   const { landType } = useParams();
-  console.log("landType***************", landType);
+  // console.log("landType***************", landType);
   // const typeParam = useLandTypeParam();
   // Filter States
   const [selectedVillage, setSelectedVillage] = useState("");
@@ -19,7 +19,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const token = useSelector((state) => state.auth.userToken);
-  console.log("tokennnn", token);
+  // console.log("tokennnn", token);
   const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [loadingPlotId, setLoadingPlotId] = useState(null);
 

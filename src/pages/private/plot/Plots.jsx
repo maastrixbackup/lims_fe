@@ -44,7 +44,7 @@ const Plots = () => {
       );
 
       const data = await res.json();
-      console.log("Plot Data Response:", data);
+      // console.log("Plot Data Response:", data);
 
       if (data.success) {
         setPlots(data.plots || []);

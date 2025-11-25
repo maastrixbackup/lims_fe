@@ -5,7 +5,16 @@ import moment from "moment";
 import PlotListModal from "./PlotListModal";
 import { setSelectedKhataId } from "../../../utils/khataSlice";
 
-const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
+const KhataTable = ({
+  khatas,
+  page,
+  totalPages,
+  setPage,
+  onEdit,
+  onDelete,
+  onUpload,
+  onMap,
+}) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
@@ -13,7 +22,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
 
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
 
-  // Filter khatas by project
+  // Filter by selected project
   const displayKhatas = selectedProject
     ? khatas.filter((k) => k.project_id === selectedProject.id)
     : khatas;
@@ -46,7 +55,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                 <th>Khata No.</th>
                 <th>Khata Type</th>
                 <th>Unique ID</th>
-                 <th>Plot Count</th>
+                <th>Plot Count</th>
                 <th>Created</th>
                 <th className="text-right pr-6 no-print">Actions</th>
               </tr>
@@ -55,8 +64,11 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
             <tbody>
               {displayKhatas.length > 0 ? (
                 displayKhatas.map((khata, idx) => (
-                  <tr key={khata.id || idx} className="hover:bg-gray-50 transition-colors whitespace-nowrap">
-                    <td>{idx + 1}</td>
+                  <tr
+                    key={khata.id}
+                    className="hover:bg-gray-50 transition-colors whitespace-nowrap"
+                  >
+                    <td>{(page - 1) * 10 + idx + 1}</td>
                     <td>{khata.project_name}</td>
                     <td>{khata.village_name}</td>
                     <td>{khata.khata_no}</td>
@@ -66,10 +78,9 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                     <td className="text-gray-500">
                       {moment(khata.created_at).format("DD-MM-YYYY")}
                     </td>
+
                     <td className="text-right no-print">
                       <div className="flex space-x-2 justify-end">
-
-                        {/* View Plots */}
                         <button
                           className={`btn btn-xs btn-accent text-white ${
                             isRestricted
@@ -85,10 +96,11 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                           <LandPlot size={14} /> View Plots
                         </button>
 
-                        {/* Edit */}
                         <button
                           className={`btn btn-xs btn-warning text-white ${
-                            userRole === "Viewer" ? "!bg-gray-300 !text-gray-400" : ""
+                            userRole === "Viewer"
+                              ? "!bg-gray-300 !text-gray-400"
+                              : ""
                           }`}
                           onClick={() => onEdit(khata)}
                           disabled={userRole === "Viewer"}
@@ -96,10 +108,11 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                           <Pencil size={14} /> Edit
                         </button>
 
-                        {/* Upload */}
                         <button
                           className={`btn btn-xs btn-info text-white ${
-                            userRole === "Viewer" ? "!bg-gray-300 !text-gray-400" : ""
+                            userRole === "Viewer"
+                              ? "!bg-gray-300 !text-gray-400"
+                              : ""
                           }`}
                           onClick={() => onUpload(khata)}
                           disabled={userRole === "Viewer"}
@@ -107,7 +120,6 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                           <Upload size={14} /> Upload
                         </button>
 
-                        {/* Map */}
                         <button
                           className="btn btn-xs btn-success text-white"
                           onClick={() => onMap(khata)}
@@ -115,10 +127,11 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                           <MapIcon size={14} /> Maps
                         </button>
 
-                        {/* Delete */}
                         <button
                           className={`btn btn-xs btn-error text-white ${
-                            isRestricted ? "!bg-gray-300 !text-gray-400" : ""
+                            isRestricted
+                              ? "!bg-gray-300 !text-gray-400"
+                              : ""
                           }`}
                           onClick={() => onDelete(khata)}
                           disabled={isRestricted}
@@ -131,7 +144,7 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
                     <p className="text-md font-medium text-gray-500">
                       No Khata found for the{" "}
                       <span className="text-primary font-semibold">
@@ -148,6 +161,31 @@ const KhataTable = ({ khatas, onEdit, onDelete, onUpload, onMap }) => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination (Server-Side) */}
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center p-4 border-t bg-gray-50">
+            <button
+              className="btn btn-sm"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </button>
+
+            <span className="text-sm font-medium">
+              Page {page} of {totalPages}
+            </span>
+
+            <button
+              className="btn btn-sm"
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {isPlotModalOpen && (

@@ -1,30 +1,28 @@
-import { useState, useEffect, useMemo } from "react";
-// import { documentList } from "../utils/constants";
-import { API_BASE_URL } from "../utils/config";
+// ---------------------- useKhata.js ----------------------
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
 import { useLandTypeParam } from "../utils/landtypes";
-
-
+import { apiClient } from "../utils/apiClient";   // ⬅ USE GLOBAL CLIENT
 
 export const useKhata = () => {
   const [khatas, setKhatas] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+
   const [filterProject, setFilterProject] = useState("");
-  const [filterVillage, setFilterVillage] = useState("");
-  const [uploadedDocs, setUploadedDocs] = useState([]);
-  const [loading, setLoading]=useState(true)
-  // const { landType } = useParams();
- const typeParam = useLandTypeParam();
+  const [filterVillage, setFilterVillage] = useState([]);
 
+  const typeParam = useLandTypeParam();
+  const villageQueryString =
+    filterVillage.length > 0 ? filterVillage.join(",") : "";
 
-  const {
-    // user,
-    userToken: token,
-    // accessed_projects = [],
-  } = useSelector((state) => state.auth);
-  // const role = user?.role_name;
+  const token = useSelector((state) => state.auth.userToken);
   const { projects, villages } = useSelector((s) => s.list);
 
+  // ---------- Modal State ----------
   const [modals, setModals] = useState({
     isFormOpen: false,
     isDeleteOpen: false,
@@ -36,59 +34,40 @@ export const useKhata = () => {
     mapProps: {},
   });
 
-  const api = async (url, method = "GET", body) => {
-    const res = await fetch(`${API_BASE_URL}${url}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      ...(body && { body: JSON.stringify(body) }),
-    });
-    return res.json();
+  // ---------- Fetch Khatas (Using Global apiClient) ----------
+  const fetchKhatas = async () => {
+    setLoading(true);
+
+    try {
+      const data = await apiClient(
+        `/khata/khataList?page=${page}&limit=${limit}&project_id=${filterProject}&village_id=${villageQueryString}&type=${typeParam}`
+      );
+
+      if (data.success) {
+        setKhatas(data.khatas || []);
+        setTotal(data.total);
+        setTotalPages(data.totalPages);
+      } else {
+        console.error("Failed to fetch khatas:", data.message);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-const fetchKhatas = async () => {
-  setLoading(true);
-  try {
-    const data = await api(
-      `/khata/khataList?project_id=${filterProject}&village_id=${filterVillage}&type=${typeParam}`
-    );
-  console.log("khata list", data)
-    if (data.success) {
-      setKhatas(data.khatas || []);
-    } else {
-      console.error("Failed to fetch khatas:", data.message);
-    }
-  } catch (err) {
-    console.error("Fetch error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  useEffect(() => {
+    if (token) fetchKhatas();
+  }, [token, page, filterProject, filterVillage, typeParam]);
 
-
-
-useEffect(() => {
-  if (token) {
-    fetchKhatas();
-  }
-}, [token, filterProject, filterVillage, typeParam]);
-
-  const filteredKhatas = useMemo(
-    () =>
-      khatas.filter(
-        (k) =>
-          (!filterProject || k.project_id === parseInt(filterProject)) &&
-          (!filterVillage || k.village_id === parseInt(filterVillage))
-      ),
-    [khatas, filterProject, filterVillage]
-  );
+  // ---------- Delete ----------
   const handleDeleteConfirm = (id) => {
     setKhatas((prev) => prev.filter((k) => k.id !== id));
     setModals((m) => ({ ...m, isDeleteOpen: false }));
   };
 
+  // ---------- Modal Handlers ----------
   const handlers = {
     openAddModal: () =>
       setModals((m) => ({
@@ -96,18 +75,18 @@ useEffect(() => {
         isFormOpen: true,
         formProps: {
           khata: null,
-          setKhatas,
           token,
           projects,
           villages,
           fetchKhatas,
         },
       })),
+
     openEditModal: (khata) =>
       setModals((m) => ({
         ...m,
         isFormOpen: true,
-        formProps: { khata, setKhatas, token, projects, villages, fetchKhatas },
+        formProps: { khata, token, projects, villages, fetchKhatas },
       })),
 
     closeForm: () => setModals((m) => ({ ...m, isFormOpen: false })),
@@ -118,33 +97,42 @@ useEffect(() => {
         isDeleteOpen: true,
         deleteProps: { khata, onConfirm: handleDeleteConfirm },
       })),
-    closeDeleteModal: () => setModals((m) => ({ ...m, isDeleteOpen: false })),
+
+    closeDeleteModal: () =>
+      setModals((m) => ({ ...m, isDeleteOpen: false })),
 
     openUploadModal: (khata) =>
       setModals((m) => ({
         ...m,
         isUploadOpen: true,
-        uploadProps: { khata, uploadedDocs, setUploadedDocs },
+        uploadProps: { khata },
       })),
-    closeUploadModal: () => setModals((m) => ({ ...m, isUploadOpen: false })),
+
+    closeUploadModal: () =>
+      setModals((m) => ({ ...m, isUploadOpen: false })),
 
     openMapModal: (khata) =>
       setModals((m) => ({ ...m, isMapOpen: true, mapProps: { khata } })),
-    closeMapModal: () => setModals((m) => ({ ...m, isMapOpen: false })),
+
+    closeMapModal: () =>
+      setModals((m) => ({ ...m, isMapOpen: false })),
   };
 
-return {
+  return {
     projects,
     villages,
     khatas,
-    filteredKhatas,
+    page,
+    limit,
+    total,
+    totalPages,
+    setPage,
     filterProject,
     setFilterProject,
     filterVillage,
     setFilterVillage,
     modals,
     handlers,
-    loading
-};
-
+    loading,
+  };
 };

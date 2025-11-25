@@ -121,17 +121,18 @@ export default function Header({ heading, sidebarWidth }) {
           )}
         </div>
 
-    <div className="relative" ref={notifRef}>
-  <button
-    onClick={() => setNotificationsOpen(!notificationsOpen)}
-    className="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-  >
-    <Bell size={20} />
-    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-  </button>
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+          >
+            <Bell size={20} />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
 
-  {notificationsOpen && (
-    <div className="
+          {notificationsOpen && (
+            <div
+              className="
         absolute
         left-1/2
         mt-3
@@ -145,25 +146,25 @@ export default function Header({ heading, sidebarWidth }) {
         z-50
         w-64
       "
-    >
-      <h4 className="font-semibold text-gray-700 mb-2 text-sm">
-        Notifications
-      </h4>
+            >
+              <h4 className="font-semibold text-gray-700 mb-2 text-sm">
+                Notifications
+              </h4>
 
-      <ul className="space-y-1 text-sm text-gray-600">
-        <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
-          🔹 New project created
-        </li>
-        <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
-          🏡 Village added
-        </li>
-        <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
-          📋 Plot updated
-        </li>
-      </ul>
-    </div>
-  )}
-</div>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
+                  🔹 New project created
+                </li>
+                <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
+                  🏡 Village added
+                </li>
+                <li className="p-2 hover:bg-indigo-500 hover:text-white rounded-lg cursor-pointer">
+                  📋 Plot updated
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
 
         <div className="relative" ref={profileRef}>
           <div

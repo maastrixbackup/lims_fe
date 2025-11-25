@@ -133,6 +133,7 @@ const UploadPlots = () => {
               ? selectedProject.project_name || selectedProject.name
               : "Select Project"
           }
+          readOnly
         />
         <select
           className="select select-bordered w-full mt-1"
@@ -159,6 +160,7 @@ const UploadPlots = () => {
               ? "Select both Project and Type to enable upload"
               : "Choose CSV or Excel file"
           }
+          readOnly
         />
         <button
           onClick={handleUploadToAPI}

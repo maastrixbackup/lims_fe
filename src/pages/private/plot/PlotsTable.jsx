@@ -8,7 +8,7 @@ import { API_BASE_URL } from "../../../utils/config";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
   const { landType } = useParams();
-  console.log("landType***************", landType);
+  // console.log("landType***************", landType);
   // const typeParam = useLandTypeParam();
   // Filter States
   const [selectedVillage, setSelectedVillage] = useState("");
@@ -19,7 +19,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const token = useSelector((state) => state.auth.userToken);
-  console.log("tokennnn", token);
+  // console.log("tokennnn", token);
   const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [loadingPlotId, setLoadingPlotId] = useState(null);
 
@@ -298,8 +298,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Tahasil</th>
             <th className="p-3 text-left">RI Circle</th>
             <th className="p-3 text-left">Thana No</th>
-            <th className="p-3 text-left">Payment Status</th>
-
+            <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+              Payment Status
+            </th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -323,7 +324,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.tahasil_name || "N/A"}</td>
               <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
               <td className="p-3">{plot.thana_no || "N/A"}</td>
-              <td className="p-3">
+              <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
                 <button
                   className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                     isRestricted || loadingPlotId === plot.id
@@ -378,7 +379,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Annual Income (₹)</th>
             <th className="p-3 text-left">Skill Acquired</th>
             <th className="p-3 text-left">Affidavit Details</th>
-             <th className="p-3 text-left">Payment Status</th>
+              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+              Payment Status
+            </th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -402,7 +405,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.annual_income || "N/A"}</td>
               <td className="p-3">{plot.skill_acquired || "N/A"}</td>
               <td className="p-3">{plot.affidavit_details || "N/A"}</td>
-                 <td className="p-3">
+               <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
                 <button
                   className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                     isRestricted || loadingPlotId === plot.id
@@ -472,7 +475,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Priority / Urgency</th>
             <th className="p-3 text-left">Land Use Plan</th>
             <th className="p-3 text-left">LA21 Remarks</th>
-             <th className="p-3 text-left">Payment Status</th>
+              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+              Payment Status
+            </th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -522,7 +527,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.priority_urgency || "N/A"}</td>
               <td className="p-3">{plot.land_use_plan || "N/A"}</td>
               <td className="p-3">{plot.la21_remarks || "N/A"}</td>
-                 <td className="p-3">
+               <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
                 <button
                   className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                     isRestricted || loadingPlotId === plot.id
@@ -578,7 +583,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </th>
             <th className="p-3 text-left">RR Ex-Gratia</th>
             <th className="p-3 text-left">RR Other Benefits</th>
-            <th className="p-3 text-left">Payment Status</th>
+              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+              Payment Status
+            </th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -611,7 +618,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </td>
               <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
               <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
-                 <td className="p-3">
+               <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
                 <button
                   className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                     isRestricted || loadingPlotId === plot.id
@@ -664,7 +671,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Incidental Charges (₹)</th>
             <th className="p-3 text-left">Total (₹)</th>
             <th className="p-3 text-left">Abatement</th>
-            <th className="p-3 text-left">Payment Status</th>
+              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+              Payment Status
+            </th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -695,7 +704,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
               <td className="p-3">{plot.total ?? "N/A"}</td>
               <td className="p-3">{plot.abatement || "N/A"}</td>
-                 <td className="p-3">
+               <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
                 <button
                   className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                     isRestricted || loadingPlotId === plot.id
@@ -743,7 +752,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <th className="p-3 text-left">Minor Transgender</th>
             <th className="p-3 text-left">PwD Members</th>
             <th className="p-3 text-left">Orphan Members</th>
-            <th className="p-3 text-left">Payment Status</th>
+              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+              Payment Status
+            </th>
             <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
@@ -763,7 +774,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <td className="p-3">
                 {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
               </td>
-                 <td className="p-3">
+               <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
                 <button
                   className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                     isRestricted || loadingPlotId === plot.id

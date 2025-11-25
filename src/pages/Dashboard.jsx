@@ -40,16 +40,19 @@ export default function Dashboard() {
           title="Villages"
           value={data ? data.villages : "N/A"}
           gradient="bg-gradient-to-r from-green-400 to-emerald-600"
+          onClick={() => navigate("/private-land/villages")}
         />
         <StatsCard
           title="Khata"
           value={data ? data.khata : "N/A"}
           gradient="bg-gradient-to-r from-teal-400 to-cyan-500"
+          onClick={() => navigate("/private-land/khatas")}
         />
         <StatsCard
           title="Plots"
           value={data ? data.plots : "N/A"}
           gradient="bg-gradient-to-r from-orange-400 to-red-500"
+          onClick={() => navigate("/private-land/plots")}
         />
 
         <StatsCard

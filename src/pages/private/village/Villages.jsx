@@ -73,7 +73,7 @@ const Villages = () => {
       });
 
       const data = await api(`/village/villageList?${params.toString()}`);
-      console.log("Fetched villages:", data.villages);
+      // console.log("Fetched villages:", data.villages);
 
       if (data.success && Array.isArray(data.villages)) {
         setVillages(normalizeVillages(data.villages));
@@ -139,7 +139,7 @@ const Villages = () => {
     : filteredVillages;
 
   return (
-    <div className="card bg-white shadow-lg rounded-2xl overflow-hidden p-4">
+    <div className="p-4 space-y-5 h-screen overflow-y-auto">
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />

@@ -95,25 +95,17 @@ const Compensation = () => {
   };
 
   return (
-    <main className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-semibold mb-6">
-        Compensation Workflow - Payment Ready
-      </h1>
-
+    <main className="p-4 min-h-screen">
+     <h2 className="text-lg font-semibold capitalize">
+          Compensation Workflow - Payment Ready
+            </h2>
       {khatas.map((khata, kIndex) => {
         const { valid } = validateTotals(khata);
 
         return (
-          <div
-            key={kIndex}
-            className={`border rounded-2xl shadow-md mb-10 ${
-              valid
-                ? "bg-green-50 border-green-300"
-                : "bg-orange-50 border-orange-300"
-            }`}
-          >
+          <>
             {/* Header Row */}
-            <div className="p-4 border-b flex justify-between items-center">
+            <div className="p-4 flex justify-between items-center">
               <div>
                 <p className="font-semibold">
                   Unique ID:{" "}
@@ -142,8 +134,10 @@ const Compensation = () => {
                 )}
               </div>
             </div>
-
-            {/* Detail Table */}
+          <div
+            key={kIndex}
+            className="shadow-md mb-10"
+          >
             <div className="overflow-x-auto">
               <table className="table table-zebra w-full text-sm">
                 <thead className="bg-gray-200 text-gray-700">
@@ -266,6 +260,7 @@ const Compensation = () => {
               </table>
             </div>
           </div>
+          </>
         );
       })}
 

@@ -7,7 +7,7 @@ import { API_BASE_URL } from "../../../utils/config";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
-import {columns} from "../../../utils/constants"
+import { columns } from "../../../utils/constants";
 
 const Plots = () => {
   const { landType } = useParams();
@@ -97,11 +97,7 @@ const Plots = () => {
           {landType?.replace("-", " ") || "Private"} Plots
         </h2>
         <div className="flex items-center gap-3">
-        <ExportButtons
-        data={plots}
-  fileName="Plots"
-columns={columns}
-/>
+          <ExportButtons data={plots} fileName="Plots" columns={columns} />
 
           <button
             className={`btn btn-primary text-white ${

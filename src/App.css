@@ -7,7 +7,7 @@
 html.dark .modal::backdrop,
 html[data-theme='dark'] .modal::backdrop,
 .modal::backdrop {
-  background-color: rgba(0, 0, 0, 0.3) !important;
+  display: none !important;
 }
 
 html.dark .modal-box,

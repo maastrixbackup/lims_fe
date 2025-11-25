@@ -5,14 +5,14 @@ const COLORS = ["#6366F1", "#EC4899", "#F59E0B"];
 
 export default function PieChartCard() {
   const { data, loading, error } = useFetchDashboard();
-  console.log('piechart dataaaa', data)
+  // console.log('piechart dataaaa', data)
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading dashboard</p>;
 
   // Convert API object → array for Recharts
   const landObj = data?.land_distribution || {};
-  console.log('piechart dataaaa', landObj)
+  // console.log('piechart dataaaa', landObj)
 
   const lands = [
     { name: "Govt Land", value: Number(landObj.govt_land || 1) },

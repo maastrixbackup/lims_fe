@@ -39,7 +39,7 @@ const UserManagement = () => {
   const isRestricted = ["data entry user", "viewer"].includes(userRole);
 
   return (
-    <div className="bg-gray-50 text-gray-800">
+    <div className="bg-gray-50 text-gray-800 h-screen ">
       <main className="p-4 sm:p-6 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between gap-3 items-center">
           <h2 className="text-lg font-semibold">User Management</h2>

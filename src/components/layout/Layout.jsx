@@ -18,6 +18,7 @@ export default function Layout() {
     "/reoprts": "Reports",
     "/profile": "Profile",
     "/changepassword": "Change Password",
+    "/compensation" :"Compensation"
   };
 
   const heading = pageTitles[location.pathname] || "";

@@ -1,21 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { API_BASE_URL } from "../../../utils/config";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import { apiClient } from "../../../utils/apiClient";
 
-const KhataFormModal = ({
-  khata,
-  onClose,
-  token,
-  villages,
-  fetchKhatas,
-}) => {
-
+const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   const typeParam = useLandTypeParam();
 
   const typeLabel =
-    typeParam === 2 ? "Govt Land" : typeParam === 3 ? "Forest Land" : "Pvt Land";
+    typeParam === 2
+      ? "Govt Land"
+      : typeParam === 3
+      ? "Forest Land"
+      : "Pvt Land";
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
 
@@ -30,7 +27,6 @@ const KhataFormModal = ({
   const userRole = useSelector((s) => s.auth.user?.role_name || "");
   const isRestricted = userRole === "Data Entry User";
 
-  // ⭐ SET DEFAULT FORM DATA
   useEffect(() => {
     if (khata) {
       initializing.current = true;
@@ -52,7 +48,6 @@ const KhataFormModal = ({
     }
   }, [khata, typeParam, selectedProject]);
 
-  // Reset village on project change (only when editing)
   useEffect(() => {
     if (!initializing.current) {
       setFormData((prev) => ({
@@ -73,29 +68,25 @@ const KhataFormModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const method = khata ? "PUT" : "POST";
-      const url = khata
-        ? `${API_BASE_URL}/khata/updateKhata/${khata.id}`
-        : `${API_BASE_URL}/khata/addKhata`;
 
-      const res = await fetch(url, {
+    try {
+      const endpoint = khata
+        ? `/khata/updateKhata/${khata.id}`
+        : `/khata/addKhata`;
+
+      const method = khata ? "PUT" : "POST";
+
+      const res = await apiClient(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
+        body: formData, 
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.message || "Failed to save khata");
+      if (!res.success) {
+        alert(res.message || "Failed to save khata");
         return;
       }
 
       await fetchKhatas();
-
       const toast = document.createElement("div");
       toast.textContent = khata
         ? "Khata updated successfully!"
@@ -114,7 +105,6 @@ const KhataFormModal = ({
       alert("Error saving khata");
     }
   };
-
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box relative">
@@ -131,7 +121,7 @@ const KhataFormModal = ({
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
+        
           <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <input
@@ -142,12 +132,10 @@ const KhataFormModal = ({
                 selectedProject?.name ||
                 "No Project Selected"
               }
-              // disabled
+              readOnly
             />
             <input type="hidden" name="project_id" value={formData.project_id} />
           </div>
-
-          {/* Village */}
           <div>
             <label className="block text-sm font-medium mb-1">Village</label>
             <select
@@ -165,8 +153,6 @@ const KhataFormModal = ({
               ))}
             </select>
           </div>
-
-          {/* Khata No */}
           <div>
             <label className="block text-sm font-medium mb-1">Khata No.</label>
             <input
@@ -179,27 +165,20 @@ const KhataFormModal = ({
               disabled={isRestricted}
             />
           </div>
-
-          {/* Land Type */}
           <div>
             <label className="block text-sm font-medium mb-1">Land Type</label>
             <input
               type="text"
               className="input input-bordered w-full bg-gray-100"
               value={typeLabel}
-              // disabled
+              readOnly
             />
           </div>
 
           <div className="modal-action">
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-            <button type="button" className="btn" onClick={onClose}>
-              Cancel
-            </button>
+            <button type="submit" className="btn btn-primary">Save</button>
+            <button type="button" className="btn" onClick={onClose}>Cancel</button>
           </div>
-
         </form>
       </div>
     </dialog>

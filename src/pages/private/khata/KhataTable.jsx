@@ -44,7 +44,7 @@ const KhataTable = ({
 
   return (
     <>
-      <div className="card bg-white shadow-lg overflow-hidden">
+      <div className="card bg-white shadow-lg">
         <div className="max-h-[400px] overflow-x-auto">
           <table className="table w-full">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
@@ -129,9 +129,7 @@ const KhataTable = ({
 
                         <button
                           className={`btn btn-xs btn-error text-white ${
-                            isRestricted
-                              ? "!bg-gray-300 !text-gray-400"
-                              : ""
+                            isRestricted ? "!bg-gray-300 !text-gray-400" : ""
                           }`}
                           onClick={() => onDelete(khata)}
                           disabled={isRestricted}
@@ -161,29 +159,87 @@ const KhataTable = ({
             </tbody>
           </table>
         </div>
-
-        {/* Pagination (Server-Side) */}
+        {/* Compact Pagination (Server-Side) */}
         {totalPages > 1 && (
-          <div className="flex justify-between items-center p-4 border-t bg-gray-50">
-            <button
-              className="btn btn-sm"
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </button>
+          <div className="flex justify-center items-center p-4 border-t border-gray-300 bg-gray-50">
+            <div className="join">
+              {/* Prev Button */}
+              <button
+                className="join-item btn btn-sm"
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+              >
+                Prev
+              </button>
 
-            <span className="text-sm font-medium">
-              Page {page} of {totalPages}
-            </span>
+              {/* First Page */}
+              <button
+                className={`join-item btn btn-sm ${
+                  page === 1 ? "btn-primary" : ""
+                }`}
+                onClick={() => setPage(1)}
+              >
+                1
+              </button>
 
-            <button
-              className="btn btn-sm"
-              disabled={page === totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </button>
+              {/* Left Ellipsis */}
+              {page > 3 && (
+                <button className="join-item btn btn-sm btn-disabled">…</button>
+              )}
+
+              {/* Previous Page */}
+              {page > 2 && (
+                <button
+                  className="join-item btn btn-sm"
+                  onClick={() => setPage(page - 1)}
+                >
+                  {page - 1}
+                </button>
+              )}
+
+              {/* Current Page */}
+              {page !== 1 && page !== totalPages && (
+                <button className="join-item btn btn-sm btn-primary">
+                  {page}
+                </button>
+              )}
+
+              {/* Next Page */}
+              {page < totalPages - 1 && (
+                <button
+                  className="join-item btn btn-sm"
+                  onClick={() => setPage(page + 1)}
+                >
+                  {page + 1}
+                </button>
+              )}
+
+              {/* Right Ellipsis */}
+              {page < totalPages - 2 && (
+                <button className="join-item btn btn-sm btn-disabled">…</button>
+              )}
+
+              {/* Last Page */}
+              {totalPages > 1 && (
+                <button
+                  className={`join-item btn btn-sm ${
+                    page === totalPages ? "btn-primary" : ""
+                  }`}
+                  onClick={() => setPage(totalPages)}
+                >
+                  {totalPages}
+                </button>
+              )}
+
+              {/* Next Button */}
+              <button
+                className="join-item btn btn-sm"
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

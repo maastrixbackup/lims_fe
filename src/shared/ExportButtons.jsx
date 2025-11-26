@@ -1,3 +1,4 @@
+import { FolderUp } from "lucide-react";
 import React from "react";
 import * as XLSX from "xlsx";
 
@@ -88,6 +89,7 @@ const ExportButtons = ({ data, columns, fileName = "export" }) => {
   return (
     <div className="flex gap-3">
       <button  className="btn bg-green-600 text-white flex items-center gap-2" onClick={exportToExcel}>
+        <FolderUp size={18} /> 
         Export 
       </button>
       {/* <button className="btn btn-outline btn-sm" onClick={printData}>

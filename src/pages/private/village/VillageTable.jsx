@@ -18,7 +18,7 @@ const VillageTable = ({
     : villages;
 
   return (
-    <div className="card bg-white shadow-lg overflow-y-hidden">
+    <div className="card bg-white shadow-lg">
       <div className="max-h-[400px] overflow-x-auto">
         <table className="table w-full">
           <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">

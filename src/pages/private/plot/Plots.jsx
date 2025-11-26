@@ -123,29 +123,87 @@ const Plots = () => {
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}
 
-      {projectId && (
-        <div className="flex justify-center items-center gap-4 mt-6">
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setPage((p) => p - 1)}
-            disabled={page === 1}
-          >
-            ← Previous
-          </button>
+   {projectId && (
+  <div className="flex justify-center items-center mt-6">
+    <div className="join">
 
-          <span className="text-sm">
-            Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-          </span>
+      {/* Prev Button */}
+      <button
+        className="join-item btn btn-outline btn-sm"
+        onClick={() => setPage((p) => p - 1)}
+        disabled={page === 1}
+      >
+        ← Prev
+      </button>
 
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page === totalPages}
-          >
-            Next →
-          </button>
-        </div>
+      {/* First Page */}
+      <button
+        className={`join-item btn btn-sm ${
+          page === 1 ? "btn-primary" : ""
+        }`}
+        onClick={() => setPage(1)}
+      >
+        1
+      </button>
+
+      {/* Ellipsis Left */}
+      {page > 3 && (
+        <button className="join-item btn btn-sm btn-disabled">…</button>
       )}
+
+      {/* Previous Page */}
+      {page > 2 && (
+        <button
+          className="join-item btn btn-sm"
+          onClick={() => setPage(page - 1)}
+        >
+          {page - 1}
+        </button>
+      )}
+
+      {/* Current Page */}
+      {page !== 1 && page !== totalPages && (
+        <button className="join-item btn btn-sm btn-primary">{page}</button>
+      )}
+
+      {/* Next Page */}
+      {page < totalPages - 1 && (
+        <button
+          className="join-item btn btn-sm"
+          onClick={() => setPage(page + 1)}
+        >
+          {page + 1}
+        </button>
+      )}
+
+      {/* Ellipsis Right */}
+      {page < totalPages - 2 && (
+        <button className="join-item btn btn-sm btn-disabled">…</button>
+      )}
+
+      {/* Last Page */}
+      {totalPages > 1 && (
+        <button
+          className={`join-item btn btn-sm ${
+            page === totalPages ? "btn-primary" : ""
+          }`}
+          onClick={() => setPage(totalPages)}
+        >
+          {totalPages}
+        </button>
+      )}
+
+      {/* Next Button */}
+      <button
+        className="join-item btn btn-outline btn-sm"
+        onClick={() => setPage((p) => p + 1)}
+        disabled={page === totalPages}
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+)}
 
       {deleteConfirm && (
         <dialog open className="modal modal-open">

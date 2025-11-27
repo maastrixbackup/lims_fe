@@ -25,11 +25,11 @@ export default function Header({ heading, sidebarWidth }) {
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
 
-  useEffect(() => {
-    if (projects && projects.length > 0 && !selectedProject) {
-      dispatch(setSelectedProject(projects[0]));
-    }
-  }, [projects, selectedProject, dispatch]);
+  // useEffect(() => {
+  //   if (projects && projects.length > 0 && !selectedProject) {
+  //     dispatch(setSelectedProject(projects[0]));
+  //   }
+  // }, [projects, selectedProject, dispatch]);
   const handleProjectSelect = (project) => {
     dispatch(setSelectedProject(project)); // Store globally
     setProjectDropdownOpen(false);

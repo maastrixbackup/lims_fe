@@ -12,6 +12,8 @@ import * as XLSX from "xlsx";
 import moment from "moment";
 import { ChevronDown, FolderUp, Printer } from "lucide-react";
 import { getTypeName } from "../../../utils/constants";
+import { API_BASE_URL } from "../../../utils/config";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 export default function Khata() {
   const { landType } = useParams();
@@ -29,7 +31,9 @@ export default function Khata() {
 
   const user = useSelector((state) => state.auth.user);
   const villages = useSelector((state) => state.list.villages) || [];
+  console.log("village list", villages)
   const userRole = user?.role_name || "";
+  const projectId = useSelector((state) => state.selectedProject.project?.id);
 
   const [villageDropdownOpen, setVillageDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -65,36 +69,100 @@ export default function Khata() {
     if (type === "forest-land") return "forest_khata.xlsx";
     return "private_khata.xlsx";
   };
+ const [exporting, setExporting] = useState(false);
+ const typeParam = useLandTypeParam()
+ const token =useSelector((state)=>state.auth.userToken)
+ const [printing, setPrinting] = useState(false);
 
-  const handleExportExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(formatKhataData(khatas));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Khata");
-    XLSX.writeFile(wb, getFileName());
-  };
 
-  const handlePrint = () => {
-    const printContent = document.getElementById("khataTablePrint");
-    const win = window.open("", "_blank");
+const handleExportExcel = async () => {
+  try {
+    setExporting(true); // Show loader
 
-    win.document.write(`
-      <html>
-        <head>
-          <title>Khata Print</title>
-          <style>
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 2px; white-space: nowrap; }
-            th { background: #f4f4f4; }
-            @media print { .no-print { display: none !important; } }
-          </style>
-        </head>
-        <body>${printContent.innerHTML}</body>
-      </html>
-    `);
+    const villageIds = filterVillage.join(",");
+    console.log("villageid", villageIds);
 
-    win.document.close();
-    win.print();
-  };
+    const url = `${API_BASE_URL}/khata/exportKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+ console.log('response7676', response)
+    if (!response.ok) throw new Error("Failed to export khata");
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = getFileName();
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+
+  } catch (error) {
+    console.error("Export error:", error);
+    alert("Failed to export Khata");
+  } finally {
+    setExporting(false); // Hide loader
+  }
+};
+
+const handlePrint = async () => {
+  try {
+    setPrinting(true);  // Show loader
+
+    const villageIds = filterVillage.join(",");
+    const url = `${API_BASE_URL}/khata/printKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch khata print data");
+    }
+
+    const contentType = response.headers.get("content-type");
+
+    // Case 1: Backend returns HTML
+    if (contentType.includes("text/html")) {
+      const htmlContent = await response.text();
+      const win = window.open("", "_blank");
+      win.document.write(htmlContent);
+      win.document.close();
+      win.print();
+      return;
+    }
+
+    // Case 2: Backend returns PDF
+    if (contentType.includes("application/pdf")) {
+      const blob = await response.blob();
+      const pdfURL = URL.createObjectURL(blob);
+      const win = window.open(pdfURL, "_blank");
+      win.onload = () => win.print();
+      return;
+    }
+
+    alert("Unexpected print data format");
+
+  } catch (error) {
+    console.error("Print error:", error);
+    alert("Failed to print Khata");
+  } finally {
+    setPrinting(false);  // Hide loader
+  }
+};
+
+
 
   const toggleVillage = (id) => {
     setFilterVillage((prev) =>
@@ -116,19 +184,40 @@ export default function Khata() {
             </h2>
 
             <div className="flex items-center gap-3 print:hidden">
-              <button
-                className="btn bg-green-600 text-white px-4 flex items-center gap-2"
-                onClick={handleExportExcel}
-              >
-                <FolderUp size={18} /> Export
-              </button>
+            <button
+  className="btn bg-green-600 text-white px-4 flex items-center gap-2"
+  onClick={handleExportExcel}
+  disabled={exporting}
+>
+  {exporting ? (
+    <>
+      <span className="loading loading-spinner loading-sm"></span>
+      Exporting...
+    </>
+  ) : (
+    <>
+      <FolderUp size={18} /> Export
+    </>
+  )}
+</button>
 
-              <button
-                className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
-                onClick={handlePrint}
-              >
-                <Printer size={18} /> Print
-              </button>
+<button
+  className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
+  onClick={handlePrint}
+  disabled={printing}
+>
+  {printing ? (
+    <>
+      <span className="loading loading-spinner loading-sm text-blue-200"></span>
+      <p className="text-blue-200">Printing...</p>
+    </>
+  ) : (
+    <>
+      <Printer size={18} /> Print
+    </>
+  )}
+</button>
+
 
               <button
                 className={`btn btn-primary text-white ${

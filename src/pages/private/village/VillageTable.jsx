@@ -24,11 +24,11 @@ const VillageTable = ({
           <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
             <tr>
               <th>#</th>
-              <th>Project</th>
+              {/* <th>Project</th> */}
               <th>Village</th>
               <th>District</th>
               <th>Tahasil</th>
-              <th>Type</th>
+              {/* <th>Type</th> */}
               <th>Village Code</th>
               <th>Date</th>
               <th className="text-right pr-6">Actions</th>
@@ -42,11 +42,11 @@ const VillageTable = ({
                 return (
                   <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
                     <td>{i + 1}</td>
-                    <td>{project?.name || "N/A"}</td>
+                    {/* <td>{project?.name || "N/A"}</td> */}
                     <td>{v.village_name}</td>
                     <td>{v.district}</td>
                     <td>{v.tahasil}</td>
-                    <td>{getTypeName(v.type)}</td>
+                    {/* <td>{getTypeName(v.type)}</td> */}
                     <td>{v.village_code}</td>
                     <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
                     <td className="text-right space-x-2">

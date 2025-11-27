@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../utils/landtypes";
 import { apiClient } from "../utils/apiClient";   // ⬅ USE GLOBAL CLIENT
+import { setSelectedProject } from "../utils/selectedProjectSlice";
 
 export const useKhata = () => {
   const [khatas, setKhatas] = useState([]);
@@ -12,7 +13,7 @@ export const useKhata = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const [filterProject, setFilterProject] = useState("");
+  // const [filterProject, setFilterProject] = useState("");
   const [filterVillage, setFilterVillage] = useState([]);
 
   const typeParam = useLandTypeParam();
@@ -21,6 +22,8 @@ export const useKhata = () => {
 
   const token = useSelector((state) => state.auth.userToken);
   const { projects, villages } = useSelector((s) => s.list);
+  const projectId = useSelector((state) => state.selectedProject.project?.id);
+  
 
   // ---------- Modal State ----------
   const [modals, setModals] = useState({
@@ -40,7 +43,7 @@ export const useKhata = () => {
 
     try {
       const data = await apiClient(
-        `/khata/khataList?page=${page}&limit=${limit}&project_id=${filterProject}&village_id=${villageQueryString}&type=${typeParam}`
+        `/khata/khataList?page=${page}&limit=${limit}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`
       );
 
       if (data.success) {
@@ -59,7 +62,7 @@ export const useKhata = () => {
 
   useEffect(() => {
     if (token) fetchKhatas();
-  }, [token, page, filterProject, filterVillage, typeParam]);
+  }, [token, page, projectId, filterVillage, typeParam]);
 
   // ---------- Delete ----------
   const handleDeleteConfirm = (id) => {
@@ -127,12 +130,13 @@ export const useKhata = () => {
     total,
     totalPages,
     setPage,
-    filterProject,
-    setFilterProject,
+    projectId,
+   setSelectedProject,
     filterVillage,
     setFilterVillage,
     modals,
     handlers,
     loading,
+    villageQueryString
   };
 };

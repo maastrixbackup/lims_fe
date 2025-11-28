@@ -45,7 +45,7 @@ export const useKhata = () => {
       const data = await apiClient(
         `/khata/khataList?page=${page}&limit=${limit}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`
       );
-
+console.log("khata list", data)
       if (data.success) {
         setKhatas(data.khatas || []);
         setTotal(data.total);
@@ -82,6 +82,7 @@ export const useKhata = () => {
           projects,
           villages,
           fetchKhatas,
+          
         },
       })),
 

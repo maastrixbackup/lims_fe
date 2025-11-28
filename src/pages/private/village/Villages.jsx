@@ -11,6 +11,7 @@ import ConfirmDelete from "../../../shared/ConfirmDelete";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
+import { FolderUp } from "lucide-react";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
@@ -67,13 +68,13 @@ const Villages = () => {
 
       const params = new URLSearchParams({
         project_id: filter.project_id || "",
-        district: filter.district || "",
-        tahasil: filter.tahasil || "",
+        district: filter.districts || "",
+        tahasil: filter.tahasils || "",
         type: typeParam,
       });
 
       const data = await api(`/village/villageList?${params.toString()}`);
-      // console.log("Fetched villages:", data.villages);
+      console.log("Fetched villages:", data.villages);
 
       if (data.success && Array.isArray(data.villages)) {
         setVillages(normalizeVillages(data.villages));
@@ -134,9 +135,48 @@ const Villages = () => {
     return matchDistrict && matchTahasil && matchVillage && matchProject;
   });
 
-  const projectFilteredData = selectedProject
-    ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
-    : filteredVillages;
+  // const projectFilteredData = selectedProject
+  //   ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
+  //   : filteredVillages;
+    const exportVillage = async () => {
+  try {
+    const params = new URLSearchParams({
+      project_id: filter.project_id || "",
+      tahasil: filter.tahasils || "",
+      district: filter.districts || "",
+      type: typeParam,
+    });
+
+    const response = await fetch(
+      `${API_BASE_URL}/village/exportVillage?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to export file");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "villages_export.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (err) {
+    console.error("Export error:", err);
+    alert("Failed to export villages.");
+  }
+};
+
 
   return (
     <div className="p-4 space-y-5 h-screen overflow-y-auto">
@@ -151,7 +191,7 @@ const Villages = () => {
               {landType?.replace("-", " ") || "Private"} Villages
             </h2>
             <div className="flex items-center gap-3">
-              <ExportButtons
+              {/* <ExportButtons
                 data={projectFilteredData}
                 fileName="villages"
                 columns={[
@@ -163,7 +203,12 @@ const Villages = () => {
                   { label: "Type", key: "type" },
                   { label: "Village Code", key: "village_code" },
                 ]}
-              />
+              /> */}
+
+      <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportVillage}>
+        <FolderUp size={18} /> 
+        Export 
+      </button>
 
               <button
                 className={`btn btn-primary text-white shadow-md ${

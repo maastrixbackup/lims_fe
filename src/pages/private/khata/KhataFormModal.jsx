@@ -15,6 +15,9 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
       : "Pvt Land";
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
+  const projects = useSelector((state) => state.list.projects || []);
+
+  console.log('fgsdjfgsfh', projects)
 
   const [formData, setFormData] = useState({
     project_id: "",
@@ -122,7 +125,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
         
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <input
               type="text"
@@ -135,6 +138,23 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               readOnly
             />
             <input type="hidden" name="project_id" value={formData.project_id} />
+          </div> */}
+           <div>
+            <label className="block text-sm font-medium mb-1">Project</label>
+            <select
+              name="project_id"
+              value={formData.project_id || ""}
+              onChange={handleChange}
+              className="select select-bordered w-full"
+              required
+            >
+              <option value="">Select Project</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.project_name || p.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Village</label>

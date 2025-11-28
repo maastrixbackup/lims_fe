@@ -95,28 +95,31 @@ const KhataTable = ({
                     <td>{khata.code || "No data"}</td>
                     <td>{khata.khata_no || "No data"}</td>
                     <td>{khata.plot_no || "No data"}</td>
-                    <td>{khata.kissam || "No data"}</td>
+                    <td>{khata.kissam_of_land || "No data"}</td>
                     <td>{khata.land_category || "No data"}</td>
-                    <td>{khata.total_area_acres || "No data"}</td>
-                    <td>{khata.total_area_ha || "No data"}</td>
-                    <td>{khata.acquired_area_acres || "No data"}</td>
-                    <td>{khata.acquired_area_ha || "No data"}</td>
-                    <td>{khata.remarks || "No data"}</td>
+
+                    <td>{khata.land_area_total_acres || "No data"}</td>
+                    <td>{khata.land_area_total_hectares || "No data"}</td>
+
+                    <td>{khata.land_area_acquired_acres || "No data"}</td>
+                    <td>{khata.land_area_acquired_hectares || "No data"}</td>
+
+                    <td>{khata.lo13_remarks || "No data"}</td>
+
                     <td>{khata.tahasil_name || "No data"}</td>
-                    <td>{khata.ri_circle || "No data"}</td>
+                    <td>{khata.ri_circle_name || "No data"}</td>
                     <td>{khata.thana_no || "No data"}</td>
+
+                    {/* Newly Added Fields */}
                     <td>
                       {khata.date_of_award
-                        ? moment(khata.date_of_award).format("DD-MM-YYYY")
+                        ? khata.date_of_award.split("T")[0]
                         : "No data"}
                     </td>
-                    <td>{khata.recorded_tenants || "No data"}</td>
-                    <td className="bg-green-50">
-                      {khata.present_tenants || "No data"}
-                    </td>
+                    <td>{khata.name_of_recorded_tenant || "No data"}</td>
+                    <td>{khata.name_of_present_tenant || "No data"}</td>
                     <td>{khata.present_address || "No data"}</td>
-                    <td className="bg-green-50">{khata.contact_no || "No data"}</td>
-                    <td>{khata.displaced_person || "No data"}</td>
+                    <td>{khata.displaced_affected_person || "No data"}</td>
 
                     {/* Your existing columns */}
                     <td>{khata.unique_id}</td>
@@ -188,38 +191,37 @@ const KhataTable = ({
                   </tr>
                 ))
               ) : (
-            <tr>
-  <td colSpan="9" className="text-center py-6 text-gray-500">
-    {selectedProject ? (
-      <>
-        <p className="text-md font-medium text-gray-500">
-          No Khata found for the{" "}
-          <span className="text-primary font-semibold">
-            selected project
-          </span>
-          .
-        </p>
-        <p className="text-sm text-gray-500 mt-1">
-          Try selecting a different project or add a new Khata.
-        </p>
-      </>
-    ) : (
-      <>
-        <p className="text-md font-medium text-gray-500">
-          Please{" "}
-          <span className="text-primary font-semibold">
-            select a project
-          </span>{" "}
-          first.
-        </p>
-        <p className="text-sm text-gray-500 mt-1">
-          A project is required to view Khata list.
-        </p>
-      </>
-    )}
-  </td>
-</tr>
-
+                <tr>
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
+                    {selectedProject ? (
+                      <>
+                        <p className="text-md font-medium text-gray-500">
+                          No Khata found for the{" "}
+                          <span className="text-primary font-semibold">
+                            selected project
+                          </span>
+                          .
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Try selecting a different project or add a new Khata.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-md font-medium text-gray-500">
+                          Please{" "}
+                          <span className="text-primary font-semibold">
+                            select a project
+                          </span>{" "}
+                          first.
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          A project is required to view Khata list.
+                        </p>
+                      </>
+                    )}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

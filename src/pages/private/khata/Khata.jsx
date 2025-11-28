@@ -31,7 +31,7 @@ export default function Khata() {
 
   const user = useSelector((state) => state.auth.user);
   const villages = useSelector((state) => state.list.villages) || [];
-  console.log("village list", villages)
+  console.log("village list", villages);
   const userRole = user?.role_name || "";
   const projectId = useSelector((state) => state.selectedProject.project?.id);
 
@@ -41,10 +41,7 @@ export default function Khata() {
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setVillageDropdownOpen(false);
       }
     };
@@ -69,100 +66,95 @@ export default function Khata() {
     if (type === "forest-land") return "forest_khata.xlsx";
     return "private_khata.xlsx";
   };
- const [exporting, setExporting] = useState(false);
- const typeParam = useLandTypeParam()
- const token =useSelector((state)=>state.auth.userToken)
- const [printing, setPrinting] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const typeParam = useLandTypeParam();
+  const token = useSelector((state) => state.auth.userToken);
+  const [printing, setPrinting] = useState(false);
 
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true); // Show loader
 
-const handleExportExcel = async () => {
-  try {
-    setExporting(true); // Show loader
+      const villageIds = filterVillage.join(",");
+      console.log("villageid", villageIds);
 
-    const villageIds = filterVillage.join(",");
-    console.log("villageid", villageIds);
+      const url = `${API_BASE_URL}/khata/exportKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
 
-    const url = `${API_BASE_URL}/khata/exportKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("response7676", response);
+      if (!response.ok) throw new Error("Failed to export khata");
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
- console.log('response7676', response)
-    if (!response.ok) throw new Error("Failed to export khata");
-
-    const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = getFileName();
-    document.body.appendChild(a);
-    a.click();
-
-    a.remove();
-    window.URL.revokeObjectURL(downloadUrl);
-
-  } catch (error) {
-    console.error("Export error:", error);
-    alert("Failed to export Khata");
-  } finally {
-    setExporting(false); // Hide loader
-  }
-};
-
-const handlePrint = async () => {
-  try {
-    setPrinting(true);  // Show loader
-
-    const villageIds = filterVillage.join(",");
-    const url = `${API_BASE_URL}/khata/printKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch khata print data");
-    }
-
-    const contentType = response.headers.get("content-type");
-
-    // Case 1: Backend returns HTML
-    if (contentType.includes("text/html")) {
-      const htmlContent = await response.text();
-      const win = window.open("", "_blank");
-      win.document.write(htmlContent);
-      win.document.close();
-      win.print();
-      return;
-    }
-
-    // Case 2: Backend returns PDF
-    if (contentType.includes("application/pdf")) {
       const blob = await response.blob();
-      const pdfURL = URL.createObjectURL(blob);
-      const win = window.open(pdfURL, "_blank");
-      win.onload = () => win.print();
-      return;
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = getFileName();
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Export error:", error);
+      alert("Failed to export Khata");
+    } finally {
+      setExporting(false); // Hide loader
     }
+  };
 
-    alert("Unexpected print data format");
+  const handlePrint = async () => {
+    try {
+      setPrinting(true); // Show loader
 
-  } catch (error) {
-    console.error("Print error:", error);
-    alert("Failed to print Khata");
-  } finally {
-    setPrinting(false);  // Hide loader
-  }
-};
+      const villageIds = filterVillage.join(",");
+      const url = `${API_BASE_URL}/khata/printKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
 
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch khata print data");
+      }
+
+      const contentType = response.headers.get("content-type");
+
+      // Case 1: Backend returns HTML
+      if (contentType.includes("text/html")) {
+        const htmlContent = await response.text();
+        const win = window.open("", "_blank");
+        win.document.write(htmlContent);
+        win.document.close();
+        win.print();
+        return;
+      }
+
+      // Case 2: Backend returns PDF
+      if (contentType.includes("application/pdf")) {
+        const blob = await response.blob();
+        const pdfURL = URL.createObjectURL(blob);
+        const win = window.open(pdfURL, "_blank");
+        win.onload = () => win.print();
+        return;
+      }
+
+      alert("Unexpected print data format");
+    } catch (error) {
+      console.error("Print error:", error);
+      alert("Failed to print Khata");
+    } finally {
+      setPrinting(false); // Hide loader
+    }
+  };
 
   const toggleVillage = (id) => {
     setFilterVillage((prev) =>
@@ -184,40 +176,39 @@ const handlePrint = async () => {
             </h2>
 
             <div className="flex items-center gap-3 print:hidden">
-            <button
-  className="btn bg-green-600 text-white px-4 flex items-center gap-2"
-  onClick={handleExportExcel}
-  disabled={exporting}
->
-  {exporting ? (
-    <>
-      <span className="loading loading-spinner loading-sm"></span>
-      Exporting...
-    </>
-  ) : (
-    <>
-      <FolderUp size={18} /> Export
-    </>
-  )}
-</button>
+              <button
+                className="btn bg-green-600 text-white px-4 flex items-center gap-2"
+                onClick={handleExportExcel}
+                disabled={exporting}
+              >
+                {exporting ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <FolderUp size={18} /> Export
+                  </>
+                )}
+              </button>
 
-<button
-  className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
-  onClick={handlePrint}
-  disabled={printing}
->
-  {printing ? (
-    <>
-      <span className="loading loading-spinner loading-sm text-blue-200"></span>
-      <p className="text-blue-200">Printing...</p>
-    </>
-  ) : (
-    <>
-      <Printer size={18} /> Print
-    </>
-  )}
-</button>
-
+              <button
+                className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
+                onClick={handlePrint}
+                disabled={printing}
+              >
+                {printing ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm text-blue-200"></span>
+                    <p className="text-blue-200">Printing...</p>
+                  </>
+                ) : (
+                  <>
+                    <Printer size={18} /> Print
+                  </>
+                )}
+              </button>
 
               <button
                 className={`btn btn-primary text-white ${
@@ -233,45 +224,44 @@ const handlePrint = async () => {
             </div>
           </div>
 
-        {/* Village Dropdown */}
-<div ref={dropdownRef} className="relative w-64">
-  <button
-    className="btn border border-gray-300 w-full justify-between"
-    onClick={() => setVillageDropdownOpen(!villageDropdownOpen)}
-  >
-    {filterVillage.length > 0
-      ? `${filterVillage.length} selected`
-      : "Select Villages"}
-    <ChevronDown size={16} />
-  </button>
+          {/* Village Dropdown */}
+          <div ref={dropdownRef} className="relative w-64">
+            <button
+              className="btn border border-gray-300 w-full justify-between"
+              onClick={() => setVillageDropdownOpen(!villageDropdownOpen)}
+            >
+              {filterVillage.length > 0
+                ? `${filterVillage.length} selected`
+                : "Select Villages"}
+              <ChevronDown size={16} />
+            </button>
 
-  {villageDropdownOpen && (
-    <ul className="absolute left-0 top-full mt-1 dropdown menu w-full rounded-box bg-base-100 shadow-lg p-2 max-h-64 overflow-y-auto z-50">
-      <li className="mb-1 border-b pb-1">
-        <button
-          className="text-blue-600 font-medium w-full text-left"
-          onClick={() => setFilterVillage([])}
-        >
-          Clear All
-        </button>
-      </li>
-      {villages.map((v) => (
-        <li key={v.id}>
-          <label className="cursor-pointer flex items-center gap-2 py-1">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-xs"
-              checked={filterVillage.includes(v.id)}
-              onChange={() => toggleVillage(v.id)}
-            />
-            <span>{v.village_name}</span>
-          </label>
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
-
+            {villageDropdownOpen && (
+              <ul className="absolute left-0 top-full mt-1 dropdown menu w-full rounded-box bg-base-100 shadow-lg p-2 max-h-64 overflow-y-auto z-50">
+                <li className="mb-1 border-b pb-1">
+                  <button
+                    className="text-blue-600 font-medium w-full text-left"
+                    onClick={() => setFilterVillage([])}
+                  >
+                    Clear All
+                  </button>
+                </li>
+                {villages.map((v) => (
+                  <li key={v.id}>
+                    <label className="cursor-pointer flex items-center gap-2 py-1">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-xs"
+                        checked={filterVillage.includes(v.id)}
+                        onChange={() => toggleVillage(v.id)}
+                      />
+                      <span>{v.village_name}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <div id="khataTablePrint">
             <KhataTable

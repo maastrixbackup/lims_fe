@@ -11,7 +11,7 @@ const VillageFormModal = ({
   api,
   fetchVillages,
 }) => {
-  // const { projects } = useSelector((s) => s.list);
+  const { projects } = useSelector((s) => s.list);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const typeParam = useLandTypeParam();
 
@@ -22,13 +22,13 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     village_code: "",
+    multiplying_factor: "",  // ✅ ADDED
   });
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ⭐ When editing OR adding new, update form values
   useEffect(() => {
     if (editingVillage) {
       setFormData({
@@ -38,6 +38,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
+        multiplying_factor: editingVillage.multiplying_factor || "", // ✅ load value
       });
     } else {
       setFormData({
@@ -47,12 +48,12 @@ const VillageFormModal = ({
         tahasil: "",
         type: typeParam.toString(),
         village_code: "",
+        multiplying_factor: "Test", // default value if needed
       });
     }
     setErrors({});
   }, [editingVillage, selectedProject, typeParam]);
 
-  // ⭐ Validation
   const validateForm = () => {
     const newErrors = {};
 
@@ -72,7 +73,6 @@ const VillageFormModal = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  // ⭐ Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -86,6 +86,7 @@ const VillageFormModal = ({
     const method = editingVillage ? "PUT" : "POST";
 
     const data = await api(url, method, formData);
+
     setLoading(false);
 
     if (data.success) {
@@ -130,18 +131,27 @@ const VillageFormModal = ({
           <form onSubmit={handleSubmit} className="space-y-3">
 
             {/* Project Name */}
-            <label>Project Name</label>
-            <input
-              // disabled
-              className="input input-bordered w-full bg-gray-100 font-medium text-gray-700"
-              value={
-                selectedProject
-                  ? selectedProject.project_name || selectedProject.name
-                  : "Select Project"
-              }
-            />
-            {/* Hidden actual value */}
-            <input type="hidden" value={formData.project_id} />
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Project Name
+              </label>
+              <select
+                name="project_id"
+                value={formData.project_id || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, project_id: e.target.value })
+                }
+                className="select select-bordered w-full"
+                required
+              >
+                <option value="">Select Project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.project_name || p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* District */}
             <label>District</label>
@@ -206,7 +216,6 @@ const VillageFormModal = ({
             <label>Land Type</label>
             <input
               type="text"
-              // disabled
               value={
                 typeParam === 1
                   ? "Private Land"
@@ -215,6 +224,7 @@ const VillageFormModal = ({
                   : "Forest Land"
               }
               className="input input-bordered w-full bg-gray-100"
+              readOnly
             />
             <input type="hidden" name="type" value={formData.type} />
 
@@ -234,6 +244,26 @@ const VillageFormModal = ({
             />
             {errors.village_code && (
               <p className="text-red-500 text-sm">{errors.village_code}</p>
+            )}
+
+            {/* ✅ Multiplying Factor (Only when Editing) */}
+            {editingVillage && (
+              <>
+                <label>Multiplying Factor</label>
+                <input
+                  type="text"
+                  name="multiplying_factor"
+                  value={formData.multiplying_factor}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      multiplying_factor: e.target.value,
+                    })
+                  }
+                  className="input input-bordered w-full"
+                  placeholder="Enter Multiplying Factor"
+                />
+              </>
             )}
 
             <div className="modal-action">

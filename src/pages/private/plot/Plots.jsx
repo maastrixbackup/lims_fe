@@ -8,6 +8,7 @@ import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
 import { columns } from "../../../utils/constants";
+import { FolderUp } from "lucide-react";
 
 const Plots = () => {
   const { landType } = useParams();
@@ -89,6 +90,50 @@ const Plots = () => {
       alert("Something went wrong while deleting the plot.");
     }
   };
+const exportPlot = async () => {
+  if (!projectId) {
+    alert("Please select a project before exporting.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await fetch(
+      `${API_BASE_URL}/plots/exportPlot?project_id=${projectId}&page=${page}&type=${typeParam}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to export plots");
+    }
+
+    // Convert API response to Blob (PDF or Excel)
+    const blob = await res.blob();
+
+    // Create downloadable link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    // File name according to type
+    link.download = `plots_export_${projectId}.${blob.type.includes("pdf") ? "pdf" : "xlsx"}`;
+
+    link.click();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("Export error:", error);
+    alert("Failed to export plot data");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="flex-1 p-6 overflow-y-auto space-y-6">
@@ -97,7 +142,10 @@ const Plots = () => {
           {landType?.replace("-", " ") || "Private"} Plots
         </h2>
         <div className="flex items-center gap-3">
-          <ExportButtons data={plots} fileName="Plots" columns={columns} />
+           <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportPlot}>
+        <FolderUp size={18} /> 
+        Export 
+      </button>
 
           <button
             className={`btn btn-primary text-white ${

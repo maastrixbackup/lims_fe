@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, MapPin } from "lucide-react";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const PlotListModal = ({ onClose }) => {
   const token = useSelector((s) => s.auth.userToken);
@@ -10,6 +11,8 @@ const PlotListModal = ({ onClose }) => {
 
   const [plots, setPlots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const typeParam= useLandTypeParam()
+  console.log("typeparam in plot view",typeParam)
 
   useEffect(() => {
     if (!khataId) return;
@@ -18,7 +21,7 @@ const PlotListModal = ({ onClose }) => {
       setLoading(true);
       try {
         const res = await fetch(
-          `${API_BASE_URL}/khata/viewPlotsByKhata/${khataId}`,
+          `${API_BASE_URL}/khata/viewPlotsByKhata/${khataId}?type=${typeParam}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

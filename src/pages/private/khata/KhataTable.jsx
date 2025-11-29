@@ -70,7 +70,7 @@ const KhataTable = ({
                 <th>Name of Recorded Tenants (RT)</th>
                 <th className="bg-green-100">Name of Present Tenants (PT)</th>
                 <th>Present Address</th>
-                <th className="bg-green-100">Contact No.</th>
+                {/* <th className="bg-green-100">Contact No.</th> */}
                 <th>Displaced / Affected Person</th>
 
                 {/* Old columns you already had */}

@@ -30,7 +30,7 @@ const userSlice = createSlice({
       state.accessed_projects = accessed_projects || [];
       state.success = true;
       state.error = null;
-
+      state.selectedProject = null;
       localStorage.setItem("userToken", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("accessed_projects", JSON.stringify(accessed_projects || []));

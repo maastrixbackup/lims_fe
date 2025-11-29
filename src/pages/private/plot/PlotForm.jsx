@@ -11,32 +11,44 @@ const PlotForm = ({ fetchPlots }) => {
   const location = useLocation();
 
   const token = useSelector((s) => s.auth.userToken);
-    const selectedProject = useSelector((s) => s.selectedProject.project);
-  const editingPlot = location.state?.plot || null;
-
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+  const projects = useSelector((state) => state.list.projects || []);
   const { villages } = useSelector((s) => s.list);
+
+  const editingPlot = location.state?.plot || null;
   const { landType } = useParams();
   const typeParam = useLandTypeParam();
-  // console.log("LAND TYPE:", landType, " → type =", typeParam);
+
+  const [userChangedProject, setUserChangedProject] = useState(false);
 
   const [formData, setFormData] = useState(() => ({
     type: typeParam,
     ...Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""])),
+    project_id: "",
   }));
 
-  // const [selectedProject, setSelectedProject] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editingPlot) {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         ...editingPlot,
         type: editingPlot.type || typeParam,
-      });
-      // setSelectedProject(editingPlot.project_id || "");
+        project_id: editingPlot.project_id,
+      }));
+      setUserChangedProject(true);
     }
   }, [editingPlot]);
+
+  useEffect(() => {
+    if (!editingPlot && selectedProject && !userChangedProject) {
+      setFormData((prev) => ({
+        ...prev,
+        project_id: selectedProject.id,
+      }));
+    }
+  }, [selectedProject, userChangedProject, editingPlot]);
 
   const requiredFields = [
     "name_of_recorded_tenant",
@@ -60,6 +72,10 @@ const PlotForm = ({ fetchPlots }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    if (name === "project_id") {
+      setUserChangedProject(true); 
+    }
+
     if (name === "village_name") {
       const found = villages.find((v) => v.village_name === value);
 
@@ -74,6 +90,7 @@ const PlotForm = ({ fetchPlots }) => {
 
     setFormData({ ...formData, [name]: value });
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +114,7 @@ const PlotForm = ({ fetchPlots }) => {
       const payload = {
         ...formData,
         type: typeParam,
-        project_id: selectedProject?.id || selectedProject,
+        project_id: formData.project_id, 
       };
 
       const url = editingPlot
@@ -116,7 +133,6 @@ const PlotForm = ({ fetchPlots }) => {
       });
 
       const data = await res.json();
-      console.log("SAVE PLOT:", data);
 
       if (data.success) {
         alert("Plot saved successfully!");
@@ -132,13 +148,13 @@ const PlotForm = ({ fetchPlots }) => {
       setLoading(false);
     }
   };
+
   return (
     <main className="flex-1 p-6 overflow-y-auto">
       <div className="max-w-6xl mx-auto bg-white shadow-lg p-6 rounded-lg border">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {editingPlot ? "Edit Plot" : "Add New Plot"}
-             {/* for {landType?.replace("-", " ")} */}
           </h2>
 
           <button
@@ -151,16 +167,21 @@ const PlotForm = ({ fetchPlots }) => {
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-        <label>Project Name</label>
-            <input
-              // disabled
-              className="input input-bordered w-full bg-gray-100"
-              value={
-                selectedProject
-                  ? selectedProject.project_name || selectedProject.name
-                  : "Select Project"
-              }
-            />
+            <label className="block text-sm font-medium mb-1">Project</label>
+            <select
+              name="project_id"
+              value={formData.project_id || ""}
+              onChange={handleChange}
+              className="select select-bordered w-full"
+              required
+            >
+              <option value="">Select Project</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.project_name || p.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -180,6 +201,7 @@ const PlotForm = ({ fetchPlots }) => {
             />
           </div>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {Object.entries(sections).map(([section, fields]) => (
             <div key={section} className="p-4 border rounded-md bg-gray-50">

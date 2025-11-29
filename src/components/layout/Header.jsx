@@ -3,12 +3,15 @@ import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../utils/userSlice";
-import { setSelectedProject } from "../../utils/selectedProjectSlice";
+// import { setSelectedProject } from "../../utils/selectedProjectSlice";
+import { setSelectedProject, clearSelectedProject } from "../../utils/selectedProjectSlice";
+
 
 export default function Header({ heading, sidebarWidth }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+  
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -51,10 +54,12 @@ export default function Header({ heading, sidebarWidth }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
-  };
+ const handleLogout = () => {
+  dispatch(clearSelectedProject());  // <<< RESET on logout
+  dispatch(logout());
+  navigate("/");
+};
+
 
   const goToProfile = () => {
     setProfileOpen(false);

@@ -62,32 +62,34 @@ const Villages = () => {
     }));
   };
 
-  const fetchVillages = async () => {
-    try {
-      setLoading(true);
+const fetchVillages = async () => {
+  try {
+    setLoading(true);
 
-      const params = new URLSearchParams({
-        project_id: filter.project_id || "",
-        district: filter.districts || "",
-        tahasil: filter.tahasils || "",
-        type: typeParam,
-      });
+    const params = new URLSearchParams();
 
-      const data = await api(`/village/villageList?${params.toString()}`);
-      console.log("Fetched villages:", data.villages);
+    if (filter.project_id) params.append("project_id", filter.project_id);
+    if (filter.districts.length > 0) params.append("district", filter.districts);
+    if (filter.tahasils.length > 0) params.append("tahasil", filter.tahasils);
 
-      if (data.success && Array.isArray(data.villages)) {
-        setVillages(normalizeVillages(data.villages));
-      } else {
-        setVillages([]);
-      }
-    } catch (err) {
-      console.error("Error fetching villages:", err);
+    params.append("type", typeParam);
+
+    const data = await api(`/village/villageList?${params.toString()}`);
+    console.log("Fetched villages:", data.villages);
+
+    if (data.success && Array.isArray(data.villages)) {
+      setVillages(normalizeVillages(data.villages));
+    } else {
       setVillages([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error("Error fetching villages:", err);
+    setVillages([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchVillages();
@@ -118,22 +120,27 @@ const Villages = () => {
     setDeleteVillage(null);
   };
 
-  const filteredVillages = villages.filter((v) => {
-    const matchDistrict =
-      filter.districts.length === 0 || filter.districts.includes(v.district);
+const filteredVillages = !selectedProject
+  ? [] // <-- No global project selected → table becomes empty
+  : villages.filter((v) => {
+      const matchDistrict =
+        filter.districts.length === 0 ||
+        filter.districts.includes(v.district);
 
-    const matchTahasil =
-      filter.tahasils.length === 0 || filter.tahasils.includes(v.tahasil);
+      const matchTahasil =
+        filter.tahasils.length === 0 ||
+        filter.tahasils.includes(v.tahasil);
 
-    const matchVillage =
-      filter.villageNames.length === 0 ||
-      filter.villageNames.includes(v.village_name);
+      const matchVillage =
+        filter.villageNames.length === 0 ||
+        filter.villageNames.includes(v.village_name);
 
-    const matchProject =
-      !filter.project_id || Number(v.project_id) === Number(filter.project_id);
+      const matchProject =
+        Number(v.project_id) === Number(selectedProject.id); // Force global project filter
 
-    return matchDistrict && matchTahasil && matchVillage && matchProject;
-  });
+      return matchDistrict && matchTahasil && matchVillage && matchProject;
+    });
+
 
   // const projectFilteredData = selectedProject
   //   ? filteredVillages.filter((v) => v.project_id === selectedProject.id)

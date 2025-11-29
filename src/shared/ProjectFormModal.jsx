@@ -9,6 +9,7 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   });
 
   const [errors, setErrors] = useState({});
+const [clientCodeWarning, setClientCodeWarning] = useState(false);
 
   useEffect(() => {
     if (project) {
@@ -52,12 +53,10 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
     }
 
     // Client code validation
-    if (!formData.client_code.trim()) {
-      newErrors.client_code = "Client code is required.";
-    } else if (!/^[A-Za-z0-9_-]+$/.test(formData.client_code)) {
-      newErrors.client_code =
-        "Client code can only contain letters, numbers, underscores, and hyphens.";
-    }
+   // Client code validation
+if (!formData.client_code.trim()) {
+  newErrors.client_code = "Client code is required.";
+}
 
     // Status validation
     if (!["Active", "Pending", "Closed"].includes(formData.status)) {
@@ -111,25 +110,36 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
             )}
           </div>
 
-          {/* Client Code */}
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Client Code
-            </label>
-            <input
-              type="text"
-              name="client_code"
-              value={formData.client_code}
-              onChange={handleChange}
-              className={`input input-bordered w-full ${
-                errors.client_code ? "input-error" : ""
-              }`}
-              // required
-            />
-            {errors.client_code && (
-              <p className="text-error text-sm mt-1">{errors.client_code}</p>
-            )}
-          </div>
+  <label className="block text-sm font-medium mb-1">Client Code</label>
+
+  <input
+    type="text"
+    name="client_code"
+    value={formData.client_code}
+    onChange={handleChange}
+    readOnly={!!project} 
+    onClick={() => {
+      if (project) setClientCodeWarning(true);
+    }}
+    className={`input input-bordered w-full ${
+      errors.client_code ? "input-error" : ""
+    } ${project ? "bg-gray-100 cursor-not-allowed" : ""}`}
+  />
+
+  {/* Validation error */}
+  {errors.client_code && (
+    <p className="text-error text-sm mt-1">{errors.client_code}</p>
+  )}
+
+  {/* Show warning ONLY when user tries to click */}
+  {clientCodeWarning && project && (
+    <p className="text-error text-sm mt-1 font-small">
+      Client code cannot be changed.
+    </p>
+  )}
+</div>
+
 
           {/* Status */}
           <div>

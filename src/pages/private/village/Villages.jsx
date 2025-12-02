@@ -21,7 +21,7 @@ const Villages = () => {
   const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const [villages, setVillages] = useState([]);
-  const [filter, setFilter] = useState({
+  const [formData, setFormData] = useState({
     project_id: "",
     districts: [],
     tahasils: [],
@@ -67,15 +67,10 @@ const fetchVillages = async () => {
     setLoading(true);
 
     const params = new URLSearchParams();
-
-    if (filter.project_id) params.append("project_id", filter.project_id);
-    if (filter.districts.length > 0) params.append("district", filter.districts);
-    if (filter.tahasils.length > 0) params.append("tahasil", filter.tahasils);
-
+    if (formData.project_id) params.append("project_id", formData.project_id);
     params.append("type", typeParam);
 
     const data = await api(`/village/villageList?${params.toString()}`);
-    console.log("Fetched villages:", data.villages);
 
     if (data.success && Array.isArray(data.villages)) {
       setVillages(normalizeVillages(data.villages));
@@ -91,9 +86,10 @@ const fetchVillages = async () => {
 };
 
 
+
   useEffect(() => {
     fetchVillages();
-  }, [landType, filter]);
+  }, [landType, formData]);
 
   const openModal = (v = null) => {
     setEditingVillage(v);
@@ -124,16 +120,16 @@ const filteredVillages = !selectedProject
   ? [] // <-- No global project selected → table becomes empty
   : villages.filter((v) => {
       const matchDistrict =
-        filter.districts.length === 0 ||
-        filter.districts.includes(v.district);
+        formData.districts.length === 0 ||
+        formData.districts.includes(v.district);
 
       const matchTahasil =
-        filter.tahasils.length === 0 ||
-        filter.tahasils.includes(v.tahasil);
+        formData.tahasils.length === 0 ||
+        formData.tahasils.includes(v.tahasil);
 
       const matchVillage =
-        filter.villageNames.length === 0 ||
-        filter.villageNames.includes(v.village_name);
+        formData.villageNames.length === 0 ||
+        formData.villageNames.includes(v.village_name);
 
       const matchProject =
         Number(v.project_id) === Number(selectedProject.id); // Force global project filter
@@ -148,9 +144,9 @@ const filteredVillages = !selectedProject
     const exportVillage = async () => {
   try {
     const params = new URLSearchParams({
-      project_id: filter.project_id || "",
-      tahasil: filter.tahasils || "",
-      district: filter.districts || "",
+      project_id: formData.project_id || "",
+      tahasil: formData.tahasils || "",
+      district: formData.districts || "",
       type: typeParam,
     });
 
@@ -186,7 +182,7 @@ const filteredVillages = !selectedProject
 
 
   return (
-    <div className="p-4 space-y-5 h-screen overflow-y-auto">
+    <div className="p-4 space-y-5 h-screen">
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
@@ -232,8 +228,8 @@ const filteredVillages = !selectedProject
           </header>
 
           <VillageFilter
-            filter={filter}
-            setFilter={setFilter}
+            formData={formData}
+            setFormData={setFormData}
             odishaDistricts={odishaDistricts}
             tahasils={tahasils}
             villages={villages}

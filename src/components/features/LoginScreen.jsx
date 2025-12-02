@@ -34,7 +34,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
-      console.log("Login response data^^^^^^^^^^^^^^:", data);
+      // console.log("Login response data^^^^^^^^^^^^^^:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -150,7 +150,7 @@ export default function LandingPage() {
                     loading ? "loading" : ""
                   }`}
                   disabled={loading}
-                >
+                >   
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
               </div>

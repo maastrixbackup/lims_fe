@@ -13,6 +13,7 @@ import {
   TreeDeciduous,
   Trash,
   MapPinHouse,
+  TreePalm,
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import logo from "../../assets/logo.jpeg";
@@ -60,22 +61,30 @@ export default function Sidebar({ open, setOpen }) {
         name: "Private Land",
         icon: Map,
         basePath: "private-land",
-        submenu: ["Villages", "Khatas", "Plots", "Compensation", "Social Survey"],
+        submenu: ["Villages", "Khatas", "Plots", "Land Cost", "Social Survey"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
         name: "Govt Land",
         icon: MapPinHouse,
         basePath: "govt-land",
-        submenu: ["Villages", "Khatas", "Plots", "Compensation"],
+        submenu: ["Villages", "Khatas", "Plots", "Land Cost"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
+      
       {
         name: "Forest Land",
         icon: TreeDeciduous,
         basePath: "forest-land",
-        submenu: ["Villages", "Khatas", "Plots", "Compensation"],
+        submenu: ["Villages", "Khatas", "Plots", "Land Cost"],
         roles: ["Admin", "Data Entry User","Viewer"],
+      },
+        {
+        name: "CA Land",
+        icon: TreePalm,
+        basePath: "govt-land",
+        submenu: [],
+        roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
         name: "User Management",

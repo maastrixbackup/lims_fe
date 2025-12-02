@@ -27,11 +27,12 @@ export default function Khata() {
     page,
     totalPages,
     setPage,
+    villages
   } = useKhata();
 
   const user = useSelector((state) => state.auth.user);
-  const villages = useSelector((state) => state.list.villages) || [];
-  console.log("village list", villages);
+  // const villages = useSelector((state) => state.list.villages) || [];
+  // console.log("village list", villages);
   const userRole = user?.role_name || "";
   const projectId = useSelector((state) => state.selectedProject.project?.id);
 
@@ -49,16 +50,16 @@ export default function Khata() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const formatKhataData = (data) =>
-    data.map((k, i) => ({
-      "Sl No": i + 1,
-      Project: k.project_name,
-      Village: k.village_name,
-      "Khata No": k.khata_no,
-      "Khata Type": getTypeName(k.type),
-      "Unique ID": k.unique_id,
-      Created: k.created_at ? moment(k.created_at).format("DD-MM-YYYY") : "",
-    }));
+  // const formatKhataData = (data) =>
+  //   data.map((k, i) => ({
+  //     "Sl No": i + 1,
+  //     Project: k.project_name,
+  //     Village: k.village_name,
+  //     "Khata No": k.khata_no,
+  //     "Khata Type": getTypeName(k.type),
+  //     "Unique ID": k.unique_id,
+  //     Created: k.created_at ? moment(k.created_at).format("DD-MM-YYYY") : "",
+  //   }));
 
   const getFileName = () => {
     const type = landType?.toLowerCase();
@@ -73,7 +74,7 @@ export default function Khata() {
 
   const handleExportExcel = async () => {
     try {
-      setExporting(true); // Show loader
+      setExporting(true); 
 
       const villageIds = filterVillage.join(",");
       console.log("villageid", villageIds);
@@ -86,7 +87,7 @@ export default function Khata() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("response7676", response);
+      // console.log("response7676", response);
       if (!response.ok) throw new Error("Failed to export khata");
 
       const blob = await response.blob();
@@ -104,13 +105,13 @@ export default function Khata() {
       console.error("Export error:", error);
       alert("Failed to export Khata");
     } finally {
-      setExporting(false); // Hide loader
+      setExporting(false); 
     }
   };
 
   const handlePrint = async () => {
     try {
-      setPrinting(true); // Show loader
+      setPrinting(true);
 
       const villageIds = filterVillage.join(",");
       const url = `${API_BASE_URL}/khata/printKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
@@ -163,7 +164,7 @@ export default function Khata() {
   };
 
   return (
-    <div className="p-4 space-y-5 h-screen overflow-y-auto">
+    <div className="p-4 space-y-5 h-screen ">
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />

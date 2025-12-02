@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pencil, Trash2, Upload, Map as MapIcon, LandPlot } from "lucide-react";
+import { Pencil, Trash2, Upload, Map as MapIcon, LandPlot, DockIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import PlotListModal from "./PlotListModal";
@@ -27,20 +27,14 @@ const KhataTable = ({
     ? khatas.filter((k) => k.project_id === selectedProject.id)
     : khatas;
 
-  const getTypeName = (type) => {
-    switch (Number(type)) {
-      case 1:
-        return "Private Land";
-      case 2:
-        return "Government Land";
-      case 3:
-        return "Forest Land";
-      default:
-        return "No data";
-    }
-  };
-
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
+  const rowClass = "hover:bg-gray-50 transition-colors";
+
+  const stickyActionHeader =
+    "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
+
+  const stickyActionCell =
+    "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
 
   return (
     <>
@@ -77,7 +71,8 @@ const KhataTable = ({
                 <th>Unique ID</th>
                 <th>Plot Count</th>
                 <th>Created</th>
-                <th className="text-right pr-6 no-print">Actions</th>
+                <th>Reference Document</th>
+                <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
 
@@ -128,8 +123,32 @@ const KhataTable = ({
                     <td className="text-gray-500">
                       {moment(khata.created_at).format("DD-MM-YYYY")}
                     </td>
-                    <td className="text-right no-print">
+                    <td>   
+                       <button
+                          className={`btn btn-xs text-white ${
+                            userRole === "Viewer"
+                              ? "!bg-gray-300 !text-gray-400"
+                              : "bg-blue-500"
+                          }`}
+                          onClick={() => onEdit(khata)}
+                          disabled={userRole === "Viewer"}
+                        >
+                          <DockIcon size={14} /> Reference Document
+                        </button>
+                        </td>
+                    <td className={stickyActionCell}>
                       <div className="flex space-x-2 justify-end">
+                          {/* <button
+                          className={`btn btn-xs text-white ${
+                            userRole === "Viewer"
+                              ? "!bg-gray-300 !text-gray-400"
+                              : "bg-blue-300"
+                          }`}
+                          onClick={() => onEdit(khata)}
+                          disabled={userRole === "Viewer"}
+                        >
+                          <DockIcon size={14} /> Reference Document
+                        </button> */}
                         <button
                           // className={`btn btn-xs btn-accent text-white ${
                           //   isRestricted

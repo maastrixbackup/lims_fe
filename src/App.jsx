@@ -81,7 +81,7 @@ export default function App() {
                 <Route path="/:landType/khatas" element={<Khata />} />
                 <Route path="/:landType/plots" element={<Plots />} />
                 <Route
-                  path="/:landType/compensation"
+                  path="/:landType/land-cost"
                   element={<Compensation />}
                 />
                 <Route
@@ -168,3 +168,21 @@ export default function App() {
     </Router>
   );
 }
+
+
+
+// import Layout1 from "../src/components/layout/Layout1";
+// import "./App.css"
+
+// function App() {
+//   return (
+//     <Layout1>
+//       <div>
+//         <h2 className="text-2xl font-bold mb-4">Welcome!</h2>
+//         <p>This is your main content area.</p>
+//       </div>
+//     </Layout1>
+//   );
+// }
+
+// export default App;

@@ -42,7 +42,6 @@ const handleFileSelect = async (e) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data?.message || "Upload failed");
 
-    // ✅ success message appears & auto hides after 2 seconds
     setSuccessMsg("KMZ/ZIP file uploaded successfully!");
     setTimeout(() => {
       setSuccessMsg("");
@@ -63,7 +62,6 @@ const handleFileSelect = async (e) => {
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-xl relative">
 
-        {/* Close button */}
         <button
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
           onClick={onClose}
@@ -75,7 +73,6 @@ const handleFileSelect = async (e) => {
           Maps for Khata {khata?.number}
         </h3>
 
-        {/* Upload section - aligned to right */}
         <div className="flex justify-end mb-4">
           <button
             className="btn btn-sm btn-primary flex items-center gap-2"
@@ -95,7 +92,6 @@ const handleFileSelect = async (e) => {
           />
         </div>
 
-        {/* Success message */}
         {successMsg && (
           <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
             <CheckCircle size={18} />
@@ -103,7 +99,6 @@ const handleFileSelect = async (e) => {
           </div>
         )}
 
-        {/* KMZ list */}
         <div className="grid grid-cols-1 gap-3">
           {maps.map((map) => (
             <div

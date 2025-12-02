@@ -8,15 +8,14 @@ const statusMap = { Pending: 0, Active: 1, Closed: 2 };
 export default function useProjects(token) {
   const dispatch = useDispatch();
   const { projects, loading } = useSelector((state) => state.list);
+  // console.log('project list', projects)
 
-  // Load projects when token available
   useEffect(() => {
     if (token) {
       dispatch(fetchProjects());
     }
   }, [token, dispatch]);
 
-  // ---------- SAVE / UPDATE PROJECT ----------
   const handleSaveProject = async (formData, editingProject) => {
     const isEdit = !!editingProject;
 
@@ -37,7 +36,7 @@ export default function useProjects(token) {
         method,
         body: payload,
       });
-
+// console.log("data plotssssss", data)
       if (!data.success) throw new Error(data.message);
 
       dispatch(fetchProjects());
@@ -47,7 +46,6 @@ export default function useProjects(token) {
     }
   };
 
-  // ---------- DELETE PROJECT ----------
   const handleDeleteProject = async (project) => {
     if (!project) return;
 

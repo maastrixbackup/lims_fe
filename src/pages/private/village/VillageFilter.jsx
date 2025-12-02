@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 
 const VillageFilter = ({
-  filter,
-  setFilter,
+  formData,
+  setFormData,
   odishaDistricts,
   tahasils = [],
 }) => {
@@ -25,7 +25,7 @@ const VillageFilter = ({
   }, []);
 
   const toggleSelection = (key, value) => {
-    setFilter((prev) => {
+    setFormData((prev) => {
       const selected = prev[key] || [];
       return {
         ...prev,
@@ -50,8 +50,8 @@ const VillageFilter = ({
             }
             className="select select-bordered w-full text-left"
           >
-            {filter.districts?.length
-              ? `${filter.districts.length} District(s) Selected`
+            {formData.districts?.length
+              ? `${formData.districts.length} District(s) Selected`
               : "Select Districts"}
           </button>
 
@@ -64,7 +64,7 @@ const VillageFilter = ({
                 >
                   <input
                     type="checkbox"
-                    checked={filter.districts?.includes(d)}
+                    checked={formData.districts?.includes(d)}
                     onChange={() => toggleSelection("districts", d)}
                   />
                   {d}
@@ -82,8 +82,8 @@ const VillageFilter = ({
             }
             className="select select-bordered w-full text-left"
           >
-            {filter.tahasils?.length
-              ? `${filter.tahasils.length} Tahasil(s) Selected`
+            {formData.tahasils?.length
+              ? `${formData.tahasils.length} Tahasil(s) Selected`
               : "Select Tahasils"}
           </button>
 
@@ -96,7 +96,7 @@ const VillageFilter = ({
                 >
                   <input
                     type="checkbox"
-                    checked={filter.tahasils?.includes(t)}
+                    checked={formData.tahasils?.includes(t)}
                     onChange={() => toggleSelection("tahasils", t)}
                   />
                   {t}

@@ -9,7 +9,7 @@ const Projects = () => {
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
-
+  // console.log('project userssss', user)
   const canModify = userRole !== "Data Entry User" && userRole !== "Viewer";
 
   const {

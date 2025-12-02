@@ -97,7 +97,7 @@ const Compensation = () => {
   return (
     <main className="p-4 min-h-screen">
      <h2 className="text-lg font-semibold capitalize">
-          Compensation Workflow - Payment Ready
+          Cost Of Land - Payment Ready
             </h2>
       {khatas.map((khata, kIndex) => {
         const { valid } = validateTotals(khata);

@@ -15,9 +15,9 @@ import { useSelector } from "react-redux";
 export default function Dashboard() {
   const { data, loading, error } = useFetchDashboard();
   const navigate= useNavigate()
-console.log("DASHBOARDDDDD",data)
-const user = useSelector((state)=>state.auth.user)
-console.log("dashbord users", user)
+// console.log("DASHBOARDDDDD",data)
+// const user = useSelector((state)=>state.auth.user)
+// console.log("dashbord users", user)
   if (loading) {
     return <Loader />;
   }

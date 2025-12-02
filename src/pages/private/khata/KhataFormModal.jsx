@@ -16,8 +16,10 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((state) => state.list.projects || []);
+  const [openVillage, setOpenVillage] = useState(false);
+  // const [openProject, setOpenProject] = useState(false);
 
-  console.log('fgsdjfgsfh', projects)
+  // console.log('fgsdjfgsfh', projects)
 
   const [formData, setFormData] = useState({
     project_id: "",
@@ -81,9 +83,9 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
       const res = await apiClient(endpoint, {
         method,
-        body: formData, 
+        body: formData,
       });
-
+      console.log("add khata", res);
       if (!res.success) {
         alert(res.message || "Failed to save khata");
         return;
@@ -124,7 +126,6 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-        
           {/* <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <input
@@ -139,7 +140,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             />
             <input type="hidden" name="project_id" value={formData.project_id} />
           </div> */}
-           <div>
+          <div>
             <label className="block text-sm font-medium mb-1">Project</label>
             <select
               name="project_id"
@@ -156,23 +157,34 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Village</label>
-            <select
-              name="village_id"
-              value={formData.village_id}
-              onChange={handleChange}
-              className="select select-bordered w-full"
-              required
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setOpenVillage(!openVillage)}
+              className="select select-bordered w-full flex justify-between items-center"
             >
-              <option value="">Select Village</option>
-              {villages.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.village_name}
-                </option>
-              ))}
-            </select>
+              {villages.find((v) => v.id === formData.village_id)
+                ?.village_name || "Select Village"}
+            </button>
+
+            {openVillage && (
+              <ul className="absolute left-0 top-full dropdown menu w-full rounded-box bg-base-100 shadow-lg p-2 max-h-54 overflow-y-auto z-50">
+                {villages.map((v) => (
+                  <li
+                    key={v.id}
+                    onClick={() => {
+                      setFormData((prev) => ({ ...prev, village_id: v.id }));
+                      setOpenVillage(false);
+                    }}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {v.village_name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+
           <div>
             <label className="block text-sm font-medium mb-1">Khata No.</label>
             <input
@@ -196,8 +208,12 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
           </div>
 
           <div className="modal-action">
-            <button type="submit" className="btn btn-primary">Save</button>
-            <button type="button" className="btn" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary">
+              Save
+            </button>
+            <button type="button" className="btn" onClick={onClose}>
+              Cancel
+            </button>
           </div>
         </form>
       </div>

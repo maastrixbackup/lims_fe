@@ -34,7 +34,7 @@ const Plots = () => {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
 
     try {
       const res = await fetch(

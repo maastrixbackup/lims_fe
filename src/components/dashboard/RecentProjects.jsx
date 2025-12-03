@@ -40,10 +40,10 @@ export default function RecentProjects() {
                       <span
                         className={`badge ${
                           project.status_text === "Active"
-                            ? "badge-success"
+                            ? "badge-success text-white"
                             : project.status_text === "Pending"
-                            ? "badge-warning"
-                            : "badge-error"
+                            ? "badge-warning text-white"
+                            : "badge-error text-white"
                         }`}
                       >
                         {project.status_text}

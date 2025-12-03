@@ -29,10 +29,10 @@ const ProjectTable = ({ projects, canModify, onEdit, onDelete, loading }) => {
                     <span
                       className={`badge w-24 justify-center ${
                         p.status === 1
-                          ? "badge-success"
+                          ? "badge-success text-white"
                           : p.status === 0
-                          ? "badge-warning"
-                          : "badge-error"
+                          ? "badge-warning text-white"
+                          : "badge-error text-white"
                       }`}
                     >
                       {p.status === 1 ? "Active" : p.status === 0 ? "Pending" : "Closed" }

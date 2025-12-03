@@ -6,11 +6,13 @@ import { apiClient } from "../utils/apiClient";
 
 export const useKhata = () => {
   const [khatas, setKhatas] = useState([]);
-  const [villages, setVillages] = useState([]);      
+  const [villages, setVillages] = useState([]);
+
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit, setLimit] = useState(10); // <-- dynamic page size
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
   const [loading, setLoading] = useState(true);
 
   const [filterVillage, setFilterVillage] = useState([]);
@@ -21,42 +23,37 @@ export const useKhata = () => {
 
   const token = useSelector((state) => state.auth.userToken);
   const { projects } = useSelector((s) => s.list);
-  const projectId = useSelector(
-    (state) => state.selectedProject.project?.id
-  );
+  const projectId = useSelector((state) => state.selectedProject.project?.id);
 
   const [modals, setModals] = useState({
     isFormOpen: false,
     isDeleteOpen: false,
     isUploadOpen: false,
     isMapOpen: false,
+
     formProps: {},
     deleteProps: {},
     uploadProps: {},
     mapProps: {},
   });
 
- const fetchVillages = async () => {
-  if (!projectId) {
-    setVillages([]);
-    return;
-  }
-
-  try {
-    const url = `/village/villageList?project_id=${projectId}&type=${typeParam}`;
-
-    const data = await apiClient(url);
-
-    if (data.success) {
-      setVillages(data.villages || []);
-    } else {
-      console.error("Failed to fetch villages:", data.message);
+  const fetchVillages = async () => {
+    if (!projectId) {
+      setVillages([]);
+      return;
     }
-  } catch (err) {
-    console.error("Error loading villages:", err);
-  }
-};
 
+    try {
+      const url = `/village/villageList?project_id=${projectId}&type=${typeParam}`;
+      const data = await apiClient(url);
+
+      if (data.success) {
+        setVillages(data.villages || []);
+      }
+    } catch (err) {
+      console.error("Error loading villages:", err);
+    }
+  };
 
   useEffect(() => {
     fetchVillages();
@@ -66,16 +63,13 @@ export const useKhata = () => {
     setLoading(true);
 
     try {
-      const data = await apiClient(
-        `/khata/khataList?page=${page}&limit=${limit}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`
-      );
-console.log("khata list", data)
+      const url = `/khata/khataList?page=${page}&limit=${limit}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`;
+      const data = await apiClient(url);
+
       if (data.success) {
         setKhatas(data.khatas || []);
         setTotal(data.total);
         setTotalPages(data.totalPages);
-      } else {
-        console.error("Failed to fetch khatas:", data.message);
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -83,15 +77,15 @@ console.log("khata list", data)
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (token) fetchKhatas();
-  }, [token, page, projectId, filterVillage, typeParam]);
+  }, [token, page, limit, projectId, filterVillage, typeParam]);
 
   const handleDeleteConfirm = (id) => {
     setKhatas((prev) => prev.filter((k) => k.id !== id));
     setModals((m) => ({ ...m, isDeleteOpen: false }));
   };
-
 
   const handlers = {
     openAddModal: () =>
@@ -102,7 +96,7 @@ console.log("khata list", data)
           khata: null,
           token,
           projects,
-          villages,   
+          villages,
           fetchKhatas,
         },
       })),
@@ -149,13 +143,14 @@ console.log("khata list", data)
 
   return {
     projects,
-    villages,          
+    villages,
     khatas,
     page,
+    setPage,
     limit,
+    setLimit, // <-- added
     total,
     totalPages,
-    setPage,
     projectId,
     filterVillage,
     setFilterVillage,

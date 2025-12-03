@@ -14,6 +14,7 @@ import { ChevronDown, FolderUp, Printer } from "lucide-react";
 import { getTypeName } from "../../../utils/constants";
 import { API_BASE_URL } from "../../../utils/config";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import ExportButtons from "../../../shared/ExportButtons";
 
 export default function Khata() {
   const { landType } = useParams();
@@ -27,7 +28,9 @@ export default function Khata() {
     page,
     totalPages,
     setPage,
-    villages
+    villages,
+    limit,
+    setLimit,
   } = useKhata();
 
   const user = useSelector((state) => state.auth.user);
@@ -61,53 +64,53 @@ export default function Khata() {
   //     Created: k.created_at ? moment(k.created_at).format("DD-MM-YYYY") : "",
   //   }));
 
-  const getFileName = () => {
-    const type = landType?.toLowerCase();
-    if (type === "govt-land") return "govt_khata.xlsx";
-    if (type === "forest-land") return "forest_khata.xlsx";
-    return "private_khata.xlsx";
-  };
-  const [exporting, setExporting] = useState(false);
+  // const getFileName = () => {
+  //   const type = landType?.toLowerCase();
+  //   if (type === "govt-land") return "govt_khata.xlsx";
+  //   if (type === "forest-land") return "forest_khata.xlsx";
+  //   return "private_khata.xlsx";
+  // };
+  // const [exporting, setExporting] = useState(false);
   const typeParam = useLandTypeParam();
   const token = useSelector((state) => state.auth.userToken);
   const [printing, setPrinting] = useState(false);
 
-  const handleExportExcel = async () => {
-    try {
-      setExporting(true); 
+  // const handleExportExcel = async () => {
+  //   try {
+  //     setExporting(true);
 
-      const villageIds = filterVillage.join(",");
-      console.log("villageid", villageIds);
+  //     const villageIds = filterVillage.join(",");
+  //     console.log("villageid", villageIds);
 
-      const url = `${API_BASE_URL}/khata/exportKhata?project_id=${projectId}&village_id=${villageIds}&type=${typeParam}`;
+  //     const url = `${API_BASE_URL}/khata/exportKhata?project_id=${projectId}&limit=${limit}village_id=${villageIds}&type=${typeParam}`;
 
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // console.log("response7676", response);
-      if (!response.ok) throw new Error("Failed to export khata");
+  //     const response = await fetch(url, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     // console.log("response7676", response);
+  //     if (!response.ok) throw new Error("Failed to export khata");
 
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
+  //     const blob = await response.blob();
+  //     const downloadUrl = window.URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = getFileName();
-      document.body.appendChild(a);
-      a.click();
+  //     const a = document.createElement("a");
+  //     a.href = downloadUrl;
+  //     a.download = getFileName();
+  //     document.body.appendChild(a);
+  //     a.click();
 
-      a.remove();
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (error) {
-      console.error("Export error:", error);
-      alert("Failed to export Khata");
-    } finally {
-      setExporting(false); 
-    }
-  };
+  //     a.remove();
+  //     window.URL.revokeObjectURL(downloadUrl);
+  //   } catch (error) {
+  //     console.error("Export error:", error);
+  //     alert("Failed to export Khata");
+  //   } finally {
+  //     setExporting(false);
+  //   }
+  // };
 
   const handlePrint = async () => {
     try {
@@ -177,7 +180,7 @@ export default function Khata() {
             </h2>
 
             <div className="flex items-center gap-3 print:hidden">
-              <button
+              {/* <button
                 className="btn bg-green-600 text-white px-4 flex items-center gap-2"
                 onClick={handleExportExcel}
                 disabled={exporting}
@@ -192,7 +195,45 @@ export default function Khata() {
                     <FolderUp size={18} /> Export
                   </>
                 )}
-              </button>
+              </button> */}
+              <ExportButtons
+              data={khatas}
+                columns={[
+                  { label: "Sl/No", key: "sl_no" },
+                  { label: "Name of Village", key: "village_name" },
+                  { label: "Village Code", key: "village_code" },
+                  { label: "Khata No.", key: "khata_no" },
+                  { label: "Plot No.", key: "plot_no" },
+                  { label: "Kissam of the Land", key: "kissam_of_land" },
+                  { label: "Category of Land", key: "land_category" },
+                  { label: "Total Area (Ac)", key: "land_area_total_acres" },
+                  { label: "Total Area (Ha)", key: "land_area_total_hectares" },
+                  {
+                    label: "Acquired Area (Ac)",
+                    key: "land_area_acquired_acres",
+                  },
+                  {
+                    label: "Acquired Area (Ha)",
+                    key: "land_area_acquired_hectares",
+                  },
+                  { label: "Remarks", key: "lo13_remarks" },
+                  { label: "Tahasil", key: "tahasil_name" },
+                  { label: "R.I. Circle", key: "ri_circle_name" },
+                  { label: "Thana No.", key: "thana_no" },
+                  { label: "Date of Award", key: "date_of_award" },
+                  { label: "RT Name", key: "name_of_recorded_tenant" },
+                  { label: "PT Name", key: "name_of_present_tenant" },
+                  { label: "Present Address", key: "present_address" },
+                  {
+                    label: "Affected Person",
+                    key: "displaced_affected_person",
+                  },
+                  { label: "Unique ID", key: "unique_id" },
+                  { label: "Plot Count", key: "plot_count" },
+                  { label: "Created", key: "created_at" },
+                  { label: "Reference Document", key: "reference_document" },
+                ]}
+              />
 
               <button
                 className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
@@ -270,6 +311,8 @@ export default function Khata() {
               page={page}
               totalPages={totalPages}
               setPage={setPage}
+              setLimit={setLimit}
+              limit={limit}
               onEdit={handlers.openEditModal}
               onDelete={handlers.openDeleteModal}
               onUpload={handlers.openUploadModal}

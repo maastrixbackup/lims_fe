@@ -138,47 +138,47 @@ const filteredVillages = !selectedProject
     });
 
 
-  // const projectFilteredData = selectedProject
-  //   ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
-  //   : filteredVillages;
-    const exportVillage = async () => {
-  try {
-    const params = new URLSearchParams({
-      project_id: formData.project_id || "",
-      tahasil: formData.tahasils || "",
-      district: formData.districts || "",
-      type: typeParam,
-    });
+  const projectFilteredData = selectedProject
+    ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
+    : filteredVillages;
+//     const exportVillage = async () => {
+//   try {
+//     const params = new URLSearchParams({
+//       project_id: formData.project_id || "",
+//       tahasil: formData.tahasils || "",
+//       district: formData.districts || "",
+//       type: typeParam,
+//     });
 
-    const response = await fetch(
-      `${API_BASE_URL}/village/exportVillage?${params.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+//     const response = await fetch(
+//       `${API_BASE_URL}/village/exportVillage?${params.toString()}`,
+//       {
+//         method: "GET",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
 
-    if (!response.ok) {
-      throw new Error("Failed to export file");
-    }
+//     if (!response.ok) {
+//       throw new Error("Failed to export file");
+//     }
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+//     const blob = await response.blob();
+//     const url = window.URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "villages_export.xlsx";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.download = "villages_export.xlsx";
+//     document.body.appendChild(link);
+//     link.click();
+//     link.remove();
 
-  } catch (err) {
-    console.error("Export error:", err);
-    alert("Failed to export villages.");
-  }
-};
+//   } catch (err) {
+//     console.error("Export error:", err);
+//     alert("Failed to export villages.");
+//   }
+// };
 
 
   return (
@@ -194,7 +194,7 @@ const filteredVillages = !selectedProject
               {landType?.replace("-", " ") || "Private"} Villages
             </h2>
             <div className="flex items-center gap-3">
-              {/* <ExportButtons
+              <ExportButtons
                 data={projectFilteredData}
                 fileName="villages"
                 columns={[
@@ -206,12 +206,12 @@ const filteredVillages = !selectedProject
                   { label: "Type", key: "type" },
                   { label: "Village Code", key: "village_code" },
                 ]}
-              /> */}
+              />
 
-      <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportVillage}>
+      {/* <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportVillage}>
         <FolderUp size={18} /> 
         Export 
-      </button>
+      </button> */}
 
               <button
                 className={`btn btn-primary text-white shadow-md ${

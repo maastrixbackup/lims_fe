@@ -9,6 +9,8 @@ import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
 import { columns } from "../../../utils/constants";
 import { FolderUp } from "lucide-react";
+import Pagination from "../../../shared/Pagination";
+import { apiClient } from "../../../utils/apiClient";
 
 const Plots = () => {
   const { landType } = useParams();
@@ -19,6 +21,7 @@ const Plots = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
@@ -28,41 +31,34 @@ const Plots = () => {
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const navigate = useNavigate();
 
-  const fetchPlots = async (currentPage) => {
-    if (!projectId) {
-      console.warn("Project ID not available yet.");
-      return;
+const fetchPlots = async () => {
+  if (!projectId) {
+    console.warn("Project ID not available yet.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const endpoint = `/plots/plotList?project_id=${projectId}&page=${page}&limit=${limit}&type=${typeParam}`;
+    const data = await apiClient(endpoint);
+
+    if (data.success) {
+      setPlots(data.plots || []);
+      setTotalPages(data.totalPages || 1);
     }
-
-    // setLoading(true);
-
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/plots/plotList?project_id=${projectId}&page=${currentPage}&type=${typeParam}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const data = await res.json();
-      // console.log("Plot Data Response:", data);
-
-      if (data.success) {
-        setPlots(data.plots || []);
-        setTotalPages(data.totalPages || 1);
-      }
-    } catch (err) {
-      console.error("Error fetching plots:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (err) {
+    console.error("Error fetching plots:", err);
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
-    if (token && projectId) {
-      fetchPlots(page);
-    }
-  }, [page, token, projectId, typeParam]);
+  if (token && projectId) {
+    fetchPlots();
+  }
+}, [page, limit, token, projectId, typeParam]);
+
 
   const confirmDelete = async () => {
     if (!deleteConfirm?.id) return;
@@ -90,50 +86,51 @@ const Plots = () => {
       alert("Something went wrong while deleting the plot.");
     }
   };
-const exportPlot = async () => {
-  if (!projectId) {
-    alert("Please select a project before exporting.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const res = await fetch(
-      `${API_BASE_URL}/plots/exportPlot?project_id=${projectId}&page=${page}&type=${typeParam}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error("Failed to export plots");
+  const exportPlot = async () => {
+    if (!projectId) {
+      alert("Please select a project before exporting.");
+      return;
     }
 
-    // Convert API response to Blob (PDF or Excel)
-    const blob = await res.blob();
+    try {
+      setLoading(true);
 
-    // Create downloadable link
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
+      const res = await fetch(
+        `${API_BASE_URL}/plots/exportPlot?project_id=${projectId}&page=${page}&type=${typeParam}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    // File name according to type
-    link.download = `plots_export_${projectId}.${blob.type.includes("pdf") ? "pdf" : "xlsx"}`;
+      if (!res.ok) {
+        throw new Error("Failed to export plots");
+      }
 
-    link.click();
-    window.URL.revokeObjectURL(url);
+      // Convert API response to Blob (PDF or Excel)
+      const blob = await res.blob();
 
-  } catch (error) {
-    console.error("Export error:", error);
-    alert("Failed to export plot data");
-  } finally {
-    setLoading(false);
-  }
-};
+      // Create downloadable link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      // File name according to type
+      link.download = `plots_export_${projectId}.${
+        blob.type.includes("pdf") ? "pdf" : "xlsx"
+      }`;
+
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export error:", error);
+      alert("Failed to export plot data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="flex-1 p-6 overflow-y-auto space-y-6">
@@ -142,10 +139,13 @@ const exportPlot = async () => {
           {landType?.replace("-", " ") || "Private"} Plots
         </h2>
         <div className="flex items-center gap-3">
-           <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportPlot}>
-        <FolderUp size={18} /> 
-        Export 
-      </button>
+          <button
+            className="btn bg-green-600 text-white flex items-center gap-2"
+            onClick={exportPlot}
+          >
+            <FolderUp size={18} />
+            Export
+          </button>
 
           <button
             className={`btn btn-primary text-white ${
@@ -170,88 +170,15 @@ const exportPlot = async () => {
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )}
-
-   {projectId && (
-  <div className="flex justify-center items-center mt-6">
-    <div className="join">
-
-      {/* Prev Button */}
-      <button
-        className="join-item btn btn-outline btn-sm"
-        onClick={() => setPage((p) => p - 1)}
-        disabled={page === 1}
-      >
-        ← Prev
-      </button>
-
-      {/* First Page */}
-      <button
-        className={`join-item btn btn-sm ${
-          page === 1 ? "btn-primary" : ""
-        }`}
-        onClick={() => setPage(1)}
-      >
-        1
-      </button>
-
-      {/* Ellipsis Left */}
-      {page > 3 && (
-        <button className="join-item btn btn-sm btn-disabled">…</button>
+      {projectId && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          setPage={setPage}
+          limit={limit}
+          setLimit={setLimit}
+        />
       )}
-
-      {/* Previous Page */}
-      {page > 2 && (
-        <button
-          className="join-item btn btn-sm"
-          onClick={() => setPage(page - 1)}
-        >
-          {page - 1}
-        </button>
-      )}
-
-      {/* Current Page */}
-      {page !== 1 && page !== totalPages && (
-        <button className="join-item btn btn-sm btn-primary">{page}</button>
-      )}
-
-      {/* Next Page */}
-      {page < totalPages - 1 && (
-        <button
-          className="join-item btn btn-sm"
-          onClick={() => setPage(page + 1)}
-        >
-          {page + 1}
-        </button>
-      )}
-
-      {/* Ellipsis Right */}
-      {page < totalPages - 2 && (
-        <button className="join-item btn btn-sm btn-disabled">…</button>
-      )}
-
-      {/* Last Page */}
-      {totalPages > 1 && (
-        <button
-          className={`join-item btn btn-sm ${
-            page === totalPages ? "btn-primary" : ""
-          }`}
-          onClick={() => setPage(totalPages)}
-        >
-          {totalPages}
-        </button>
-      )}
-
-      {/* Next Button */}
-      <button
-        className="join-item btn btn-outline btn-sm"
-        onClick={() => setPage((p) => p + 1)}
-        disabled={page === totalPages}
-      >
-        Next →
-      </button>
-    </div>
-  </div>
-)}
 
       {deleteConfirm && (
         <dialog open className="modal modal-open">

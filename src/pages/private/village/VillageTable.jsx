@@ -81,20 +81,35 @@ const VillageTable = ({
               })
             ) : (
               <tr>
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {/* <div className="bg-gray-50 border border-dashed border-gray-300 px-6 py-4 rounded-xl shadow-sm"> */}
-                    <p className="text-md font-medium text-gray-500">
-                      No villages found for the{" "}
-                      <span className="text-primary font-semibold">
-                        selected project
-                      </span>
-                      .
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Try selecting a different project or add a new village.
-                    </p>
-                  {/* </div> */}
-                </td>
+               <td colSpan="9" className="text-center py-6 text-gray-500">
+                    {selectedProject ? (
+                      <>
+                        <p className="text-md font-medium text-red-500">
+                          No Village found for the{" "}
+                          <span className="text-primary font-semibold">
+                            Selected Project.
+                          </span>
+                          
+                        </p>
+                        <p className="text-md text-gray-500 mt-1">
+                          Try selecting a different project or add a new Village.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-lg font-medium text-gray-500">
+                          Please{" "}
+                          <span className="text-primary font-semibold">
+                            select a project
+                          </span>{" "}
+                          first.
+                        </p>
+                        <p className="text-lg text-gray-500 mt-1">
+                          A project is required to view Village list.
+                        </p>
+                      </>
+                    )}
+                  </td>
               </tr>
             )}
           </tbody>

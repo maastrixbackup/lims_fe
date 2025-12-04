@@ -113,20 +113,20 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   const navigate = useNavigate();
 
-  if (!filteredPlots.length) {
-    return (
-      <div className="text-center py-10 text-gray-500">
-        No plots found. Click{" "}
-        <span
-          className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200"
-          onClick={() => navigate(`/${landType}/plot-form`)}
-        >
-          + Add Plot
-        </span>{" "}
-        to create one.
-      </div>
-    );
-  }
+  // if (!filteredPlots.length) {
+  //   return (
+  //     <div className="text-center py-10 text-gray-500">
+  //       No plots found. Click{" "}
+  //       <span
+  //         className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200"
+  //         onClick={() => navigate(`/${landType}/plot-form`)}
+  //       >
+  //         + Add Plot
+  //       </span>{" "}
+  //       to create one.
+  //     </div>
+  //   );
+  // }
   const formatDate = (date) => {
     if (!date) return "N/A";
     const d = moment(date);
@@ -300,7 +300,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <th className="p-3 text-left">Tahasil</th>
               <th className="p-3 text-left">RI Circle</th>
               <th className="p-3 text-left">Thana No</th>
-                  <th className="p-3 text-left">Total Area (Acre)</th>
+              <th className="p-3 text-left">Total Area (Acre)</th>
               <th className="p-3 text-left">Total Area (Hectare)</th>
               <th className="p-3 text-left">Acquired Area (Acre)</th>
               <th className="p-3 text-left">Acquired Area (Hectare)</th>
@@ -312,75 +312,114 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </thead>
 
           <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.map((plot, idx) => (
-              <tr key={plot.id || idx} className="hover:bg-gray-50 transition">
-                <td className="p-3">{idx + 1}</td>
-                <td className="p-3">{plot.project_name || "N/A"}</td>
-                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                <td className="p-3">{plot.khata_no || "N/A"}</td>
-                <td className="p-3">{plot.plot_no || "N/A"}</td>
-                <td className="p-3">{plot.full_plot || "N/A"}</td>
-                <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
-                <td className="p-3">{formatDate(plot.date_of_award)}</td>
-                <td className="p-3">{plot.name_of_recorded_tenant || "N/A"}</td>
-                <td className="p-3">{plot.name_of_present_tenant || "N/A"}</td>
-                <td className="p-3">
-                  {plot.number_of_present_tenant || "N/A"}
-                </td>
-                <td className="p-3">{plot.present_address || "N/A"}</td>
-                <td className="p-3">
-                  {plot.displaced_affected_person || "N/A"}
-                </td>
-                <td className="p-3">{plot.village_name || "N/A"}</td>
-                <td className="p-3">{plot.tahasil_name || "N/A"}</td>
-                <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
-                <td className="p-3">{plot.thana_no || "N/A"}</td>
+            {filteredPlots.length > 0 ? (
+              filteredPlots.map((plot, idx) => (
+                <tr
+                  key={plot.id || idx}
+                  className="hover:bg-gray-50 transition"
+                >
+                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className="p-3">{plot.khata_no || "N/A"}</td>
+                  <td className="p-3">{plot.plot_no || "N/A"}</td>
+                  <td className="p-3">{plot.full_plot || "N/A"}</td>
+                  <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
+                  <td className="p-3">{formatDate(plot.date_of_award)}</td>
+                  <td className="p-3">
+                    {plot.name_of_recorded_tenant || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.name_of_present_tenant || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.number_of_present_tenant || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.present_address || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.displaced_affected_person || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.village_name || "N/A"}</td>
+                  <td className="p-3">{plot.tahasil_name || "N/A"}</td>
+                  <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
+                  <td className="p-3">{plot.thana_no || "N/A"}</td>
                   <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
-                <td className="p-3">
-                  {plot.land_area_total_hectares || "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.land_area_acquired_acres || "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.land_area_acquired_hectares || "N/A"}
-                </td>
-                <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
-                  <button
-                    className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                      isRestricted || loadingPlotId === plot.id
-                        ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                        : "hover:bg-green-700"
-                    }`}
-                    onClick={() => handlePaymentReady(plot)}
-                    disabled={
-                      isRestricted ||
-                      loadingPlotId === plot.id ||
-                      paymentStatusMap[plot.id] === "success"
-                    }
-                  >
-                    {loadingPlotId === plot.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <HandCoins size={12} />
-                    )}
+                  <td className="p-3">
+                    {plot.land_area_total_hectares || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.land_area_acquired_acres || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.land_area_acquired_hectares || "N/A"}
+                  </td>
+                  <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
+                    <button
+                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                        isRestricted || loadingPlotId === plot.id
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : "hover:bg-green-700"
+                      }`}
+                      onClick={() => handlePaymentReady(plot)}
+                      disabled={
+                        isRestricted ||
+                        loadingPlotId === plot.id ||
+                        paymentStatusMap[plot.id] === "success"
+                      }
+                    >
+                      {loadingPlotId === plot.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <HandCoins size={12} />
+                      )}
 
-                    {loadingPlotId === plot.id
-                      ? "Processing..."
-                      : paymentStatusMap[plot.id] === "success"
-                      ? "Success"
-                      : plot.payment_status === null
-                      ? "Ready For Payment"
-                      : "Processing..."}
-                  </button>
-                </td>
+                      {loadingPlotId === plot.id
+                        ? "Processing..."
+                        : paymentStatusMap[plot.id] === "success"
+                        ? "Success"
+                        : plot.payment_status === null
+                        ? "Ready For Payment"
+                        : "Processing..."}
+                    </button>
+                  </td>
 
-                <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-center">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  {selectedProject ? (
+                    <>
+                      <p className="text-md font-medium text-red-500">
+                        No Plot found for the{" "}
+                        <span className="text-primary font-semibold">
+                          Selected Project.
+                        </span>
+                      </p>
+                      <p className="text-md text-gray-500 mt-1">
+                        Try selecting a different project or add a new Plot.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-medium text-gray-500">
+                        Please{" "}
+                        <span className="text-primary font-semibold">
+                          select a project
+                        </span>{" "}
+                        first.
+                      </p>
+                      <p className="text-lg text-gray-500 mt-1">
+                        A project is required to view Plot list.
+                      </p>
+                    </>
+                  )}
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </TableWrapper>
-
         <TableWrapper title="Bank & Personal Details">
           <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
             <tr>
@@ -408,56 +447,89 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </thead>
 
           <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.map((plot, idx) => (
-              <tr key={plot.id || idx} className={rowClass}>
-                <td className="p-3">{idx + 1}</td>
-                <td className="p-3">{plot.project_name || "N/A"}</td>
-                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                <td className="p-3">{plot.bank_name || "N/A"}</td>
-                <td className="p-3">{plot.bank_account_no || "N/A"}</td>
-                <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
-                <td className="p-3">{plot.aadhaar_no || "N/A"}</td>
-                <td className="p-3">{plot.pan_no || "N/A"}</td>
-                <td className="p-3">{plot.age || "N/A"}</td>
-                <td className="p-3">{plot.caste || "N/A"}</td>
-                <td className="p-3">{plot.marital_status || "N/A"}</td>
-                <td className="p-3">{plot.education || "N/A"}</td>
-                <td className="p-3">{plot.occupation || "N/A"}</td>
-                <td className="p-3">{plot.annual_income || "N/A"}</td>
-                <td className="p-3">{plot.skill_acquired || "N/A"}</td>
-                <td className="p-3">{plot.affidavit_details || "N/A"}</td>
-                <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
-                  <button
-                    className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                      isRestricted || loadingPlotId === plot.id
-                        ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                        : "hover:bg-green-700"
-                    }`}
-                    onClick={() => handlePaymentReady(plot)}
-                    disabled={
-                      isRestricted ||
-                      loadingPlotId === plot.id ||
-                      paymentStatusMap[plot.id] === "success"
-                    }
-                  >
-                    {loadingPlotId === plot.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <HandCoins size={12} />
-                    )}
+            {filteredPlots.length > 0 ? (
+              filteredPlots.map((plot, idx) => (
+                <tr key={plot.id || idx} className={rowClass}>
+                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className="p-3">{plot.bank_name || "N/A"}</td>
+                  <td className="p-3">{plot.bank_account_no || "N/A"}</td>
+                  <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
+                  <td className="p-3">{plot.aadhaar_no || "N/A"}</td>
+                  <td className="p-3">{plot.pan_no || "N/A"}</td>
+                  <td className="p-3">{plot.age || "N/A"}</td>
+                  <td className="p-3">{plot.caste || "N/A"}</td>
+                  <td className="p-3">{plot.marital_status || "N/A"}</td>
+                  <td className="p-3">{plot.education || "N/A"}</td>
+                  <td className="p-3">{plot.occupation || "N/A"}</td>
+                  <td className="p-3">{plot.annual_income || "N/A"}</td>
+                  <td className="p-3">{plot.skill_acquired || "N/A"}</td>
+                  <td className="p-3">{plot.affidavit_details || "N/A"}</td>
+                  <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
+                    <button
+                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                        isRestricted || loadingPlotId === plot.id
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : "hover:bg-green-700"
+                      }`}
+                      onClick={() => handlePaymentReady(plot)}
+                      disabled={
+                        isRestricted ||
+                        loadingPlotId === plot.id ||
+                        paymentStatusMap[plot.id] === "success"
+                      }
+                    >
+                      {loadingPlotId === plot.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <HandCoins size={12} />
+                      )}
 
-                    {loadingPlotId === plot.id
-                      ? "Processing..."
-                      : paymentStatusMap[plot.id] === "success"
-                      ? "Success"
-                      : plot.payment_status === null
-                      ? "Ready For Payment"
-                      : "Processing..."}
-                  </button>
+                      {loadingPlotId === plot.id
+                        ? "Processing..."
+                        : paymentStatusMap[plot.id] === "success"
+                        ? "Success"
+                        : plot.payment_status === null
+                        ? "Ready For Payment"
+                        : "Processing..."}
+                    </button>
+                  </td>
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-center">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  {selectedProject ? (
+                    <>
+                      <p className="text-md font-medium text-red-500">
+                        No Plot found for the{" "}
+                        <span className="text-primary font-semibold">
+                          Selected Project.
+                        </span>
+                      </p>
+                      <p className="text-md text-gray-500 mt-1">
+                        Try selecting a different project or add a new Plot.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-medium text-gray-500">
+                        Please{" "}
+                        <span className="text-primary font-semibold">
+                          select a project
+                        </span>{" "}
+                        first.
+                      </p>
+                      <p className="text-lg text-gray-500 mt-1">
+                        A project is required to view Plot list.
+                      </p>
+                    </>
+                  )}
                 </td>
-                <td className={stickyActionCell}>{ActionButtons(plot)}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </TableWrapper>
         <TableWrapper title="Land and Valuation Details">
@@ -504,18 +576,19 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </thead>
 
           <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.map((plot, idx) => (
-              <tr
-                key={plot.id || idx}
-                className="hover:bg-gray-50 shadow-sm transition"
-              >
-                <td className="p-3">{idx + 1}</td>
-                <td className="p-3">{plot.project_name || "N/A"}</td>
-                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
-                <td className="p-3">{plot.land_category || "N/A"}</td>
-                <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
-                {/* <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
+            {filteredPlots > 0 ? (
+              filteredPlots.map((plot, idx) => (
+                <tr
+                  key={plot.id || idx}
+                  className="hover:bg-gray-50 shadow-sm transition"
+                >
+                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
+                  <td className="p-3">{plot.land_category || "N/A"}</td>
+                  <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
+                  {/* <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
                 <td className="p-3">
                   {plot.land_area_total_hectares || "N/A"}
                 </td>
@@ -525,69 +598,101 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <td className="p-3">
                   {plot.land_area_acquired_hectares || "N/A"}
                 </td> */}
-                <td className="p-3">
-                  {plot.legal_heir_certificate_no || "N/A"}
-                </td>
-                <td className="p-3">{plot.land_case_no || "N/A"}</td>
-                <td className="p-3">
-                  {formatDate(plot.land_case_date) || "N/A"}
-                </td>
-                <td className="p-3">{plot.land_case_type || "N/A"}</td>
-                <td className="p-3">{plot.land_case_status || "N/A"}</td>
-                <td className="p-3">{plot.land_case_action || "N/A"}</td>
-                <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
-                <td className="p-3">{plot.basic_land_value || "N/A"}</td>
-                <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>
-                <td className="p-3">{plot.no_of_trees || "N/A"}</td>
-                <td className="p-3">{plot.total_value_of_trees || "N/A"}</td>
-                <td className="p-3">{plot.no_of_house || "N/A"}</td>
-                <td className="p-3">{plot.value_of_house || "N/A"}</td>
-                <td className="p-3">
-                  {plot.details_of_other_structures || "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.value_of_other_structures || "N/A"}
-                </td>
-                <td className="p-3">{plot.total_value || "N/A"}</td>
-                <td className="p-3">{plot.solatium_100 || "N/A"}</td>
-                <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
-                <td className="p-3">{plot.total_compensation || "N/A"}</td>
-                <td className="p-3">{plot.apportionment_amount || "N/A"}</td>
-                <td className="p-3">{plot.priority_urgency || "N/A"}</td>
-                <td className="p-3">{plot.land_use_plan || "N/A"}</td>
-                <td className="p-3">{plot.la21_remarks || "N/A"}</td>
-                <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
-                  <button
-                    className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                      isRestricted || loadingPlotId === plot.id
-                        ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                        : "hover:bg-green-700"
-                    }`}
-                    onClick={() => handlePaymentReady(plot)}
-                    disabled={
-                      isRestricted ||
-                      loadingPlotId === plot.id ||
-                      paymentStatusMap[plot.id] === "success"
-                    }
-                  >
-                    {loadingPlotId === plot.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <HandCoins size={12} />
-                    )}
+                  <td className="p-3">
+                    {plot.legal_heir_certificate_no || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.land_case_no || "N/A"}</td>
+                  <td className="p-3">
+                    {formatDate(plot.land_case_date) || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.land_case_type || "N/A"}</td>
+                  <td className="p-3">{plot.land_case_status || "N/A"}</td>
+                  <td className="p-3">{plot.land_case_action || "N/A"}</td>
+                  <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
+                  <td className="p-3">{plot.basic_land_value || "N/A"}</td>
+                  <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>
+                  <td className="p-3">{plot.no_of_trees || "N/A"}</td>
+                  <td className="p-3">{plot.total_value_of_trees || "N/A"}</td>
+                  <td className="p-3">{plot.no_of_house || "N/A"}</td>
+                  <td className="p-3">{plot.value_of_house || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.details_of_other_structures || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.value_of_other_structures || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.total_value || "N/A"}</td>
+                  <td className="p-3">{plot.solatium_100 || "N/A"}</td>
+                  <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
+                  <td className="p-3">{plot.total_compensation || "N/A"}</td>
+                  <td className="p-3">{plot.apportionment_amount || "N/A"}</td>
+                  <td className="p-3">{plot.priority_urgency || "N/A"}</td>
+                  <td className="p-3">{plot.land_use_plan || "N/A"}</td>
+                  <td className="p-3">{plot.la21_remarks || "N/A"}</td>
+                  <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
+                    <button
+                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                        isRestricted || loadingPlotId === plot.id
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : "hover:bg-green-700"
+                      }`}
+                      onClick={() => handlePaymentReady(plot)}
+                      disabled={
+                        isRestricted ||
+                        loadingPlotId === plot.id ||
+                        paymentStatusMap[plot.id] === "success"
+                      }
+                    >
+                      {loadingPlotId === plot.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <HandCoins size={12} />
+                      )}
 
-                    {loadingPlotId === plot.id
-                      ? "Processing..."
-                      : paymentStatusMap[plot.id] === "success"
-                      ? "Success"
-                      : plot.payment_status === null
-                      ? "Ready For Payment"
-                      : "Processing..."}
-                  </button>
+                      {loadingPlotId === plot.id
+                        ? "Processing..."
+                        : paymentStatusMap[plot.id] === "success"
+                        ? "Success"
+                        : plot.payment_status === null
+                        ? "Ready For Payment"
+                        : "Processing..."}
+                    </button>
+                  </td>
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-center">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  {selectedProject ? (
+                    <>
+                      <p className="text-md font-medium text-red-500">
+                        No Plot found for the{" "}
+                        <span className="text-primary font-semibold">
+                          Selected Project.
+                        </span>
+                      </p>
+                      <p className="text-md text-gray-500 mt-1">
+                        Try selecting a different project or add a new Plot.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-medium text-gray-500">
+                        Please{" "}
+                        <span className="text-primary font-semibold">
+                          select a project
+                        </span>{" "}
+                        first.
+                      </p>
+                      <p className="text-lg text-gray-500 mt-1">
+                        A project is required to view Plot list.
+                      </p>
+                    </>
+                  )}
                 </td>
-                <td className={stickyActionCell}>{ActionButtons(plot)}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </TableWrapper>
         <TableWrapper title="RR Details">
@@ -620,67 +725,104 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </thead>
 
           <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.map((plot, idx) => (
-              <tr key={plot.id || idx} className={rowClass}>
-                <td className="p-3">{idx + 1}</td>
-                <td className="p-3">{plot.project_name || "N/A"}</td>
-                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                <td className="p-3">{plot.rr_employment || "N/A"}</td>
-                <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
-                <td className="p-3">
-                  {plot.rr_training_skill_upgradation || "N/A"}
-                </td>
-                <td className="p-3">{plot.rr_self_employment || "N/A"}</td>
-                <td className="p-3">
-                  {plot.rr_special_allowance_st_ntfp || "N/A"}
-                </td>
-                <td className="p-3">{plot.rr_homestead_allotment || "N/A"}</td>
-                <td className="p-3">
-                  {plot.rr_house_building_assistance || "N/A"}
-                </td>
-                <td className="p-3">{plot.rr_constructed_by || "N/A"}</td>
-                <td className="p-3">{plot.rr_transit_shed || "N/A"}</td>
-                <td className="p-3">{plot.rr_transport_allowance || "N/A"}</td>
-                <td className="p-3">
-                  {plot.rr_maintenance_allowance || "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.rr_multiple_displacement_allowance || "N/A"}
-                </td>
-                <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
-                <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
-                <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
-                  <button
-                    className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                      isRestricted || loadingPlotId === plot.id
-                        ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                        : "hover:bg-green-700"
-                    }`}
-                    onClick={() => handlePaymentReady(plot)}
-                    disabled={
-                      isRestricted ||
-                      loadingPlotId === plot.id ||
-                      paymentStatusMap[plot.id] === "success"
-                    }
-                  >
-                    {loadingPlotId === plot.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <HandCoins size={12} />
-                    )}
+            {filteredPlots > 0 ? (
+              filteredPlots.map((plot, idx) => (
+                <tr key={plot.id || idx} className={rowClass}>
+                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className="p-3">{plot.rr_employment || "N/A"}</td>
+                  <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.rr_training_skill_upgradation || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.rr_self_employment || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.rr_special_allowance_st_ntfp || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.rr_homestead_allotment || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.rr_house_building_assistance || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.rr_constructed_by || "N/A"}</td>
+                  <td className="p-3">{plot.rr_transit_shed || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.rr_transport_allowance || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.rr_maintenance_allowance || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.rr_multiple_displacement_allowance || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
+                  <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
+                  <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
+                    <button
+                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                        isRestricted || loadingPlotId === plot.id
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : "hover:bg-green-700"
+                      }`}
+                      onClick={() => handlePaymentReady(plot)}
+                      disabled={
+                        isRestricted ||
+                        loadingPlotId === plot.id ||
+                        paymentStatusMap[plot.id] === "success"
+                      }
+                    >
+                      {loadingPlotId === plot.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <HandCoins size={12} />
+                      )}
 
-                    {loadingPlotId === plot.id
-                      ? "Processing..."
-                      : paymentStatusMap[plot.id] === "success"
-                      ? "Success"
-                      : plot.payment_status === null
-                      ? "Ready For Payment"
-                      : "Processing..."}
-                  </button>
+                      {loadingPlotId === plot.id
+                        ? "Processing..."
+                        : paymentStatusMap[plot.id] === "success"
+                        ? "Success"
+                        : plot.payment_status === null
+                        ? "Ready For Payment"
+                        : "Processing..."}
+                    </button>
+                  </td>
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-center">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  {selectedProject ? (
+                    <>
+                      <p className="text-md font-medium text-red-500">
+                        No Plot found for the{" "}
+                        <span className="text-primary font-semibold">
+                          Selected Project.
+                        </span>
+                      </p>
+                      <p className="text-md text-gray-500 mt-1">
+                        Try selecting a different project or add a new Plot.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-medium text-gray-500">
+                        Please{" "}
+                        <span className="text-primary font-semibold">
+                          select a project
+                        </span>{" "}
+                        first.
+                      </p>
+                      <p className="text-lg text-gray-500 mt-1">
+                        A project is required to view Plot list.
+                      </p>
+                    </>
+                  )}
                 </td>
-                <td className={stickyActionCell}>{ActionButtons(plot)}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </TableWrapper>
         <TableWrapper title="Grievance & Tribunal Details">
@@ -710,63 +852,98 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </thead>
 
           <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.map((plot, idx) => (
-              <tr
-                key={plot.id || idx}
-                className="hover:bg-gray-50 shadow-sm transition"
-              >
-                <td className="p-3">{idx + 1}</td>
-                <td className="p-3">{plot.project_name || "N/A"}</td>
-                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                <td className="p-3">{plot.grievance_no || "N/A"}</td>
-                <td className="p-3">
-                  {formatDate(plot.grievance_date) || "N/A"}
-                </td>
-                <td className="p-3">{plot.grievance_subject || "N/A"}</td>
-                <td className="p-3">{plot.grievance_status || "N/A"}</td>
-                <td className="p-3">{plot.grievance_action || "N/A"}</td>
-                <td className="p-3">{plot.tribunal === "Y" ? "Yes" : "No"}</td>
-                <td className="p-3">
-                  {formatDate(plot.tribunal_deposit_date) || "N/A"}
-                </td>
-                <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
-                <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
-                <td className="p-3">{plot.cess ?? "N/A"}</td>
-                <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
-                <td className="p-3">{plot.total ?? "N/A"}</td>
-                <td className="p-3">{plot.abatement || "N/A"}</td>
-                <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
-                  <button
-                    className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                      isRestricted || loadingPlotId === plot.id
-                        ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                        : "hover:bg-green-700"
-                    }`}
-                    onClick={() => handlePaymentReady(plot)}
-                    disabled={
-                      isRestricted ||
-                      loadingPlotId === plot.id ||
-                      paymentStatusMap[plot.id] === "success"
-                    }
-                  >
-                    {loadingPlotId === plot.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <HandCoins size={12} />
-                    )}
+            {filteredPlots > 0 ? (
+              filteredPlots.map((plot, idx) => (
+                <tr
+                  key={plot.id || idx}
+                  className="hover:bg-gray-50 shadow-sm transition"
+                >
+                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className="p-3">{plot.grievance_no || "N/A"}</td>
+                  <td className="p-3">
+                    {formatDate(plot.grievance_date) || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.grievance_subject || "N/A"}</td>
+                  <td className="p-3">{plot.grievance_status || "N/A"}</td>
+                  <td className="p-3">{plot.grievance_action || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.tribunal === "Y" ? "Yes" : "No"}
+                  </td>
+                  <td className="p-3">
+                    {formatDate(plot.tribunal_deposit_date) || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
+                  <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
+                  <td className="p-3">{plot.cess ?? "N/A"}</td>
+                  <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
+                  <td className="p-3">{plot.total ?? "N/A"}</td>
+                  <td className="p-3">{plot.abatement || "N/A"}</td>
+                  <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
+                    <button
+                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                        isRestricted || loadingPlotId === plot.id
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : "hover:bg-green-700"
+                      }`}
+                      onClick={() => handlePaymentReady(plot)}
+                      disabled={
+                        isRestricted ||
+                        loadingPlotId === plot.id ||
+                        paymentStatusMap[plot.id] === "success"
+                      }
+                    >
+                      {loadingPlotId === plot.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <HandCoins size={12} />
+                      )}
 
-                    {loadingPlotId === plot.id
-                      ? "Processing..."
-                      : paymentStatusMap[plot.id] === "success"
-                      ? "Success"
-                      : plot.payment_status === null
-                      ? "Ready For Payment"
-                      : "Processing..."}
-                  </button>
+                      {loadingPlotId === plot.id
+                        ? "Processing..."
+                        : paymentStatusMap[plot.id] === "success"
+                        ? "Success"
+                        : plot.payment_status === null
+                        ? "Ready For Payment"
+                        : "Processing..."}
+                    </button>
+                  </td>
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-center">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  {selectedProject ? (
+                    <>
+                      <p className="text-md font-medium text-red-500">
+                        No Plot found for the{" "}
+                        <span className="text-primary font-semibold">
+                          Selected Project.
+                        </span>
+                      </p>
+                      <p className="text-md text-gray-500 mt-1">
+                        Try selecting a different project or add a new Plot.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-medium text-gray-500">
+                        Please{" "}
+                        <span className="text-primary font-semibold">
+                          select a project
+                        </span>{" "}
+                        first.
+                      </p>
+                      <p className="text-lg text-gray-500 mt-1">
+                        A project is required to view Plot list.
+                      </p>
+                    </>
+                  )}
                 </td>
-                <td className={stickyActionCell}>{ActionButtons(plot)}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </TableWrapper>
         <TableWrapper title="Family Details">
@@ -790,57 +967,92 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.map((plot, idx) => (
-              <tr key={plot.id || idx} className={rowClass}>
-                <td className="p-3">{idx + 1}</td>
-                <td className="p-3">{plot.project_name || "N/A"}</td>
-                <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
-                <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
-                <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>
-                <td className="p-3">{plot.family_minor_female ?? "N/A"}</td>
-                <td className="p-3">
-                  {plot.family_major_transgender ?? "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.family_minor_transgender ?? "N/A"}
-                </td>
-                <td className="p-3">{plot.persons_with_disability ?? "N/A"}</td>
-                <td className="p-3">
-                  {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
-                </td>
-                <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
-                  <button
-                    className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                      isRestricted || loadingPlotId === plot.id
-                        ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                        : "hover:bg-green-700"
-                    }`}
-                    onClick={() => handlePaymentReady(plot)}
-                    disabled={
-                      isRestricted ||
-                      loadingPlotId === plot.id ||
-                      paymentStatusMap[plot.id] === "success"
-                    }
-                  >
-                    {loadingPlotId === plot.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <HandCoins size={12} />
-                    )}
+            {filteredPlots > 0 ? (
+              filteredPlots.map((plot, idx) => (
+                <tr key={plot.id || idx} className={rowClass}>
+                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
+                  <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
+                  <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>
+                  <td className="p-3">{plot.family_minor_female ?? "N/A"}</td>
+                  <td className="p-3">
+                    {plot.family_major_transgender ?? "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.family_minor_transgender ?? "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.persons_with_disability ?? "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
+                  </td>
+                  <td className="p-3 bg-white sticky right-34 border-l border-gray-100 shadow-sm">
+                    <button
+                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                        isRestricted || loadingPlotId === plot.id
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : "hover:bg-green-700"
+                      }`}
+                      onClick={() => handlePaymentReady(plot)}
+                      disabled={
+                        isRestricted ||
+                        loadingPlotId === plot.id ||
+                        paymentStatusMap[plot.id] === "success"
+                      }
+                    >
+                      {loadingPlotId === plot.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <HandCoins size={12} />
+                      )}
 
-                    {loadingPlotId === plot.id
-                      ? "Processing..."
-                      : paymentStatusMap[plot.id] === "success"
-                      ? "Success"
-                      : plot.payment_status === null
-                      ? "Ready For Payment"
-                      : "Processing..."}
-                  </button>
+                      {loadingPlotId === plot.id
+                        ? "Processing..."
+                        : paymentStatusMap[plot.id] === "success"
+                        ? "Success"
+                        : plot.payment_status === null
+                        ? "Ready For Payment"
+                        : "Processing..."}
+                    </button>
+                  </td>
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-center">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  {selectedProject ? (
+                    <>
+                      <p className="text-md font-medium text-red-500">
+                        No Plot found for the{" "}
+                        <span className="text-primary font-semibold">
+                          Selected Project.
+                        </span>
+                      </p>
+                      <p className="text-md text-gray-500 mt-1">
+                        Try selecting a different project or add a new Plot.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-medium text-gray-500">
+                        Please{" "}
+                        <span className="text-primary font-semibold">
+                          select a project
+                        </span>{" "}
+                        first.
+                      </p>
+                      <p className="text-lg text-gray-500 mt-1">
+                        A project is required to view Plot list.
+                      </p>
+                    </>
+                  )}
                 </td>
-                <td className={stickyActionCell}>{ActionButtons(plot)}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </TableWrapper>
       </PlotTabs>

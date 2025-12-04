@@ -27,14 +27,11 @@ const KhataTable = ({
 }) => {
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.auth.user?.role_name);
-  const selectedProject = useSelector(
-    (state) => state.selectedProject.project
-  );
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
 
-  const isRestricted =
-    userRole === "Data Entry User" || userRole === "Viewer";
+  const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
   const displayKhatas = selectedProject
     ? khatas.filter((k) => k.project_id === selectedProject.id)
@@ -45,6 +42,21 @@ const KhataTable = ({
 
   const stickyActionCell =
     "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
+  const formatThreeItems = (value) => {
+    let items = [];
+
+    if (typeof value === "string") {
+      items = value.split(",").map((v) => v.trim());
+    } else if (Array.isArray(value)) {
+      items = value;
+    }
+
+    if (items.length === 0) return "No data";
+
+    const firstThree = items.slice(0, 3).join(", ");
+
+    return items.length > 3 ? `${firstThree} … (${items.length})` : firstThree;
+  };
 
   return (
     <>
@@ -70,7 +82,7 @@ const KhataTable = ({
                 <th>Thana No.</th>
                 <th>Date of Award</th>
                 <th>RT Name</th>
-                <th className="bg-green-100">PT Name</th>
+                <th>PT Name</th>
                 <th>Present Address</th>
                 <th>Affected Person</th>
                 <th>Unique ID</th>
@@ -90,10 +102,9 @@ const KhataTable = ({
                     <td>{khata.village_name || "No data"}</td>
                     <td>{khata.village_code || "No data"}</td>
                     <td>{khata.khata_no || "No data"}</td>
-                    <td>{khata.plot_no || "No data"}</td>
-                    <td>{khata.kissam_of_land || "No data"}</td>
-                    <td>{khata.land_category || "No data"}</td>
-
+                    <td>{formatThreeItems(khata.plot_no)}</td>
+                    <td>{formatThreeItems(khata.kissam_of_land)}</td>
+                    <td>{formatThreeItems(khata.land_category)}</td>
                     <td>{khata.land_area_total_acres || "No data"}</td>
                     <td>{khata.land_area_total_hectares || "No data"}</td>
                     <td>{khata.land_area_acquired_acres || "No data"}</td>
@@ -101,14 +112,11 @@ const KhataTable = ({
 
                     <td>{khata.lo13_remarks || "No data"}</td>
                     <td>{khata.tahasil_name || "No data"}</td>
-                    <td>{khata.ri_circle_name || "No data"}</td>
+                    <td>{formatThreeItems(khata.ri_circle_name)}</td>
                     <td>{khata.thana_no || "No data"}</td>
-
                     <td>{khata.date_of_award?.split("T")[0] || "No data"}</td>
                     <td>{khata.name_of_recorded_tenant || "No data"}</td>
-                    <td>
-                      {khata.name_of_present_tenant || "No data"}
-                    </td>
+                    <td>{khata.name_of_present_tenant || "No data"}</td>
                     <td>{khata.present_address || "No data"}</td>
                     <td>{khata.displaced_affected_person || "No data"}</td>
 
@@ -188,18 +196,18 @@ const KhataTable = ({
                   </tr>
                 ))
               ) : (
-                  <tr>
+                <tr>
                   <td colSpan="9" className="text-center py-6 text-gray-500">
                     {selectedProject ? (
                       <>
-                        <p className="text-lg font-medium text-red-500">
+                        <p className="text-md font-medium text-red-500">
                           No Khata found for the{" "}
                           <span className="text-primary font-semibold">
-                            Selected Project
+                            Selected Project.
                           </span>
-                          .
+                          
                         </p>
-                        <p className="text-lg text-gray-500 mt-1">
+                        <p className="text-md text-gray-500 mt-1">
                           Try selecting a different project or add a new Khata.
                         </p>
                       </>
@@ -223,8 +231,6 @@ const KhataTable = ({
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
         <Pagination
           page={page}
           totalPages={totalPages}

@@ -4,7 +4,7 @@ import KhataTable from "./KhataTable";
 import KhataFormModal from "./KhataFormModal";
 import DeleteConfirmModal from "../../../shared/DeleteConfirmModal";
 import UploadModal from "./UploadModal";
-import MapModal from "../../../shared/MapModal";
+import MapModal from "./MapModal";
 import { useSelector } from "react-redux";
 import Loader from "../../../shared/Loader";
 import { useParams } from "react-router";
@@ -199,7 +199,7 @@ export default function Khata() {
               <ExportButtons
               data={khatas}
                 columns={[
-                  { label: "Sl/No", key: "sl_no" },
+                  { label: "Sl/No", key: "id" },
                   { label: "Name of Village", key: "village_name" },
                   { label: "Village Code", key: "village_code" },
                   { label: "Khata No.", key: "khata_no" },

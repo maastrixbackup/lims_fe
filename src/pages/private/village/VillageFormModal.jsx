@@ -22,7 +22,7 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     village_code: "",
-    multiplying_factor: "",  // ✅ ADDED
+    multiplying_factor: "",  
   });
 
   const [errors, setErrors] = useState({});
@@ -38,7 +38,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
-        multiplying_factor: editingVillage.multiplying_factor || "", // ✅ load value
+        multiplying_factor: editingVillage.multiplying_factor || "", 
       });
     } else {
       setFormData({
@@ -48,7 +48,7 @@ const VillageFormModal = ({
         tahasil: "",
         type: typeParam.toString(),
         village_code: "",
-        multiplying_factor: "Test", // default value if needed
+        multiplying_factor: "",
       });
     }
     setErrors({});

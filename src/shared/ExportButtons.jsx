@@ -16,7 +16,7 @@ const exportToExcel = () => {
     const row = {};
 
     // 🔥 Add SL number (1, 2, 3, 4...)
-    row["SL No"] = index + 1;
+    // row["SL No"] = index + 1;
 
     columns.forEach((col) => {
       let value = item[col.key];

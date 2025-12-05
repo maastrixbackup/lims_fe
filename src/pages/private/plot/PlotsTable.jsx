@@ -51,7 +51,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         }));
         navigate(`/${landType}/land-cost`, { state: { plot } });
 
-        setTimeout(() => refreshPlots && refreshPlots(), 1000);
+        // setTimeout(() => refreshPlots && refreshPlots(), 1000);
       } else {
         window.toast?.error(data.message || "Payment request failed");
       }
@@ -279,41 +279,74 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </div>
         </div>
       </div>
-      <PlotTabs>
-        <TableWrapper title="Basic Details">
-          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Project Name</th>
-              <th className="p-3 text-left">LA Case File No</th>
-              <th className="p-3 text-left">Khata No</th>
-              <th className="p-3 text-left">Plot No</th>
-              <th className="p-3 text-left">Full/Part Plot</th>
-              <th className="p-3 text-left">SES Survey No</th>
-              <th className="p-3 text-left">Date of Award</th>
-              <th className="p-3 text-left">Recorded Tenant</th>
-              <th className="p-3 text-left">Present Tenant</th>
-              <th className="p-3 text-left">Number Of Present Tenant</th>
-              <th className="p-3 text-left">Present Address</th>
-              <th className="p-3 text-left">Displaced/Affected</th>
-              <th className="p-3 text-left">Village</th>
-              <th className="p-3 text-left">Tahasil</th>
-              <th className="p-3 text-left">RI Circle</th>
-              <th className="p-3 text-left">Thana No</th>
-              <th className="p-3 text-left">Total Area (Acre)</th>
-              <th className="p-3 text-left">Total Area (Hectare)</th>
-              <th className="p-3 text-left">Acquired Area (Acre)</th>
-              <th className="p-3 text-left">Acquired Area (Hectare)</th>
-              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
-                Payment Status
-              </th>
-              <th className={stickyActionHeader}>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.length > 0 ? (
-              filteredPlots.map((plot, idx) => (
+      <div className="card bg-white shadow-lg p-4">
+      {(!selectedProject || filteredPlots.length === 0) && (
+        <div className="py-10 text-center text-gray-600">
+          {selectedProject ? (
+            <>
+              <p className="text-md font-medium text-red-500">
+                No Plot found for the{" "}
+                <span className="text-primary font-bold">
+                  Selected Project.
+                </span>
+              </p>
+              <p className="text-md text-gray-500 mt-1">
+                Try selecting a different{" "}
+                <span className="text-gray-700 font-semibold">Project</span> or
+                add a new Plot.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-lg font-medium">
+                Please{" "}
+                <span className="text-primary font-semibold">
+                  Select a Project
+                </span>{" "}
+                first.
+              </p>
+              <p className="text-lg text-gray-500 mt-1">
+                A project is required to view Plot list.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      </div>
+      {selectedProject && filteredPlots.length > 0 && (
+        <PlotTabs>
+          <TableWrapper title="Basic Details">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Project Name</th>
+                <th className="p-3 text-left">LA Case File No</th>
+                <th className="p-3 text-left">Khata No</th>
+                <th className="p-3 text-left">Plot No</th>
+                <th className="p-3 text-left">Full/Part Plot</th>
+                <th className="p-3 text-left">SES Survey No</th>
+                <th className="p-3 text-left">Date of Award</th>
+                <th className="p-3 text-left">Recorded Tenant</th>
+                <th className="p-3 text-left">Present Tenant</th>
+                <th className="p-3 text-left">Number Of Present Tenant</th>
+                <th className="p-3 text-left">Present Address</th>
+                <th className="p-3 text-left">Displaced/Affected</th>
+                <th className="p-3 text-left">Village</th>
+                <th className="p-3 text-left">Tahasil</th>
+                <th className="p-3 text-left">RI Circle</th>
+                <th className="p-3 text-left">Thana No</th>
+                <th className="p-3 text-left">Total Area (Acre)</th>
+                <th className="p-3 text-left">Total Area (Hectare)</th>
+                <th className="p-3 text-left">Acquired Area (Acre)</th>
+                <th className="p-3 text-left">Acquired Area (Hectare)</th>
+                <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+                  Payment Status
+                </th>
+                <th className={stickyActionHeader}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+              {filteredPlots.map((plot, idx) => (
                 <tr
                   key={plot.id || idx}
                   className="hover:bg-gray-50 transition"
@@ -385,70 +418,36 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
                   <td className={stickyActionCell}>{ActionButtons(plot)}</td>
                 </tr>
-              ))
-            ) : (
-              <tr className="text-center">
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {selectedProject ? (
-                    <>
-                      <p className="text-md font-medium text-red-500">
-                        No Plot found for the{" "}
-                        <span className="text-primary font-semibold">
-                          Selected Project.
-                        </span>
-                      </p>
-                      <p className="text-md text-gray-500 mt-1">
-                        Try selecting a different project or add a new Plot.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-medium text-gray-500">
-                        Please{" "}
-                        <span className="text-primary font-semibold">
-                          select a project
-                        </span>{" "}
-                        first.
-                      </p>
-                      <p className="text-lg text-gray-500 mt-1">
-                        A project is required to view Plot list.
-                      </p>
-                    </>
-                  )}
-                </td>
+              ))}
+            </tbody>
+          </TableWrapper>
+          <TableWrapper title="Bank & Personal Details">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Project Name</th>
+                <th className="p-3 text-left">LA Case File No</th>
+                <th className="p-3 text-left">Bank Name</th>
+                <th className="p-3 text-left">Account No</th>
+                <th className="p-3 text-left">IFSC Code</th>
+                <th className="p-3 text-left">Aadhaar No</th>
+                <th className="p-3 text-left">PAN No</th>
+                <th className="p-3 text-left">Age</th>
+                <th className="p-3 text-left">Caste</th>
+                <th className="p-3 text-left">Marital Status</th>
+                <th className="p-3 text-left">Education</th>
+                <th className="p-3 text-left">Occupation</th>
+                <th className="p-3 text-left">Annual Income (₹)</th>
+                <th className="p-3 text-left">Skill Acquired</th>
+                <th className="p-3 text-left">Affidavit Details</th>
+                <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+                  Payment Status
+                </th>
+                <th className={stickyActionHeader}>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </TableWrapper>
-        <TableWrapper title="Bank & Personal Details">
-          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Project Name</th>
-              <th className="p-3 text-left">LA Case File No</th>
-              <th className="p-3 text-left">Bank Name</th>
-              <th className="p-3 text-left">Account No</th>
-              <th className="p-3 text-left">IFSC Code</th>
-              <th className="p-3 text-left">Aadhaar No</th>
-              <th className="p-3 text-left">PAN No</th>
-              <th className="p-3 text-left">Age</th>
-              <th className="p-3 text-left">Caste</th>
-              <th className="p-3 text-left">Marital Status</th>
-              <th className="p-3 text-left">Education</th>
-              <th className="p-3 text-left">Occupation</th>
-              <th className="p-3 text-left">Annual Income (₹)</th>
-              <th className="p-3 text-left">Skill Acquired</th>
-              <th className="p-3 text-left">Affidavit Details</th>
-              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
-                Payment Status
-              </th>
-              <th className={stickyActionHeader}>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots.length > 0 ? (
-              filteredPlots.map((plot, idx) => (
+            </thead>
+            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+              {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
                   <td className="p-3">{plot.project_name || "N/A"}</td>
@@ -497,87 +496,54 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className={stickyActionCell}>{ActionButtons(plot)}</td>
                 </tr>
-              ))
-            ) : (
-              <tr className="text-center">
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {selectedProject ? (
-                    <>
-                      <p className="text-md font-medium text-red-500">
-                        No Plot found for the{" "}
-                        <span className="text-primary font-semibold">
-                          Selected Project.
-                        </span>
-                      </p>
-                      <p className="text-md text-gray-500 mt-1">
-                        Try selecting a different project or add a new Plot.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-medium text-gray-500">
-                        Please{" "}
-                        <span className="text-primary font-semibold">
-                          select a project
-                        </span>{" "}
-                        first.
-                      </p>
-                      <p className="text-lg text-gray-500 mt-1">
-                        A project is required to view Plot list.
-                      </p>
-                    </>
-                  )}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </TableWrapper>
-        <TableWrapper title="Land and Valuation Details">
-          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Project Name</th>
-              <th className="p-3 text-left">LA Case File No</th>
-              <th className="p-3 text-left">Kissam of Land</th>
-              <th className="p-3 text-left">Land Category</th>
-              <th className="p-3 text-left">LO13 Remarks</th>
-              {/* <th className="p-3 text-left">Total Area (Acre)</th>
+              ))}
+            </tbody>
+          </TableWrapper>
+          <TableWrapper title="Land and Valuation Details">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Project Name</th>
+                <th className="p-3 text-left">LA Case File No</th>
+                <th className="p-3 text-left">Kissam of Land</th>
+                <th className="p-3 text-left">Land Category</th>
+                <th className="p-3 text-left">LO13 Remarks</th>
+                {/* <th className="p-3 text-left">Total Area (Acre)</th>
               <th className="p-3 text-left">Total Area (Hectare)</th>
               <th className="p-3 text-left">Acquired Area (Acre)</th>
               <th className="p-3 text-left">Acquired Area (Hectare)</th> */}
-              <th className="p-3 text-left">Legal Heir Cert. No</th>
-              <th className="p-3 text-left">Land Case No</th>
-              <th className="p-3 text-left">Land Case Date</th>
-              <th className="p-3 text-left">Land Case Type</th>
-              <th className="p-3 text-left">Land Case Status</th>
-              <th className="p-3 text-left">Land Case Action</th>
-              <th className="p-3 text-left">Market Value / Acre</th>
-              <th className="p-3 text-left">Basic Land Value (₹)</th>
-              <th className="p-3 text-left">Land Value w/ MF (₹)</th>
-              <th className="p-3 text-left">No. of Trees</th>
-              <th className="p-3 text-left">Value of Trees (₹)</th>
-              <th className="p-3 text-left">No. of Houses</th>
-              <th className="p-3 text-left">Value of Houses (₹)</th>
-              <th className="p-3 text-left">Other Structures</th>
-              <th className="p-3 text-left">Value of Other Structures (₹)</th>
-              <th className="p-3 text-left">Total Value (₹)</th>
-              <th className="p-3 text-left">Solatium 100% (₹)</th>
-              <th className="p-3 text-left">Additional 12% (₹)</th>
-              <th className="p-3 text-left">Total Compensation (₹)</th>
-              <th className="p-3 text-left">Apportionment Amount (₹)</th>
-              <th className="p-3 text-left">Priority / Urgency</th>
-              <th className="p-3 text-left">Land Use Plan</th>
-              <th className="p-3 text-left">LA21 Remarks</th>
-              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
-                Payment Status
-              </th>
-              <th className={stickyActionHeader}>Actions</th>
-            </tr>
-          </thead>
+                <th className="p-3 text-left">Legal Heir Cert. No</th>
+                <th className="p-3 text-left">Land Case No</th>
+                <th className="p-3 text-left">Land Case Date</th>
+                <th className="p-3 text-left">Land Case Type</th>
+                <th className="p-3 text-left">Land Case Status</th>
+                <th className="p-3 text-left">Land Case Action</th>
+                <th className="p-3 text-left">Market Value / Acre</th>
+                <th className="p-3 text-left">Basic Land Value (₹)</th>
+                <th className="p-3 text-left">Land Value w/ MF (₹)</th>
+                <th className="p-3 text-left">No. of Trees</th>
+                <th className="p-3 text-left">Value of Trees (₹)</th>
+                <th className="p-3 text-left">No. of Houses</th>
+                <th className="p-3 text-left">Value of Houses (₹)</th>
+                <th className="p-3 text-left">Other Structures</th>
+                <th className="p-3 text-left">Value of Other Structures (₹)</th>
+                <th className="p-3 text-left">Total Value (₹)</th>
+                <th className="p-3 text-left">Solatium 100% (₹)</th>
+                <th className="p-3 text-left">Additional 12% (₹)</th>
+                <th className="p-3 text-left">Total Compensation (₹)</th>
+                <th className="p-3 text-left">Apportionment Amount (₹)</th>
+                <th className="p-3 text-left">Priority / Urgency</th>
+                <th className="p-3 text-left">Land Use Plan</th>
+                <th className="p-3 text-left">LA21 Remarks</th>
+                <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+                  Payment Status
+                </th>
+                <th className={stickyActionHeader}>Actions</th>
+              </tr>
+            </thead>
 
-          <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots > 0 ? (
-              filteredPlots.map((plot, idx) => (
+            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+              {filteredPlots.map((plot, idx) => (
                 <tr
                   key={plot.id || idx}
                   className="hover:bg-gray-50 shadow-sm transition"
@@ -660,73 +626,40 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className={stickyActionCell}>{ActionButtons(plot)}</td>
                 </tr>
-              ))
-            ) : (
-              <tr className="text-center">
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {selectedProject ? (
-                    <>
-                      <p className="text-md font-medium text-red-500">
-                        No Plot found for the{" "}
-                        <span className="text-primary font-semibold">
-                          Selected Project.
-                        </span>
-                      </p>
-                      <p className="text-md text-gray-500 mt-1">
-                        Try selecting a different project or add a new Plot.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-medium text-gray-500">
-                        Please{" "}
-                        <span className="text-primary font-semibold">
-                          select a project
-                        </span>{" "}
-                        first.
-                      </p>
-                      <p className="text-lg text-gray-500 mt-1">
-                        A project is required to view Plot list.
-                      </p>
-                    </>
-                  )}
-                </td>
+              ))}
+            </tbody>
+          </TableWrapper>
+          <TableWrapper title="RR Details">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Project Name</th>
+                <th className="p-3 text-left">LA Case File No</th>
+                <th className="p-3 text-left">RR Employment</th>
+                <th className="p-3 text-left">RR Cash In Lieu</th>
+                <th className="p-3 text-left">RR Training/Skill Upgradation</th>
+                <th className="p-3 text-left">RR Self Employment</th>
+                <th className="p-3 text-left">RR Special Allowance ST/NTFP</th>
+                <th className="p-3 text-left">RR Homestead Allotment</th>
+                <th className="p-3 text-left">RR House Building Assistance</th>
+                <th className="p-3 text-left">RR Constructed By</th>
+                <th className="p-3 text-left">RR Transit Shed</th>
+                <th className="p-3 text-left">RR Transport Allowance</th>
+                <th className="p-3 text-left">RR Maintenance Allowance</th>
+                <th className="p-3 text-left">
+                  RR Multiple Displacement Allowance
+                </th>
+                <th className="p-3 text-left">RR Ex-Gratia</th>
+                <th className="p-3 text-left">RR Other Benefits</th>
+                <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+                  Payment Status
+                </th>
+                <th className={stickyActionHeader}>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </TableWrapper>
-        <TableWrapper title="RR Details">
-          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Project Name</th>
-              <th className="p-3 text-left">LA Case File No</th>
-              <th className="p-3 text-left">RR Employment</th>
-              <th className="p-3 text-left">RR Cash In Lieu</th>
-              <th className="p-3 text-left">RR Training/Skill Upgradation</th>
-              <th className="p-3 text-left">RR Self Employment</th>
-              <th className="p-3 text-left">RR Special Allowance ST/NTFP</th>
-              <th className="p-3 text-left">RR Homestead Allotment</th>
-              <th className="p-3 text-left">RR House Building Assistance</th>
-              <th className="p-3 text-left">RR Constructed By</th>
-              <th className="p-3 text-left">RR Transit Shed</th>
-              <th className="p-3 text-left">RR Transport Allowance</th>
-              <th className="p-3 text-left">RR Maintenance Allowance</th>
-              <th className="p-3 text-left">
-                RR Multiple Displacement Allowance
-              </th>
-              <th className="p-3 text-left">RR Ex-Gratia</th>
-              <th className="p-3 text-left">RR Other Benefits</th>
-              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
-                Payment Status
-              </th>
-              <th className={stickyActionHeader}>Actions</th>
-            </tr>
-          </thead>
+            </thead>
 
-          <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots > 0 ? (
-              filteredPlots.map((plot, idx) => (
+            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+              {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
                   <td className="p-3">{plot.project_name || "N/A"}</td>
@@ -790,70 +723,37 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className={stickyActionCell}>{ActionButtons(plot)}</td>
                 </tr>
-              ))
-            ) : (
-              <tr className="text-center">
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {selectedProject ? (
-                    <>
-                      <p className="text-md font-medium text-red-500">
-                        No Plot found for the{" "}
-                        <span className="text-primary font-semibold">
-                          Selected Project.
-                        </span>
-                      </p>
-                      <p className="text-md text-gray-500 mt-1">
-                        Try selecting a different project or add a new Plot.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-medium text-gray-500">
-                        Please{" "}
-                        <span className="text-primary font-semibold">
-                          select a project
-                        </span>{" "}
-                        first.
-                      </p>
-                      <p className="text-lg text-gray-500 mt-1">
-                        A project is required to view Plot list.
-                      </p>
-                    </>
-                  )}
-                </td>
+              ))}
+            </tbody>
+          </TableWrapper>
+          <TableWrapper title="Grievance & Tribunal Details">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Project Name</th>
+                <th className="p-3 text-left">LA Case File No</th>
+                <th className="p-3 text-left">Grievance No</th>
+                <th className="p-3 text-left">Grievance Date</th>
+                <th className="p-3 text-left">Subject</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Action Taken</th>
+                <th className="p-3 text-left">Tribunal</th>
+                <th className="p-3 text-left">Deposit Date</th>
+                <th className="p-3 text-left">Tribunal Amount (₹)</th>
+                <th className="p-3 text-left">Ground Rent (₹)</th>
+                <th className="p-3 text-left">Cess (₹)</th>
+                <th className="p-3 text-left">Incidental Charges (₹)</th>
+                <th className="p-3 text-left">Total (₹)</th>
+                <th className="p-3 text-left">Abatement</th>
+                <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+                  Payment Status
+                </th>
+                <th className={stickyActionHeader}>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </TableWrapper>
-        <TableWrapper title="Grievance & Tribunal Details">
-          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Project Name</th>
-              <th className="p-3 text-left">LA Case File No</th>
-              <th className="p-3 text-left">Grievance No</th>
-              <th className="p-3 text-left">Grievance Date</th>
-              <th className="p-3 text-left">Subject</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Action Taken</th>
-              <th className="p-3 text-left">Tribunal</th>
-              <th className="p-3 text-left">Deposit Date</th>
-              <th className="p-3 text-left">Tribunal Amount (₹)</th>
-              <th className="p-3 text-left">Ground Rent (₹)</th>
-              <th className="p-3 text-left">Cess (₹)</th>
-              <th className="p-3 text-left">Incidental Charges (₹)</th>
-              <th className="p-3 text-left">Total (₹)</th>
-              <th className="p-3 text-left">Abatement</th>
-              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
-                Payment Status
-              </th>
-              <th className={stickyActionHeader}>Actions</th>
-            </tr>
-          </thead>
+            </thead>
 
-          <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots > 0 ? (
-              filteredPlots.map((plot, idx) => (
+            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+              {filteredPlots.map((plot, idx) => (
                 <tr
                   key={plot.id || idx}
                   className="hover:bg-gray-50 shadow-sm transition"
@@ -911,64 +811,31 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className={stickyActionCell}>{ActionButtons(plot)}</td>
                 </tr>
-              ))
-            ) : (
-              <tr className="text-center">
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {selectedProject ? (
-                    <>
-                      <p className="text-md font-medium text-red-500">
-                        No Plot found for the{" "}
-                        <span className="text-primary font-semibold">
-                          Selected Project.
-                        </span>
-                      </p>
-                      <p className="text-md text-gray-500 mt-1">
-                        Try selecting a different project or add a new Plot.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-medium text-gray-500">
-                        Please{" "}
-                        <span className="text-primary font-semibold">
-                          select a project
-                        </span>{" "}
-                        first.
-                      </p>
-                      <p className="text-lg text-gray-500 mt-1">
-                        A project is required to view Plot list.
-                      </p>
-                    </>
-                  )}
-                </td>
+              ))}
+            </tbody>
+          </TableWrapper>
+          <TableWrapper title="Family Details">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Project Name</th>
+                <th className="p-3 text-left">LA Case File No</th>
+                <th className="p-3 text-left">Major Male</th>
+                <th className="p-3 text-left">Major Female</th>
+                <th className="p-3 text-left">Minor Male</th>
+                <th className="p-3 text-left">Minor Female</th>
+                <th className="p-3 text-left">Major Transgender</th>
+                <th className="p-3 text-left">Minor Transgender</th>
+                <th className="p-3 text-left">PwD Members</th>
+                <th className="p-3 text-left">Orphan Members</th>
+                <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
+                  Payment Status
+                </th>
+                <th className={stickyActionHeader}>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </TableWrapper>
-        <TableWrapper title="Family Details">
-          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Project Name</th>
-              <th className="p-3 text-left">LA Case File No</th>
-              <th className="p-3 text-left">Major Male</th>
-              <th className="p-3 text-left">Major Female</th>
-              <th className="p-3 text-left">Minor Male</th>
-              <th className="p-3 text-left">Minor Female</th>
-              <th className="p-3 text-left">Major Transgender</th>
-              <th className="p-3 text-left">Minor Transgender</th>
-              <th className="p-3 text-left">PwD Members</th>
-              <th className="p-3 text-left">Orphan Members</th>
-              <th className="p-3 text-left bg-gray-200 sticky right-34 z-[30] shadow-md">
-                Payment Status
-              </th>
-              <th className={stickyActionHeader}>Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-            {filteredPlots > 0 ? (
-              filteredPlots.map((plot, idx) => (
+            </thead>
+            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+              {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
                   <td className="p-3">{plot.project_name || "N/A"}</td>
@@ -1020,42 +887,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className={stickyActionCell}>{ActionButtons(plot)}</td>
                 </tr>
-              ))
-            ) : (
-              <tr className="text-center">
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  {selectedProject ? (
-                    <>
-                      <p className="text-md font-medium text-red-500">
-                        No Plot found for the{" "}
-                        <span className="text-primary font-semibold">
-                          Selected Project.
-                        </span>
-                      </p>
-                      <p className="text-md text-gray-500 mt-1">
-                        Try selecting a different project or add a new Plot.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-medium text-gray-500">
-                        Please{" "}
-                        <span className="text-primary font-semibold">
-                          select a project
-                        </span>{" "}
-                        first.
-                      </p>
-                      <p className="text-lg text-gray-500 mt-1">
-                        A project is required to view Plot list.
-                      </p>
-                    </>
-                  )}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </TableWrapper>
-      </PlotTabs>
+              ))}
+            </tbody>
+          </TableWrapper>
+        </PlotTabs>
+      )}
     </div>
   );
 };

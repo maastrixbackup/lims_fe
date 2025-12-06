@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { X, CheckCircle } from "lucide-react";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { useSelector } from "react-redux";
+import { apiClient } from "../../../utils/apiClient";
 
 const VillageFormModal = ({
   isOpen,
   onClose,
   editingVillage,
   odishaDistricts,
-  api,
+  // api,
   fetchVillages,
 }) => {
   const { projects } = useSelector((s) => s.list);
@@ -79,13 +80,16 @@ const VillageFormModal = ({
 
     setLoading(true);
 
-    const url = editingVillage
+    const endpoint = editingVillage
       ? `/village/updateVillage/${editingVillage.id}`
       : `/village/addVillage`;
 
     const method = editingVillage ? "PUT" : "POST";
 
-    const data = await api(url, method, formData);
+     const data = await apiClient(endpoint, {
+           method,
+           body: formData,
+         });
 
     setLoading(false);
 

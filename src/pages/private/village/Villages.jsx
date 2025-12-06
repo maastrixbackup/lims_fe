@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { API_BASE_URL } from "../../../utils/config";
+// import { API_BASE_URL } from "../../../utils/config";
 import { odishaDistricts } from "../../../utils/constants";
 import VillageTable from "./VillageTable";
 import VillageFilter from "./VillageFilter";
@@ -11,7 +11,8 @@ import ConfirmDelete from "../../../shared/ConfirmDelete";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
-import { FolderUp } from "lucide-react";
+// import { FolderUp } from "lucide-react";
+import {apiClient} from "../../../utils/apiClient"
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
@@ -38,17 +39,17 @@ const Villages = () => {
   const { landType } = useParams();
   const typeParam = useLandTypeParam();
 
-  const api = async (url, method = "GET", body) => {
-    const res = await fetch(`${API_BASE_URL}${url}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      ...(body && { body: JSON.stringify(body) }),
-    });
-    return res.json();
-  };
+  // const api = async (url, method = "GET", body) => {
+  //   const res = await fetch(`${API_BASE_URL}${url}`, {
+  //     method,
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //     ...(body && { body: JSON.stringify(body) }),
+  //   });
+  //   return res.json();
+  // };
 
   const normalizeVillages = (data) => {
     if (!Array.isArray(data)) return [];
@@ -70,7 +71,7 @@ const Villages = () => {
       if (formData.project_id) params.append("project_id", formData.project_id);
       params.append("type", typeParam);
 
-      const data = await api(`/village/villageList?${params.toString()}`);
+      const data = await apiClient(`/village/villageList?${params.toString()}`);
 
       if (data.success && Array.isArray(data.villages)) {
         setVillages(normalizeVillages(data.villages));
@@ -97,7 +98,7 @@ const Villages = () => {
   const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
-      const data = await api(
+      const data = await apiClient(
         `/village/deleteVillage/${deleteVillage.id}`,
         "DELETE"
       );
@@ -115,7 +116,7 @@ const Villages = () => {
   };
 
   const filteredVillages = !selectedProject
-    ? [] // <-- No global project selected → table becomes empty
+    ? []
     : villages.filter((v) => {
         const matchDistrict =
           formData.districts.length === 0 ||
@@ -260,7 +261,7 @@ const Villages = () => {
           editingVillage={editingVillage}
           projects={projects}
           odishaDistricts={odishaDistricts}
-          api={api}
+          // api={api}
           fetchVillages={fetchVillages}
         />
       )}

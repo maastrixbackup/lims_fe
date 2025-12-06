@@ -15,7 +15,7 @@ const exportToExcel = () => {
   const formattedData = data.map((item, index) => {
     const row = {};
 
-    // 🔥 Add SL number (1, 2, 3, 4...)
+    // Add SL number (1, 2, 3, 4...)
     // row["SL No"] = index + 1;
 
     columns.forEach((col) => {

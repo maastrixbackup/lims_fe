@@ -194,7 +194,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               onChange={handleChange}
               className="input input-bordered w-full"
               required
-              disabled={isRestricted}
+              // disabled={isRestricted}
             />
           </div>
           <div>

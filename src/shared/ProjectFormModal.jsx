@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
+const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
+
 const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -9,14 +11,14 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   });
 
   const [errors, setErrors] = useState({});
-const [clientCodeWarning, setClientCodeWarning] = useState(false);
+  const [clientCodeWarning, setClientCodeWarning] = useState(false);
 
   useEffect(() => {
     if (project) {
       setFormData({
         name: project.name || "",
         client_code: project.client_code || "",
-        status: project.statusText || "Active",
+        status: reverseStatusMap[project.status] || "Active",
       });
     } else {
       setFormData({
@@ -35,7 +37,6 @@ const [clientCodeWarning, setClientCodeWarning] = useState(false);
       [name]: value,
     }));
 
-    // Clear the error message when the user edits the field
     setErrors((prev) => ({
       ...prev,
       [name]: "",
@@ -45,20 +46,16 @@ const [clientCodeWarning, setClientCodeWarning] = useState(false);
   const validateForm = () => {
     const newErrors = {};
 
-    // Project name validation
     if (!formData.name.trim()) {
       newErrors.name = "Project name is required.";
     } else if (formData.name.length < 3) {
       newErrors.name = "Project name must be at least 3 characters long.";
     }
 
-    // Client code validation
-   // Client code validation
-if (!formData.client_code.trim()) {
-  newErrors.client_code = "Client code is required.";
-}
+    if (!formData.client_code.trim()) {
+      newErrors.client_code = "Client code is required.";
+    }
 
-    // Status validation
     if (!["Active", "Pending", "Closed"].includes(formData.status)) {
       newErrors.status = "Invalid status selected.";
     }
@@ -76,7 +73,7 @@ if (!formData.client_code.trim()) {
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box relative">
-        {/* Close Button */}
+        
         <button
           type="button"
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -90,11 +87,8 @@ if (!formData.client_code.trim()) {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Project Name */}
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Project Name
-            </label>
+            <label className="block text-sm font-medium mb-1">Project Name</label>
             <input
               type="text"
               name="name"
@@ -103,45 +97,38 @@ if (!formData.client_code.trim()) {
               className={`input input-bordered w-full ${
                 errors.name ? "input-error" : ""
               }`}
-              // required
             />
             {errors.name && (
               <p className="text-error text-sm mt-1">{errors.name}</p>
             )}
-          </div>
-
+          </div>    
           <div>
-  <label className="block text-sm font-medium mb-1">Client Code</label>
+            <label className="block text-sm font-medium mb-1">Client Code</label>
 
-  <input
-    type="text"
-    name="client_code"
-    value={formData.client_code}
-    onChange={handleChange}
-    readOnly={!!project} 
-    onClick={() => {
-      if (project) setClientCodeWarning(true);
-    }}
-    className={`input input-bordered w-full ${
-      errors.client_code ? "input-error" : ""
-    } ${project ? "bg-gray-100 cursor-not-allowed" : ""}`}
-  />
+            <input
+              type="text"
+              name="client_code"
+              value={formData.client_code}
+              onChange={handleChange}
+              readOnly={!!project}
+              onClick={() => {
+                if (project) setClientCodeWarning(true);
+              }}
+              className={`input input-bordered w-full ${
+                errors.client_code ? "input-error" : ""
+              } ${project ? "bg-gray-100 cursor-not-allowed" : ""}`}
+            />
 
-  {/* Validation error */}
-  {errors.client_code && (
-    <p className="text-error text-sm mt-1">{errors.client_code}</p>
-  )}
+            {errors.client_code && (
+              <p className="text-error text-sm mt-1">{errors.client_code}</p>
+            )}
 
-  {/* Show warning ONLY when user tries to click */}
-  {clientCodeWarning && project && (
-    <p className="text-error text-sm mt-1 font-small">
-      Client code cannot be changed.
-    </p>
-  )}
-</div>
-
-
-          {/* Status */}
+            {clientCodeWarning && project && (
+              <p className="text-error text-sm mt-1 font-small">
+                Client code cannot be changed.
+              </p>
+            )}
+          </div>
           <div>
             <label className="block text-sm font-medium mb-1">Status</label>
             <select
@@ -156,24 +143,20 @@ if (!formData.client_code.trim()) {
               <option value="Pending">Pending</option>
               <option value="Closed">Closed</option>
             </select>
+
             {errors.status && (
               <p className="text-error text-sm mt-1">{errors.status}</p>
             )}
-          </div>
-
-          {/* Actions */}
+          </div>     
           <div className="modal-action">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
+            <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? "Saving..." : "Save"}
             </button>
             <button type="button" className="btn" onClick={onClose}>
               Cancel
             </button>
           </div>
+
         </form>
       </div>
     </dialog>

@@ -18,7 +18,7 @@ const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
   const { projects } = useSelector((s) => s.list);
   const role = user?.role_name;
-  const isRestricted = role === "Data Entry User" || role === "Viewer";
+  const isRestricted =role !== "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const [villages, setVillages] = useState([]);
@@ -210,17 +210,33 @@ const Villages = () => {
         Export 
       </button> */}
 
-              <button
+              {/* <button
                 className={`btn btn-primary text-white shadow-md ${
                   isRestricted
                     ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                     : ""
                 }`}
-                onClick={() => openModal()}
+                onClick={
+                  () => openModal()}
                 disabled={isRestricted}
               >
                 + Add Village
-              </button>
+              </button> */}
+                 <button
+              className={`btn btn-primary text-white ${
+            !isRestricted
+              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+              : ""
+          }`} 
+            onClick={() => {
+              if (
+                // userRole !== "Data Entry User" && 
+                role !== "Viewer") openModal();
+            }}
+            disabled={!isRestricted}
+          >
+            Add Village
+          </button>
             </div>
           </div>
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { API_BASE_URL } from "../../../utils/config";
+// import { API_BASE_URL } from "../../../utils/config";
 import { odishaDistricts } from "../../../utils/constants";
 import VillageTable from "./VillageTable";
 import VillageFilter from "./VillageFilter";
@@ -11,7 +11,8 @@ import ConfirmDelete from "../../../shared/ConfirmDelete";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
-import { FolderUp } from "lucide-react";
+// import { FolderUp } from "lucide-react";
+import {apiClient} from "../../../utils/apiClient"
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
@@ -38,17 +39,17 @@ const Villages = () => {
   const { landType } = useParams();
   const typeParam = useLandTypeParam();
 
-  const api = async (url, method = "GET", body) => {
-    const res = await fetch(`${API_BASE_URL}${url}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      ...(body && { body: JSON.stringify(body) }),
-    });
-    return res.json();
-  };
+  // const api = async (url, method = "GET", body) => {
+  //   const res = await fetch(`${API_BASE_URL}${url}`, {
+  //     method,
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //     ...(body && { body: JSON.stringify(body) }),
+  //   });
+  //   return res.json();
+  // };
 
   const normalizeVillages = (data) => {
     if (!Array.isArray(data)) return [];
@@ -62,30 +63,28 @@ const Villages = () => {
     }));
   };
 
-const fetchVillages = async () => {
-  try {
-    setLoading(true);
+  const fetchVillages = async () => {
+    try {
+      setLoading(true);
 
-    const params = new URLSearchParams();
-    if (formData.project_id) params.append("project_id", formData.project_id);
-    params.append("type", typeParam);
+      const params = new URLSearchParams();
+      if (formData.project_id) params.append("project_id", formData.project_id);
+      params.append("type", typeParam);
 
-    const data = await api(`/village/villageList?${params.toString()}`);
+      const data = await apiClient(`/village/villageList?${params.toString()}`);
 
-    if (data.success && Array.isArray(data.villages)) {
-      setVillages(normalizeVillages(data.villages));
-    } else {
+      if (data.success && Array.isArray(data.villages)) {
+        setVillages(normalizeVillages(data.villages));
+      } else {
+        setVillages([]);
+      }
+    } catch (err) {
+      console.error("Error fetching villages:", err);
       setVillages([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error fetching villages:", err);
-    setVillages([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  };
 
   useEffect(() => {
     fetchVillages();
@@ -99,7 +98,7 @@ const fetchVillages = async () => {
   const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
-      const data = await api(
+      const data = await apiClient(
         `/village/deleteVillage/${deleteVillage.id}`,
         "DELETE"
       );
@@ -116,83 +115,81 @@ const fetchVillages = async () => {
     setDeleteVillage(null);
   };
 
-const filteredVillages = !selectedProject
-  ? [] // <-- No global project selected → table becomes empty
-  : villages.filter((v) => {
-      const matchDistrict =
-        formData.districts.length === 0 ||
-        formData.districts.includes(v.district);
+  const filteredVillages = !selectedProject
+    ? []
+    : villages.filter((v) => {
+        const matchDistrict =
+          formData.districts.length === 0 ||
+          formData.districts.includes(v.district);
 
-      const matchTahasil =
-        formData.tahasils.length === 0 ||
-        formData.tahasils.includes(v.tahasil);
+        const matchTahasil =
+          formData.tahasils.length === 0 ||
+          formData.tahasils.includes(v.tahasil);
 
-      const matchVillage =
-        formData.villageNames.length === 0 ||
-        formData.villageNames.includes(v.village_name);
+        const matchVillage =
+          formData.villageNames.length === 0 ||
+          formData.villageNames.includes(v.village_name);
 
-      const matchProject =
-        Number(v.project_id) === Number(selectedProject.id); // Force global project filter
+        const matchProject =
+          Number(v.project_id) === Number(selectedProject.id); // Force global project filter
 
-      return matchDistrict && matchTahasil && matchVillage && matchProject;
-    });
-
+        return matchDistrict && matchTahasil && matchVillage && matchProject;
+      });
 
   const projectFilteredData = selectedProject
     ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
     : filteredVillages;
-//     const exportVillage = async () => {
-//   try {
-//     const params = new URLSearchParams({
-//       project_id: formData.project_id || "",
-//       tahasil: formData.tahasils || "",
-//       district: formData.districts || "",
-//       type: typeParam,
-//     });
+  //     const exportVillage = async () => {
+  //   try {
+  //     const params = new URLSearchParams({
+  //       project_id: formData.project_id || "",
+  //       tahasil: formData.tahasils || "",
+  //       district: formData.districts || "",
+  //       type: typeParam,
+  //     });
 
-//     const response = await fetch(
-//       `${API_BASE_URL}/village/exportVillage?${params.toString()}`,
-//       {
-//         method: "GET",
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
+  //     const response = await fetch(
+  //       `${API_BASE_URL}/village/exportVillage?${params.toString()}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
 
-//     if (!response.ok) {
-//       throw new Error("Failed to export file");
-//     }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to export file");
+  //     }
 
-//     const blob = await response.blob();
-//     const url = window.URL.createObjectURL(blob);
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
 
-//     const link = document.createElement("a");
-//     link.href = url;
-//     link.download = "villages_export.xlsx";
-//     document.body.appendChild(link);
-//     link.click();
-//     link.remove();
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = "villages_export.xlsx";
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
 
-//   } catch (err) {
-//     console.error("Export error:", err);
-//     alert("Failed to export villages.");
-//   }
-// };
-
+  //   } catch (err) {
+  //     console.error("Export error:", err);
+  //     alert("Failed to export villages.");
+  //   }
+  // };
 
   return (
-    <div className="p-4 space-y-5 h-screen">
+    <div className=" space-y-5 h-screen">
+      <h2 className="text-lg font-semibold capitalize">
+        {landType?.replace("-", " ") || "Private"} Villages
+      </h2>
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
         </div>
       ) : (
         <>
-          <header className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold capitalize">
-              {landType?.replace("-", " ") || "Private"} Villages
-            </h2>
+          <div className="flex justify-end items-center mb-4">
             <div className="flex items-center gap-3">
               <ExportButtons
                 data={projectFilteredData}
@@ -208,7 +205,7 @@ const filteredVillages = !selectedProject
                 ]}
               />
 
-      {/* <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportVillage}>
+              {/* <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportVillage}>
         <FolderUp size={18} /> 
         Export 
       </button> */}
@@ -225,7 +222,7 @@ const filteredVillages = !selectedProject
                 + Add Village
               </button>
             </div>
-          </header>
+          </div>
 
           <VillageFilter
             formData={formData}
@@ -264,7 +261,7 @@ const filteredVillages = !selectedProject
           editingVillage={editingVillage}
           projects={projects}
           odishaDistricts={odishaDistricts}
-          api={api}
+          // api={api}
           fetchVillages={fetchVillages}
         />
       )}

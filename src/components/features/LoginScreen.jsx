@@ -34,7 +34,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
-      // console.log("Login response data^^^^^^^^^^^^^^:", data);
+      console.log("Login response data^^^^^^^^^^^^^^:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -146,11 +146,10 @@ export default function LandingPage() {
               <div className="form-control mt-4">
                 <button
                   type="submit"
-                  className={`btn btn-primary w-full transition-transform hover:scale-105 ${
-                    loading ? "loading" : ""
-                  }`}
+                  className="btn btn-primary w-full flex justify-center items-center gap-2 transition-transform hover:scale-105"
                   disabled={loading}
-                >   
+                >
+                  {loading && <span className="loading loading-spinner"></span>}
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
               </div>

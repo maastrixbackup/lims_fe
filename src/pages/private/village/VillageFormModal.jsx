@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { X, CheckCircle } from "lucide-react";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { useSelector } from "react-redux";
+import { apiClient } from "../../../utils/apiClient";
 
 const VillageFormModal = ({
   isOpen,
   onClose,
   editingVillage,
   odishaDistricts,
-  api,
+  // api,
   fetchVillages,
 }) => {
   const { projects } = useSelector((s) => s.list);
@@ -22,7 +23,7 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     village_code: "",
-    multiplying_factor: "",  // ✅ ADDED
+    multiplying_factor: "",  
   });
 
   const [errors, setErrors] = useState({});
@@ -38,7 +39,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
-        multiplying_factor: editingVillage.multiplying_factor || "", // ✅ load value
+        multiplying_factor: editingVillage.multiplying_factor || "", 
       });
     } else {
       setFormData({
@@ -48,7 +49,7 @@ const VillageFormModal = ({
         tahasil: "",
         type: typeParam.toString(),
         village_code: "",
-        multiplying_factor: "Test", // default value if needed
+        multiplying_factor: "",
       });
     }
     setErrors({});
@@ -79,13 +80,16 @@ const VillageFormModal = ({
 
     setLoading(true);
 
-    const url = editingVillage
+    const endpoint = editingVillage
       ? `/village/updateVillage/${editingVillage.id}`
       : `/village/addVillage`;
 
     const method = editingVillage ? "PUT" : "POST";
 
-    const data = await api(url, method, formData);
+     const data = await apiClient(endpoint, {
+           method,
+           body: formData,
+         });
 
     setLoading(false);
 

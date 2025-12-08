@@ -4,14 +4,14 @@ import KhataTable from "./KhataTable";
 import KhataFormModal from "./KhataFormModal";
 import DeleteConfirmModal from "../../../shared/DeleteConfirmModal";
 import UploadModal from "./UploadModal";
-import MapModal from "../../../shared/MapModal";
+import MapModal from "./MapModal";
 import { useSelector } from "react-redux";
 import Loader from "../../../shared/Loader";
 import { useParams } from "react-router";
 import * as XLSX from "xlsx";
 import moment from "moment";
 import { ChevronDown, FolderUp, Printer } from "lucide-react";
-import { getTypeName } from "../../../utils/constants";
+import { getTypeName, khataColumn } from "../../../utils/constants";
 import { API_BASE_URL } from "../../../utils/config";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
@@ -167,18 +167,17 @@ export default function Khata() {
   };
 
   return (
-    <div className="p-4 space-y-5 h-screen ">
+    <div className="space-y-5 overflow-hide">
+      <h2 className="text-xl font-semibold capitalize">
+        {landType?.replace("-", " ") || "Private"} Khata
+      </h2>
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap justify-between items-center gap-4">
-            <h2 className="text-xl font-semibold capitalize">
-              {landType?.replace("-", " ") || "Private"} Khata
-            </h2>
-
+          <div className="flex justify-end items-center mb-4">
             <div className="flex items-center gap-3 print:hidden">
               {/* <button
                 className="btn bg-green-600 text-white px-4 flex items-center gap-2"
@@ -196,44 +195,7 @@ export default function Khata() {
                   </>
                 )}
               </button> */}
-              <ExportButtons
-              data={khatas}
-                columns={[
-                  { label: "Sl/No", key: "sl_no" },
-                  { label: "Name of Village", key: "village_name" },
-                  { label: "Village Code", key: "village_code" },
-                  { label: "Khata No.", key: "khata_no" },
-                  { label: "Plot No.", key: "plot_no" },
-                  { label: "Kissam of the Land", key: "kissam_of_land" },
-                  { label: "Category of Land", key: "land_category" },
-                  { label: "Total Area (Ac)", key: "land_area_total_acres" },
-                  { label: "Total Area (Ha)", key: "land_area_total_hectares" },
-                  {
-                    label: "Acquired Area (Ac)",
-                    key: "land_area_acquired_acres",
-                  },
-                  {
-                    label: "Acquired Area (Ha)",
-                    key: "land_area_acquired_hectares",
-                  },
-                  { label: "Remarks", key: "lo13_remarks" },
-                  { label: "Tahasil", key: "tahasil_name" },
-                  { label: "R.I. Circle", key: "ri_circle_name" },
-                  { label: "Thana No.", key: "thana_no" },
-                  { label: "Date of Award", key: "date_of_award" },
-                  { label: "RT Name", key: "name_of_recorded_tenant" },
-                  { label: "PT Name", key: "name_of_present_tenant" },
-                  { label: "Present Address", key: "present_address" },
-                  {
-                    label: "Affected Person",
-                    key: "displaced_affected_person",
-                  },
-                  { label: "Unique ID", key: "unique_id" },
-                  { label: "Plot Count", key: "plot_count" },
-                  { label: "Created", key: "created_at" },
-                  { label: "Reference Document", key: "reference_document" },
-                ]}
-              />
+              <ExportButtons data={khatas} columns={khataColumn} />
 
               <button
                 className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
@@ -265,8 +227,6 @@ export default function Khata() {
               </button>
             </div>
           </div>
-
-          {/* Village Dropdown */}
           <div ref={dropdownRef} className="relative w-64">
             <button
               className="btn border border-gray-300 w-full justify-between"

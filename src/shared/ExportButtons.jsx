@@ -9,82 +9,86 @@ const typeMapping = {
 };
 
 const ExportButtons = ({ data, columns, fileName = "export" }) => {
+const exportToExcel = () => {
+  if (!data?.length) return alert("No data available!");
 
-  const exportToExcel = () => {
-    if (!data?.length) return alert("No data available!");
+  const formattedData = data.map((item, index) => {
+    const row = {};
 
-    const formattedData = data.map((item) => {
-      const row = {};
-      columns.forEach((col) => {
-        let value = item[col.key];
+    // Add SL number (1, 2, 3, 4...)
+    // row["SL No"] = index + 1;
 
-        // Apply mapping for "type" field
-        if (col.key === "type") {
-          value = typeMapping[item[col.key]] || "";
-        }
+    columns.forEach((col) => {
+      let value = item[col.key];
 
-        row[col.label] = value ?? "";
-      });
-      return row;
+      if (col.key === "type") {
+        value = typeMapping[item[col.key]] || "";
+      }
+
+      row[col.label] = value ?? "";
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    return row;
+  });
 
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
-  };
+  const worksheet = XLSX.utils.json_to_sheet(formattedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-  const printData = () => {
-    if (!data?.length) return alert("No data available!");
+  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+};
 
-    const tableRows = data
-      .map((item) => {
-        return `
-        <tr>
-          ${columns
-            .map((col) => {
-              let value = item[col.key];
 
-              // apply mapping for print also
-              if (col.key === "type") {
-                value = typeMapping[item[col.key]] || "";
-              }
+  // const printData = () => {
+  //   if (!data?.length) return alert("No data available!");
 
-              return `<td>${value ?? ""}</td>`;
-            })
-            .join("")}
-        </tr>`;
-      })
-      .join("");
+  //   const tableRows = data
+  //     .map((item) => {
+  //       return `
+  //       <tr>
+  //         ${columns
+  //           .map((col) => {
+  //             let value = item[col.key];
 
-    const headerRow = columns.map((c) => `<th>${c.label}</th>`).join("");
+  //             // apply mapping for print also
+  //             if (col.key === "type") {
+  //               value = typeMapping[item[col.key]] || "";
+  //             }
 
-    const html = `
-    <html>
-      <head>
-        <title>${fileName}</title>
-        <style>
-          table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid #555; padding: 8px; }
-          th { background: #f3f3f3; }
-        </style>
-      </head>
+  //             return `<td>${value ?? ""}</td>`;
+  //           })
+  //           .join("")}
+  //       </tr>`;
+  //     })
+  //     .join("");
 
-      <body>
-        <h2>${fileName}</h2>
-        <table>
-          <thead><tr>${headerRow}</tr></thead>
-          <tbody>${tableRows}</tbody>
-        </table>
-      </body>
-    </html>`;
+  //   const headerRow = columns.map((c) => `<th>${c.label}</th>`).join("");
 
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.print();
-  };
+  //   const html = `
+  //   <html>
+  //     <head>
+  //       <title>${fileName}</title>
+  //       <style>
+  //         table { width: 100%; border-collapse: collapse; }
+  //         th, td { border: 1px solid #555; padding: 8px; }
+  //         th { background: #f3f3f3; }
+  //       </style>
+  //     </head>
+
+  //     <body>
+  //       <h2>${fileName}</h2>
+  //       <table>
+  //         <thead><tr>${headerRow}</tr></thead>
+  //         <tbody>${tableRows}</tbody>
+  //       </table>
+  //     </body>
+  //   </html>`;
+
+  //   const printWindow = window.open("", "_blank");
+  //   printWindow.document.write(html);
+  //   printWindow.document.close();
+  //   printWindow.print();
+  // };
 
   return (
     <div className="flex gap-3">

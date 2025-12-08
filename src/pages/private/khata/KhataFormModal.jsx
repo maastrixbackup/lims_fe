@@ -9,10 +9,10 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
   const typeLabel =
     typeParam === 2
-      ? "Govt Land"
+      ? "Government Land"
       : typeParam === 3
       ? "Forest Land"
-      : "Pvt Land";
+      : "Private Land";
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((state) => state.list.projects || []);

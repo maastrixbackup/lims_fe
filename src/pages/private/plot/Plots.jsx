@@ -160,8 +160,8 @@ const fetchPlots = async () => {
           </button>
         </div>
       </div>
-
-      {!projectId ? (
+ <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
+      {/* {!projectId ? (
         <p className="text-center text-gray-600">
           Please select a project to view plots.
         </p>
@@ -169,7 +169,7 @@ const fetchPlots = async () => {
         <Loader />
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
-      )}
+      )} */}
       {projectId && (
         <Pagination
           page={page}

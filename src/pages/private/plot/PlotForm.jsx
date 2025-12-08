@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import { sections } from "../../../utils/constants";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import { apiClient } from "../../../utils/apiClient";
 
 const PlotForm = ({ fetchPlots }) => {
   const navigate = useNavigate();
@@ -13,7 +14,9 @@ const PlotForm = ({ fetchPlots }) => {
   const token = useSelector((s) => s.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((state) => state.list.projects || []);
-  const { villages } = useSelector((s) => s.list);
+  const projectId = useSelector((state) => state.selectedProject.project?.id);
+  const [villages, setVillages]= useState([])
+  // const { villages } = useSelector((s) => s.list);
 
   const editingPlot = location.state?.plot || null;
   const { landType } = useParams();
@@ -25,9 +28,31 @@ const PlotForm = ({ fetchPlots }) => {
     type: typeParam,
     ...Object.fromEntries(Object.values(sections).flat().map((f) => [f, ""])),
     project_id: "",
+    villages
   }));
 
   const [loading, setLoading] = useState(false);
+  
+    const fetchVillages = async () => {
+      if (!projectId) {
+        setVillages([]);
+        return;
+      }
+  
+      try {
+        const url = `/village/villageList?project_id=${projectId}&type=${typeParam}`;
+        const data = await apiClient(url);
+    console.log("vilaage list in plot", data)
+        if (data.success) {
+          setVillages(data.villages || []);
+        }
+      } catch (err) {
+        console.error("Error loading villages:", err);
+      }
+    };
+useEffect(() => {
+  fetchVillages();
+}, [projectId, typeParam]);
 
   useEffect(() => {
     if (editingPlot) {

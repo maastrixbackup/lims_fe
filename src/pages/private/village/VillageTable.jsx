@@ -13,6 +13,9 @@ const VillageTable = ({
   const selectedProject = useSelector((state) => state.selectedProject.project);
    const userRole = useSelector((state) => state.auth.user?.role_name);
    console.log("user role", userRole)
+   // Permission rules
+  const canEdit = userRole !== "Viewer";          // Everyone except viewer can edit
+  const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
   const filteredVillages = selectedProject
     ? villages.filter((v) => v.project_id === selectedProject.id)
@@ -70,7 +73,7 @@ const VillageTable = ({
                   <td>{v.district}</td>
                   <td>{v.tahasil}</td>
                   <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
-
+{/* 
                   <td className="text-right space-x-2">
                     <button
                       // className={`btn btn-xs btn-warning text-white ${
@@ -101,7 +104,35 @@ const VillageTable = ({
                     >
                       <Trash2 size={14} /> Delete
                     </button>
-                  </td>
+                  </td> */}
+                  
+                                    <td className="text-right space-x-2">
+                                      {/* Edit Button */}
+                                      <button
+                                        className={`btn btn-xs btn-warning text-white ${
+                                          !canEdit
+                                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                                            : ""
+                                        }`}
+                                        onClick={() => canEdit && onEdit(v)}
+                                        disabled={!canEdit}
+                                      >
+                                        <Pencil size={14} /> Edit
+                                      </button>
+                  
+                                      {/* Delete Button */}
+                                      <button
+                                        className={`btn btn-xs btn-error text-white ${
+                                          !canDelete
+                                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                                            : ""
+                                        }`}
+                                        onClick={() => canDelete && onDelete(v)}
+                                        disabled={!canDelete}
+                                      >
+                                        <Trash2 size={14} /> Delete
+                                      </button>
+                                    </td>
                 </tr>
               ))}
             </tbody>

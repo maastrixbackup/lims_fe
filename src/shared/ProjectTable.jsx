@@ -8,9 +8,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, loading }) => {
 
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
-
-  // Permission rules
-  const canEdit = userRole !== "Viewer";          // Everyone except viewer can edit
+  const canEdit = userRole !== "Viewer"; // Everyone except viewer can edit
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
   return (

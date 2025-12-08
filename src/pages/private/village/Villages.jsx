@@ -18,7 +18,7 @@ const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
   const { projects } = useSelector((s) => s.list);
   const role = user?.role_name;
-  const isRestricted = role === "Data Entry User" || role === "Viewer";
+  const isRestricted =role === "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const [villages, setVillages] = useState([]);

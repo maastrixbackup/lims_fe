@@ -9,16 +9,23 @@ const Compensation = () => {
   const [khatas, setKhatas] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = useSelector((state) => state.auth.userToken);
+  const selectedProject = useSelector((state) => state.selectedProject);
+  const projectId = selectedProject?.project?.id;
 
-  const fetchData = async () => {
+   const fetchData = async () => {
+    if (!projectId) return;
+
     try {
-      const res = await fetch(`${API_BASE_URL}/plots/getCompensationDetails`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/plots/getCompensationDetails?project_id=${projectId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 
@@ -48,8 +55,14 @@ const Compensation = () => {
     } catch (err) {
       console.error("FETCH ERROR:", err);
     }
+
     setLoading(false);
   };
+
+  useEffect(() => {
+    setLoading(true);
+    fetchData();
+  }, [projectId]);
 
   useEffect(() => {
     fetchData();
@@ -140,7 +153,44 @@ const Compensation = () => {
     saveAs(blob, "Compensation_Payments.xlsx");
   };
 
+   if (!projectId) {
+    return (
+      <main className="p-4">
+        <div className="py-10 text-center text-gray-600">
+          <p className="text-lg font-medium">
+            Please{" "}
+            <span className="text-primary font-semibold">
+              Select a Project
+            </span>{" "}
+            first.
+          </p>
+          <p className="text-md text-gray-500 mt-1">
+            A project is required to view Land Compensation details.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   if (loading) return <p className="p-4">Loading...</p>;
+
+  if (khatas.length === 0) {
+    return (
+      <main className="p-4">
+        <div className="py-10 text-center text-gray-600">
+          <p className="text-md font-medium text-red-500">
+            No Land Cost / Compensation data found for the{" "}
+            <span className="text-primary font-bold">
+              selected project.
+            </span>
+          </p>
+          <p className="text-md text-gray-500 mt-1">
+            Try selecting a different project or add compensation records.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="p-2 md:p-4 min-h-screen">

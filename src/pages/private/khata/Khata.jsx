@@ -216,11 +216,11 @@ export default function Khata() {
 
               <button
                 className={`btn btn-primary text-white ${
-                  ["Data Entry User", "Viewer"].includes(userRole)
+                  ["Viewer"].includes(userRole)
                     ? "!bg-gray-300 !text-gray-400 !cursor-not-allowed"
                     : ""
                 }`}
-                disabled={["Data Entry User", "Viewer"].includes(userRole)}
+                disabled={["Viewer"].includes(userRole)}
                 onClick={handlers.openAddModal}
               >
                 + Add Khata

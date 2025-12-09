@@ -5,6 +5,7 @@ import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
 import { Download, Trash2 } from "lucide-react";
 import moment from "moment";
+import ConfirmDelete from "../shared/ConfirmDelete";
 
 const UploadPlots = () => {
   const [plots, setPlots] = useState([]);
@@ -18,6 +19,8 @@ const UploadPlots = () => {
   const projectId = selectedProject?.id;
   const [selectedType, setSelectedType] = useState("");
   const token = useSelector((state) => state.auth.userToken);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
 
   const fetchPlotDocuments = async () => {
     try {
@@ -115,27 +118,32 @@ const UploadPlots = () => {
       setUploading(false);
     }
   };
+const handleDelete = async () => {
+  if (!docToDelete) return;
 
-  const handleDelete = (name) => {
-    try {
-        const res= `${API_BASE_URL}/plots/plotDocumentDelete/${encodeURIComponent(name)}`;
-        fetch(res, {
-          method: "DELETE", 
-          headers: { Authorization: `Bearer ${token}` },
-        }).then(async(response) => {
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.message || "Failed to delete document");
-          } else {
-            setPlotDocs((prev) => prev.filter((doc) => doc.name !== name));
-          }   
-        });
-    } catch (err) {
-      console.error("Delete error:", err);
-      setError(err.message || "Failed to delete document");
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/plots/plotDocumentDelete/${encodeURIComponent(docToDelete)}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || "Failed to delete document");
     }
-    alert(`Delete API not implemented. Would delete: ${name}`);
-  };
+
+    setPlotDocs((prev) => prev.filter((doc) => doc.name !== docToDelete));
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsDeleteModalOpen(false);
+    setDocToDelete(null);
+  }
+};
+
 
   const isUploadEnabled = selectedProject && selectedType;
 
@@ -260,7 +268,10 @@ const UploadPlots = () => {
                         <Download size={18} />
                       </a>
                       <button
-                        onClick={() => handleDelete(doc.name)}
+                        onClick={() => {
+                          setDocToDelete(doc.name);
+                          setIsDeleteModalOpen(true);
+                        }}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 size={18} />
@@ -277,6 +288,14 @@ const UploadPlots = () => {
           </p>
         )}
       </section>
+      <ConfirmDelete
+  isOpen={isDeleteModalOpen}
+  title="Confirm Deletion"
+  message={`Are you sure you want to delete "${docToDelete}"?`}
+  onConfirm={handleDelete}
+  onCancel={() => setIsDeleteModalOpen(false)}
+/>
+
     </main>
   );
 };

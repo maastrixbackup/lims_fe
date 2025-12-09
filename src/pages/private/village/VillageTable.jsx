@@ -12,9 +12,9 @@ const VillageTable = ({
 }) => {
   const selectedProject = useSelector((state) => state.selectedProject.project);
    const userRole = useSelector((state) => state.auth.user?.role_name);
-   console.log("user role", userRole)
+  //  console.log("user role", userRole)
    // Permission rules
-  const canEdit = userRole !== "Viewer";          // Everyone except viewer can edit
+  const canEdit = userRole !== "Viewer"; 
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
   const filteredVillages = selectedProject

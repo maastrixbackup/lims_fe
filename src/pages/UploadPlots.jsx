@@ -117,6 +117,23 @@ const UploadPlots = () => {
   };
 
   const handleDelete = (name) => {
+    try {
+        const res= `${API_BASE_URL}/plots/plotDocumentDelete/${encodeURIComponent(name)}`;
+        fetch(res, {
+          method: "DELETE", 
+          headers: { Authorization: `Bearer ${token}` },
+        }).then(async(response) => {
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || "Failed to delete document");
+          } else {
+            setPlotDocs((prev) => prev.filter((doc) => doc.name !== name));
+          }   
+        });
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(err.message || "Failed to delete document");
+    }
     alert(`Delete API not implemented. Would delete: ${name}`);
   };
 

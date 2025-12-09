@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API_BASE_URL } from "../utils/config";
+
 export const fetchProjects = createAsyncThunk(
   "list/fetchProjects",
   async (_, { getState, rejectWithValue }) => {
@@ -27,7 +28,7 @@ export const fetchVillages = createAsyncThunk(
     if (!token) return rejectWithValue("No token found");
 
     try {
-      const res = await fetch(`${API_BASE_URL}/village/villageList`, {
+      const res = await fetch(`${API_BASE_URL}/village/villageList `, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

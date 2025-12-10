@@ -126,7 +126,7 @@ export default function App() {
                   element={<ProjectDocumentRegister />}
                 />
                  <Route
-                  path="reports/project-reports/total-tentants"
+                  path="reports/project-reports/total-tenants"
                   element={<TotalTentants/>}
                 />
                 <Route

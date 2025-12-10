@@ -18,12 +18,14 @@ const data = [
 
 export default function BarChartCard() {
   return (
-    <div className="card bg-white shadow-xl rounded-2xl">
-      <div className="card-body p-6">
-        <h2 className="card-title text-gray-700 mb-4">
+    <div className="bg-white shadow-xl rounded-2xl w-full">
+      <div className="p-4 sm:p-6">
+        <h2 className="text-gray-700 text-lg font-semibold mb-4">
           Compensation Payment Initiated Vs Completed
         </h2>
-        <div className="h-[300px]">
+
+        {/* Responsive height for all screens */}
+        <div className="h-64 sm:h-72 md:h-80 lg:h-96">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -36,6 +38,8 @@ export default function BarChartCard() {
                   border: "1px solid #E5E7EB",
                 }}
               />
+
+              {/* Bars */}
               <Bar
                 dataKey="Projects"
                 fill="url(#projectsGradient)"
@@ -47,24 +51,14 @@ export default function BarChartCard() {
                 radius={[6, 6, 0, 0]}
               />
 
+              {/* Gradients */}
               <defs>
-                <linearGradient
-                  id="projectsGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+                <linearGradient id="projectsGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#6366F1" stopOpacity={0.9} />
                   <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.7} />
                 </linearGradient>
-                <linearGradient
-                  id="villagesGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+
+                <linearGradient id="villagesGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#F472B6" stopOpacity={0.9} />
                   <stop offset="100%" stopColor="#EF4444" stopOpacity={0.7} />
                 </linearGradient>

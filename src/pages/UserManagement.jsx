@@ -157,6 +157,7 @@ const UserManagement = () => {
             >
               <X size={20} />
             </button>
+
             <h3 className="font-bold text-lg mb-4">
               {editingUser ? "Edit User" : "Add User"}
             </h3>
@@ -176,7 +177,6 @@ const UserManagement = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
@@ -189,7 +189,6 @@ const UserManagement = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Phone Number
@@ -206,7 +205,6 @@ const UserManagement = () => {
                   }
                 />
               </div>
-
               {!editingUser && (
                 <>
                   <div>
@@ -246,7 +244,6 @@ const UserManagement = () => {
                   </div>
                 </>
               )}
-
               <div>
                 <label className="block text-sm font-medium mb-1">Role</label>
                 <select
@@ -265,7 +262,6 @@ const UserManagement = () => {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Assign Project
@@ -293,7 +289,6 @@ const UserManagement = () => {
                     ))}
                 </select>
               </div>
-
               <div className="flex flex-wrap gap-2 mt-2">
                 {formData.accessed_projects.length ? (
                   formData.accessed_projects.map((id) => {
@@ -328,7 +323,6 @@ const UserManagement = () => {
                   </span>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Profile Picture
@@ -353,6 +347,47 @@ const UserManagement = () => {
                 )}
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Permissions
+                </label>
+
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { key: "can_add", label: "Add" },
+                    { key: "can_edit", label: "Edit" },
+                    { key: "can_delete", label: "Delete" },
+                    { key: "can_upload", label: "Upload" },
+                    { key: "can_view", label: "View" },
+                    { key: "can_download", label: "Download" },
+                  ].map((perm) => {
+                    const active = formData.permissions?.[perm.key] || false;
+                    return (
+                      <button
+                        key={perm.key}
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            permissions: {
+                              ...prev.permissions,
+                              [perm.key]: !active,
+                            },
+                          }))
+                        }
+                        className={`px-4 py-0 rounded-full text-sm border shadow-sm
+            ${
+              active
+                ? "bg-blue-600 text-white border-blue-700"
+                : "bg-gray-200 text-gray-600 border-gray-300"
+            }`}
+                      >
+                        {perm.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               <div className="modal-action flex gap-3">
                 <button type="submit" className="btn btn-primary">
                   {editingUser ? "Update" : "Save"}

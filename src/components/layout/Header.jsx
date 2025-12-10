@@ -1,4 +1,11 @@
-import { Bell, User, LogOut, LockKeyhole, ChevronDown } from "lucide-react";
+import {
+  Bell,
+  User,
+  LogOut,
+  LockKeyhole,
+  ChevronDown,
+  Menu,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +15,7 @@ import {
   clearSelectedProject,
 } from "../../utils/selectedProjectSlice";
 
-export default function Header({ heading, sidebarWidth }) {
+export default function Header({ setSidebarOpen, isMobile }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
@@ -42,8 +49,7 @@ export default function Header({ heading, sidebarWidth }) {
         setProjectDropdownOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -56,23 +62,22 @@ export default function Header({ heading, sidebarWidth }) {
     <header
       className="
         fixed top-0 h-16 bg-white shadow-md flex items-center 
-        justify-between px-4 sm:px-6 z-40 transition-all duration-300
+        justify-between px-4 sm:px-6 z-40 transition-all duration-300 w-full
       "
-      style={{
-        left: sidebarWidth,
-        width: `calc(100% - ${sidebarWidth}px)`,
-      }}
     >
-      {/* Heading */}
-      <h2 className="text-lg sm:text-xl font-semibold text-indigo-600 tracking-wide truncate max-w-[150px] sm:max-w-none">
-        {heading}
-      </h2>
-
-      {/* Right side menu */}
+      {isMobile && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="p-2 rounded-lg bg-primary text-white transition-colors h-8 w-8 hover:bg-primary/90 flex items-center justify-center  "
+        >
+          <Menu size={24} />
+        </button>
+      )}
       <div className="flex items-center gap-3 md:gap-6 ml-auto">
-
-        {/* Project Dropdown */}
-        <div className="relative min-w-[140px] sm:min-w-[180px]" ref={projectRef}>
+        <div
+          className="relative min-w-[140px] sm:min-w-[180px]"
+          ref={projectRef}
+        >
           <button
             onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
             className="
@@ -126,8 +131,6 @@ export default function Header({ heading, sidebarWidth }) {
             </div>
           )}
         </div>
-
-        {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -139,7 +142,6 @@ export default function Header({ heading, sidebarWidth }) {
             <Bell size={20} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-
           {notificationsOpen && (
             <div
               className="
@@ -164,8 +166,6 @@ export default function Header({ heading, sidebarWidth }) {
             </div>
           )}
         </div>
-
-        {/* Profile Dropdown */}
         <div className="relative" ref={profileRef}>
           <div
             className="

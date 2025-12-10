@@ -175,8 +175,8 @@ useEffect(() => {
   };
 
   return (
-    <main className="flex-1 p-6 overflow-y-auto">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg p-6 rounded-lg border">
+    <main className="overflow-y-auto">
+      <div className="max-w-6xl mx-auto bg-white shadow-xl p-6 rounded-lg">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {editingPlot ? "Edit Plot" : "Add New Plot"}

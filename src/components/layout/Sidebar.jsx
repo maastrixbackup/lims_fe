@@ -19,7 +19,7 @@ import { useState, useEffect, useMemo } from "react";
 import logo from "../../assets/logo.jpeg";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Sidebar({ open, setOpen }) {
+export default function Sidebar({ open, setOpen , isMobile}) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -121,7 +121,7 @@ export default function Sidebar({ open, setOpen }) {
           {
             title: "Project Reports",
             base: "project-reports",
-            children: ["Project Summary", "Project Document Register", "Total Tentants"],
+            children: ["Project Summary", "Project Document Register", "Total Tenants"],
           },
           {
             title: "Document Reports",
@@ -224,12 +224,20 @@ export default function Sidebar({ open, setOpen }) {
 
   // ===================== RENDER =============================
   return (
-    <motion.div
-      animate={{ width: open ? 260 : 80 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 h-screen bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 shadow-2xl flex flex-col rounded-r-3xl overflow-hidden z-50"
-    >
-      {/* HEADER */}
+<motion.div
+  animate={{
+    x: isMobile ? (open ? 0 : -260) : 0,
+    width: isMobile ? 260 : open ? 260 : 80,
+  }}
+  transition={{ duration: 0.3 }}
+  className={`
+    fixed top-0 left-0 h-screen z-50 
+    bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500
+    shadow-2xl flex flex-col 
+    ${isMobile ? "rounded-none" : "rounded-r-3xl"}
+  `}
+>
+
       <div className="flex items-center justify-between p-4 border-b border-white/20">
         {open && (
           <div className="flex items-center gap-3">

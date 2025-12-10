@@ -148,7 +148,7 @@ const handleDelete = async () => {
   const isUploadEnabled = selectedProject && selectedType;
 
   return (
-    <main className="p-6 space-y-8">
+    <main className="p-6 space-y-8 h-screen overflow-y-auto">
       <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <input

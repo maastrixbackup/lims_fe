@@ -14,16 +14,35 @@ export default function useUserManagement(token) {
   const [editingUser, setEditingUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // const [formData, setFormData] = useState({
+  //   name: "",
+  //   email: "",
+  //   password: "",
+  //   confirmPassword: "",
+  //   role_id: "",
+  //   accessed_projects: [],
+  //   phone_number: "",
+  //   profile_pic: "",
+  // });
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role_id: "",
-    accessed_projects: [],
-    phone_number: "",
-    profile_pic: "",
-  });
+  name: "",
+  email: "",
+  phone_number: "",
+  password: "",
+  confirmPassword: "",
+  role_id: "",
+  accessed_projects: [],
+  profile_pic: null,
+  permissions: {
+    can_add: false,
+    can_edit: false,
+    can_delete: false,
+    can_upload: false,
+    can_view: false,
+    can_download: false,
+  },
+});
+
 
   // const navigate = useNavigate();
 

@@ -193,7 +193,7 @@ export const showToast = (message, type = "info") => {
 
 export const DOCUMENT_TYPES = [
   "Order Sheet",
-  "Notice by GMDC",
+  "Notice by project proponent",
   "Attendance Sheet",
   "Consent Form",
   "Genealogy Sheet",

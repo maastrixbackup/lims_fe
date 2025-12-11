@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-// import { API_BASE_URL } from "../../../utils/config";
 import { odishaDistricts } from "../../../utils/constants";
 import VillageTable from "./VillageTable";
 import VillageFilter from "./VillageFilter";
@@ -11,15 +10,17 @@ import ConfirmDelete from "../../../shared/ConfirmDelete";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
-// import { FolderUp } from "lucide-react";
-import {apiClient} from "../../../utils/apiClient"
+import { apiClient } from "../../../utils/apiClient";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
   const { projects } = useSelector((s) => s.list);
-  const role = user?.role_name;
-  const isRestricted =role !== "Viewer";
   const selectedProject = useSelector((state) => state.selectedProject.project);
+  const role = user?.role_name;
+  const canEdit = role !== "Viewer"; // users that can add/edit/delete
+
+  const { landType } = useParams();
+  const typeParam = useLandTypeParam();
 
   const [villages, setVillages] = useState([]);
   const [formData, setFormData] = useState({
@@ -28,7 +29,10 @@ const Villages = () => {
     tahasils: [],
     villageNames: [],
   });
-  const tahasils = [...new Set(villages.map((v) => v.tahasil).filter(Boolean))];
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVillage, setEditingVillage] = useState(null);
@@ -36,59 +40,74 @@ const Villages = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { landType } = useParams();
-  const typeParam = useLandTypeParam();
+  // Extract unique tahasils from current villages (for filter dropdown)
+  const tahasils = useMemo(() => {
+    return [...new Set(villages.map((v) => v.tahasil).filter(Boolean))];
+  }, [villages]);
 
-  // const api = async (url, method = "GET", body) => {
-  //   const res = await fetch(`${API_BASE_URL}${url}`, {
-  //     method,
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //     ...(body && { body: JSON.stringify(body) }),
-  //   });
-  //   return res.json();
-  // };
-
+  // Normalize incoming village objects to a consistent shape
   const normalizeVillages = (data) => {
     if (!Array.isArray(data)) return [];
     return data.map((v) => ({
       id: v.id ?? v.village_id ?? v.uid,
       village_name: v.village_name ?? v.name ?? v.village,
-      district: v.district ?? v.dist ?? "",
-      tahasil: v.tahasil ?? v.taluka ?? "",
-      project_id: v.project_id ?? v.project ?? "",
+      district: v.district ?? v.dist ?? v.district_name ?? "",
+      tahasil: v.tahasil ?? v.taluka ?? v.tahasil_name ?? "",
+      project_id: v.project_id ?? v.project ?? v.projectId ?? "",
+      project_name: v.project_name ?? v.project_name ?? "",
       ...v,
     }));
   };
 
+  // Fetch villages from API: ONLY project_id + type + pagination
   const fetchVillages = async () => {
     try {
       setLoading(true);
-
       const params = new URLSearchParams();
-      if (formData.project_id) params.append("project_id", formData.project_id);
-      params.append("type", typeParam);
 
-      const data = await apiClient(`/village/villageList?${params.toString()}`);
+      if (selectedProject?.id) params.append("project_id", selectedProject.id);
 
-      if (data.success && Array.isArray(data.villages)) {
-        setVillages(normalizeVillages(data.villages));
+      if (typeParam) params.append("type", typeParam);
+
+      params.append("page", page);
+      params.append("limit", limit);
+
+      const url = `/village/villageList?${params.toString()}`;
+      const data = await apiClient(url, "GET");
+      console.log("Fetched villages:", data);
+
+      if (data && data.success) {
+        setVillages(normalizeVillages(data.villages || []));
+        setTotalPages(data.totalPages ?? data.total_pages ?? 1);
       } else {
         setVillages([]);
+        setTotalPages(1);
       }
     } catch (err) {
       console.error("Error fetching villages:", err);
       setVillages([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
 
+  // fetch when selected project, type, page or limit changes
   useEffect(() => {
+    // reset to page 1 when project or type changes
+    setPage(1);
+  }, [selectedProject?.id, typeParam]);
+
+  useEffect(() => {
+    // Only attempt to fetch if a project is selected
+    if (!selectedProject?.id) {
+      setVillages([]);
+      setTotalPages(1);
+      return;
+    }
     fetchVillages();
-  }, [landType, formData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProject?.id, typeParam, page, limit]);
 
   const openModal = (v = null) => {
     setEditingVillage(v);
@@ -98,91 +117,51 @@ const Villages = () => {
   const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
-      const data = await apiClient(
-        `/village/deleteVillage/${deleteVillage.id}`,
-        "DELETE"
-      );
-      if (data.success) {
+      const data = await apiClient(`/village/deleteVillage/${deleteVillage.id}`, "DELETE");
+      if (data && data.success) {
+        // you could use a toast instead of alert in real app
         alert("Village deleted successfully!");
+        // refetch current page
         fetchVillages();
       } else {
-        alert("Failed to delete village.");
+        alert(data?.message || "Failed to delete village.");
       }
     } catch (err) {
       console.error("Delete error:", err);
+      alert("An error occurred while deleting the village.");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteVillage(null);
     }
-    setIsDeleteModalOpen(false);
-    setDeleteVillage(null);
   };
 
-  const filteredVillages = !selectedProject
-    ? []
-    : villages.filter((v) => {
-        const matchDistrict =
-          formData.districts.length === 0 ||
-          formData.districts.includes(v.district);
+  // Client-side filters: district, tahasil, village name
+  const filteredVillages = useMemo(() => {
+    if (!Array.isArray(villages)) return [];
 
-        const matchTahasil =
-          formData.tahasils.length === 0 ||
-          formData.tahasils.includes(v.tahasil);
+    return villages.filter((v) => {
+      const matchDistrict =
+        formData.districts.length === 0 || formData.districts.includes(v.district);
 
-        const matchVillage =
-          formData.villageNames.length === 0 ||
-          formData.villageNames.includes(v.village_name);
+      const matchTahasil =
+        formData.tahasils.length === 0 || formData.tahasils.includes(v.tahasil);
 
-        const matchProject =
-          Number(v.project_id) === Number(selectedProject.id); // Force global project filter
+      const matchVillage =
+        formData.villageNames.length === 0 || formData.villageNames.includes(v.village_name);
 
-        return matchDistrict && matchTahasil && matchVillage && matchProject;
-      });
+      return matchDistrict && matchTahasil && matchVillage;
+    });
+  }, [villages, formData]);
 
-  const projectFilteredData = selectedProject
-    ? filteredVillages.filter((v) => v.project_id === selectedProject.id)
-    : filteredVillages;
-  //     const exportVillage = async () => {
-  //   try {
-  //     const params = new URLSearchParams({
-  //       project_id: formData.project_id || "",
-  //       tahasil: formData.tahasils || "",
-  //       district: formData.districts || "",
-  //       type: typeParam,
-  //     });
-
-  //     const response = await fetch(
-  //       `${API_BASE_URL}/village/exportVillage?${params.toString()}`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to export file");
-  //     }
-
-  //     const blob = await response.blob();
-  //     const url = window.URL.createObjectURL(blob);
-
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = "villages_export.xlsx";
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     link.remove();
-
-  //   } catch (err) {
-  //     console.error("Export error:", err);
-  //     alert("Failed to export villages.");
-  //   }
-  // };
+  // Export data should use the client-filtered list (already scoped to selected project)
+  const projectFilteredData = filteredVillages;
 
   return (
-    <div className=" space-y-5 h-screen">
+    <div className="space-y-5 h-screen">
       <h2 className="text-lg font-semibold capitalize">
         {landType?.replace("-", " ") || "Private"} Villages
       </h2>
+
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
@@ -205,38 +184,17 @@ const Villages = () => {
                 ]}
               />
 
-              {/* <button  className="btn bg-green-600 text-white flex items-center gap-2"  onClick={exportVillage}>
-        <FolderUp size={18} /> 
-        Export 
-      </button> */}
-
-              {/* <button
-                className={`btn btn-primary text-white shadow-md ${
-                  isRestricted
+              <button
+                className={`btn btn-primary text-white ${
+                  !canEdit
                     ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                     : ""
                 }`}
-                onClick={
-                  () => openModal()}
-                disabled={isRestricted}
+                onClick={() => { if (canEdit) openModal(); }}
+                disabled={!canEdit}
               >
-                + Add Village
-              </button> */}
-                 <button
-              className={`btn btn-primary text-white ${
-            !isRestricted
-              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-              : ""
-          }`} 
-            onClick={() => {
-              if (
-                // userRole !== "Data Entry User" && 
-                role !== "Viewer") openModal();
-            }}
-            disabled={!isRestricted}
-          >
-            Add Village
-          </button>
+                Add Village
+              </button>
             </div>
           </div>
 
@@ -258,13 +216,18 @@ const Villages = () => {
             <VillageTable
               villages={filteredVillages}
               projects={projects}
-              isRestricted={isRestricted}
+              isRestricted={!canEdit}
               onEdit={openModal}
               onDelete={(village) => {
                 setDeleteVillage(village);
                 setIsDeleteModalOpen(true);
               }}
               landType={landType}
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
+              totalPages={totalPages}
             />
           </motion.div>
         </>
@@ -277,7 +240,6 @@ const Villages = () => {
           editingVillage={editingVillage}
           projects={projects}
           odishaDistricts={odishaDistricts}
-          // api={api}
           fetchVillages={fetchVillages}
         />
       )}

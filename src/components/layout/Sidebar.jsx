@@ -263,7 +263,8 @@ export default function Sidebar({ open, setOpen , isMobile}) {
           onClick={() => setOpen(!open)}
           className="p-2 hover:bg-white/20 rounded-lg transition"
         >
-          <Menu size={22} className="text-white" />
+          <ChevronRight size={22} className="text-white" />
+          {/* <Menu size={22} className="text-white" /> */}
         </button>
       </div>
 

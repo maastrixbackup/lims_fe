@@ -19,6 +19,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, loading }) => {
             <tr>
               <th>Sl/No</th>
               <th>Project Name</th>
+              <th>Project Location</th>
               <th>Status</th>
               <th>Client Code</th>
               <th>Created</th>
@@ -35,6 +36,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, loading }) => {
                 >
                   <td>{idx + 1}</td>
                   <td>{p.name}</td>
+                  <td>{p.location || "No Data"}</td>
 
                   <td>
                     <span

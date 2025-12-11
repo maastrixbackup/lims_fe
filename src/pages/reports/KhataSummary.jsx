@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Download,
   FileText,
@@ -7,56 +7,64 @@ import {
   ChevronDown,
   Filter,
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function KhataSummaryReport() {
-  const mockData = [
-    {
-      khataNo: "102/3",
-      village: "Bhalunki",
-      project: "NH-53",
-      totalPlots: 12,
-      totalArea: "4.32 Acres",
-      createdDate: "2025-01-12",
-    },
-    {
-      khataNo: "88/2",
-      village: "Satmile",
-      project: "Irrigation Canal",
-      totalPlots: 5,
-      totalArea: "1.12 Acres",
-      createdDate: "2025-01-10",
-    },
-    {
-      khataNo: "88/2",
-      village: "Satmile",
-      project: "Irrigation Canal",
-      totalPlots: 5,
-      totalArea: "1.12 Acres",
-      createdDate: "2025-01-10",
-    },
-    {
-      khataNo: "88/2",
-      village: "Satmile",
-      project: "Irrigation Canal",
-      totalPlots: 5,
-      totalArea: "1.12 Acres",
-      createdDate: "2025-01-10",
-    },
-  ];
+const token = useSelector((state) => state.auth.userToken);
 
-  // ---------------- Filters + States ----------------
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState("All");
   const [villageFilter, setVillageFilter] = useState("All");
   const [sortAsc, setSortAsc] = useState(true);
 
-  // Unique filter values
-  const projectOptions = ["All", ...new Set(mockData.map((d) => d.project))];
-  const villageOptions = ["All", ...new Set(mockData.map((d) => d.village))];
+  // ---------------- Fetch API Data ----------------
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/report/khataSummary`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // 🔥 Send Auth Token
+            },
+          }
+        );
 
-  // ---------------- Filter + Sort Logic ----------------
+        const result = await res.json();
+        if (result.success) {
+          setData(
+            result.data.map((d) => ({
+              id: d.id,
+              khataNo: d.khata_no,
+              village: d.village_name,
+              project: d.project_name,
+              totalPlots: d.total_plots,
+              totalArea: d.total_area,
+              createdDate: d.created_at?.split("T")[0],
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching khata summary:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSummary();
+  }, [token]);
+
+  // ---------------- Filter Options ----------------
+  const projectOptions = ["All", ...new Set(data.map((d) => d.project))];
+  const villageOptions = ["All", ...new Set(data.map((d) => d.village))];
+
+  // ---------------- Filter + Sort ----------------
   const filteredData = useMemo(() => {
-    return mockData
+    return data
       .filter(
         (row) =>
           row.khataNo.toLowerCase().includes(search.toLowerCase()) ||
@@ -74,7 +82,17 @@ export default function KhataSummaryReport() {
           ? a.khataNo.localeCompare(b.khataNo)
           : b.khataNo.localeCompare(a.khataNo)
       );
-  }, [search, projectFilter, villageFilter, sortAsc]);
+  }, [search, projectFilter, villageFilter, sortAsc, data]);
+
+  // ---------------- UI ----------------
+
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Loading khata summary...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-white shadow rounded-xl">
@@ -95,6 +113,7 @@ export default function KhataSummaryReport() {
             />
           </div>
 
+          {/* Project Filter */}
           <select
             className="px-3 py-2 text-sm border rounded-lg bg-white shadow-sm"
             value={projectFilter}
@@ -107,6 +126,7 @@ export default function KhataSummaryReport() {
             ))}
           </select>
 
+          {/* Village Filter */}
           <select
             className="px-3 py-2 text-sm border rounded-lg bg-white shadow-sm"
             value={villageFilter}
@@ -119,6 +139,7 @@ export default function KhataSummaryReport() {
             ))}
           </select>
 
+          {/* Sort Button */}
           <button
             onClick={() => setSortAsc(!sortAsc)}
             className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm shadow-sm"
@@ -129,13 +150,7 @@ export default function KhataSummaryReport() {
         </div>
       </div>
 
-      <div
-        className="overflow-auto"
-        style={{
-          maxHeight: "400px",
-          scrollbarWidth: "thin",
-        }}
-      >
+      <div className="overflow-auto" style={{ maxHeight: "400px" }}>
         <table className="table w-full text-sm">
           <thead className="bg-gray-200 text-gray-700 uppercase text-xs sticky top-0 z-10">
             <tr>
@@ -152,7 +167,7 @@ export default function KhataSummaryReport() {
 
           <tbody>
             {filteredData.map((row, i) => (
-              <tr key={i} className="hover:bg-gray-50">
+              <tr key={row.id} className="hover:bg-gray-50">
                 <td>{i + 1}</td>
                 <td>{row.khataNo}</td>
                 <td>{row.village}</td>

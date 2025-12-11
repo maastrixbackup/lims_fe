@@ -68,9 +68,9 @@ export default function Header({ setSidebarOpen, isMobile }) {
       {isMobile && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="p-2 rounded-lg bg-primary text-white transition-colors h-8 w-8 hover:bg-primary/90 flex items-center justify-center  "
+          className="p-2 rounded-lg "
         >
-          <Menu size={24} />
+          <Menu size={24} className="bg-blue"/>
         </button>
       )}
       <div className="flex items-center gap-3 md:gap-6 ml-auto">

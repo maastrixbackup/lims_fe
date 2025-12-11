@@ -2,6 +2,7 @@ import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
+import Pagination from "../../../shared/Pagination";
 
 const VillageTable = ({
   villages = [],
@@ -9,12 +10,17 @@ const VillageTable = ({
   isRestricted,
   onEdit,
   onDelete,
+  page,
+  setPage,
+  limit,
+  setLimit,
+  totalPages,
 }) => {
   const selectedProject = useSelector((state) => state.selectedProject.project);
-   const userRole = useSelector((state) => state.auth.user?.role_name);
+  const userRole = useSelector((state) => state.auth.user?.role_name);
   //  console.log("user role", userRole)
-   // Permission rules
-  const canEdit = userRole !== "Viewer"; 
+  // Permission rules
+  const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
   const filteredVillages = selectedProject
@@ -45,7 +51,9 @@ const VillageTable = ({
             <span className="text-primary font-bold">Selected Project</span>
           </p>
           <p className="text-md text-gray-500 mt-1">
-            Try selecting a different  <span className="text-gray-600 font-semibold">Project</span> or add a new Village.
+            Try selecting a different{" "}
+            <span className="text-gray-600 font-semibold">Project</span> or add
+            a new Village.
           </p>
         </div>
       )}
@@ -73,7 +81,7 @@ const VillageTable = ({
                   <td>{v.district}</td>
                   <td>{v.tahasil}</td>
                   <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
-{/* 
+                  {/* 
                   <td className="text-right space-x-2">
                     <button
                       // className={`btn btn-xs btn-warning text-white ${
@@ -105,38 +113,46 @@ const VillageTable = ({
                       <Trash2 size={14} /> Delete
                     </button>
                   </td> */}
-                  
-                                    <td className="text-right space-x-2">
-                                      {/* Edit Button */}
-                                      <button
-                                        className={`btn btn-xs btn-warning text-white ${
-                                          !canEdit
-                                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                                            : ""
-                                        }`}
-                                        onClick={() => canEdit && onEdit(v)}
-                                        disabled={!canEdit}
-                                      >
-                                        <Pencil size={14} /> Edit
-                                      </button>
-                  
-                                      {/* Delete Button */}
-                                      <button
-                                        className={`btn btn-xs btn-error text-white ${
-                                          !canDelete
-                                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                                            : ""
-                                        }`}
-                                        onClick={() => canDelete && onDelete(v)}
-                                        disabled={!canDelete}
-                                      >
-                                        <Trash2 size={14} /> Delete
-                                      </button>
-                                    </td>
+
+                  <td className="text-right space-x-2">
+                    {/* Edit Button */}
+                    <button
+                      className={`btn btn-xs btn-warning text-white ${
+                        !canEdit
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : ""
+                      }`}
+                      onClick={() => canEdit && onEdit(v)}
+                      disabled={!canEdit}
+                    >
+                      <Pencil size={14} /> Edit
+                    </button>
+
+                    {/* Delete Button */}
+                    <button
+                      className={`btn btn-xs btn-error text-white ${
+                        !canDelete
+                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                          : ""
+                      }`}
+                      onClick={() => canDelete && onDelete(v)}
+                      disabled={!canDelete}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+      {selectedProject && (
+  <Pagination
+    page={page}
+    limit={limit}
+    setPage={setPage}
+    totalPages={totalPages}
+    setLimit={setLimit}
+  />)}
         </div>
       )}
     </div>

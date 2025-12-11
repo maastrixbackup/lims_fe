@@ -145,14 +145,15 @@ const VillageTable = ({
               ))}
             </tbody>
           </table>
-      {selectedProject && (
-  <Pagination
-    page={page}
-    limit={limit}
-    setPage={setPage}
-    totalPages={totalPages}
-    setLimit={setLimit}
-  />)}
+          {selectedProject && (
+            <Pagination
+              page={page}
+              limit={limit}
+              setPage={setPage}
+              totalPages={totalPages}
+              setLimit={setLimit}
+            />
+          )}
         </div>
       )}
     </div>

@@ -123,7 +123,7 @@ export default function KhataDocumentRegister() {
               <th>Documents</th>
               <th>Uploaded Date</th>
               <th>Missing?</th>
-              <th className="text-center">View</th>
+              {/* <th className="text-center">View</th> */}
             </tr>
           </thead>
 
@@ -182,7 +182,7 @@ export default function KhataDocumentRegister() {
                     </div>
                   </td>
 
-                  <td className="text-center">
+                  {/* <td className="text-center">
                     {row.docs.length > 0 ? (
                       <button
                         className="btn btn-sm btn-primary flex items-center gap-1"
@@ -193,7 +193,7 @@ export default function KhataDocumentRegister() {
                     ) : (
                       "-"
                     )}
-                  </td>
+                  </td> */}
                 </tr>
                 {row.showMissing && row.missing && (
                   <tr className="bg-red-50">

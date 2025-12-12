@@ -8,6 +8,7 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
     name: "",
     client_code: "",
     status: "Active",
+    project_location :""
   });
 
   const [errors, setErrors] = useState({});
@@ -19,12 +20,14 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
         name: project.name || "",
         client_code: project.client_code || "",
         status: reverseStatusMap[project.status] || "Active",
+        project_location : project.project_location || ""
       });
     } else {
       setFormData({
         name: "",
         client_code: "",
         status: "Active",
+        project_location :""
       });
     }
     setErrors({});
@@ -102,6 +105,21 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
               <p className="text-error text-sm mt-1">{errors.name}</p>
             )}
           </div>    
+            <div>
+            <label className="block text-sm font-medium mb-1">Project Location</label>
+            <input
+              type="text"
+              name="project_location"
+              value={formData.project_location}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.project_location ? "input-error" : ""
+              }`}
+            />
+            {errors.project_location  && (
+              <p className="text-error text-sm mt-1">{errors.project_location }</p>
+            )}
+          </div>  
           <div>
             <label className="block text-sm font-medium mb-1">Client Code</label>
 

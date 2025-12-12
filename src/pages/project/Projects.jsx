@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import useProjects from "../hooks/useProjects";
-import ProjectTable from "../shared/ProjectTable";
-import ProjectFormModal from "../shared/ProjectFormModal";
-import ConfirmDelete from "../shared/ConfirmDelete";
+import useProjects from "../../hooks/useProjects";
+import ProjectTable from "./ProjectTable";
+import ProjectFormModal from "./ProjectFormModal";
+import ConfirmDelete from "../../shared/ConfirmDelete";
 
 const Projects = () => {
   const token = useSelector((state) => state.auth.userToken);

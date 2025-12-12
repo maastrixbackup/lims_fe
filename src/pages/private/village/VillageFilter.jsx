@@ -36,6 +36,15 @@ const VillageFilter = ({
     });
   };
 
+  // ---- SELECT ALL HANDLERS ----
+  const handleSelectAll = (key, list) => {
+    setFormData((prev) => ({ ...prev, [key]: [...list] }));
+  };
+
+  const handleClearAll = (key) => {
+    setFormData((prev) => ({ ...prev, [key]: [] }));
+  };
+
   return (
     <div
       ref={dropdownRef}
@@ -57,6 +66,30 @@ const VillageFilter = ({
 
           {open.district && (
             <div className="absolute z-20 bg-white border rounded-lg shadow-lg w-full max-h-60 overflow-y-auto">
+              <label className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={
+                      formData.districts?.length === odishaDistricts.length
+                    }
+                    onChange={(e) =>
+                      e.target.checked
+                        ? handleSelectAll("districts", odishaDistricts)
+                        : handleClearAll("districts")
+                    }
+                  />
+                  <span>Select All Districts</span>
+                </div>
+
+                <button
+                  className="text-red-600 text-sm"
+                  onClick={() => handleClearAll("districts")}
+                >
+                  Clear
+                </button>
+              </label>
+
               {odishaDistricts.map((d) => (
                 <label
                   key={d}
@@ -77,9 +110,7 @@ const VillageFilter = ({
         {/* TAHASIL MULTI SELECT */}
         <div className="relative">
           <button
-            onClick={() =>
-              setOpen({ district: false, tahasil: !open.tahasil })
-            }
+            onClick={() => setOpen({ district: false, tahasil: !open.tahasil })}
             className="select select-bordered w-full text-left"
           >
             {formData.tahasils?.length
@@ -89,6 +120,27 @@ const VillageFilter = ({
 
           {open.tahasil && (
             <div className="absolute z-20 bg-white border rounded-lg shadow-lg w-full max-h-60 overflow-y-auto">
+             <label className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b">
+                <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.tahasils?.length === tahasils.length}
+                  onChange={(e) =>
+                    e.target.checked
+                      ? handleSelectAll("tahasils", tahasils)
+                      : handleClearAll("tahasils")
+                  }
+                />
+             <span>  Select All Tahasils</span>
+            </div>
+              <button
+                className="text-red-600 text-sm"
+                onClick={() => handleClearAll("tahasils")}
+              >
+                Clear
+              </button>
+                </label>
+
               {tahasils.map((t) => (
                 <label
                   key={t}

@@ -13,18 +13,18 @@ import {
   Search,
 } from "lucide-react";
 
-import KhataSummaryReport from "./reports/KhataSummary";
-import KhataDocumentRegister from "./reports/KhataDocumentRegister";
-import PlotDetails from "./reports/PlotDetails";
-import PlotOwnershipHistory from "./reports/PlotOwnershipHistory";
-import VillageLandRegister from "./reports/VillageLandRegister";
-import VillageDocumentReport from "./reports/VillageDocumentReport";
-import ProjectSummary from "./reports/ProjectSummary";
-import ProjectDocumentRegister from "./reports/ProjectDocumentRegister";
-import KMZAvailability from "./reports/KMZAvailability";
-import MapSummaryReport from "./reports/MapSummaryReport";
-import UserActivity from "./reports/UserActivity";
-import AuditTrail from "./reports/AuditTrail";
+import KhataSummaryReport from "./KhataSummary";
+import KhataDocumentRegister from "./KhataDocumentRegister";
+import PlotDetails from "./PlotDetails";
+import PlotOwnershipHistory from "./PlotOwnershipHistory";
+import VillageLandRegister from "./VillageLandRegister";
+import VillageDocumentReport from "./VillageDocumentReport";
+import ProjectSummary from "./ProjectSummary";
+import ProjectDocumentRegister from "./ProjectDocumentRegister";
+import KMZAvailability from "./KMZAvailability";
+import MapSummaryReport from "./MapSummaryReport";
+import UserActivity from "./UserActivity";
+import AuditTrail from "./AuditTrail";
 
 export default function ReportsMasterScreen() {
   const [openCategory, setOpenCategory] = useState(null);

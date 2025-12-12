@@ -20,7 +20,7 @@ const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const Unauthorized = lazy(() => import("./pages/Unathorize"));
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Projects = lazy(() => import("./pages/Projects"));
+const Projects = lazy(() => import("./pages/project/Projects"));
 const Villages = lazy(() => import("./pages/private/village/Villages"));
 const Khata = lazy(() => import("./pages/private/khata/Khata"));
 const Plots = lazy(() => import("./pages/private/plot/Plots"));
@@ -41,7 +41,7 @@ const Compensation = lazy(() =>
 );
 const DeletedRecords = lazy(() => import("./pages/trash/DeletedRecords"));
 const SocialSurvey = lazy(() => import("./pages/SocialSurvey"));
-const ProjectTable = lazy(() => import("./shared/ProjectTable"));
+const ProjectTable = lazy(() => import("./pages/project/ProjectTable"));
 
 const KhataSummary = lazy(() => import("./pages/reports/KhataSummary"));
 const ProjectSummary = lazy(() => import("./pages/reports/ProjectSummary"));

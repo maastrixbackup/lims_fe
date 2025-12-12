@@ -1,3 +1,259 @@
+// import React, { useState } from "react";
+// import {
+//   Pencil,
+//   Trash2,
+//   Upload,
+//   Map as MapIcon,
+//   LandPlot,
+//   DockIcon,
+// } from "lucide-react";
+// import { useDispatch, useSelector } from "react-redux";
+// import moment from "moment";
+// import PlotListModal from "./PlotListModal";
+// import { setSelectedKhataId } from "../../../utils/khataSlice";
+// import Pagination from "../../../shared/Pagination";
+
+// const KhataTable = ({
+//   khatas,
+//   page,
+//   limit,
+//   setLimit,
+//   totalPages,
+//   setPage,
+//   onEdit,
+//   onDelete,
+//   onUpload,
+//   onMap,
+// }) => {
+//   const dispatch = useDispatch();
+//   const userRole = useSelector((state) => state.auth.user?.role_name);
+//   const selectedProject = useSelector((state) => state.selectedProject.project);
+
+//   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
+
+//   const isRestricted =
+//     userRole === "Data Entry User" || userRole === "Viewer";
+
+//   // Filter khatas based on selected project
+//   const displayKhatas = selectedProject
+//     ? khatas.filter((k) => k.project_id === selectedProject.id)
+//     : [];
+
+//   const stickyActionHeader =
+//     "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
+
+//   const stickyActionCell =
+//     "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
+
+//   const formatThreeItems = (value) => {
+//     let items = [];
+
+//     if (typeof value === "string") {
+//       items = value.split(",").map((v) => v.trim());
+//     } else if (Array.isArray(value)) {
+//       items = value;
+//     }
+
+//     if (items.length === 0) return "No data";
+
+//     const firstThree = items.slice(0, 3).join(", ");
+//     return items.length > 3 ? `${firstThree} … (${items.length})` : firstThree;
+//   };
+
+//   return (
+//     <>
+//       <div className="card bg-white shadow-lg p-4">
+//         {(!selectedProject || displayKhatas.length === 0) && (
+//           <div className="py-10 text-center text-gray-600">
+//             {selectedProject ? (
+//               <>
+//                 <p className="text-md font-medium text-red-500">
+//                   No Khata found for the{" "}
+//                   <span className="text-primary font-bold">
+//                     Selected Project.
+//                   </span>
+//                 </p>
+//                 <p className="text-md text-gray-500 mt-1">
+//                   Try selecting a different  <span className="text-gray-700 font-semibold">Project</span>{" "}or add a new Khata.
+//                 </p>
+//               </>
+//             ) : (
+//               <>
+//                 <p className="text-lg font-medium">
+//                   Please{" "}
+//                   <span className="text-primary font-semibold">
+//                     Select a Project
+//                   </span>{" "}
+//                   first.
+//                 </p>
+//                 <p className="text-lg text-gray-500 mt-1">
+//                   A project is required to view Khata list.
+//                 </p>
+//               </>
+//             )}
+//           </div>
+//         )}
+//         {selectedProject && displayKhatas.length > 0 && (
+//           <>
+//             <div className="max-h-[400px] overflow-x-auto">
+//               <table className="table w-full">
+//                 <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+//                   <tr>
+//                     <th>Sl/No</th>
+//                     <th>Name of Village</th>
+//                     <th>Village Code</th>
+//                     <th>Khata No.</th>
+//                     <th>Plot No.</th>
+//                     <th>Kissam of the Land</th>
+//                     <th>Category of Land</th>
+//                     <th>Total Area (Ac)</th>
+//                     <th>Total Area (Ha)</th>
+//                     <th>Acquired Area (Ac)</th>
+//                     <th>Acquired Area (Ha)</th>
+//                     <th>Remarks</th>
+//                     <th>Tahasil</th>
+//                     <th>R.I. Circle</th>
+//                     <th>Thana No.</th>
+//                     <th>Date of Award</th>
+//                     <th>RT Name</th>
+//                     <th>PT Name</th>
+//                     <th>Present Address</th>
+//                     <th>Affected Person</th>
+//                     <th>Unique ID</th>
+//                     <th>Plot Count</th>
+//                     <th>Created</th>
+//                     <th>Reference Document</th>
+//                     <th className={stickyActionHeader}>Actions</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {displayKhatas.map((khata, idx) => (
+//                     <tr key={khata.id} className="whitespace-nowrap">
+//                       <td>{(page - 1) * limit + idx + 1}</td>
+//                       <td>{khata.village_name || "No data"}</td>
+//                       <td>{khata.village_code || "No data"}</td>
+//                       <td>{khata.khata_no || "No data"}</td>
+//                       <td>{formatThreeItems(khata.plot_no)}</td>
+//                       <td>{formatThreeItems(khata.kissam_of_land)}</td>
+//                       <td>{formatThreeItems(khata.land_category)}</td>
+//                       <td>{khata.land_area_total_acres || "No data"}</td>
+//                       <td>{khata.land_area_total_hectares || "No data"}</td>
+//                       <td>{khata.land_area_acquired_acres || "No data"}</td>
+//                       <td>{khata.land_area_acquired_hectares || "No data"}</td>
+
+//                       <td>{khata.lo13_remarks || "No data"}</td>
+//                       <td>{khata.tahasil_name || "No data"}</td>
+//                       <td>{formatThreeItems(khata.ri_circle_name)}</td>
+//                       <td>{khata.thana_no || "No data"}</td>
+//                       <td>{khata.date_of_award?.split("T")[0] || "No data"}</td>
+//                       <td>{khata.name_of_recorded_tenant || "No data"}</td>
+//                       <td>{khata.name_of_present_tenant || "No data"}</td>
+//                       <td>{khata.present_address || "No data"}</td>
+//                       <td>{khata.displaced_affected_person || "No data"}</td>
+
+//                       <td>{khata.unique_id || "No data"}</td>
+//                       <td>{khata.plot_count || "No data"}</td>
+
+//                       <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
+
+//                       <td>
+//                         <button
+//                           className={`btn btn-xs text-white ${
+//                             userRole === "Viewer"
+//                               ? "!bg-gray-300 !text-gray-400"
+//                               : "bg-blue-500"
+//                           }`}
+//                           onClick={() => onEdit(khata)}
+//                           disabled={userRole === "Viewer"}
+//                         >
+//                           <DockIcon size={14} /> Reference
+//                         </button>
+//                       </td>
+
+//                       <td className={stickyActionCell}>
+//                         <div className="flex space-x-2 justify-end">
+//                           <button
+//                             className="btn btn-xs btn-accent text-white"
+//                             onClick={() => {
+//                               dispatch(setSelectedKhataId(khata.id));
+//                               setIsPlotModalOpen(true);
+//                             }}
+//                           >
+//                             <LandPlot size={14} /> View Plots
+//                           </button>
+
+                     
+
+//                           <button
+//                             className={`btn btn-xs btn-info text-white ${
+//                               userRole === "Viewer"
+//                                 ? "!bg-gray-300 !text-gray-400"
+//                                 : ""
+//                             }`}
+//                             onClick={() => onUpload(khata)}
+//                             disabled={userRole === "Viewer"}
+//                           >
+//                             <Upload size={14} /> Upload
+//                           </button>
+
+//                           <button
+//                             className="btn btn-xs btn-success text-white"
+//                             onClick={() => onMap(khata)}
+//                           >
+//                             <MapIcon size={14} /> Maps
+//                           </button>
+//                                <button
+//                             className={`btn btn-xs btn-warning text-white ${
+//                               userRole === "Viewer"
+//                                 ? "!bg-gray-300 !text-gray-400"
+//                                 : ""
+//                             }`}
+//                             onClick={() => onEdit(khata)}
+//                             disabled={userRole === "Viewer"}
+//                           >
+//                             <Pencil size={14} /> Edit
+//                           </button>
+
+//                           <button
+//                             className={`btn btn-xs btn-error text-white ${
+//                               isRestricted
+//                                 ? "!bg-gray-300 !text-gray-400"
+//                                 : ""
+//                             }`}
+//                             onClick={() => onDelete(khata)}
+//                             disabled={isRestricted}
+//                           >
+//                             <Trash2 size={14} /> Delete
+//                           </button>
+//                         </div>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </table>
+//             </div>
+
+//             <Pagination
+//               page={page}
+//               totalPages={totalPages}
+//               setPage={setPage}
+//               limit={limit}
+//               setLimit={setLimit}
+//             />
+//           </>
+//         )}
+//       </div>
+
+//       {isPlotModalOpen && (
+//         <PlotListModal onClose={() => setIsPlotModalOpen(false)} />
+//       )}
+//     </>
+//   );
+// };
+
+// export default KhataTable;
+
+
 import React, { useState } from "react";
 import {
   Pencil,
@@ -6,6 +262,10 @@ import {
   Map as MapIcon,
   LandPlot,
   DockIcon,
+  Filter,
+  MoreVertical,
+  SlidersHorizontal,
+  EllipsisVertical
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
@@ -31,12 +291,27 @@ const KhataTable = ({
 
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
 
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [columnFilters, setColumnFilters] = useState({});
+
   const isRestricted =
     userRole === "Data Entry User" || userRole === "Viewer";
 
-  // Filter khatas based on selected project
+  // -----------------------
+  // FILTER KHATAS
+  // -----------------------
+  const applyFilters = (data) => {
+    return data.filter((k) => {
+      return Object.entries(columnFilters).every(([col, val]) => {
+        if (!val) return true;
+        const fieldValue = (k[col] || "").toString().toLowerCase();
+        return fieldValue.includes(val.toLowerCase());
+      });
+    });
+  };
+
   const displayKhatas = selectedProject
-    ? khatas.filter((k) => k.project_id === selectedProject.id)
+    ? applyFilters(khatas.filter((k) => k.project_id === selectedProject.id))
     : [];
 
   const stickyActionHeader =
@@ -74,7 +349,9 @@ const KhataTable = ({
                   </span>
                 </p>
                 <p className="text-md text-gray-500 mt-1">
-                  Try selecting a different  <span className="text-gray-700 font-semibold">Project</span>{" "}or add a new Khata.
+                  Try selecting a different{" "}
+                  <span className="text-gray-700 font-semibold">Project</span>{" "}
+                  or add a new Khata.
                 </p>
               </>
             ) : (
@@ -93,39 +370,41 @@ const KhataTable = ({
             )}
           </div>
         )}
+
         {selectedProject && displayKhatas.length > 0 && (
           <>
-            <div className="max-h-[400px] overflow-x-auto">
+            <div className="max-h-[400px] overflow-x-auto relative">
               <table className="table w-full">
-                <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-                  <tr>
-                    <th>Sl/No</th>
-                    <th>Name of Village</th>
-                    <th>Village Code</th>
-                    <th>Khata No.</th>
-                    <th>Plot No.</th>
-                    <th>Kissam of the Land</th>
-                    <th>Category of Land</th>
-                    <th>Total Area (Ac)</th>
-                    <th>Total Area (Ha)</th>
-                    <th>Acquired Area (Ac)</th>
-                    <th>Acquired Area (Ha)</th>
-                    <th>Remarks</th>
-                    <th>Tahasil</th>
-                    <th>R.I. Circle</th>
-                    <th>Thana No.</th>
-                    <th>Date of Award</th>
-                    <th>RT Name</th>
-                    <th>PT Name</th>
-                    <th>Present Address</th>
-                    <th>Affected Person</th>
-                    <th>Unique ID</th>
-                    <th>Plot Count</th>
-                    <th>Created</th>
-                    <th>Reference Document</th>
-                    <th className={stickyActionHeader}>Actions</th>
-                  </tr>
-                </thead>
+           <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+                 <tr>
+                   <th>Sl/No</th>
+                   <th>Name of Village</th>
+                   <th>Village Code</th>
+                   <th>Khata No.</th>
+                   <th>Plot No.</th>
+                   <th>Kissam of the Land</th>
+                   <th>Category of Land</th>
+                   <th>Total Area (Ac)</th>
+                   <th>Total Area (Ha)</th>
+                   <th>Acquired Area (Ac)</th>
+                   <th>Acquired Area (Ha)</th>
+                   <th>Remarks</th>
+                   <th>Tahasil</th>
+                   <th>R.I. Circle</th>
+                   <th>Thana No.</th>
+                   <th>Date of Award</th>
+                   <th>RT Name</th>
+                   <th>PT Name</th>
+                   <th>Present Address</th>
+                   <th>Affected Person</th>
+                   <th>Unique ID</th>
+                   <th>Plot Count</th>
+                   <th>Created</th>
+                   <th>Reference Document</th>
+                   <th className={stickyActionHeader}>Actions</th>
+                 </tr>
+               </thead>
+
                 <tbody>
                   {displayKhatas.map((khata, idx) => (
                     <tr key={khata.id} className="whitespace-nowrap">
@@ -140,7 +419,6 @@ const KhataTable = ({
                       <td>{khata.land_area_total_hectares || "No data"}</td>
                       <td>{khata.land_area_acquired_acres || "No data"}</td>
                       <td>{khata.land_area_acquired_hectares || "No data"}</td>
-
                       <td>{khata.lo13_remarks || "No data"}</td>
                       <td>{khata.tahasil_name || "No data"}</td>
                       <td>{formatThreeItems(khata.ri_circle_name)}</td>
@@ -150,10 +428,8 @@ const KhataTable = ({
                       <td>{khata.name_of_present_tenant || "No data"}</td>
                       <td>{khata.present_address || "No data"}</td>
                       <td>{khata.displaced_affected_person || "No data"}</td>
-
                       <td>{khata.unique_id || "No data"}</td>
                       <td>{khata.plot_count || "No data"}</td>
-
                       <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
 
                       <td>
@@ -171,60 +447,76 @@ const KhataTable = ({
                       </td>
 
                       <td className={stickyActionCell}>
-                        <div className="flex space-x-2 justify-end">
-                          <button
-                            className="btn btn-xs btn-accent text-white"
-                            onClick={() => {
-                              dispatch(setSelectedKhataId(khata.id));
-                              setIsPlotModalOpen(true);
-                            }}
+                        <div className="dropdown dropdown-left">
+                          <label tabIndex={0} className="btn btn-xs bg-gray-200 text-black hover:bg-gray-300 border-0">
+                            <SlidersHorizontal size={14} />
+                            {/* Filter */}
+                            {/* <EllipsisVertical size={18}/> */}
+                          </label>
+
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu p-2 shadow-xl bg-white rounded-md w-40 z-50"
                           >
-                            <LandPlot size={14} /> View Plots
-                          </button>
-
-                     
-
-                          <button
-                            className={`btn btn-xs btn-info text-white ${
+                            <li>
+                              <button
+                                onClick={() => {
+                                  dispatch(setSelectedKhataId(khata.id));
+                                  setIsPlotModalOpen(true);
+                                }}
+                                className="text-accent font-bold"
+                              >
+                                <LandPlot size={14} /> View Plots
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                disabled={userRole === "Viewer"}
+                                onClick={() => onUpload(khata)}
+                                 className={`text-info font-bold ${
                               userRole === "Viewer"
-                                ? "!bg-gray-300 !text-gray-400"
+                                ? "!text-gray-400"
                                 : ""
                             }`}
-                            onClick={() => onUpload(khata)}
-                            disabled={userRole === "Viewer"}
-                          >
-                            <Upload size={14} /> Upload
-                          </button>
-
-                          <button
-                            className="btn btn-xs btn-success text-white"
-                            onClick={() => onMap(khata)}
-                          >
-                            <MapIcon size={14} /> Maps
-                          </button>
-                               <button
-                            className={`btn btn-xs btn-warning text-white ${
+                              >
+                                <Upload size={14} /> Upload
+                              </button>
+                            </li>
+                            <li>
+                              <button onClick={() => onMap(khata)}
+                                 className="text-success font-bold">
+                                <MapIcon size={14} /> Map
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                disabled={userRole === "Viewer"}
+                                onClick={() => onEdit(khata)}
+                                  // className="text-gray-700 font-bold"
+                                    className={`text-warning font-bold ${
                               userRole === "Viewer"
-                                ? "!bg-gray-300 !text-gray-400"
+                                ? "!text-gray-400"
                                 : ""
                             }`}
-                            onClick={() => onEdit(khata)}
-                            disabled={userRole === "Viewer"}
-                          >
-                            <Pencil size={14} /> Edit
-                          </button>
-
-                          <button
-                            className={`btn btn-xs btn-error text-white ${
+                              >
+                                <Pencil size={14} /> Edit
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                disabled={isRestricted}
+                                onClick={() => onDelete(khata)}
+                                  // className="text-gray-700 font-bold"
+                                    className={`text-error font-bold ${
                               isRestricted
-                                ? "!bg-gray-300 !text-gray-400"
+                                ? "!text-gray-400"
                                 : ""
                             }`}
-                            onClick={() => onDelete(khata)}
-                            disabled={isRestricted}
-                          >
-                            <Trash2 size={14} /> Delete
-                          </button>
+                              >
+                                <Trash2 size={14} /> Delete
+                              </button>
+                            </li>
+                          </ul>
                         </div>
                       </td>
                     </tr>
@@ -252,3 +544,4 @@ const KhataTable = ({
 };
 
 export default KhataTable;
+

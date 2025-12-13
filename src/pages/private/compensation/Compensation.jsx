@@ -474,7 +474,7 @@ const Compensation = () => {
   //   });
   // };
   const handleApportionChange = (kIndex, rIndex, value) => {
-  let num = Number(value);
+  let num =(value);
 
   if (num > 100) num = 100;
   if (num < 0) num = 0; // optional min limit

@@ -182,8 +182,6 @@
 //                             <LandPlot size={14} /> View Plots
 //                           </button>
 
-                     
-
 //                           <button
 //                             className={`btn btn-xs btn-info text-white ${
 //                               userRole === "Viewer"
@@ -253,7 +251,6 @@
 
 // export default KhataTable;
 
-
 import React, { useState } from "react";
 import {
   Pencil,
@@ -265,7 +262,7 @@ import {
   Filter,
   MoreVertical,
   SlidersHorizontal,
-  EllipsisVertical
+  EllipsisVertical,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
@@ -294,8 +291,7 @@ const KhataTable = ({
   const [activeFilter, setActiveFilter] = useState(null);
   const [columnFilters, setColumnFilters] = useState({});
 
-  const isRestricted =
-    userRole === "Data Entry User" || userRole === "Viewer";
+  const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
   // -----------------------
   // FILTER KHATAS
@@ -375,35 +371,35 @@ const KhataTable = ({
           <>
             <div className="max-h-[400px] overflow-x-auto relative">
               <table className="table w-full">
-           <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-                 <tr>
-                   <th>Sl/No</th>
-                   <th>Name of Village</th>
-                   <th>Village Code</th>
-                   <th>Khata No.</th>
-                   <th>Plot No.</th>
-                   <th>Kissam of the Land</th>
-                   <th>Category of Land</th>
-                   <th>Total Area (Ac)</th>
-                   <th>Total Area (Ha)</th>
-                   <th>Acquired Area (Ac)</th>
-                   <th>Acquired Area (Ha)</th>
-                   <th>Remarks</th>
-                   <th>Tahasil</th>
-                   <th>R.I. Circle</th>
-                   <th>Thana No.</th>
-                   <th>Date of Award</th>
-                   <th>RT Name</th>
-                   <th>PT Name</th>
-                   <th>Present Address</th>
-                   <th>Affected Person</th>
-                   <th>Unique ID</th>
-                   <th>Plot Count</th>
-                   <th>Created</th>
-                   <th>Reference Document</th>
-                   <th className={stickyActionHeader}>Actions</th>
-                 </tr>
-               </thead>
+                <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+                  <tr>
+                    <th>Sl/No</th>
+                    <th>Name of Village</th>
+                    <th>Village Code</th>
+                    <th>Khata No.</th>
+                    <th>Plot No.</th>
+                    <th>Kissam of the Land</th>
+                    <th>Category of Land</th>
+                    <th>Total Area (Ac)</th>
+                    <th>Total Area (Ha)</th>
+                    <th>Acquired Area (Ac)</th>
+                    <th>Acquired Area (Ha)</th>
+                    <th>Remarks</th>
+                    <th>Tahasil</th>
+                    <th>R.I. Circle</th>
+                    <th>Thana No.</th>
+                    <th>Date of Award</th>
+                    <th>RT Name</th>
+                    <th>PT Name</th>
+                    <th>Present Address</th>
+                    <th>Affected Person</th>
+                    <th>Unique ID</th>
+                    <th>Plot Count</th>
+                    <th>Created</th>
+                    <th>Reference Document</th>
+                    <th className={stickyActionHeader}>Actions</th>
+                  </tr>
+                </thead>
 
                 <tbody>
                   {displayKhatas.map((khata, idx) => (
@@ -448,7 +444,10 @@ const KhataTable = ({
 
                       <td className={stickyActionCell}>
                         <div className="dropdown dropdown-left">
-                          <label tabIndex={0} className="btn btn-xs bg-gray-200 text-black hover:bg-gray-300 border-0">
+                          <label
+                            tabIndex={0}
+                            className="btn btn-xs bg-gray-200 text-black hover:bg-gray-300 border-0"
+                          >
                             <SlidersHorizontal size={14} />
                             {/* Filter */}
                             {/* <EllipsisVertical size={18}/> */}
@@ -456,7 +455,7 @@ const KhataTable = ({
 
                           <ul
                             tabIndex={0}
-                            className="dropdown-content menu p-2 shadow-xl bg-white rounded-md w-40 z-50"
+                            className="dropdown-content menu p-2 bg-white rounded-md w-40 z-50 shadow-[0_0_15px_rgba(0,0,0,0.2)] space-y-2"
                           >
                             <li>
                               <button
@@ -464,56 +463,56 @@ const KhataTable = ({
                                   dispatch(setSelectedKhataId(khata.id));
                                   setIsPlotModalOpen(true);
                                 }}
-                                className="text-accent font-bold"
+                                className="text-gray-700 font-semibold"
                               >
-                                <LandPlot size={14} /> View Plots
+                                <LandPlot size={14} /> View Plots (
+                                {khata.plot_count || 0})
                               </button>
                             </li>
                             <li>
                               <button
                                 disabled={userRole === "Viewer"}
                                 onClick={() => onUpload(khata)}
-                                 className={`text-info font-bold ${
-                              userRole === "Viewer"
-                                ? "!text-gray-400"
-                                : ""
-                            }`}
+                                className={`text-gray-700 font-semibold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
                               >
-                                <Upload size={14} /> Upload
+                                <Upload size={14} /> Upload (
+                                {khata.file_count || 0})
                               </button>
                             </li>
                             <li>
-                              <button onClick={() => onMap(khata)}
-                                 className="text-success font-bold">
-                                <MapIcon size={14} /> Map
+                              <button
+                                onClick={() => onMap(khata)}
+                                className="text-gray-700 font-semibold"
+                              >
+                                <MapIcon size={14} /> Map (
+                                {khata.file_count || 0})
                               </button>
                             </li>
                             <li>
                               <button
                                 disabled={userRole === "Viewer"}
                                 onClick={() => onEdit(khata)}
-                                  // className="text-gray-700 font-bold"
-                                    className={`text-warning font-bold ${
-                              userRole === "Viewer"
-                                ? "!text-gray-400"
-                                : ""
-                            }`}
+                                // className="text-gray-700 font-semibold"
+                                className={`text-gray-700 font-semibold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
                               >
-                                <Pencil size={14} /> Edit
+                                {/* <Pencil size={14} /> Edit */}
+                                ✍️ Edit
                               </button>
                             </li>
                             <li>
                               <button
                                 disabled={isRestricted}
                                 onClick={() => onDelete(khata)}
-                                  // className="text-gray-700 font-bold"
-                                    className={`text-error font-bold ${
-                              isRestricted
-                                ? "!text-gray-400"
-                                : ""
-                            }`}
+                                // className="text-gray-700 font-semibold"
+                                className={`text-gray-800 font-semibold ${
+                                  isRestricted ? "!text-gray-400" : ""
+                                }`}
                               >
-                                <Trash2 size={14} /> Delete
+                                {/* <Trash2 size={14} /> Delete */}❌ Delete
                               </button>
                             </li>
                           </ul>
@@ -544,4 +543,3 @@ const KhataTable = ({
 };
 
 export default KhataTable;
-

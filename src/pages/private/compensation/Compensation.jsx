@@ -381,6 +381,7 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Pencil,
 } from "lucide-react";
 import { API_BASE_URL } from "../../../utils/config";
 import { useSelector } from "react-redux";
@@ -434,10 +435,9 @@ const Compensation = () => {
         }));
 
         setKhatas(mapped);
+      } else {
+        setKhatas([]);
       }
-      else {
-  setKhatas([]); 
-}
     } catch (err) {
       console.error("FETCH ERROR:", err);
     }
@@ -473,37 +473,84 @@ const Compensation = () => {
   //     return newData;
   //   });
   // };
-  const handleApportionChange = (kIndex, rIndex, value) => {
+const handleApportionChange = (kIndex, rIndex, value) => {
   let num =(value);
-
+  if (num < 0) num = 0;
   if (num > 100) num = 100;
-  if (num < 0) num = 0; // optional min limit
 
   setKhatas((prev) => {
     const newData = [...prev];
     const khata = newData[kIndex];
-    const record = khata.records[rIndex];
+    const records = khata.records;
 
-    record.apportionment = num;
-    record.compPayment = ((num / 100) * khata.totalComp).toFixed(2);
+    records[rIndex].apportionment = num;
+    let usedPercent = 0;
+    records.forEach((r, i) => {
+      if (i !== records.length - 1) {
+        usedPercent += Number(r.apportionment || 0);
+      }
+    });
+
+    const remaining = Math.max(0, 100 - usedPercent);
+    const lastIndex = records.length - 1;
+
+    records[lastIndex].apportionment =
+      rIndex === lastIndex ? num : remaining;
+    records.forEach((r) => {
+      r.compPayment = (
+        (Number(r.apportionment) / 100) *
+        khata.totalComp
+      ).toFixed(2);
+    });
 
     return newData;
   });
 };
+const handlePaymentChange = (kIndex, rIndex, value) => {
+  let amount = (value);
 
+  if (amount < 0) amount = 0;
 
-  const handlePaymentChange = (kIndex, rIndex, value) => {
-    setKhatas((prev) => {
-      const newData = [...prev];
-      const khata = newData[kIndex];
-      const record = khata.records[rIndex];
+  setKhatas((prev) => {
+    const newData = [...prev];
+    const khata = newData[kIndex];
+    const records = khata.records;
+    const lastIndex = records.length - 1;
 
-      record.compPayment = value;
-      record.apportionment = ((value / khata.totalComp) * 100).toFixed(2);
+    // Update edited row
+    records[rIndex].compPayment = amount;
 
-      return newData;
+    // Sum of all rows except last
+    let usedAmount = 0;
+    records.forEach((r, i) => {
+      if (i !== lastIndex) {
+        usedAmount += Number(r.compPayment || 0);
+      }
     });
-  };
+
+    // Prevent exceeding total compensation
+    if (usedAmount > khata.totalComp) {
+      records[rIndex].compPayment -= usedAmount - khata.totalComp;
+      usedAmount = khata.totalComp;
+    }
+
+    // Auto-fill last row (remaining amount)
+    if (rIndex !== lastIndex) {
+      records[lastIndex].compPayment = Number(
+        Math.max(0, khata.totalComp - usedAmount).toFixed(2)
+      );
+    }
+
+    // Auto-calculate apportionment %
+    records.forEach((r) => {
+      r.apportionment = Number(
+        ((Number(r.compPayment) / khata.totalComp) * 100).toFixed(2)
+      );
+    });
+
+    return newData;
+  });
+};
 
   const handleFileChange = (kIndex, rIndex, file) => {
     setKhatas((prev) => {
@@ -556,7 +603,7 @@ const Compensation = () => {
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
-    if (!projectId) {
+  if (!projectId) {
     return (
       <main className="p-4">
         <div className="py-10 text-center text-gray-600">
@@ -591,7 +638,6 @@ const Compensation = () => {
     );
   }
 
-
   return (
     <main className="p-2 md:p-4 min-h-screen">
       <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
@@ -618,7 +664,7 @@ const Compensation = () => {
                   <span className="text-primary">{khata.khataNo}</span>
                 </p>
               </div>
-               <div className="text-left space-y-1">
+              <div className="text-left space-y-1">
                 <p>
                   <strong>Total Area:</strong> {khata.totalArea}
                 </p>
@@ -626,11 +672,9 @@ const Compensation = () => {
                   <strong>Total Compensation:</strong> ₹
                   {khata.totalComp.toLocaleString()}
                 </p>
-
               </div>
 
               <div className="flex items-center gap-3">
-                
                 {valid ? (
                   <span className="flex items-center text-green-600 text-sm">
                     <CheckCircle size={18} className="mr-1" /> Totals Matched
@@ -641,7 +685,7 @@ const Compensation = () => {
                     match
                   </span>
                 )}
-                
+
                 <button
                   className="btn bg-green-600 text-white flex items-center gap-2"
                   onClick={handleExportExcel}
@@ -653,10 +697,8 @@ const Compensation = () => {
               </div>
             </div>
 
-  
             {openIndex === kIndex && (
               <div className="p-4">
-
                 <div className="overflow-x-auto mt-4">
                   <table className="table table-zebra w-full text-xs sm:text-sm">
                     <thead className="bg-gray-200 text-gray-700">
@@ -666,12 +708,14 @@ const Compensation = () => {
                         <th>Payment Area</th>
                         <th>Compensation Payment</th>
                         <th>Apportionment (%)</th>
+                        <th>Days Of Interest</th>
                         <th>Bank A/C</th>
                         <th>Bank</th>
                         <th>IFSC</th>
                         <th>Status</th>
                         <th>Txn No.</th>
                         <th>Upload</th>
+                              <th>Action</th>
                       </tr>
                     </thead>
 
@@ -711,10 +755,10 @@ const Compensation = () => {
                               }
                             />
                           </td>
-
-                          <td>{r.bankAcc ?? "-"}</td>
-                          <td>{r.bankName ?? "-"}</td>
-                          <td>{r.ifsc ?? "-"}</td>
+                          <td>{r.days_of_interest ?? "No Data"}</td>
+                          <td>{r.bankAcc ?? "No Data"}</td>
+                          <td>{r.bankName ?? "No Data"}</td>
+                          <td>{r.ifsc ?? "No Data"}</td>
 
                           <td>
                             <span
@@ -774,6 +818,14 @@ const Compensation = () => {
                               )}
                             </label>
                           </td>
+                          <td>
+                              <button
+                              className="btn btn-xs btn-warning text-white"
+                 
+                    >
+                      <Pencil size={14} /> Edit
+                    </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -781,9 +833,12 @@ const Compensation = () => {
                 </div>
 
                 <div className="flex justify-end mt-4 md:mt-6">
-                  <button className="btn btn-primary w-full md:w-auto"  disabled={!valid}
-  title={!valid ? "Totals do not match!" : ""}>
-                    Mark Payment Ready
+                  <button
+                    className="btn btn-primary w-full md:w-auto"
+                    disabled={!valid}
+                    title={!valid ? "Totals do not match!" : ""}
+                  >
+                    Payment Completed
                   </button>
                 </div>
               </div>
@@ -796,4 +851,3 @@ const Compensation = () => {
 };
 
 export default Compensation;
-

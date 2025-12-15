@@ -31,34 +31,34 @@ const Plots = () => {
   const isRestricted = role === "Data Entry User" || role === "Viewer";
   const navigate = useNavigate();
 
-const fetchPlots = async () => {
-  if (!projectId) {
-    console.warn("Project ID not available yet.");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const endpoint = `/plots/plotList?project_id=${projectId}&page=${page}&limit=${limit}&type=${typeParam}`;
-    const data = await apiClient(endpoint);
-
-    if (data.success) {
-      setPlots(data.plots || []);
-      setTotalPages(data.totalPages || 1);
+  const fetchPlots = async () => {
+    if (!projectId) {
+      console.warn("Project ID not available yet.");
+      return;
     }
-  } catch (err) {
-    console.error("Error fetching plots:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-  useEffect(() => {
-  if (token && projectId) {
-    fetchPlots();
-  }
-}, [page, limit, token, projectId, typeParam]);
 
+    setLoading(true);
+
+    try {
+      const endpoint = `/plots/plotList?project_id=${projectId}&page=${page}&limit=${limit}&type=${typeParam}`;
+      const data = await apiClient(endpoint);
+      console.log("Fetched Plots Data:", data);
+
+      if (data.success) {
+        setPlots(data.plots || []);
+        setTotalPages(data.totalPages || 1);
+      }
+    } catch (err) {
+      console.error("Error fetching plots:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (token && projectId) {
+      fetchPlots();
+    }
+  }, [page, limit, token, projectId, typeParam]);
 
   const confirmDelete = async () => {
     if (!deleteConfirm?.id) return;
@@ -133,14 +133,14 @@ const fetchPlots = async () => {
   };
 
   return (
-    <main className="flex-1 p-6 overflow-y-auto space-y-6">
-      <div className="flex justify-between items-center mb-4">
+    <main className="flex-1 overflow-y-auto space-y-6">
+      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:justify-between sm:items-center">
         <h2 className="text-lg font-semibold capitalize">
           {landType?.replace("-", " ") || "Private"} Plots
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <button
-            className="btn bg-green-600 text-white flex items-center gap-2"
+            className="btn bg-green-600 text-white flex items-center justify-center gap-2"
             onClick={exportPlot}
           >
             <FolderUp size={18} />
@@ -148,7 +148,7 @@ const fetchPlots = async () => {
           </button>
 
           <button
-            className={`btn btn-primary text-white ${
+            className={`btn btn-primary text-white flex justify-center ${
               isRestricted
                 ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                 : ""
@@ -160,7 +160,8 @@ const fetchPlots = async () => {
           </button>
         </div>
       </div>
- <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
+
+      <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       {/* {!projectId ? (
         <p className="text-center text-gray-600">
           Please select a project to view plots.

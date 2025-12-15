@@ -172,14 +172,12 @@ export default function Khata() {
         {landType?.replace("-", " ") || "Private"} Khata
       </h2>
       {loading ? (
-        <div className="flex justify-center py-10">
+        <div className="flex justify-center items-center">
           <Loader />
         </div>
       ) : (
         <>
-          <div className="flex justify-end items-center mb-4">
-            <div className="flex items-center gap-3 print:hidden">
-              {/* <button
+          {/* <button
                 className="btn bg-green-600 text-white px-4 flex items-center gap-2"
                 onClick={handleExportExcel}
                 disabled={exporting}
@@ -195,10 +193,53 @@ export default function Khata() {
                   </>
                 )}
               </button> */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 print:hidden">
+            {/* LEFT → Village Dropdown */}
+            <div className="relative w-full sm:w-64" ref={dropdownRef}>
+              <button
+                className="btn border border-gray-300 w-full justify-between"
+                onClick={() => setVillageDropdownOpen(!villageDropdownOpen)}
+              >
+                {filterVillage.length > 0
+                  ? `${filterVillage.length} selected`
+                  : "Select Villages"}
+                <ChevronDown size={16} />
+              </button>
+
+              {villageDropdownOpen && (
+                <ul className="absolute left-0 top-full mt-1 dropdown menu w-full rounded-box bg-base-100 shadow-lg p-2 max-h-64 overflow-y-auto z-50">
+                  <li className="mb-1 border-b pb-1">
+                    <button
+                      className="text-blue-600 font-medium w-full text-left"
+                      onClick={() => setFilterVillage([])}
+                    >
+                      Clear All
+                    </button>
+                  </li>
+
+                  {villages.map((v) => (
+                    <li key={v.id}>
+                      <label className="cursor-pointer flex items-center gap-2 py-1">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-xs"
+                          checked={filterVillage.includes(v.id)}
+                          onChange={() => toggleVillage(v.id)}
+                        />
+                        <span>{v.village_name}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* RIGHT → Action Buttons (ALWAYS ROW) */}
+            <div className="flex flex-nowrap justify-end gap-2 sm:gap-3 w-full sm:w-auto overflow-x-auto">
               <ExportButtons data={khatas} columns={khataColumn} />
 
               <button
-                className="btn bg-gray-600 text-white px-4 flex items-center gap-2"
+                className="btn bg-gray-600 text-white px-4 flex items-center gap-2 whitespace-nowrap"
                 onClick={handlePrint}
                 disabled={printing}
               >
@@ -215,7 +256,7 @@ export default function Khata() {
               </button>
 
               <button
-                className={`btn btn-primary text-white ${
+                className={`btn btn-primary text-white whitespace-nowrap ${
                   ["Viewer"].includes(userRole)
                     ? "!bg-gray-300 !text-gray-400 !cursor-not-allowed"
                     : ""
@@ -227,44 +268,6 @@ export default function Khata() {
               </button>
             </div>
           </div>
-          <div ref={dropdownRef} className="relative w-64">
-            <button
-              className="btn border border-gray-300 w-full justify-between"
-              onClick={() => setVillageDropdownOpen(!villageDropdownOpen)}
-            >
-              {filterVillage.length > 0
-                ? `${filterVillage.length} selected`
-                : "Select Villages"}
-              <ChevronDown size={16} />
-            </button>
-
-            {villageDropdownOpen && (
-              <ul className="absolute left-0 top-full mt-1 dropdown menu w-full rounded-box bg-base-100 shadow-lg p-2 max-h-64 overflow-y-auto z-50">
-                <li className="mb-1 border-b pb-1">
-                  <button
-                    className="text-blue-600 font-medium w-full text-left"
-                    onClick={() => setFilterVillage([])}
-                  >
-                    Clear All
-                  </button>
-                </li>
-                {villages.map((v) => (
-                  <li key={v.id}>
-                    <label className="cursor-pointer flex items-center gap-2 py-1">
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-xs"
-                        checked={filterVillage.includes(v.id)}
-                        onChange={() => toggleVillage(v.id)}
-                      />
-                      <span>{v.village_name}</span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
           <div id="khataTablePrint">
             <KhataTable
               khatas={khatas}

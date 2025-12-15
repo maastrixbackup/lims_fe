@@ -2,10 +2,10 @@ import React from "react";
 
 const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
   return (
-    <div className="flex justify-between items-center p-4 border-t bg-gray-50">
+    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center p-4 border-t bg-gray-50">
 
       {/* Page Size Selector */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-center sm:justify-start space-x-2">
         <span className="text-sm text-gray-700">Page Size:</span>
         <select
           className="select select-bordered select-sm w-24"
@@ -23,87 +23,83 @@ const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
       </div>
 
       {/* Pagination Buttons */}
-      <div className="join">
+      <div className="w-full sm:w-auto overflow-x-auto">
+        <div className="join justify-center sm:justify-end min-w-max">
 
-        {/* Prev Button */}
-        <button
-          className="join-item btn btn-sm"
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-        >
-          Prev
-        </button>
+          {/* Prev */}
+          <button
+            className="join-item btn btn-sm"
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Prev
+          </button>
 
-        {/* When only 1 page → show only "1" */}
-        {totalPages === 1 ? (
-          <button className="join-item btn btn-sm btn-primary">1</button>
-        ) : (
-          <>
-            {/* Page 1 */}
-            <button
-              className={`join-item btn btn-sm ${page === 1 ? "btn-primary" : ""}`}
-              onClick={() => setPage(1)}
-            >
-              1
-            </button>
-
-            {/* Left Ellipsis */}
-            {page > 3 && (
-              <button className="join-item btn btn-sm btn-disabled">…</button>
-            )}
-
-            {/* Page - 1 */}
-            {page > 2 && (
+          {totalPages === 1 ? (
+            <button className="join-item btn btn-sm btn-primary">1</button>
+          ) : (
+            <>
               <button
-                className="join-item btn btn-sm"
-                onClick={() => setPage(page - 1)}
+                className={`join-item btn btn-sm ${
+                  page === 1 ? "btn-primary" : ""
+                }`}
+                onClick={() => setPage(1)}
               >
-                {page - 1}
+                1
               </button>
-            )}
 
-            {/* Current Page */}
-            {page !== 1 && page !== totalPages && (
-              <button className="join-item btn btn-sm btn-primary">
-                {page}
-              </button>
-            )}
+              {page > 3 && (
+                <button className="join-item btn btn-sm btn-disabled">…</button>
+              )}
 
-            {/* Page + 1 */}
-            {page < totalPages - 1 && (
+              {page > 2 && (
+                <button
+                  className="join-item btn btn-sm"
+                  onClick={() => setPage(page - 1)}
+                >
+                  {page - 1}
+                </button>
+              )}
+
+              {page !== 1 && page !== totalPages && (
+                <button className="join-item btn btn-sm btn-primary">
+                  {page}
+                </button>
+              )}
+
+              {page < totalPages - 1 && (
+                <button
+                  className="join-item btn btn-sm"
+                  onClick={() => setPage(page + 1)}
+                >
+                  {page + 1}
+                </button>
+              )}
+
+              {page < totalPages - 2 && (
+                <button className="join-item btn btn-sm btn-disabled">…</button>
+              )}
+
               <button
-                className="join-item btn btn-sm"
-                onClick={() => setPage(page + 1)}
+                className={`join-item btn btn-sm ${
+                  page === totalPages ? "btn-primary" : ""
+                }`}
+                onClick={() => setPage(totalPages)}
               >
-                {page + 1}
+                {totalPages}
               </button>
-            )}
+            </>
+          )}
 
-            {/* Right Ellipsis */}
-            {page < totalPages - 2 && (
-              <button className="join-item btn btn-sm btn-disabled">…</button>
-            )}
-
-            {/* Last Page */}
-            <button
-              className={`join-item btn btn-sm ${
-                page === totalPages ? "btn-primary" : ""
-              }`}
-              onClick={() => setPage(totalPages)}
-            >
-              {totalPages}
-            </button>
-          </>
-        )}
-
-        {/* Next Button */}
-        <button
-          className="join-item btn btn-sm"
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-        >
-          Next
-        </button>
+          {/* Next */}
+          <button
+            className="join-item btn btn-sm"
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

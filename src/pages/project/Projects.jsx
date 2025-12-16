@@ -39,7 +39,7 @@ const Projects = () => {
   };
 
   return (
-    <main className="flex-1 p-6 overflow-y-auto space-y-6">
+    <main className="flex-1 overflow-y-auto space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-lg font-semibold">Projects List</h2>
         <div className="flex items-center gap-3">

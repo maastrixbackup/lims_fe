@@ -1,4 +1,3 @@
-// ---------------------- useKhata.js ----------------------
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../utils/landtypes";
@@ -7,14 +6,11 @@ import { apiClient } from "../utils/apiClient";
 export const useKhata = () => {
   const [khatas, setKhatas] = useState([]);
   const [villages, setVillages] = useState([]);
-
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10); // <-- dynamic page size
+  const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-
   const [loading, setLoading] = useState(true);
-
   const [filterVillage, setFilterVillage] = useState([]);
 
   const typeParam = useLandTypeParam();

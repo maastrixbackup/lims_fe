@@ -133,7 +133,7 @@ const Plots = () => {
   };
 
   return (
-    <main className="flex-1 overflow-y-auto space-y-6">
+    <main className="flex-1 overflow-y-auto ">
       <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:justify-between sm:items-center">
         <h2 className="text-lg font-semibold capitalize">
           {landType?.replace("-", " ") || "Private"} Plots

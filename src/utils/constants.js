@@ -40,11 +40,11 @@ export const odishaDistricts = [
 
 export const sections = {
   "Basic Information": [
-    "khata_no",
-    "plot_no",
     "village_name",
     "village_code",
+    "khata_no",
     "la_case_file_no",
+    "plot_no",
     "date_of_award",
     "tahasil_name",
     "ri_circle_name",

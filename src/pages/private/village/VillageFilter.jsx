@@ -48,7 +48,7 @@ const VillageFilter = ({
   return (
     <div
       ref={dropdownRef}
-      className="card bg-white shadow-lg rounded-2xl p-4 space-y-4"
+      className="card mb-4"
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* DISTRICT MULTI-SELECT */}

@@ -12,6 +12,7 @@ export const fetchProjects = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      console.log("project data redux", data);
 
       if (!data.success)
         throw new Error(data.message || "Failed to fetch projects");
@@ -66,6 +67,7 @@ const listSlice = createSlice({
             status: p.status,
             client_code: p.client_code || "",
             created_at: p.created_at,
+            project_location: p.project_location || "",
           })
         );
       })

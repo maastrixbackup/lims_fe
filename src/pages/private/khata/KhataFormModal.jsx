@@ -26,6 +26,24 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     village_id: "",
     khata_no: "",
     type: typeParam,
+    code: "",
+    plot_no: "",
+    kissam_of_land: "",
+    category_of_land: "",
+    land_area_total_acres: "",
+    land_area_total_hectares: "",
+    acquired_area_acres: "",
+    land_area_acquired_hectares: "",
+    remarks: "",
+    tahasil_name: "",
+    ri_circle_name: "",
+    thana_no: "",
+    date_of_award: "",
+    name_of_recorded_tenant: "",
+    name_of_present_tenant: "",
+    present_address: "",
+    contact_no: "",
+    displaced_affected_person: "",
   });
 
   const initializing = useRef(false);
@@ -38,8 +56,26 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
       setFormData({
         project_id: khata.project_id,
         village_id: khata.village_id,
-        khata_no: khata.khata_no || khata.number || "",
+        khata_no: khata.khata_no || "",
         type: khata.type || typeParam,
+        code: khata.code || "",
+        plot_no: khata.plot_no || "",
+        kissam_of_land: khata.kissam_of_land || "",
+        category_of_land: khata.category_of_land || "",
+        land_area_total_acres: khata.land_area_total_acres || "",
+        land_area_total_hectares: khata.land_area_total_hectares || "",
+        acquired_area_acres: khata.acquired_area_acres || "",
+        land_area_acquired_hectares: khata.land_area_acquired_hectares || "",
+        remarks: khata.remarks || "",
+        tahasil_name: khata.tahasil_name || "",
+        ri_circle_name: khata.ri_circle_name || "",
+        thana_no: khata.thana_no || "",
+        date_of_award: khata.date_of_award || "",
+        name_of_recorded_tenant: khata.name_of_recorded_tenant || "",
+        name_of_present_tenant: khata.name_of_present_tenant || "",
+        present_address: khata.present_address || "",
+        contact_no: khata.contact_no || "",
+        displaced_affected_person: khata.displaced_affected_person || "",
       });
 
       setTimeout(() => (initializing.current = false), 300);
@@ -127,7 +163,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* <div>
-            <label className="block text-sm font-medium mb-1">Project</label>
+            <label className="block text-sm font-medium ">Project</label>
             <input
               type="text"
               className="input input-bordered w-full bg-gray-100 font-medium text-gray-700"
@@ -141,7 +177,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             <input type="hidden" name="project_id" value={formData.project_id} />
           </div> */}
           <div>
-            <label className="block text-sm font-medium mb-1">Project</label>
+            <label className="block text-sm font-medium ">Project</label>
             <select
               name="project_id"
               value={formData.project_id || ""}
@@ -158,6 +194,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             </select>
           </div>
           <div className="relative">
+            <label className="block text-sm font-medium">Village</label>
             <button
               type="button"
               onClick={() => setOpenVillage(!openVillage)}
@@ -186,7 +223,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Khata No.</label>
+            <label className="block text-sm font-medium ">Khata No.</label>
             <input
               type="text"
               name="khata_no"
@@ -198,12 +235,201 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Land Type</label>
+            <label className="block text-sm font-medium ">Land Type</label>
             <input
               type="text"
               className="input input-bordered w-full bg-gray-100"
               value={typeLabel}
               readOnly
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium ">Plot No.</label>
+            <input
+              type="text"
+              name="plot_no"
+              value={formData.plot_no}
+              onChange={handleChange}
+              className="input input-bordered w-full"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium ">
+                Kissam of Land
+              </label>
+              <input
+                type="text"
+                name="kissam"
+                value={formData.kissam}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium ">
+                Category of Land
+              </label>
+              <input
+                type="text"
+                name="category_of_land"
+                value={formData.category_of_land}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium">Total Area (Acres)</label>
+              <input
+                type="number"
+                name="land_area_acres"
+                value={formData.land_area_acres}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Total Area (Ha)</label>
+              <input
+                type="number"
+                name="land_area_ha"
+                value={formData.land_area_ha}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium">
+                Acquired Area (Acres)
+              </label>
+              <input
+                type="number"
+                name="acquired_area_acres"
+                value={formData.acquired_area_acres}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Acquired Area (Ha)</label>
+              <input
+                type="number"
+                name="acquired_area_ha"
+                value={formData.acquired_area_ha}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-sm font-medium">Tahasil Name</label>
+              <input
+                type="text"
+                name="tahasil_name"
+                value={formData.tahasil_name}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">R.I. Circle Name</label>
+              <input
+                type="text"
+                name="ri_circle_name"
+                value={formData.ri_circle_name}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Thana No.</label>
+              <input
+                type="text"
+                name="thana_no"
+                value={formData.thana_no}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Date of Award</label>
+            <input
+              type="date"
+              name="date_of_award"
+              value={formData.date_of_award}
+              onChange={handleChange}
+              className="input input-bordered w-full"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium">
+                Recorded Tenants (RT)
+              </label>
+              <input
+                type="text"
+                name="recorded_tenants"
+                value={formData.recorded_tenants}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">
+                Present Tenants (PT)
+              </label>
+              <input
+                type="text"
+                name="present_tenants"
+                value={formData.present_tenants}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Present Address</label>
+            <textarea
+              name="present_address"
+              value={formData.present_address}
+              onChange={handleChange}
+              className="textarea textarea-bordered w-full"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Contact No.</label>
+            <input
+              type="text"
+              name="contact_no"
+              value={formData.contact_no}
+              onChange={handleChange}
+              className="input input-bordered w-full"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">
+              Displaced / Affected Person
+            </label>
+            <input
+              type="text"
+              name="displaced_person"
+              value={formData.displaced_person}
+              onChange={handleChange}
+              className="input input-bordered w-full"
             />
           </div>
 

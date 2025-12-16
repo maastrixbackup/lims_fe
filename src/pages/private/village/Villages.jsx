@@ -59,7 +59,6 @@ const Villages = () => {
     }));
   };
 
-  // Fetch villages from API: ONLY project_id + type + pagination
   const fetchVillages = async () => {
     try {
       setLoading(true);
@@ -92,21 +91,17 @@ const Villages = () => {
     }
   };
 
-  // fetch when selected project, type, page or limit changes
   useEffect(() => {
-    // reset to page 1 when project or type changes
     setPage(1);
   }, [selectedProject?.id, typeParam]);
 
   useEffect(() => {
-    // Only attempt to fetch if a project is selected
     if (!selectedProject?.id) {
       setVillages([]);
       setTotalPages(1);
       return;
     }
     fetchVillages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProject?.id, typeParam, page, limit]);
 
   const openModal = (v = null) => {
@@ -117,11 +112,12 @@ const Villages = () => {
   const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
-      const data = await apiClient(`/village/deleteVillage/${deleteVillage.id}`, "DELETE");
+      const data = await apiClient(
+        `/village/deleteVillage/${deleteVillage.id}`,
+        "DELETE"
+      );
       if (data && data.success) {
-        // you could use a toast instead of alert in real app
         alert("Village deleted successfully!");
-        // refetch current page
         fetchVillages();
       } else {
         alert(data?.message || "Failed to delete village.");
@@ -135,40 +131,72 @@ const Villages = () => {
     }
   };
 
-  // Client-side filters: district, tahasil, village name
   const filteredVillages = useMemo(() => {
     if (!Array.isArray(villages)) return [];
 
     return villages.filter((v) => {
       const matchDistrict =
-        formData.districts.length === 0 || formData.districts.includes(v.district);
+        formData.districts.length === 0 ||
+        formData.districts.includes(v.district);
 
       const matchTahasil =
         formData.tahasils.length === 0 || formData.tahasils.includes(v.tahasil);
 
       const matchVillage =
-        formData.villageNames.length === 0 || formData.villageNames.includes(v.village_name);
+        formData.villageNames.length === 0 ||
+        formData.villageNames.includes(v.village_name);
 
       return matchDistrict && matchTahasil && matchVillage;
     });
   }, [villages, formData]);
-
-  // Export data should use the client-filtered list (already scoped to selected project)
   const projectFilteredData = filteredVillages;
 
   return (
-    <div className="space-y-5 h-screen">
-      <h2 className="text-lg font-semibold capitalize">
-        {landType?.replace("-", " ") || "Private"} Villages
-      </h2>
+    <div className="h-screen">
+      <div className="flex justify-between items-center">
+        {/* Left: Header */}
+        <h2 className="text-lg font-semibold capitalize">
+          {landType?.replace("-", " ") || "Private"} Villages
+        </h2>
 
+        {/* Right: Actions */}
+        <div className="flex items-center gap-3 mb-4">
+          <ExportButtons
+            data={projectFilteredData}
+            fileName="villages"
+            columns={[
+              { label: "ID", key: "id" },
+              { label: "Project Name", key: "project_name" },
+              { label: "Village", key: "village_name" },
+              { label: "District", key: "district" },
+              { label: "Tahasil", key: "tahasil" },
+              { label: "Type", key: "type" },
+              { label: "Village Code", key: "village_code" },
+            ]}
+          />
+
+          <button
+            className={`btn btn-primary text-white ${
+              !canEdit
+                ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                : ""
+            }`}
+            onClick={() => {
+              if (canEdit) openModal();
+            }}
+            disabled={!canEdit}
+          >
+            Add Village
+          </button>
+        </div>
+      </div>
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />
         </div>
       ) : (
         <>
-          <div className="flex justify-end items-center mb-4">
+          {/* <div className="flex justify-end items-center mb-4">
             <div className="flex items-center gap-3">
               <ExportButtons
                 data={projectFilteredData}
@@ -196,7 +224,7 @@ const Villages = () => {
                 Add Village
               </button>
             </div>
-          </div>
+          </div> */}
 
           <VillageFilter
             formData={formData}

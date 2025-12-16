@@ -24,6 +24,10 @@ export default function useProjects(token) {
         project_name: formData.name,
         status: statusMap[formData.status],
         client_code: formData.client_code,
+        project_location: formData.project_location,
+        // start_date: formData.start_date,
+        // end_date: formData.end_date,
+        // description: formData.description,
       };
 
       const url = isEdit
@@ -36,7 +40,7 @@ export default function useProjects(token) {
         method,
         body: payload,
       });
-// console.log("data plotssssss", data)
+console.log("data plotssssss", data)
       if (!data.success) throw new Error(data.message);
 
       dispatch(fetchProjects());

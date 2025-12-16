@@ -3,13 +3,15 @@ import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
 
-const ProjectTable = ({ projects, onEdit, onDelete, loading }) => {
+const ProjectTable = ({  onEdit, onDelete, loading }) => {
   if (loading) return <p className="text-center py-6">Loading...</p>;
+  const {projects} = useSelector((state) => state.list);
 
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
   const canEdit = userRole !== "Viewer"; // Everyone except viewer can edit
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
+  console.log("Projjjj in project table", projects);
 
   return (
     <div className="card bg-white shadow-lg overflow-hidden">
@@ -36,7 +38,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, loading }) => {
                 >
                   <td>{idx + 1}</td>
                   <td>{p.name}</td>
-                  <td>{p.location || "No Data"}</td>
+                  <td>{p.project_location || "No Data"}</td>
 
                   <td>
                     <span

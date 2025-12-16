@@ -208,68 +208,73 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
 
   return (
-    <div className="space-y-10">
-      <div className="rounded-xl p-4 mb-6 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-gray-600 mb-1">
-              Village
-            </label>
-            <select
-              className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-44 text-gray-700"
-              value={selectedVillage}
-              onChange={(e) => setSelectedVillage(e.target.value)}
-            >
-              <option value="">All Villages</option>
-              {villageOptions.map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-gray-600 mb-1">
-              Khata No.
-            </label>
-            <select
-              className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-44 text-gray-700"
-              value={selectedKhata}
-              onChange={(e) => setSelectedKhata(e.target.value)}
-            >
-              <option value="">All Khata Numbers</option>
-              {khataOptions.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-medium text-gray-600 mb-1">
-              Search
-            </label>
-            <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-              <input
-                type="text"
-                placeholder="Search tenant, plot, khata..."
-                className="px-3 py-2 w-64 text-sm rounded-l-lg focus:outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button
-                className="px-2 text-gray-500 hover:text-indigo-600"
-                onClick={resetFilters}
-                title="Reset filters"
+    <div className="">
+      <div className="rounded-xl p-4 mb-6 shadow-sm bg-white space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+          <div className="flex flex-wrap gap-4 w-full">
+            <div className="flex flex-col w-full sm:w-48">
+              <label className="text-xs font-medium text-gray-600 mb-1">
+                Village
+              </label>
+              <select
+                className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-full text-gray-700"
+                value={selectedVillage}
+                onChange={(e) => setSelectedVillage(e.target.value)}
               >
-                <X size={18} />
-              </button>
+                <option value="">All Villages</option>
+                {villageOptions.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Khata */}
+            <div className="flex flex-col w-full sm:w-48">
+              <label className="text-xs font-medium text-gray-600 mb-1">
+                Khata No.
+              </label>
+              <select
+                className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-full text-gray-700"
+                value={selectedKhata}
+                onChange={(e) => setSelectedKhata(e.target.value)}
+              >
+                <option value="">All Khata Numbers</option>
+                {khataOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Search */}
+            <div className="flex flex-col w-full sm:flex-1">
+              <label className="text-xs font-medium text-gray-600 mb-1">
+                Search
+              </label>
+              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                <input
+                  type="text"
+                  placeholder="Search tenant, plot, khata..."
+                  className="px-3 py-2 w-full text-sm rounded-l-lg focus:outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button
+                  className="px-2 text-gray-500 hover:text-indigo-600"
+                  onClick={resetFilters}
+                  title="Reset filters"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="ml-auto flex items-center gap-2 bg-indigo-100 px-3 py-2 rounded-lg text-sm text-indigo-700 font-medium shadow-inner">
+          {/* Results count */}
+          <div className="flex items-center gap-2 bg-indigo-100 px-3 py-2 rounded-lg text-sm text-indigo-700 font-medium shadow-inner w-fit">
             <Filter size={16} />
             Showing{" "}
             <span className="text-indigo-900 font-semibold">
@@ -279,40 +284,41 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </div>
         </div>
       </div>
-      <div className="card bg-white shadow-lg p-4">
-      {(!selectedProject || filteredPlots.length === 0) && (
-        <div className="py-10 text-center text-gray-600">
-          {selectedProject ? (
-            <>
-              <p className="text-md font-medium text-red-500">
-                No Plot found for the{" "}
-                <span className="text-primary font-bold">
-                  Selected Project.
-                </span>
-              </p>
-              <p className="text-md text-gray-500 mt-1">
-                Try selecting a different{" "}
-                <span className="text-gray-700 font-semibold">Project</span> or
-                add a new Plot.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-lg font-medium">
-                Please{" "}
-                <span className="text-primary font-semibold">
-                  Select a Project
-                </span>{" "}
-                first.
-              </p>
-              <p className="text-lg text-gray-500 mt-1">
-                A project is required to view Plot list.
-              </p>
-            </>
-          )}
-        </div>
-      )}
-      </div>
+
+      {/* <div className="card bg-white shadow-lg p-4"> */}
+        {(!selectedProject || filteredPlots.length === 0) && (
+          <div className=" card bg-white py-10 text-center text-gray-600">
+            {selectedProject ? (
+              <>
+                <p className="text-md font-medium text-red-500">
+                  No Plot found for the{" "}
+                  <span className="text-primary font-bold">
+                    Selected Project.
+                  </span>
+                </p>
+                <p className="text-md text-gray-500 mt-1">
+                  Try selecting a different{" "}
+                  <span className="text-gray-700 font-semibold">Project</span>{" "}
+                  or add a new Plot.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-lg font-medium">
+                  Please{" "}
+                  <span className="text-primary font-semibold">
+                    Select a Project
+                  </span>{" "}
+                  first.
+                </p>
+                <p className="text-lg text-gray-500 mt-1">
+                  A project is required to view Plot list.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+      {/* </div> */}
       {selectedProject && filteredPlots.length > 0 && (
         <PlotTabs>
           <TableWrapper title="Basic Details">
@@ -499,7 +505,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-          <TableWrapper title="Land and Valuation Details">
+          <TableWrapper title="Land area Valuation Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
               <tr>
                 <th className="p-3 text-left">#</th>

@@ -290,17 +290,15 @@ const KhataTable = ({
   const stickyCol1Header =
     "p-3 text-left bg-gray-200 text-gray-700 sticky left-0 z-[40] shadow-md min-w-[140px]";
   const stickyCol1Cell =
-    "p-3 text-left bg-white sticky left-0 z-[30] shadow-sm min-w-[140px]";
-
+    "p-3 text-left bg-white sticky left-0 shadow-sm min-w-[140px]";
   const stickyCol2Header =
     "p-3 text-left bg-gray-200 text-gray-700 sticky left-[140px] z-[35] shadow-md min-w-[180px]";
   const stickyCol2Cell =
-    "p-3 text-left bg-white sticky left-[140px] z-[25] shadow-sm min-w-[180px]";
-
+    "p-3 text-left bg-white sticky left-[140px] shadow-sm min-w-[180px]";
   const stickyActionHeader =
-    "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[40] shadow-md";
+    "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
   const stickyActionCell =
-    "p-3 text-right bg-white sticky right-0 z-[30] shadow-sm";
+    "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
 
   const formatThreeItems = (value) => {
     let items = [];
@@ -456,7 +454,7 @@ const KhataTable = ({
                             </li>
                             <li>
                               <button onClick={() => onMap(khata)}>
-                                <MapIcon size={14} /> Map
+                                <MapIcon size={14} /> Map  ({khata.map_count || 0})
                               </button>
                             </li>
                             <li>

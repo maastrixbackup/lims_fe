@@ -517,10 +517,7 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
     const records = khata.records;
     const lastIndex = records.length - 1;
 
-    // Update edited row
     records[rIndex].compPayment = amount;
-
-    // Sum of all rows except last
     let usedAmount = 0;
     records.forEach((r, i) => {
       if (i !== lastIndex) {
@@ -528,20 +525,15 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
       }
     });
 
-    // Prevent exceeding total compensation
     if (usedAmount > khata.totalComp) {
       records[rIndex].compPayment -= usedAmount - khata.totalComp;
       usedAmount = khata.totalComp;
     }
-
-    // Auto-fill last row (remaining amount)
     if (rIndex !== lastIndex) {
       records[lastIndex].compPayment = Number(
         Math.max(0, khata.totalComp - usedAmount).toFixed(2)
       );
     }
-
-    // Auto-calculate apportionment %
     records.forEach((r) => {
       r.apportionment = Number(
         ((Number(r.compPayment) / khata.totalComp) * 100).toFixed(2)
@@ -649,53 +641,63 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
 
         return (
           <div key={kIndex} className="shadow-md mb-4 bg-white rounded-md">
-            {/* Accordion Header */}
-            <div
-              onClick={() => toggleAccordion(kIndex)}
-              className="w-full flex justify-between items-center p-4 shadow-lg hover:bg-gray-50"
-            >
-              <div className="text-left space-y-1">
-                <p className="font-semibold text-sm md:text-base">
-                  Unique ID:{" "}
-                  <span className="text-primary">{khata.uniqueId}</span>
-                </p>
-                <p className="font-semibold text-sm md:text-base">
-                  Khata No:{" "}
-                  <span className="text-primary">{khata.khataNo}</span>
-                </p>
-              </div>
-              <div className="text-left space-y-1">
-                <p>
-                  <strong>Total Area:</strong> {khata.totalArea}
-                </p>
-                <p>
-                  <strong>Total Compensation:</strong> ₹
-                  {khata.totalComp.toLocaleString()}
-                </p>
-              </div>
+        <div
+  onClick={() => toggleAccordion(kIndex)}
+  className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center
+             gap-4 p-4 shadow-lg hover:bg-gray-50 cursor-pointer"
+>
+  {/* Left: Khata Info */}
+  <div className="flex flex-col sm:flex-row sm:gap-8 w-full lg:w-auto">
+    <div className="text-left space-y-1">
+      <p className="font-semibold text-sm md:text-base">
+        Unique ID:{" "}
+        <span className="text-primary">{khata.uniqueId}</span>
+      </p>
+      <p className="font-semibold text-sm md:text-base">
+        Khata No:{" "}
+        <span className="text-primary">{khata.khataNo}</span>
+      </p>
+    </div>
 
-              <div className="flex items-center gap-3">
-                {valid ? (
-                  <span className="flex items-center text-green-600 text-sm">
-                    <CheckCircle size={18} className="mr-1" /> Totals Matched
-                  </span>
-                ) : (
-                  <span className="flex items-center text-orange-600 text-sm">
-                    <AlertTriangle size={18} className="mr-1" /> Values do not
-                    match
-                  </span>
-                )}
+    <div className="text-left space-y-1 mt-2 sm:mt-0">
+      <p className="text-sm md:text-base">
+        <strong>Total Area:</strong> {khata.totalArea}
+      </p>
+      <p className="text-sm md:text-base">
+        <strong>Total Compensation:</strong> ₹
+        {khata.totalComp.toLocaleString()}
+      </p>
+    </div>
+  </div>
 
-                <button
-                  className="btn bg-green-600 text-white flex items-center gap-2"
-                  onClick={handleExportExcel}
-                >
-                  Export Excel
-                </button>
+  {/* Right: Status + Actions */}
+  <div className="flex flex-wrap items-center gap-3 justify-between lg:justify-end w-full lg:w-auto">
+    {valid ? (
+      <span className="flex items-center text-green-600 text-sm whitespace-nowrap">
+        <CheckCircle size={18} className="mr-1" /> Totals Matched
+      </span>
+    ) : (
+      <span className="flex items-center text-orange-600 text-sm whitespace-nowrap">
+        <AlertTriangle size={18} className="mr-1" /> Values do not match
+      </span>
+    )}
 
-                {openIndex === kIndex ? <ChevronUp /> : <ChevronDown />}
-              </div>
-            </div>
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        handleExportExcel();
+      }}
+      className="btn bg-green-600 text-white flex items-center gap-2 text-sm"
+    >
+      Export Excel
+    </button>
+
+    <span className="ml-auto lg:ml-0">
+      {openIndex === kIndex ? <ChevronUp /> : <ChevronDown />}
+    </span>
+  </div>
+</div>
+
 
             {openIndex === kIndex && (
               <div className="p-4">

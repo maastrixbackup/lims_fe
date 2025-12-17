@@ -278,14 +278,11 @@ const KhataTable = ({
 }) => {
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.auth.user?.role_name);
-  const selectedProject = useSelector(
-    (state) => state.selectedProject.project
-  );
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
 
-  const isRestricted =
-    userRole === "Data Entry User" || userRole === "Viewer";
+  const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
   const stickyCol1Header =
     "p-3 text-left bg-gray-200 text-gray-700 sticky left-0 z-[40] shadow-md min-w-[140px]";
@@ -309,9 +306,7 @@ const KhataTable = ({
     }
     if (items.length === 0) return "No data";
     const firstThree = items.slice(0, 3).join(", ");
-    return items.length > 3
-      ? `${firstThree} … (${items.length})`
-      : firstThree;
+    return items.length > 3 ? `${firstThree} … (${items.length})` : firstThree;
   };
 
   const displayKhatas = selectedProject
@@ -412,9 +407,7 @@ const KhataTable = ({
                       <td>{khata.displaced_affected_person || "No data"}</td>
                       <td>{khata.unique_id || "No data"}</td>
                       <td>{khata.plot_count || "No data"}</td>
-                      <td>
-                        {moment(khata.created_at).format("DD-MM-YYYY")}
-                      </td>
+                      <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
 
                       <td>
                         <button
@@ -434,31 +427,49 @@ const KhataTable = ({
                             <SlidersHorizontal size={14} />
                           </label>
 
-                          <ul className="dropdown-content menu p-2 bg-white rounded-md w-40 shadow-xl z-50">
+                          <ul className="dropdown-content menu p-2 bg-white rounded-md w-40 shadow-[0_4px_10px_rgba(1,1,1,0.25)] z-50 text-md space-y-3 ">
                             <li>
                               <button
                                 onClick={() => {
                                   dispatch(setSelectedKhataId(khata.id));
                                   setIsPlotModalOpen(true);
                                 }}
+                                className="text-gray-700 font-semibold"
                               >
                                 <LandPlot size={14} /> View Plots (
                                 {khata.plot_count || 0})
                               </button>
                             </li>
                             <li>
-                              <button onClick={() => onUpload(khata)}>
+                              <button
+                                disabled={userRole === "Viewer"}
+                                onClick={() => onUpload(khata)}
+                                className={`text-gray-700 font-semibold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
                                 <Upload size={14} /> Upload (
-                                {khata.file_count || 0})
+                                {khata.khata_document_count || 0})
                               </button>
                             </li>
                             <li>
-                              <button onClick={() => onMap(khata)}>
-                                <MapIcon size={14} /> Map  ({khata.map_count || 0})
+                              <button
+                                className="text-gray-700 font-semibold"
+                                onClick={() => onMap(khata)}
+                              >
+                                <MapIcon size={14} /> Map (
+                                {khata.khata_map_document_count || 0})
                               </button>
                             </li>
                             <li>
-                              <button onClick={() => onEdit(khata)}>
+                              <button
+                                disabled={userRole === "Viewer"}
+                                onClick={() => onEdit(khata)}
+                                // className="text-gray-700 font-semibold"
+                                className={`text-gray-700 font-semibold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
                                 ✍️ Edit
                               </button>
                             </li>
@@ -466,6 +477,10 @@ const KhataTable = ({
                               <button
                                 disabled={isRestricted}
                                 onClick={() => onDelete(khata)}
+                                //  className="text-gray-700 font-semibold"
+                                className={`text-gray-800 font-semibold ${
+                                  isRestricted ? "!text-gray-400" : ""
+                                }`}
                               >
                                 ❌ Delete
                               </button>

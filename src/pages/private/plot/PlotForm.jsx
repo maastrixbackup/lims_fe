@@ -493,7 +493,9 @@ const PlotForm = ({ fetchPlots }) => {
       if (!formData[f]) newErrors[f] = "This field is required";
     });
 
-   const regex = /^[A-Z0-9-]+\/[A-Z0-9]+\/[A-Z0-9]+$/;
+  //  const regex = /^[A-Z0-9-]+\/[A-Z0-9]+\/[A-Z0-9]+$/;
+  const regex = /^.+\/.+\/.+$/;
+
 
     if (!regex.test(formData.la_case_file_no)) {
       newErrors.la_case_file_no =
@@ -591,7 +593,7 @@ const PlotForm = ({ fetchPlots }) => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {Object.entries(sections).map(([section, fields]) => (
-            <div key={section} className="p-4 bg-gray-50 rounded-md">
+            <div key={section} className="p-4 border rounded-md bg-gray-50">
               <h3 className="font-semibold text-lg mb-3">{section}</h3>
 
               <div className="grid grid-cols-2 gap-4">
@@ -639,9 +641,10 @@ const PlotForm = ({ fetchPlots }) => {
                             : "text"
                         }
                         // required={requiredFields.includes(field)}
-                        className={`input input-bordered w-full ${
-                          errors[field] ? "border-red-500" : ""
-                        }`}
+                        className= "input input-bordered w-full"
+                        // className={`input input-bordered w-full ${
+                        //   errors[field] ? "border-red-500" : ""
+                        // }`}
                       />
                     )}
 

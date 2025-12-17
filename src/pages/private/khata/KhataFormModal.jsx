@@ -147,8 +147,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     }
   };
   return (
-    <dialog open className="modal modal-open">
-      <div className="modal-box relative">
+    <dialog open className="modal modal-open ">
+      <div className="modal-box max-w-2xl max-h-130 relative">
         <button
           type="button"
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -176,22 +176,33 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             />
             <input type="hidden" name="project_id" value={formData.project_id} />
           </div> */}
-          <div>
-            <label className="block text-sm font-medium ">Project</label>
-            <select
-              name="project_id"
-              value={formData.project_id || ""}
-              onChange={handleChange}
-              className="select select-bordered w-full"
-              required
-            >
-              <option value="">Select Project</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.project_name || p.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium ">Project</label>
+              <select
+                name="project_id"
+                value={formData.project_id || ""}
+                onChange={handleChange}
+                className="select select-bordered w-full"
+                required
+              >
+                <option value="">Select Project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.project_name || p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium ">Land Type</label>
+              <input
+                type="text"
+                className="input input-bordered w-full bg-gray-100"
+                value={typeLabel}
+                readOnly
+              />
+            </div>
           </div>
           <div className="relative">
             <label className="block text-sm font-medium">Village</label>
@@ -221,37 +232,30 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </ul>
             )}
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium ">Khata No.</label>
+              <input
+                type="text"
+                name="khata_no"
+                value={formData.khata_no}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+                required
+                // disabled={isRestricted}
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium ">Khata No.</label>
-            <input
-              type="text"
-              name="khata_no"
-              value={formData.khata_no}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-              required
-              // disabled={isRestricted}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium ">Land Type</label>
-            <input
-              type="text"
-              className="input input-bordered w-full bg-gray-100"
-              value={typeLabel}
-              readOnly
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium ">Plot No.</label>
-            <input
-              type="text"
-              name="plot_no"
-              value={formData.plot_no}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-            />
+            <div>
+              <label className="block text-sm font-medium ">Plot No.</label>
+              <input
+                type="text"
+                name="plot_no"
+                value={formData.plot_no}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -437,7 +441,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             <button type="submit" className="btn btn-primary">
               Save
             </button>
-            <button type="button" className="btn" onClick={onClose}>
+            <button type="button"  className="btn btn-error text-white" onClick={onClose}>
               Cancel
             </button>
           </div>

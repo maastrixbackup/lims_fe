@@ -505,7 +505,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-          <TableWrapper title="Land area Valuation Details">
+          <TableWrapper title="Land Area Valuation Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
               <tr>
                 <th className="p-3 text-left">#</th>
@@ -535,6 +535,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">Value of Other Structures (₹)</th>
                 <th className="p-3 text-left">Total Value (₹)</th>
                 <th className="p-3 text-left">Solatium 100% (₹)</th>
+                 <th className="p-3 text-left">No. Days of interest</th>
                 <th className="p-3 text-left">Additional 12% (₹)</th>
                 <th className="p-3 text-left">Total Compensation (₹)</th>
                 <th className="p-3 text-left">Apportionment Amount (₹)</th>
@@ -595,6 +596,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className="p-3">{plot.total_value || "N/A"}</td>
                   <td className="p-3">{plot.solatium_100 || "N/A"}</td>
+                  <td className="p-3">{plot.no_days_interest || "N/A"}</td>
                   <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
                   <td className="p-3">{plot.total_compensation || "N/A"}</td>
                   <td className="p-3">{plot.apportionment_amount || "N/A"}</td>

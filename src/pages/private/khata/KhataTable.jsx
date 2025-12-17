@@ -418,7 +418,7 @@ const KhataTable = ({
 
                       <td>
                         <button
-                          className="btn btn-xs bg-blue-500 text-white"
+                          className="btn btn-sm bg-blue-500 text-white w-40"
                           onClick={() => onEdit(khata)}
                         >
                           <DockIcon size={14} /> Reference

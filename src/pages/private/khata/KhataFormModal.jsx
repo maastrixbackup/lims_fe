@@ -438,12 +438,13 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
           </div>
 
           <div className="modal-action">
+              <button type="button"  className="btn btn-error text-white" onClick={onClose}>
+              Cancel
+            </button>
             <button type="submit" className="btn btn-primary">
               Save
             </button>
-            <button type="button"  className="btn btn-error text-white" onClick={onClose}>
-              Cancel
-            </button>
+          
           </div>
         </form>
       </div>

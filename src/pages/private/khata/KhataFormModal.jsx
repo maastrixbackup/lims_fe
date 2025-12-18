@@ -121,7 +121,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         method,
         body: formData,
       });
-      console.log("add khata", res);
+      console.log("add khata^^^^^^^^^^^^", res);
       if (!res.success) {
         alert(res.message || "Failed to save khata");
         return;

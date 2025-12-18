@@ -250,7 +250,6 @@ const VillageFormModal = ({
               <p className="text-red-500 text-sm">{errors.village_code}</p>
             )}
 
-            {/* ✅ Multiplying Factor (Only when Editing) */}
             {editingVillage && (
               <>
                 <label>Multiplying Factor</label>
@@ -285,7 +284,7 @@ const VillageFormModal = ({
                   : "Save"}
               </button>
 
-              <button className="btn" type="button" onClick={onClose}>
+              <button className="btn btn-error text-white" type="button" onClick={onClose}>
                 Cancel
               </button>
             </div>

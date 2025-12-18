@@ -58,7 +58,8 @@ const VillageTable = ({
         </div>
       )}
       {!showNoProject && !showNoVillages && (
-        <div className="max-h-[400px] overflow-x-auto">
+        <div className="max-h-[400px] overflow-x-auto"
+        style={{ scrollbarWidth: "thin" }}>
           <table className="table w-full">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>

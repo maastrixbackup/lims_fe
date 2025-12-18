@@ -161,7 +161,7 @@ const Plots = () => {
         </div>
       </div>
 
-      <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
+      <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} className="overflow-x" style={{ scrollbarWidth: "thin" }}/>
       {/* {!projectId ? (
         <p className="text-center text-gray-600">
           Please select a project to view plots.

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const tabs = [
   "Basic Details",
   "Bank & Personal Details",
-  "Land & Valuation Details",
+  "Land Area Valuation Details",
   "RR Details",
   "Grievance & Tribunal Details",
 ];

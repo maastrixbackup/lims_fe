@@ -285,7 +285,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         </div>
       </div>
 
-      {/* <div className="card bg-white shadow-lg p-4"> */}
         {(!selectedProject || filteredPlots.length === 0) && (
           <div className=" card bg-white py-10 text-center text-gray-600">
             {selectedProject ? (
@@ -321,8 +320,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       {/* </div> */}
       {selectedProject && filteredPlots.length > 0 && (
         <PlotTabs>
-          <TableWrapper title="Basic Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+          <TableWrapper title="Basic Details" >
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap" >
               <tr>
                 <th className="p-3 text-left">#</th>
                 <th className="p-3 text-left">Project Name</th>

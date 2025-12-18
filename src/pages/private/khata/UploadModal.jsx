@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, CheckCircle, Trash2 } from "lucide-react";
-import { API_BASE_URL } from "../../../utils/config"; 
+import { API_BASE_URL } from "../../../utils/config";
 import { DOCUMENT_TYPES, showToast } from "../../../utils/constants";
 import { useSelector } from "react-redux";
 
@@ -21,9 +21,12 @@ export default function UploadModal({ khata, onClose }) {
     if (!khata?.id) return;
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/khata/getKhataFiles/${khata.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/khata/getKhataFiles/${khata.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await res.json();
 
@@ -89,14 +92,16 @@ export default function UploadModal({ khata, onClose }) {
           body: formData,
         });
 
-        if (!response.ok) {
-          throw new Error(`Failed to upload "${file.name}"`);
-        }
+        const data = await response.json();
 
-        await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || `Failed to upload "${file.name}"`);
+        }
       }
 
-      setSuccessMsg(`${files.length} file(s) uploaded successfully to "${docType}".`);
+      setSuccessMsg(
+        `${files.length} file(s) uploaded successfully to "${docType}".`
+      );
       // Fetch fresh data after upload
       await fetchDocuments();
     } catch (err) {
@@ -115,10 +120,13 @@ export default function UploadModal({ khata, onClose }) {
       setErrorMsg("");
       setSuccessMsg("");
 
-      const response = await fetch(`${API_BASE_URL}/khata/deleteKhataFile/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/khata/deleteKhataFile/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await response.json();
 
@@ -137,7 +145,10 @@ export default function UploadModal({ khata, onClose }) {
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-3xl relative">
-        <button onClick={onClose} className="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+        >
           <X size={20} />
         </button>
 
@@ -159,11 +170,16 @@ export default function UploadModal({ khata, onClose }) {
         )}
 
         {loading ? (
-          <p className="text-center text-blue-600 mt-5 animate-pulse">Loading documents...</p>
+          <p className="text-center text-blue-600 mt-5 animate-pulse">
+            Loading documents...
+          </p>
         ) : (
           <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500">
             {DOCUMENT_TYPES.map((docType, index) => (
-              <div key={index} className="card bg-base-200 border border-primary/10 shadow-lg hover:shadow-2xl hover:border-primary transition-all duration-300">
+              <div
+                key={index}
+                className="card bg-base-200 border border-primary/10 shadow-lg hover:shadow-2xl hover:border-primary transition-all duration-300"
+              >
                 <div className="card-body p-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <label className="font-semibold text-sm text-primary w-full sm:w-1/3">
@@ -172,7 +188,11 @@ export default function UploadModal({ khata, onClose }) {
 
                     <input
                       type="file"
-                      accept={isSheetType(docType) ? ".xls,.xlsx,.csv" : "application/pdf,image/*"}
+                      accept={
+                        isSheetType(docType)
+                          ? ".xls,.xlsx,.csv"
+                          : "application/pdf"
+                      }
                       multiple
                       onChange={(e) => handleFileUpload(e, docType)}
                       className="file-input file-input-bordered w-full"
@@ -181,21 +201,30 @@ export default function UploadModal({ khata, onClose }) {
                   </div>
 
                   {uploading === docType && (
-                    <p className="text-xs text-blue-600 mt-1 animate-pulse">Uploading...</p>
+                    <p className="text-xs text-blue-600 mt-1 animate-pulse">
+                      Uploading...
+                    </p>
                   )}
 
                   {uploadedDocs[docType]?.length ? (
                     <ul className="space-y-1 mt-3 text-sm">
                       {uploadedDocs[docType].map((file) => (
-                        <li key={file.id} className="flex items-center justify-between bg-base-100 p-2 rounded-md border border-gray-300 hover:border-primary/50 transition">
+                        <li
+                          key={file.id}
+                          className="flex items-center justify-between bg-base-100 p-2 rounded-md border border-gray-300 hover:border-primary/50 transition"
+                        >
                           <span className="truncate w-52">{file.name}</span>
                           <div className="flex gap-2">
-                           <button className="btn btn-xs btn-outline btn-success" 
-                          onClick={() => window.open(file.url, "_blank")}
-                           > 
-                            View 
+                            <button
+                              className="btn btn-xs btn-outline btn-success"
+                              onClick={() => window.open(file.url, "_blank")}
+                            >
+                              View
                             </button>
-                            <button onClick={() => handleDelete(docType, file.id)} className="btn btn-xs btn-outline btn-error">
+                            <button
+                              onClick={() => handleDelete(docType, file.id)}
+                              className="btn btn-xs btn-outline btn-error"
+                            >
                               <Trash2 size={12} />
                             </button>
                           </div>
@@ -203,7 +232,9 @@ export default function UploadModal({ khata, onClose }) {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-xs text-gray-500 italic mt-2">No files uploaded</p>
+                    <p className="text-xs text-gray-500 italic mt-2">
+                      No files uploaded
+                    </p>
                   )}
                 </div>
               </div>
@@ -212,7 +243,9 @@ export default function UploadModal({ khata, onClose }) {
         )}
 
         <div className="modal-action">
-          <button className="btn" onClick={onClose}>Close</button>
+          <button className="btn" onClick={onClose}>
+            Close
+          </button>
         </div>
       </div>
     </dialog>

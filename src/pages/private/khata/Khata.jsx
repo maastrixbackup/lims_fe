@@ -156,7 +156,7 @@ export default function Khata() {
       console.error("Print error:", error);
       alert("Failed to print Khata");
     } finally {
-      setPrinting(false); // Hide loader
+      setPrinting(false); 
     }
   };
 
@@ -233,8 +233,6 @@ export default function Khata() {
                 </ul>
               )}
             </div>
-
-            {/* RIGHT → Action Buttons (ALWAYS ROW) */}
             <div className="flex flex-nowrap justify-end gap-2 sm:gap-3 w-full sm:w-auto overflow-x-auto">
               <ExportButtons data={khatas} columns={khataColumn} />
 

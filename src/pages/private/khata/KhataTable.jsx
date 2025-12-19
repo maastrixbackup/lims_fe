@@ -541,7 +541,7 @@ const KhataTable = ({
   onDelete,
   onUpload,
   onMap,
-  total,
+  total
 }) => {
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.auth.user?.role_name);
@@ -640,9 +640,7 @@ const KhataTable = ({
           {label}
           <FilterIcon
             size={14}
-              className={`cursor-pointer transition-colors
-    ${activeFilter === field ? "text-blue-600" : "text-gray-400 hover:text-gray-600"}
-  `}
+            className="cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               setActiveFilter(activeFilter === field ? null : field);

@@ -640,7 +640,9 @@ const KhataTable = ({
           {label}
           <FilterIcon
             size={14}
-            className="cursor-pointer"
+              className={`cursor-pointer transition-colors
+    ${activeFilter === field ? "text-blue-600" : "text-gray-400 hover:text-gray-600"}
+  `}
             onClick={(e) => {
               e.stopPropagation();
               setActiveFilter(activeFilter === field ? null : field);

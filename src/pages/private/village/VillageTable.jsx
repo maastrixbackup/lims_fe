@@ -146,7 +146,10 @@ const VillageTable = ({
               ))}
             </tbody>
           </table>
-          {selectedProject && (
+       
+        </div>
+      )}
+         {selectedProject && (
             <Pagination
               page={page}
               limit={limit}
@@ -155,8 +158,6 @@ const VillageTable = ({
               setLimit={setLimit}
             />
           )}
-        </div>
-      )}
     </div>
   );
 };

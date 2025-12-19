@@ -1,10 +1,8 @@
 import React from "react";
 
-const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
+const Pagination = ({ page, totalPages, setPage, limit, setLimit, total }) => {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center p-4 border-t bg-gray-50">
-
-      {/* Page Size Selector */}
       <div className="flex items-center justify-center sm:justify-start space-x-2">
         <span className="text-sm text-gray-700">Page Size:</span>
         <select
@@ -19,14 +17,12 @@ const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
           <option value="25">25</option>
           <option value="50">50</option>
           <option value="100">100</option>
+           {/* <option value={total}>All</option> */}
         </select>
       </div>
 
-      {/* Pagination Buttons */}
       <div className="w-full sm:w-auto overflow-x-auto">
         <div className="join justify-center sm:justify-end min-w-max">
-
-          {/* Prev */}
           <button
             className="join-item btn btn-sm"
             disabled={page === 1}
@@ -90,8 +86,6 @@ const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
               </button>
             </>
           )}
-
-          {/* Next */}
           <button
             className="join-item btn btn-sm"
             disabled={page === totalPages}

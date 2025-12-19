@@ -748,22 +748,24 @@ export const khataColumn = [
 
 
 export const REQUIRED_FIELDS = [
-  "name_of_recorded_tenant",
-  "name_of_present_tenant",
+  // "name_of_recorded_tenant",
+  // "name_of_present_tenant",
   "village_name",
   "village_code",
-  "tahasil_name",
-  "ri_circle_name",
-  "thana_no",
+  // "tahasil_name",
+  // "ri_circle_name",
+  // "thana_no",
   "khata_no",
-  "plot_no",
-  "kissam_of_land",
-  "land_category",
-  "land_area_total_acres",
-  "land_area_total_hectares",
-  "land_area_acquired_acres",
-  "land_area_acquired_hectares",
+  // "plot_no",
+  // "kissam_of_land",
+  // "land_category",
+  // "land_area_total_acres",
+  // "land_area_total_hectares",
+  // "land_area_acquired_acres",
+  // "land_area_acquired_hectares",
   "la_case_file_no",
+  // "project_name",
+  // "land_type"
 ];
 
 export const LA_CASE_REGEX = /^.+\/.+\/.+$/;

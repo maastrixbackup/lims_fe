@@ -541,6 +541,7 @@ const KhataTable = ({
   onDelete,
   onUpload,
   onMap,
+  total,
 }) => {
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.auth.user?.role_name);
@@ -551,17 +552,22 @@ const KhataTable = ({
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
   const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 sticky left-0 z-[40] shadow-md min-w-[140px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
+
   const stickyCol1Cell =
-    "p-3 text-left bg-white sticky left-0 shadow-sm min-w-[140px]";
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
+
   const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 sticky left-[140px] z-[35] shadow-md min-w-[180px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
+
   const stickyCol2Cell =
-    "p-3 text-left bg-white sticky left-[140px] shadow-sm min-w-[180px]";
+    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
+
   const stickyActionHeader =
     "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
   const stickyActionCell =
-    "p-3 text-right bg-white sticky right-0 border-l border-gray-100 shadow-sm";
+    "p-3 text-right sticky right-0 border-l border-gray-100 shadow-sm bg-white";
+
   const [filters, setFilters] = useState({});
   const [activeFilter, setActiveFilter] = useState(null);
   const filterRef = useRef(null);
@@ -692,7 +698,7 @@ z-50 max-h-60 overflow-y-auto "
               </>
             ) : (
               <>
-               <p className="text-md font-medium text-red-500">
+                <p className="text-md font-medium text-red-500">
                   No Khata found for the{" "}
                   <span className="text-primary font-bold">
                     Selected Project.
@@ -711,7 +717,7 @@ z-50 max-h-60 overflow-y-auto "
         {selectedProject && displayKhatas.length > 0 && (
           <>
             <div
-              className="max-h-[400px] overflow-x-auto relative"
+              className="max-h-[400px] overflow-x-auto relative "
               style={{
                 scrollbarWidth: "thin",
               }}
@@ -1110,6 +1116,7 @@ z-50 max-h-60 overflow-y-auto "
               setPage={setPage}
               limit={limit}
               setLimit={setLimit}
+              total={total}
             />
           </>
         )}

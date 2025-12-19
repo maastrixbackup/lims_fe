@@ -38,14 +38,11 @@ export default function Layout() {
 
   return (
     <div data-theme="light" className="bg-gray-50 text-gray-800 h-screen">
-      {/* SIDEBAR */}
       <Sidebar
         open={sidebarOpen}
         setOpen={setSidebarOpen}
         isMobile={isMobile}
       />
-
-      {/* MOBILE OVERLAY */}
       {isMobile && sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}

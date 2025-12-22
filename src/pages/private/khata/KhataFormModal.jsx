@@ -6,7 +6,7 @@ import { apiClient } from "../../../utils/apiClient";
 
 const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   const typeParam = useLandTypeParam();
-
+ console.log("khata^^^^^^^^^^^", khata)
   const typeLabel =
     typeParam === 2
       ? "Government Land"
@@ -26,15 +26,14 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     village_id: "",
     khata_no: "",
     type: typeParam,
-    code: "",
-    plot_no: "",
+    plot_no: "146/3",
     kissam_of_land: "",
-    category_of_land: "",
+    land_category: "",
     land_area_total_acres: "",
     land_area_total_hectares: "",
-    acquired_area_acres: "",
+    land_area_acquired_acres: "",
     land_area_acquired_hectares: "",
-    remarks: "",
+    lo13_remarks: "",
     tahasil_name: "",
     ri_circle_name: "",
     thana_no: "",
@@ -42,7 +41,6 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     name_of_recorded_tenant: "",
     name_of_present_tenant: "",
     present_address: "",
-    contact_no: "",
     displaced_affected_person: "",
   });
 
@@ -58,15 +56,14 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         village_id: khata.village_id,
         khata_no: khata.khata_no || "",
         type: khata.type || typeParam,
-        code: khata.code || "",
         plot_no: khata.plot_no || "",
         kissam_of_land: khata.kissam_of_land || "",
-        category_of_land: khata.category_of_land || "",
+        land_category: khata.land_category || "",
         land_area_total_acres: khata.land_area_total_acres || "",
         land_area_total_hectares: khata.land_area_total_hectares || "",
-        acquired_area_acres: khata.acquired_area_acres || "",
+        land_area_acquired_acres: khata.land_area_acquired_acres || "",
         land_area_acquired_hectares: khata.land_area_acquired_hectares || "",
-        remarks: khata.remarks || "",
+        lo13_remarks: khata.lo13_remarks || "",
         tahasil_name: khata.tahasil_name || "",
         ri_circle_name: khata.ri_circle_name || "",
         thana_no: khata.thana_no || "",
@@ -74,7 +71,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         name_of_recorded_tenant: khata.name_of_recorded_tenant || "",
         name_of_present_tenant: khata.name_of_present_tenant || "",
         present_address: khata.present_address || "",
-        contact_no: khata.contact_no || "",
+        // contact_no: khata.contact_no || "",
         displaced_affected_person: khata.displaced_affected_person || "",
       });
 
@@ -85,6 +82,22 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         village_id: "",
         khata_no: "",
         type: typeParam,
+        plot_no: "146/3",
+        kissam_of_land: "",
+        land_category: "",
+        land_area_total_acres: "",
+        land_area_total_hectares: "",
+        land_area_acquired_acres: "",
+        land_area_acquired_hectares: "",
+        lo13_remarks: "",
+        tahasil_name: "",
+        ri_circle_name: "",
+        thana_no: "",
+        date_of_award: "",
+        name_of_recorded_tenant: "",
+        name_of_present_tenant: "",
+        present_address: "",
+        displaced_affected_person: "",
       });
     }
   }, [khata, typeParam, selectedProject]);
@@ -98,14 +111,17 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     }
   }, [formData.project_id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "village_id" ? parseInt(value) : value,
-    }));
-  };
+  setFormData((prev) => ({
+    ...prev,
+    [name]:
+      name === "project_id" || name === "village_id"
+        ? Number(value)
+        : value,
+  }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -121,7 +137,11 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         method,
         body: formData,
       });
+      console.log("Submitting khata:", khata);
       console.log("add khata^^^^^^^^^^^^", res);
+      console.log("Submitting payload:", formData);
+      
+
       if (!res.success) {
         alert(res.message || "Failed to save khata");
         return;
@@ -264,8 +284,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </label>
               <input
                 type="text"
-                name="kissam"
-                value={formData.kissam}
+                name="kissam_of_land"
+                value={formData.kissam_of_land}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -277,8 +297,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </label>
               <input
                 type="text"
-                name="category_of_land"
-                value={formData.category_of_land}
+                name="land_category"
+                value={formData.land_category}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -289,8 +309,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <label className="text-sm font-medium">Total Area (Acres)</label>
               <input
                 type="number"
-                name="land_area_acres"
-                value={formData.land_area_acres}
+                name="land_area_total_acres"
+                value={formData.land_area_total_acres}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -300,8 +320,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <label className="text-sm font-medium">Total Area (Ha)</label>
               <input
                 type="number"
-                name="land_area_ha"
-                value={formData.land_area_ha}
+                name="land_area_total_hectares"
+                value={formData.land_area_total_hectares}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -314,8 +334,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </label>
               <input
                 type="number"
-                name="acquired_area_acres"
-                value={formData.acquired_area_acres}
+                name="land_area_acquired_acres"
+                value={formData.land_area_acquired_acres}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -325,8 +345,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <label className="text-sm font-medium">Acquired Area (Ha)</label>
               <input
                 type="number"
-                name="acquired_area_ha"
-                value={formData.acquired_area_ha}
+                name="land_area_acquired_hectares"
+                value={formData.land_area_acquired_hectares}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -383,8 +403,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </label>
               <input
                 type="text"
-                name="recorded_tenants"
-                value={formData.recorded_tenants}
+                name="name_of_recorded_tenant"
+                value={formData.name_of_recorded_tenant}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -396,8 +416,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </label>
               <input
                 type="text"
-                name="present_tenants"
-                value={formData.present_tenants}
+                name="name_of_present_tenant"
+                value={formData.name_of_present_tenant}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -414,37 +434,42 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Contact No.</label>
+            <label className="text-sm font-medium">Remarks</label>
             <input
               type="text"
-              name="contact_no"
-              value={formData.contact_no}
+              name="lo13_remarks"
+              value={formData.lo13_remarks}
               onChange={handleChange}
               className="input input-bordered w-full"
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">
-              Displaced / Affected Person
-            </label>
-            <input
-              type="text"
-              name="displaced_person"
-              value={formData.displaced_person}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-            />
-          </div>
+        <div>
+  <label className="text-sm font-medium">Displaced / Affected Person</label>
+  <select
+    name="displaced_affected_person"
+    value={formData.displaced_affected_person || ""}
+    onChange={handleChange}
+    className="select select-bordered w-full"
+  >
+    <option value="">Select Type</option>
+    <option value="PAF">PAF</option>
+    <option value="PDF">PDF</option>
+  </select>
+</div>
+
 
           <div className="modal-action">
-              <button type="button"  className="btn btn-error text-white" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-error text-white"
+              onClick={onClose}
+            >
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
               Save
             </button>
-          
           </div>
         </form>
       </div>

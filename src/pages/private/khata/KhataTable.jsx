@@ -771,7 +771,7 @@ z-50 max-h-60 overflow-y-auto "
 
                     <FilterableHeader
                       label="Kissam of the Land"
-                      field="kissam"
+                      field="land_of_kissam"
                       activeFilter={activeFilter}
                       setActiveFilter={setActiveFilter}
                       applyFilter={applyFilter}
@@ -781,7 +781,7 @@ z-50 max-h-60 overflow-y-auto "
 
                     <FilterableHeader
                       label="Category of Land"
-                      field="category"
+                      field="land_category"
                       activeFilter={activeFilter}
                       setActiveFilter={setActiveFilter}
                       applyFilter={applyFilter}
@@ -911,7 +911,7 @@ z-50 max-h-60 overflow-y-auto "
 
                     <FilterableHeader
                       label="Affected Person"
-                      field="affected_person"
+                      field="displaced_affected_person"
                       activeFilter={activeFilter}
                       setActiveFilter={setActiveFilter}
                       applyFilter={applyFilter}
@@ -948,7 +948,7 @@ z-50 max-h-60 overflow-y-auto "
                       getFilterOptions={getFilterOptions}
                       filterRef={filterRef}
                     />
-
+{/* 
                     <FilterableHeader
                       label="Reference Document"
                       field="reference_document"
@@ -957,7 +957,7 @@ z-50 max-h-60 overflow-y-auto "
                       applyFilter={applyFilter}
                       getFilterOptions={getFilterOptions}
                       filterRef={filterRef}
-                    />
+                    /> */}
 
                     <th className={stickyActionHeader}>Actions</th>
                   </tr>
@@ -1020,7 +1020,7 @@ z-50 max-h-60 overflow-y-auto "
                         <td>{khata.unique_id || "No data"}</td>
                         <td>{khata.plot_count || "No data"}</td>
                         <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
-
+{/* 
                         <td>
                           <button
                             className="btn btn-sm bg-blue-500 text-white w-40"
@@ -1028,7 +1028,7 @@ z-50 max-h-60 overflow-y-auto "
                           >
                             <DockIcon size={14} /> Reference
                           </button>
-                        </td>
+                        </td> */}
 
                         <td className={stickyActionCell}>
                           <div className="dropdown dropdown-left">

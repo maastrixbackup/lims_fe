@@ -167,6 +167,7 @@ export default function Khata() {
   };
 
   return (
+    <>
     <div className="space-y-5 overflow-hide">
       <h2 className="text-xl font-semibold capitalize">
         {landType?.replace("-", " ") || "Private"} Khata
@@ -305,5 +306,6 @@ export default function Khata() {
         <MapModal {...modals.mapProps} onClose={handlers.closeMapModal} />
       )}
     </div>
+    </>
   );
 }

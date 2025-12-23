@@ -8,7 +8,6 @@ export default function RecentProjects() {
   if (loading) return <div>Loading recent projects...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  // Extract from API response
   const projects = data?.recent_projects || [];
   // console.log('dataaaaaaaaaaaaaaaaaa', projects)
 

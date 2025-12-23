@@ -1,19 +1,9 @@
-import {
-  Bell,
-  User,
-  LogOut,
-  LockKeyhole,
-  ChevronDown,
-  Menu,
-} from "lucide-react";
+import {Bell,User,LogOut,LockKeyhole,ChevronDown,Menu,} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../utils/userSlice";
-import {
-  setSelectedProject,
-  clearSelectedProject,
-} from "../../utils/selectedProjectSlice";
+import {setSelectedProject,clearSelectedProject,} from "../../utils/selectedProjectSlice";
 
 export default function Header({ setSidebarOpen, isMobile }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);

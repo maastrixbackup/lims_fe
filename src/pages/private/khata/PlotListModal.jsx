@@ -153,7 +153,6 @@ const PlotListModal = ({ onClose }) => {
     fetchPlots();
   }, [khataId, token, typeParam]);
 
-  // ✅ Extract unique owner names
   const ownerNames = [
     ...new Set(
       plots
@@ -178,7 +177,6 @@ const PlotListModal = ({ onClose }) => {
           Plot List
         </h3>
 
-        {/* ✅ Owner Names Section */}
         <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
           <h4 className="font-semibold text-gray-700 mb-1">Owner(s):</h4>
           <p className="text-gray-800 font-semibold">

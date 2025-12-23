@@ -9,9 +9,9 @@ const ProjectTable = ({  onEdit, onDelete, loading }) => {
 
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
-  const canEdit = userRole !== "Viewer"; // Everyone except viewer can edit
+  const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
-  console.log("Projjjj in project table", projects);
+  // console.log("Projjjj in project table", projects);
 
   return (
     <div className="card bg-white shadow-lg overflow-hidden">

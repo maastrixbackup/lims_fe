@@ -26,9 +26,10 @@ const Plots = () => {
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
+  
 
   const projectId = useSelector((state) => state.selectedProject?.project?.id);
-  const isRestricted = role === "Data Entry User" || role === "Viewer";
+  const isRestricted = role === "Viewer";
   const navigate = useNavigate();
 
   const fetchPlots = async () => {

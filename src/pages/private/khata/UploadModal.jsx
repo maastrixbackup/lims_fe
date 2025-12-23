@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 export default function UploadModal({ khata, onClose }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [uploading, setUploading] = useState(null);
-  const [loading, setLoading] = useState(false); // Loading for fetching documents
+  const [loading, setLoading] = useState(false); 
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const { userToken: token } = useSelector((s) => s.auth);

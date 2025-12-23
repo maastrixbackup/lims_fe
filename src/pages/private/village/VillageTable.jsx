@@ -19,7 +19,6 @@ const VillageTable = ({
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const userRole = useSelector((state) => state.auth.user?.role_name);
   //  console.log("user role", userRole)
-  // Permission rules
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
@@ -31,7 +30,7 @@ const VillageTable = ({
   const showNoVillages = selectedProject && filteredVillages.length === 0;
 
   return (
-    <div className="card bg-white shadow-lg p-4">
+    <div className="card bg-white shadow-lg">
       {showNoProject && (
         <div className="py-10 text-center">
           <p className="text-lg font-medium text-gray-500">
@@ -63,7 +62,7 @@ const VillageTable = ({
           <table className="table w-full">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
-                <th>#</th>
+                <th>Sl/No</th>
                 <th>Village Code</th>
                 <th>Village</th>
                 <th>District</th>

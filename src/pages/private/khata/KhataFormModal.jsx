@@ -6,7 +6,7 @@ import { apiClient } from "../../../utils/apiClient";
 
 const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   const typeParam = useLandTypeParam();
- console.log("khata^^^^^^^^^^^", khata)
+  console.log("khata^^^^^^^^^^^", khata);
   const typeLabel =
     typeParam === 2
       ? "Government Land"
@@ -26,7 +26,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     village_id: "",
     khata_no: "",
     type: typeParam,
-    plot_no: "146/3",
+    plot_no: "",
     kissam_of_land: "",
     land_category: "",
     land_area_total_acres: "",
@@ -82,7 +82,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         village_id: "",
         khata_no: "",
         type: typeParam,
-        plot_no: "146/3",
+        plot_no: "",
         kissam_of_land: "",
         land_category: "",
         land_area_total_acres: "",
@@ -111,17 +111,15 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     }
   }, [formData.project_id]);
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]:
-      name === "project_id" || name === "village_id"
-        ? Number(value)
-        : value,
-  }));
-};
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "project_id" || name === "village_id" ? Number(value) : value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,7 +138,6 @@ const handleChange = (e) => {
       console.log("Submitting khata:", khata);
       console.log("add khata^^^^^^^^^^^^", res);
       console.log("Submitting payload:", formData);
-      
 
       if (!res.success) {
         alert(res.message || "Failed to save khata");
@@ -444,20 +441,21 @@ const handleChange = (e) => {
             />
           </div>
 
-        <div>
-  <label className="text-sm font-medium">Displaced / Affected Person</label>
-  <select
-    name="displaced_affected_person"
-    value={formData.displaced_affected_person || ""}
-    onChange={handleChange}
-    className="select select-bordered w-full"
-  >
-    <option value="">Select Type</option>
-    <option value="PAF">PAF</option>
-    <option value="PDF">PDF</option>
-  </select>
-</div>
-
+          <div>
+            <label className="text-sm font-medium">
+              Displaced / Affected Person
+            </label>
+            <select
+              name="displaced_affected_person"
+              value={formData.displaced_affected_person || ""}
+              onChange={handleChange}
+              className="select select-bordered w-full"
+            >
+              <option value="">Select Type</option>
+              <option value="PAF">PAF</option>
+              <option value="PDF">PDF</option>
+            </select>
+          </div>
 
           <div className="modal-action">
             <button

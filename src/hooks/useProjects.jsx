@@ -40,7 +40,7 @@ export default function useProjects(token) {
         method,
         body: payload,
       });
-console.log("data plotssssss", data)
+// console.log("data plotssssss", data)
       if (!data.success) throw new Error(data.message);
 
       dispatch(fetchProjects());

@@ -40,12 +40,10 @@ const Villages = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Extract unique tahasils from current villages (for filter dropdown)
   const tahasils = useMemo(() => {
     return [...new Set(villages.map((v) => v.tahasil).filter(Boolean))];
   }, [villages]);
 
-  // Normalize incoming village objects to a consistent shape
   const normalizeVillages = (data) => {
     if (!Array.isArray(data)) return [];
     return data.map((v) => ({
@@ -153,14 +151,14 @@ const Villages = () => {
 
   return (
     <div className="h-screen">
-      <div className="flex justify-between items-center">
-        {/* Left: Header */}
-        <h2 className="text-lg font-semibold capitalize">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
+        {/* Header */}
+        <h2 className="text-base sm:text-lg font-semibold capitalize">
           {landType?.replace("-", " ") || "Private"} Villages
         </h2>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3 mb-4">
+        {/* Actions */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <ExportButtons
             data={projectFilteredData}
             fileName="villages"
@@ -176,20 +174,21 @@ const Villages = () => {
           />
 
           <button
-            className={`btn btn-primary text-white ${
-              !canEdit
-                ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                : ""
-            }`}
-            onClick={() => {
-              if (canEdit) openModal();
-            }}
+            className={`btn btn-primary text-white whitespace-nowrap
+        ${
+          !canEdit
+            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+            : ""
+        }
+      `}
+            onClick={() => canEdit && openModal()}
             disabled={!canEdit}
           >
             Add Village
           </button>
         </div>
       </div>
+
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader />

@@ -17,12 +17,15 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
-  const isRestricted = role === "Data Entry User" || role === "Viewer";
+  const isRestricted = role === "Viewer";
+    const canEdit = role !== "Viewer";
+  const canDelete = !(role === "Data Entry User" || role === "Viewer");
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const token = useSelector((state) => state.auth.userToken);
   // console.log("tokennnn", token);
   const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [loadingPlotId, setLoadingPlotId] = useState(null);
+  
 
   const handlePaymentReady = async (plot) => {
     if (isRestricted) return;
@@ -176,23 +179,28 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
       <button
         className={`btn btn-xs btn-warning text-white ${
-          isRestricted
+          // isRestricted
+          !canEdit
             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
             : ""
         }`}
         onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
-        disabled={isRestricted}
+        // disabled={isRestricted}
+        disabled={!canEdit}
       >
         <Pencil size={12} /> Edit
       </button>
       <button
         className={`btn btn-xs btn-error text-white ${
-          isRestricted
+          // isRestricted 
+          !canDelete
             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
             : ""
         }`}
         onClick={() => setDeleteConfirm(plot)}
-        disabled={isRestricted}
+        // disabled={isRestricted}
+        disabled={!canDelete}
+
       >
         <Trash2 size={12} /> Delete
       </button>
@@ -211,81 +219,91 @@ const stickyActionCell =
 
   return (
     <div className="">
-      <div className="rounded-xl p-4 mb-6 shadow-sm bg-white space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-end gap-4">
-          <div className="flex flex-wrap gap-4 w-full">
-            <div className="flex flex-col w-full sm:w-48">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Village
-              </label>
-              <select
-                className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-full text-gray-700"
-                value={selectedVillage}
-                onChange={(e) => setSelectedVillage(e.target.value)}
-              >
-                <option value="">All Villages</option>
-                {villageOptions.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </div>
+   <div className="rounded-xl bg-white p-4 mb-6 shadow-sm">
+  <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
 
-            {/* Khata */}
-            <div className="flex flex-col w-full sm:w-48">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Khata No.
-              </label>
-              <select
-                className="select select-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-400 rounded-lg w-full text-gray-700"
-                value={selectedKhata}
-                onChange={(e) => setSelectedKhata(e.target.value)}
-              >
-                <option value="">All Khata Numbers</option>
-                {khataOptions.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
+    {/* Filters */}
+    <div className="flex flex-wrap gap-4 w-full">
 
-            {/* Search */}
-            <div className="flex flex-col w-full sm:flex-1">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Search
-              </label>
-              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                <input
-                  type="text"
-                  placeholder="Search tenant, plot, khata..."
-                  className="px-3 py-2 w-full text-sm rounded-l-lg focus:outline-none"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button
-                  className="px-2 text-gray-500 hover:text-indigo-600"
-                  onClick={resetFilters}
-                  title="Reset filters"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* Village */}
+      <div className="flex flex-col w-full sm:w-48">
+        <label className="text-xs font-medium text-gray-600 mb-1">
+          Village
+        </label>
+        <select
+          className="select select-sm w-full rounded-lg border-gray-300
+            focus:border-indigo-500 focus:ring-indigo-400 text-gray-700"
+          value={selectedVillage}
+          onChange={(e) => setSelectedVillage(e.target.value)}
+        >
+          <option value="">All Villages</option>
+          {villageOptions.map((v) => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          {/* Results count */}
-          <div className="flex items-center gap-2 bg-indigo-100 px-3 py-2 rounded-lg text-sm text-indigo-700 font-medium shadow-inner w-fit">
-            <Filter size={16} />
-            Showing{" "}
-            <span className="text-indigo-900 font-semibold">
-              {filteredPlots.length}
-            </span>{" "}
-            results
-          </div>
+      {/* Khata */}
+      <div className="flex flex-col w-full sm:w-48">
+        <label className="text-xs font-medium text-gray-600 mb-1">
+          Khata No.
+        </label>
+        <select
+          className="select select-sm w-full rounded-lg border-gray-300
+            focus:border-indigo-500 focus:ring-indigo-400 text-gray-700"
+          value={selectedKhata}
+          onChange={(e) => setSelectedKhata(e.target.value)}
+        >
+          <option value="">All Khata Numbers</option>
+          {khataOptions.map((k) => (
+            <option key={k} value={k}>
+              {k}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Search */}
+      <div className="flex flex-col w-full sm:flex-1 min-w-[220px]">
+        <label className="text-xs font-medium text-gray-600 mb-1">
+          Search
+        </label>
+        <div className="flex items-center rounded-lg border border-gray-300 bg-white
+          shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+          <input
+            type="text"
+            placeholder="Search tenant, plot, khata..."
+            className="w-full px-3 py-2 text-sm rounded-l-lg focus:outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={resetFilters}
+            title="Reset filters"
+            className="px-2 text-gray-500 hover:text-indigo-600"
+          >
+            <X size={18} />
+          </button>
         </div>
       </div>
+    </div>
+
+    {/* Results Count */}
+    <div className="flex items-center gap-2 px-3 py-2 rounded-lg
+      bg-indigo-100 text-sm font-medium text-indigo-700 shadow-inner w-fit">
+      <Filter size={16} />
+      Showing
+      <span className="font-semibold text-indigo-900">
+        {filteredPlots.length}
+      </span>
+      results
+    </div>
+  </div>
+</div>
+
 
         {(!selectedProject || filteredPlots.length === 0) && (
           <div className=" card bg-white py-10 text-center text-gray-600">

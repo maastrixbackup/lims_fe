@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import { API_BASE_URL } from "../utils/config";
 import { useSelector } from "react-redux";
 import { Download, Trash2 } from "lucide-react";
 import moment from "moment";
 import ConfirmDelete from "../shared/ConfirmDelete";
+import { apiClient } from "../utils/apiClient";
 
 const UploadPlots = () => {
   const [plots, setPlots] = useState([]);
@@ -15,76 +15,68 @@ const UploadPlots = () => {
   const [success, setSuccess] = useState(false);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [plotDocs, setPlotDocs] = useState([]);
-  const selectedProject = useSelector((s) => s.selectedProject.project);
-  const projectId = selectedProject?.id;
   const [selectedType, setSelectedType] = useState("");
-  const token = useSelector((state) => state.auth.userToken);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [docToDelete, setDocToDelete] = useState(null);
 
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+  const projectId = selectedProject?.id;
+
+  /* ================= FETCH DOCUMENTS ================= */
   const fetchPlotDocuments = async () => {
     try {
       setLoadingDocs(true);
-      const response = await fetch(`${API_BASE_URL}/plots/plotDocumentList`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to fetch plot documents");
-      }
-
-      const data = await response.json();
+      const data = await apiClient("/plots/plotDocumentList");
       setPlotDocs(data.files || []);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to fetch plot documents");
     } finally {
       setLoadingDocs(false);
     }
   };
 
   useEffect(() => {
-    if (token) fetchPlotDocuments();
-  }, [token]);
+    if (selectedProject) fetchPlotDocuments();
+  }, [selectedProject]);
 
+  /* ================= FILE PARSING ================= */
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+    const ext = selectedFile.name.split(".").pop().toLowerCase();
     setError(null);
     setPlots([]);
     setSuccess(false);
     setFile(selectedFile);
 
-    if (fileExtension === "csv") {
+    if (ext === "csv") {
       Papa.parse(selectedFile, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => setPlots(results.data),
-        error: (err) => setError("Error parsing CSV: " + err.message),
+        complete: (res) => setPlots(res.data),
+        error: (err) => setError(err.message),
       });
-    } else if (["xlsx", "xls"].includes(fileExtension)) {
+    } else if (["xlsx", "xls"].includes(ext)) {
       const reader = new FileReader();
-      reader.onload = (event) => {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-        setPlots(jsonData);
+      reader.onload = (e) => {
+        const wb = XLSX.read(new Uint8Array(e.target.result), {
+          type: "array",
+        });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        setPlots(XLSX.utils.sheet_to_json(ws, { defval: "" }));
       };
       reader.readAsArrayBuffer(selectedFile);
     } else {
-      setError("Unsupported file type. Please upload a CSV or Excel file.");
+      setError("Unsupported file type");
     }
   };
 
+  /* ================= UPLOAD ================= */
   const handleUploadToAPI = async () => {
-    if (!file) return setError("No file selected. Please select a file first.");
+    if (!file) return setError("No file selected");
     if (!selectedProject || !selectedType)
-      return setError("Please select both Project and Type before uploading.");
+      return setError("Select Project and Type");
 
     try {
       setUploading(true);
@@ -94,65 +86,57 @@ const UploadPlots = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("project_id", projectId);
-      formData.append("type", String(selectedType));
+      formData.append("type", selectedType);
 
-      const response = await fetch(`${API_BASE_URL}/plots/upload`, {
+      await apiClient("/plots/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "File upload failed");
       setSuccess(true);
       setFile(null);
       setPlots([]);
       fetchPlotDocuments();
-      setTimeout(() => {
-        setSuccess(false);
-      }, 1000);
+
+      setTimeout(() => setSuccess(false), 1000);
     } catch (err) {
-      console.error("Upload error:", err);
-      setError(err.message || "Upload failed. Please try again.");
+      setError(err.message || "Upload failed");
     } finally {
       setUploading(false);
     }
   };
-const handleDelete = async () => {
-  if (!docToDelete) return;
 
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/plots/plotDocumentDelete/${encodeURIComponent(docToDelete)}`,
-      {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+  /* ================= DELETE ================= */
+  const handleDelete = async () => {
+    if (!docToDelete) return;
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.message || "Failed to delete document");
+    try {
+      await apiClient(
+        `/plots/plotDocumentDelete/${encodeURIComponent(docToDelete)}`,
+        { method: "DELETE" }
+      );
+
+      setPlotDocs((prev) =>
+        prev.filter((doc) => doc.name !== docToDelete)
+      );
+    } catch (err) {
+      setError(err.message || "Delete failed");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDocToDelete(null);
     }
-
-    setPlotDocs((prev) => prev.filter((doc) => doc.name !== docToDelete));
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setIsDeleteModalOpen(false);
-    setDocToDelete(null);
-  }
-};
-
+  };
 
   const isUploadEnabled = selectedProject && selectedType;
 
+  /* ================= UI ================= */
   return (
     <main className="p-6 space-y-8 h-screen overflow-y-auto">
       <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <input
-          className="input file-input w-full mt-1 "
+          className="input w-full"
           value={
             selectedProject
               ? selectedProject.project_name || selectedProject.name
@@ -160,8 +144,9 @@ const handleDelete = async () => {
           }
           readOnly
         />
+
         <select
-          className="select select-bordered w-full mt-1"
+          className="select select-bordered w-full"
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
         >
@@ -170,7 +155,15 @@ const handleDelete = async () => {
           <option value="2">Govt Land</option>
           <option value="3">Forest Land</option>
         </select>
-        <input
+
+        {/* <input
+          type="file"
+          accept=".csv,.xlsx,.xls"
+          disabled={!isUploadEnabled}
+          onChange={handleFileUpload}
+          className="file-input file-input-bordered w-full"
+        /> */}
+         <input
           type="file"
           accept=".csv, .xlsx, .xls"
           disabled={!isUploadEnabled}
@@ -180,86 +173,54 @@ const handleDelete = async () => {
               ? "bg-gray-200 cursor-not-allowed"
               : "file-input-bordered file-input-primary"
           }`}
-          title={
-            !isUploadEnabled
-              ? "Select both Project and Type to enable upload"
-              : "Choose CSV or Excel file"
-          }
+          // title={
+          //   !isUploadEnabled
+          //     ? "Select both Project and Type to enable upload"
+          //     : "Choose CSV or Excel file"
+          // }
           readOnly
         />
+
         <button
           onClick={handleUploadToAPI}
           disabled={!file || uploading}
-          className="btn btn-primary w-full mt-1"
+          className="btn btn-primary w-full"
         >
           {uploading ? "Uploading..." : "Upload Now"}
         </button>
-
-        {error && <p className="text-red-500">{error}</p>}
-        {success && (
-          <p className="text-green-600 font-medium">
-            Plots uploaded successfully!
-          </p>
-        )}
       </div>
 
-      {plots.length > 0 && (
-        <div className="overflow-auto max-h-[400px] border rounded-md">
+      {error && <p className="text-red-500">{error}</p>}
+      {success && <p className="text-green-600">Upload successful!</p>}
+
+      {/* ================= DOCUMENT LIST ================= */}
+      <section>
+        <h3 className="text-lg font-semibold mb-3">📄 Uploaded Documents</h3>
+
+        {loadingDocs ? (
+          <p>Loading...</p>
+        ) : plotDocs.length ? (
           <table className="table table-zebra w-full">
-            <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
               <tr>
-                {Object.keys(plots[0]).map((key) => (
-                  <th key={key} className="text-xs font-semibold">
-                    {key}
-                  </th>
-                ))}
+                <th>#</th>
+                <th>File</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {plots.map((plot, idx) => (
-                <tr key={idx}>
-                  {Object.values(plot).map((val, i) => (
-                    <td key={i} className="text-sm">
-                      {val}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <section>
-        <h3 className="text-lg font-semibold mb-3">
-          📄 Uploaded Plot Documents
-        </h3>
-
-        {loadingDocs ? (
-          <p>Loading plot documents...</p>
-        ) : plotDocs.length > 0 ? (
-          <div className="overflow-auto max-h-[500px] border rounded-md">
-            <table className="table table-zebra w-full">
-              <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
-                <tr>
-                  <th>#</th>
-                  <th>File Name</th>
-                  <th>Size</th>
-                  <th>Uploaded At</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {plotDocs.map((doc, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td>{idx + 1}</td>
-                    <td className="font-medium">{doc.name}</td>
-                    <td>{doc.size}</td>
-                    <td>
-                      {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
-                    </td>
-                    <td className="flex gap-3 items-center">
-                      <a
+              {plotDocs.map((doc, i) => (
+                <tr key={i}>
+                  <td>{i + 1}</td>
+                  <td>{doc.name}</td>
+                  <td>{doc.size}</td>
+                  <td>
+                    {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
+                  </td>
+                  <td className="flex gap-3">
+                       <a
                         href={doc.documentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -276,26 +237,23 @@ const handleDelete = async () => {
                       >
                         <Trash2 size={18} />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
-          <p className="text-gray-500 italic">
-            No uploaded plot documents found.
-          </p>
+          <p>No documents found</p>
         )}
       </section>
-      <ConfirmDelete
-  isOpen={isDeleteModalOpen}
-  title="Confirm Deletion"
-  message={`Are you sure you want to delete "${docToDelete}"?`}
-  onConfirm={handleDelete}
-  onCancel={() => setIsDeleteModalOpen(false)}
-/>
 
+      <ConfirmDelete
+        isOpen={isDeleteModalOpen}
+        title="Confirm Deletion"
+        message={`Delete "${docToDelete}"?`}
+        onConfirm={handleDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
     </main>
   );
 };

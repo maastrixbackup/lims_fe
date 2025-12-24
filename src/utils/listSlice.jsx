@@ -12,7 +12,7 @@ export const fetchProjects = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log("project data redux", data);
+      // console.log("project data redux", data);
 
       if (!data.success)
         throw new Error(data.message || "Failed to fetch projects");

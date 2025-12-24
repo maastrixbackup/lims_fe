@@ -473,76 +473,75 @@ const Compensation = () => {
   //     return newData;
   //   });
   // };
-const handleApportionChange = (kIndex, rIndex, value) => {
-  let num =(value);
-  if (num < 0) num = 0;
-  if (num > 100) num = 100;
+  const handleApportionChange = (kIndex, rIndex, value) => {
+    let num = value;
+    if (num < 0) num = 0;
+    if (num > 100) num = 100;
 
-  setKhatas((prev) => {
-    const newData = [...prev];
-    const khata = newData[kIndex];
-    const records = khata.records;
+    setKhatas((prev) => {
+      const newData = [...prev];
+      const khata = newData[kIndex];
+      const records = khata.records;
 
-    records[rIndex].apportionment = num;
-    let usedPercent = 0;
-    records.forEach((r, i) => {
-      if (i !== records.length - 1) {
-        usedPercent += Number(r.apportionment || 0);
+      records[rIndex].apportionment = num;
+      let usedPercent = 0;
+      records.forEach((r, i) => {
+        if (i !== records.length - 1) {
+          usedPercent += Number(r.apportionment || 0);
+        }
+      });
+
+      const remaining = Math.max(0, 100 - usedPercent);
+      const lastIndex = records.length - 1;
+
+      records[lastIndex].apportionment = rIndex === lastIndex ? num : remaining;
+      records.forEach((r) => {
+        r.compPayment = (
+          (Number(r.apportionment) / 100) *
+          khata.totalComp
+        ).toFixed(2);
+      });
+
+      return newData;
+    });
+  };
+  const handlePaymentChange = (kIndex, rIndex, value) => {
+    let amount = value;
+
+    if (amount < 0) amount = 0;
+
+    setKhatas((prev) => {
+      const newData = [...prev];
+      const khata = newData[kIndex];
+      const records = khata.records;
+      const lastIndex = records.length - 1;
+
+      records[rIndex].compPayment = amount;
+      let usedAmount = 0;
+      records.forEach((r, i) => {
+        if (i !== lastIndex) {
+          usedAmount += Number(r.compPayment || 0);
+        }
+      });
+
+      if (usedAmount > khata.totalComp) {
+        records[rIndex].compPayment -= usedAmount - khata.totalComp;
+        usedAmount = khata.totalComp;
       }
-    });
-
-    const remaining = Math.max(0, 100 - usedPercent);
-    const lastIndex = records.length - 1;
-
-    records[lastIndex].apportionment =
-      rIndex === lastIndex ? num : remaining;
-    records.forEach((r) => {
-      r.compPayment = (
-        (Number(r.apportionment) / 100) *
-        khata.totalComp
-      ).toFixed(2);
-    });
-
-    return newData;
-  });
-};
-const handlePaymentChange = (kIndex, rIndex, value) => {
-  let amount = (value);
-
-  if (amount < 0) amount = 0;
-
-  setKhatas((prev) => {
-    const newData = [...prev];
-    const khata = newData[kIndex];
-    const records = khata.records;
-    const lastIndex = records.length - 1;
-
-    records[rIndex].compPayment = amount;
-    let usedAmount = 0;
-    records.forEach((r, i) => {
-      if (i !== lastIndex) {
-        usedAmount += Number(r.compPayment || 0);
+      if (rIndex !== lastIndex) {
+        records[lastIndex].compPayment = Number(
+          Math.max(0, khata.totalComp - usedAmount).toFixed(2)
+        );
       }
-    });
+      records.forEach((r) => {
+        r.apportionment = Number(
+          ((Number(r.compPayment) / khata.totalComp) * 100).toFixed(2)
+        );
+      });
 
-    if (usedAmount > khata.totalComp) {
-      records[rIndex].compPayment -= usedAmount - khata.totalComp;
-      usedAmount = khata.totalComp;
-    }
-    if (rIndex !== lastIndex) {
-      records[lastIndex].compPayment = Number(
-        Math.max(0, khata.totalComp - usedAmount).toFixed(2)
-      );
-    }
-    records.forEach((r) => {
-      r.apportionment = Number(
-        ((Number(r.compPayment) / khata.totalComp) * 100).toFixed(2)
-      );
+      return newData;
     });
-
-    return newData;
-  });
-};
+  };
 
   const handleFileChange = (kIndex, rIndex, file) => {
     setKhatas((prev) => {
@@ -641,63 +640,62 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
 
         return (
           <div key={kIndex} className="shadow-md mb-4 bg-white rounded-md">
-        <div
-  onClick={() => toggleAccordion(kIndex)}
-  className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center
+            <div
+              onClick={() => toggleAccordion(kIndex)}
+              className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center
              gap-4 p-4 shadow-lg hover:bg-gray-50 cursor-pointer"
->
-  {/* Left: Khata Info */}
-  <div className="flex flex-col sm:flex-row sm:gap-8 w-full lg:w-auto">
-    <div className="text-left space-y-1">
-      <p className="font-semibold text-sm md:text-base">
-        Unique ID:{" "}
-        <span className="text-primary">{khata.uniqueId}</span>
-      </p>
-      <p className="font-semibold text-sm md:text-base">
-        Khata No:{" "}
-        <span className="text-primary">{khata.khataNo}</span>
-      </p>
-    </div>
+            >
+              <div className="flex flex-col sm:flex-row sm:gap-8 w-full lg:w-auto">
+                <div className="text-left space-y-1">
+                  <p className="font-semibold text-sm md:text-base">
+                    Unique ID:{" "}
+                    <span className="text-primary">{khata.uniqueId}</span>
+                  </p>
+                  <p className="font-semibold text-sm md:text-base">
+                    Khata No:{" "}
+                    <span className="text-primary">{khata.khataNo}</span>
+                  </p>
+                </div>
 
-    <div className="text-left space-y-1 mt-2 sm:mt-0">
-      <p className="text-sm md:text-base">
-        <strong>Total Area:</strong> {khata.totalArea}
-      </p>
-      <p className="text-sm md:text-base">
-        <strong>Total Compensation:</strong> ₹
-        {khata.totalComp.toLocaleString()}
-      </p>
-    </div>
-  </div>
+                <div className="text-left space-y-1 mt-2 sm:mt-0">
+                  <p className="text-sm md:text-base">
+                    <strong>Total Area:</strong> {khata.totalArea}
+                  </p>
+                  <p className="text-sm md:text-base">
+                    <strong>Total Compensation:</strong> ₹
+                    {khata.totalComp.toLocaleString()}
+                  </p>
+                </div>
+              </div>
 
-  {/* Right: Status + Actions */}
-  <div className="flex flex-wrap items-center gap-3 justify-between lg:justify-end w-full lg:w-auto">
-    {valid ? (
-      <span className="flex items-center text-green-600 text-sm whitespace-nowrap">
-        <CheckCircle size={18} className="mr-1" /> Totals Matched
-      </span>
-    ) : (
-      <span className="flex items-center text-orange-600 text-sm whitespace-nowrap">
-        <AlertTriangle size={18} className="mr-1" /> Values do not match
-      </span>
-    )}
+              {/* Right: Status + Actions */}
+              <div className="flex flex-wrap items-center gap-3 justify-between lg:justify-end w-full lg:w-auto">
+                {valid ? (
+                  <span className="flex items-center text-green-600 text-sm whitespace-nowrap">
+                    <CheckCircle size={18} className="mr-1" /> Totals Matched
+                  </span>
+                ) : (
+                  <span className="flex items-center text-orange-600 text-sm whitespace-nowrap">
+                    <AlertTriangle size={18} className="mr-1" /> Values do not
+                    match
+                  </span>
+                )}
 
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleExportExcel();
-      }}
-      className="btn bg-green-600 text-white flex items-center gap-2 text-sm"
-    >
-      Export Excel
-    </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleExportExcel();
+                  }}
+                  className="btn bg-green-600 text-white flex items-center gap-2 text-sm"
+                >
+                  Export Excel
+                </button>
 
-    <span className="ml-auto lg:ml-0">
-      {openIndex === kIndex ? <ChevronUp /> : <ChevronDown />}
-    </span>
-  </div>
-</div>
-
+                <span className="ml-auto lg:ml-0">
+                  {openIndex === kIndex ? <ChevronUp /> : <ChevronDown />}
+                </span>
+              </div>
+            </div>
 
             {openIndex === kIndex && (
               <div className="p-4">
@@ -717,7 +715,7 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
                         <th>Status</th>
                         <th>Txn No.</th>
                         <th>Upload</th>
-                              <th>Action</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
 
@@ -804,8 +802,6 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
                                   )
                                 }
                               />
-
-                              {/* Show file name if uploaded */}
                               {r.file ? (
                                 <span
                                   className="text-green-600 text-xs max-w-[120px] truncate"
@@ -821,12 +817,9 @@ const handlePaymentChange = (kIndex, rIndex, value) => {
                             </label>
                           </td>
                           <td>
-                              <button
-                              className="btn btn-xs btn-warning text-white"
-                 
-                    >
-                      <Pencil size={14} /> Edit
-                    </button>
+                            <button className="btn btn-xs btn-warning text-white">
+                              <Pencil size={14} /> Edit
+                            </button>
                           </td>
                         </tr>
                       ))}

@@ -19,7 +19,7 @@ import { useState, useEffect, useMemo } from "react";
 import logo from "../../assets/logo.jpeg";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Sidebar({ open, setOpen , isMobile}) {
+export default function Sidebar({ open, setOpen, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,7 +42,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
   const sanitize = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
 
-  // ===================== MENU ITEMS ===========================
   const menuItems = useMemo(
     () => [
       {
@@ -71,15 +70,15 @@ export default function Sidebar({ open, setOpen , isMobile}) {
         submenu: ["Villages", "Khatas", "Plots", "Land Cost"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
-      
+
       {
         name: "Forest Land",
         icon: TreeDeciduous,
         basePath: "forest-land",
         submenu: ["Villages", "Khatas", "Plots", "Land Cost"],
-        roles: ["Admin", "Data Entry User","Viewer"],
+        roles: ["Admin", "Data Entry User", "Viewer"],
       },
-        {
+      {
         name: "CA Land",
         icon: TreePalm,
         basePath: "govt-land",
@@ -121,7 +120,11 @@ export default function Sidebar({ open, setOpen , isMobile}) {
           {
             title: "Project Reports",
             base: "project-reports",
-            children: ["Project Summary", "Project Document Register", "Total Tenants"],
+            children: [
+              "Project Summary",
+              "Project Document Register",
+              "Total Tenants",
+            ],
           },
           {
             title: "Document Reports",
@@ -157,7 +160,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
     [menuItems, userRole]
   );
 
-  // ===================== LOCALSTORAGE =========================
   useEffect(() => localStorage.setItem("activeMenu", active), [active]);
   useEffect(() => {
     expanded
@@ -168,27 +170,32 @@ export default function Sidebar({ open, setOpen , isMobile}) {
     localStorage.setItem("reportGroups", JSON.stringify(reportGroupExpanded));
   }, [reportGroupExpanded]);
 
-  // ===================== AUTO ACTIVATE MENU ==================
   useEffect(() => {
-    const parts = location.pathname.split("/").filter(Boolean); // remove empty
+    const parts = location.pathname.split("/").filter(Boolean);
     if (!parts.length) return;
 
-    const main = parts[0]; // e.g., private-land
-    const sub = parts[1];  // e.g., villages
-    const group = parts[2]; // for reports
+    const main = parts[0];
+    const sub = parts[1]; 
+    const group = parts[2];
 
     const foundMain = menuItems.find(
       (m) => m.path?.toLowerCase() === main || m.basePath === main
     );
 
     if (foundMain) {
-      setExpanded(foundMain.submenu || foundMain.submenuGroups ? foundMain.name : null);
+      setExpanded(
+        foundMain.submenu || foundMain.submenuGroups ? foundMain.name : null
+      );
 
-      // Reports
       if (foundMain.name === "Reports" && group) {
-        const reportGroup = foundMain.submenuGroups.find((g) => g.base === group);
+        const reportGroup = foundMain.submenuGroups.find(
+          (g) => g.base === group
+        );
         if (reportGroup) {
-          setReportGroupExpanded((prev) => ({ ...prev, [reportGroup.title]: true }));
+          setReportGroupExpanded((prev) => ({
+            ...prev,
+            [reportGroup.title]: true,
+          }));
           if (sub) setActive(sanitize(sub));
         }
       } else {
@@ -197,8 +204,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
       }
     }
   }, [location.pathname]);
-
-  // ===================== NAVIGATION =========================
   const handleClick = (item) => {
     if (item.submenu || item.submenuGroups)
       return setExpanded(expanded === item.name ? null : item.name);
@@ -210,7 +215,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
   const handleSubClick = (parentPath, sub) => {
     let subPath = sub.toLowerCase().replace(/\s+/g, "-");
 
-    // Handle land types
     if (["private-land", "govt-land", "forest-land"].includes(parentPath)) {
       if (subPath === "khata") subPath = "khatas";
       if (subPath === "plot") subPath = "plots";
@@ -222,22 +226,20 @@ export default function Sidebar({ open, setOpen , isMobile}) {
     navigate(path);
   };
 
-  // ===================== RENDER =============================
   return (
-<motion.div
-  animate={{
-    x: isMobile ? (open ? 0 : -260) : 0,
-    width: isMobile ? 260 : open ? 260 : 80,
-  }}
-  transition={{ duration: 0.3 }}
-  className={`
+    <motion.div
+      animate={{
+        x: isMobile ? (open ? 0 : -260) : 0,
+        width: isMobile ? 260 : open ? 260 : 80,
+      }}
+      transition={{ duration: 0.3 }}
+      className={`
     fixed top-0 left-0 h-screen z-50 
     bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500
     shadow-2xl flex flex-col 
     ${isMobile ? "rounded-none" : "rounded-r-3xl"}
   `}
->
-
+    >
       <div className="flex items-center justify-between p-4 border-b border-white/20">
         {open && (
           <div className="flex items-center gap-3">
@@ -264,11 +266,8 @@ export default function Sidebar({ open, setOpen , isMobile}) {
           className="p-2 hover:bg-white/20 rounded-lg transition"
         >
           <ChevronRight size={22} className="text-white" />
-          {/* <Menu size={22} className="text-white" /> */}
         </button>
       </div>
-
-      {/* MENU */}
       <nav
         className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent"
         style={{ scrollbarWidth: "thin" }}
@@ -280,7 +279,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
 
           return (
             <div key={item.name}>
-              {/* MAIN MENU ITEM */}
               <motion.div
                 onClick={() => handleClick(item)}
                 whileHover={{ x: 4 }}
@@ -302,14 +300,14 @@ export default function Sidebar({ open, setOpen , isMobile}) {
                   )}
                 </div>
 
-                {open && (item.submenu || item.submenuGroups) && (isExpanded ? (
-                  <ChevronDown size={18} />
-                ) : (
-                  <ChevronRight size={18} />
-                ))}
+                {open &&
+                  (item.submenu || item.submenuGroups) &&
+                  (isExpanded ? (
+                    <ChevronDown size={18} />
+                  ) : (
+                    <ChevronRight size={18} />
+                  ))}
               </motion.div>
-
-              {/* SIMPLE SUBMENU (Land Types) */}
               {item.submenu && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -335,8 +333,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
                   ))}
                 </motion.div>
               )}
-
-              {/* REPORT SUBMENU GROUPS */}
               {item.submenuGroups && isExpanded && open && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -349,7 +345,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
 
                     return (
                       <div key={group.title}>
-                        {/* GROUP HEADER */}
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
@@ -361,10 +356,12 @@ export default function Sidebar({ open, setOpen , isMobile}) {
                           className="flex justify-between cursor-pointer text-white/80 p-2 hover:text-white"
                         >
                           <span>{group.title}</span>
-                          {isGroupOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                          {isGroupOpen ? (
+                            <ChevronDown size={16} />
+                          ) : (
+                            <ChevronRight size={16} />
+                          )}
                         </div>
-
-                        {/* GROUP CHILDREN */}
                         {isGroupOpen && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -377,7 +374,10 @@ export default function Sidebar({ open, setOpen , isMobile}) {
                                 key={sub}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleSubClick(item.basePath + "/" + group.base, sub);
+                                  handleSubClick(
+                                    item.basePath + "/" + group.base,
+                                    sub
+                                  );
                                 }}
                                 className={`cursor-pointer text-sm p-2 rounded-lg ${
                                   active.toLowerCase() === sub.toLowerCase()
@@ -399,7 +399,6 @@ export default function Sidebar({ open, setOpen , isMobile}) {
           );
         })}
       </nav>
-
       <div className="p-4 border-t border-white/20 text-xs text-white/80">
         {open ? "© 2025 LIMS" : "©"}
       </div>

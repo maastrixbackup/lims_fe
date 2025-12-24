@@ -12,8 +12,6 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   const [mapData, setMapData] = useState([]);
 
   const khata_id = khata?.id;
-
-  // ------------------------ UPLOAD FILE ------------------------
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -42,8 +40,6 @@ const MapModal = ({ khata, onClose, onUpload }) => {
 
       setSuccessMsg("KMZ/ZIP file uploaded successfully!");
       setTimeout(() => setSuccessMsg(""), 1500);
-
-      // Refresh map list
       fetchMapData();
 
       onUpload?.(data);
@@ -85,8 +81,6 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-xl relative">
-
-        {/* Close Button */}
         <button
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
           onClick={onClose}
@@ -97,8 +91,6 @@ const MapModal = ({ khata, onClose, onUpload }) => {
         <h3 className="font-bold text-lg mb-4">
           Maps for Khata {khata?.number}
         </h3>
-
-        {/* Upload Button */}
         <div className="flex justify-end mb-4">
           <button
             className="btn btn-sm btn-primary flex items-center gap-2"
@@ -117,8 +109,6 @@ const MapModal = ({ khata, onClose, onUpload }) => {
             onChange={handleFileSelect}
           />
         </div>
-
-        {/* Success Message */}
         {successMsg && (
           <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
             <CheckCircle size={18} />

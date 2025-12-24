@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import useProjects from "../../hooks/useProjects";
 import ProjectTable from "./ProjectTable";
@@ -6,11 +6,9 @@ import ProjectFormModal from "./ProjectFormModal";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 
 const Projects = () => {
-  const token = useSelector((state) => state.auth.userToken);
-  const user = useSelector((state) => state.auth.user);
+  const { userToken: token, user } = useSelector((state) => state.auth);
   const userRole = user?.role_name || "";
-  // console.log('project userssss', user)
-  // const canModify = userRole !== "Data Entry User" && userRole !== "Viewer";
+
   const canModify = userRole !== "Viewer";
 
   const {
@@ -25,23 +23,50 @@ const Projects = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [sortOrder, setSortOrder] = useState("");
 
-  const sortedProjects = [...projects].sort((a, b) => {
-    if (!sortOrder) return 0;
-    return sortOrder === "asc"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
-  });
+  /* ------------------ Memoized Sorting ------------------ */
+  const sortedProjects = useMemo(() => {
+    if (!sortOrder) return projects;
 
-  const openModal = (project = null) => {
-    if (!canModify) return;
-    setEditingProject(project);
-    setIsModalOpen(true);
-  };
+    return [...projects].sort((a, b) =>
+      sortOrder === "asc"
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name)
+    );
+  }, [projects, sortOrder]);
+
+  /* ------------------ Handlers ------------------ */
+  const openModal = useCallback(
+    (project = null) => {
+      if (!canModify) return;
+      setEditingProject(project);
+      setIsModalOpen(true);
+    },
+    [canModify]
+  );
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setEditingProject(null);
+  }, []);
+
+  const handleSave = useCallback(
+    async (formData) => {
+      await handleSaveProject(formData, editingProject);
+      closeModal();
+    },
+    [handleSaveProject, editingProject, closeModal]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    await handleDeleteProject(deleteConfirm);
+    setDeleteConfirm(null);
+  }, [handleDeleteProject, deleteConfirm]);
 
   return (
-    <main className="flex-1 overflow-y-auto space-y-6">
-      <div className="flex justify-between items-center flex-wrap gap-4">
+    <main>
+      <div className="flex justify-between items-center flex-wrap gap-4 mb-4">
         <h2 className="text-lg font-semibold">Projects List</h2>
+
         <div className="flex items-center gap-3">
           <select
             className="select bg-white rounded-box border border-gray-400 focus:border-blue-500 focus:outline-none"
@@ -52,23 +77,20 @@ const Projects = () => {
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </select>
+
           <button
-              className={`btn btn-primary text-white ${
-            !canModify
-              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-              : ""
-          }`} 
-            onClick={() => {
-              if (
-                // userRole !== "Data Entry User" && 
-                userRole !== "Viewer") openModal();
-            }}
+            className={`btn btn-primary text-white ${
+              !canModify &&
+              "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
+            }`}
+            onClick={() => openModal()}
             disabled={!canModify}
           >
             + Add Project
           </button>
         </div>
       </div>
+
       <ProjectTable
         projects={sortedProjects}
         canModify={canModify}
@@ -76,24 +98,18 @@ const Projects = () => {
         onDelete={setDeleteConfirm}
         loading={loading}
       />
+
       {isModalOpen && (
         <ProjectFormModal
           project={editingProject}
-          onClose={() => {
-            setIsModalOpen(false);
-            setEditingProject(null);
-          }}
-          onSave={async (formData) => {
-            await handleSaveProject(formData, editingProject);
-            setIsModalOpen(false);
-            setEditingProject(null);
-          }}
+          onClose={closeModal}
+          onSave={handleSave}
           loading={loading}
         />
       )}
 
       <ConfirmDelete
-        isOpen={!!deleteConfirm}
+        isOpen={Boolean(deleteConfirm)}
         title="Confirm Delete"
         message={
           deleteConfirm
@@ -103,10 +119,7 @@ const Projects = () => {
         confirmText="Yes, Delete"
         cancelText="Cancel"
         confirmButtonClass="btn btn-error"
-        onConfirm={async () => {
-          await handleDeleteProject(deleteConfirm);
-          setDeleteConfirm(null);
-        }}
+        onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteConfirm(null)}
       />
     </main>

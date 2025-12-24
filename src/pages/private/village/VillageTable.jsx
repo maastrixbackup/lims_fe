@@ -57,6 +57,7 @@ const VillageTable = ({
         </div>
       )}
       {!showNoProject && !showNoVillages && (
+        <>
         <div className="max-h-[400px] overflow-x-auto"
         style={{ scrollbarWidth: "thin" }}>
           <table className="table w-full">
@@ -147,8 +148,16 @@ const VillageTable = ({
           </table>
        
         </div>
+          <Pagination
+              page={page}
+              limit={limit}
+              setPage={setPage}
+              totalPages={totalPages}
+              setLimit={setLimit}
+            />
+        </>
       )}
-         {selectedProject && (
+         {/* {selectedProject && (
             <Pagination
               page={page}
               limit={limit}
@@ -156,7 +165,7 @@ const VillageTable = ({
               totalPages={totalPages}
               setLimit={setLimit}
             />
-          )}
+          )} */}
     </div>
   );
 };

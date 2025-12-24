@@ -52,6 +52,7 @@ export default function Khata() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+ 
 
   // const formatKhataData = (data) =>
   //   data.map((k, i) => ({
@@ -165,6 +166,13 @@ export default function Khata() {
       prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
     );
   };
+    if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -172,12 +180,12 @@ export default function Khata() {
       <h2 className="text-xl font-semibold capitalize">
         {landType?.replace("-", " ") || "Private"} Khata
       </h2>
-      {loading ? (
-        <div className="flex justify-center items-center">
+      {/* {loading ? (
+        <div className="">
           <Loader />
         </div>
       ) : (
-        <>
+        <> */}
           {/* <button
                 className="btn bg-green-600 text-white px-4 flex items-center gap-2"
                 onClick={handleExportExcel}
@@ -281,8 +289,8 @@ export default function Khata() {
               onMap={handlers.openMapModal}
             />
           </div>
-        </>
-      )}
+        {/* </>
+      )} */}
 
       {modals.isFormOpen && (
         <KhataFormModal {...modals.formProps} onClose={handlers.closeForm} />

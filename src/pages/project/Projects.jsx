@@ -9,7 +9,7 @@ const Projects = () => {
   const { userToken: token, user } = useSelector((state) => state.auth);
   const userRole = user?.role_name || "";
 
-  const canModify = userRole !== "Viewer";
+  const canModify = !(userRole === "Data Entry User" || userRole === "Viewer");
 
   const {
     projects,
@@ -23,7 +23,7 @@ const Projects = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [sortOrder, setSortOrder] = useState("");
 
-  /* ------------------ Memoized Sorting ------------------ */
+  /* ------------------ SORT PROJECTS ------------------ */
   const sortedProjects = useMemo(() => {
     if (!sortOrder) return projects;
 
@@ -34,7 +34,7 @@ const Projects = () => {
     );
   }, [projects, sortOrder]);
 
-  /* ------------------ Handlers ------------------ */
+  /* ------------------ HANDLERS ------------------ */
   const openModal = useCallback(
     (project = null) => {
       if (!canModify) return;
@@ -93,10 +93,9 @@ const Projects = () => {
 
       <ProjectTable
         projects={sortedProjects}
-        canModify={canModify}
+        loading={loading}
         onEdit={openModal}
         onDelete={setDeleteConfirm}
-        loading={loading}
       />
 
       {isModalOpen && (

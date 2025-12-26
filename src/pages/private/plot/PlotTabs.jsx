@@ -4,7 +4,7 @@ const tabs = [
   "Basic Details",
   "Bank & Personal Details",
   "Land Area Valuation Details",
-  "RR Details",
+  // "RR Details",
   "Grievance & Tribunal Details",
 ];
 

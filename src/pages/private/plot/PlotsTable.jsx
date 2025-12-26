@@ -25,6 +25,45 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   // console.log("tokennnn", token);
   const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [loadingPlotId, setLoadingPlotId] = useState(null);
+  const [columnFilters, setColumnFilters] = useState({});
+  const updateFilter = (field, value) => {
+    setColumnFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+  const FilterHeader = ({ label, field, options }) => {
+    return (
+      <th className="p-2 text-left text-gray-700 bg-gray-200 sticky top-0 z-20">
+        <div className="flex items-center gap-2">
+          {/* Column Label */}
+          <span className="font-medium text-gray-700 whitespace-nowrap">{label}</span>
+
+          {/* Filter Dropdown */}
+          <select
+            className={`select select-xs border-gray-300 min-w-[90px] ${
+              columnFilters[field] ? "border-indigo-500 bg-indigo-50" : ""
+            }`}
+            value={columnFilters[field] || ""}
+            onChange={(e) => updateFilter(field, e.target.value)}
+          >
+            <option value="">All</option>
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      </th>
+    );
+  };
+
+  const getOptions = (field) => {
+    return [
+      ...new Set(projectFilteredPlots.map((p) => p[field]).filter(Boolean)),
+    ];
+  };
 
   const handlePaymentReady = async (plot) => {
     if (isRestricted) return;
@@ -93,19 +132,36 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return [...uniqueKhata];
   }, [projectFilteredPlots]);
 
+  // const filteredPlots = useMemo(() => {
+  //   return projectFilteredPlots.filter((plot) => {
+  //     const matchVillage =
+  //       !selectedVillage || plot.village_name === selectedVillage;
+  //     const matchKhata = !selectedKhata || plot.khata_no === selectedKhata;
+  //     const query = searchQuery.toLowerCase();
+  //     const matchSearch =
+  //       !searchQuery ||
+  //       Object.values(plot).join(" ").toLowerCase().includes(query);
+
+  //     return matchVillage && matchKhata && matchSearch;
+  //   });
+  // }, [projectFilteredPlots, selectedVillage, selectedKhata, searchQuery]);
   const filteredPlots = useMemo(() => {
     return projectFilteredPlots.filter((plot) => {
-      const matchVillage =
-        !selectedVillage || plot.village_name === selectedVillage;
-      const matchKhata = !selectedKhata || plot.khata_no === selectedKhata;
-      const query = searchQuery.toLowerCase();
-      const matchSearch =
+      const searchMatch =
         !searchQuery ||
-        Object.values(plot).join(" ").toLowerCase().includes(query);
+        Object.values(plot)
+          .join(" ")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
-      return matchVillage && matchKhata && matchSearch;
+      const columnMatch = Object.entries(columnFilters).every(
+        ([field, value]) => !value || plot[field] === value
+      );
+
+      return searchMatch && columnMatch;
     });
-  }, [projectFilteredPlots, selectedVillage, selectedKhata, searchQuery]);
+  }, [projectFilteredPlots, searchQuery, columnFilters]);
+
   // Reset filters
   const resetFilters = () => {
     setSelectedVillage("");
@@ -216,6 +272,17 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
   const stickyPaymentCell =
     "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
+  const stickyCol1Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
+
+  const stickyCol1Cell =
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
+
+  const stickyCol2Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
+
+  const stickyCol2Cell =
+    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
 
   return (
     <div className="">
@@ -345,20 +412,50 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
                 <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Project Name</th>
-                <th className="p-3 text-left">LA Case File No</th>
-                <th className="p-3 text-left">Khata No</th>
-                <th className="p-3 text-left">Plot No</th>
+                {/* <th className="p-3 text-left">  <FilterHeader
+                label="Project"
+                field="project_name"
+                options={getOptions("project_name")}
+                
+              /></th> */}
+                <th className={stickyCol1Header}>LA Case File No</th>
+
+                <FilterHeader
+                  label="Khata"
+                  field="khata_no"
+                  options={getOptions("khata_no")}
+                  className={stickyCol2Header}
+                />
+                <FilterHeader
+                  label="Plot"
+                  field="plot_no"
+                  options={getOptions("plot_no")}
+                  // className={stickyCol2Header}
+                />
+
                 <th className="p-3 text-left">Full/Part Plot</th>
                 <th className="p-3 text-left">SES Survey No</th>
                 <th className="p-3 text-left">Date of Award</th>
                 <th className="p-3 text-left">Recorded Tenant</th>
-                <th className="p-3 text-left">Present Tenant</th>
+                {/* <th className="p-3 text-left">Present Tenant</th> */}
+                <FilterHeader
+                  label="Tenant"
+                  field="name_of_present_tenant"
+                  options={getOptions("name_of_present_tenant")}
+                />
                 <th className="p-3 text-left">Number Of Present Tenant</th>
                 <th className="p-3 text-left">Present Address</th>
                 <th className="p-3 text-left">Displaced/Affected</th>
-                <th className="p-3 text-left">Village</th>
-                <th className="p-3 text-left">Tahasil</th>
+                <FilterHeader
+                  label="Village"
+                  field="village_name"
+                  options={getOptions("village_name")}
+                />
+                <FilterHeader
+                  label="Tahasil"
+                  field="tahasil_name"
+                  options={getOptions("tahasil_name")}
+                />
                 <th className="p-3 text-left">RI Circle</th>
                 <th className="p-3 text-left">Thana No</th>
                 <th className="p-3 text-left">Total Area (Acre)</th>
@@ -376,9 +473,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   className="hover:bg-gray-50 transition"
                 >
                   <td className="p-3">{idx + 1}</td>
-                  <td className="p-3">{plot.project_name || "N/A"}</td>
-                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                  <td className="p-3">{plot.khata_no || "N/A"}</td>
+                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
+                  <td className={stickyCol1Cell}>
+                    {plot.la_case_file_no || "N/A"}
+                  </td>
+                  <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
                   <td className="p-3">{plot.plot_no || "N/A"}</td>
                   <td className="p-3">{plot.full_plot || "N/A"}</td>
                   <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
@@ -449,12 +548,27 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
                 <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Project Name</th>
+                {/* <th className="p-3 text-left">Project Name</th> */}
                 <th className="p-3 text-left">LA Case File No</th>
-                <th className="p-3 text-left">Bank Name</th>
+                {/* <th className="p-3 text-left">Bank Name</th> */}
+                <FilterHeader
+                  label="Bank"
+                  field="bank_name"
+                  options={getOptions("bank_name")}
+                />
                 <th className="p-3 text-left">Account No</th>
-                <th className="p-3 text-left">IFSC Code</th>
-                <th className="p-3 text-left">Aadhaar No</th>
+                <FilterHeader
+                  label="IFSC Code"
+                  field="branch_ifsc"
+                  options={getOptions("branch_ifsc")}
+                />
+                {/* <th className="p-3 text-left">IFSC Code</th> */}
+                {/* <th className="p-3 text-left">Aadhaar No</th> */}
+                <FilterHeader
+                  label="Aadhar Number"
+                  field="aadhaar_no"
+                  options={getOptions("aadhaar_no")}
+                />
                 <th className="p-3 text-left">PAN No</th>
                 <th className="p-3 text-left">Age</th>
                 <th className="p-3 text-left">Caste</th>
@@ -525,17 +639,32 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
               <tr>
                 <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Project Name</th>
+                {/* <th className="p-3 text-left">Project Name</th> */}
                 <th className="p-3 text-left">LA Case File No</th>
-                <th className="p-3 text-left">Kissam of Land</th>
+                {/* <th className="p-3 text-left">Kissam of Land</th> */}
+                <FilterHeader
+                  label="Kissam of Land"
+                  field="kissam_of_land"
+                  options={getOptions("kissam_of_land")}
+                />
                 <th className="p-3 text-left">Land Category</th>
                 <th className="p-3 text-left">LO13 Remarks</th>
                 {/* <th className="p-3 text-left">Total Area (Acre)</th>
               <th className="p-3 text-left">Total Area (Hectare)</th>
               <th className="p-3 text-left">Acquired Area (Acre)</th>
               <th className="p-3 text-left">Acquired Area (Hectare)</th> */}
-                <th className="p-3 text-left">Legal Heir Cert. No</th>
-                <th className="p-3 text-left">Land Case No</th>
+                {/* <th className="p-3 text-left">Legal Heir Cert. No</th> */}
+                <FilterHeader
+                  label="Legal Heir Cert. No"
+                  field="legal_heir_certificate_no"
+                  options={getOptions("legal_heir_certificate_no")}
+                />
+                {/* <th className="p-3 text-left">Land Case No</th> */}
+                <FilterHeader
+                  label="Land Case No"
+                  field="land_case_no"
+                  options={getOptions("land_case_no")}
+                />
                 <th className="p-3 text-left">Land Case Date</th>
                 <th className="p-3 text-left">Land Case Type</th>
                 <th className="p-3 text-left">Land Case Status</th>
@@ -546,11 +675,21 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">No. of Trees</th>
                 <th className="p-3 text-left">Value of Trees (₹)</th>
                 <th className="p-3 text-left">No. of Houses</th>
-                <th className="p-3 text-left">Value of Houses (₹)</th>
+                {/* <th className="p-3 text-left">Value of Houses (₹)</th> */}
+                   <FilterHeader
+                  label="Value of Houses"
+                  field="value_of_house"
+                  options={getOptions("value_of_house")}
+                />
                 <th className="p-3 text-left">Other Structures</th>
                 <th className="p-3 text-left">Value of Other Structures (₹)</th>
                 <th className="p-3 text-left">Total Value (₹)</th>
-                <th className="p-3 text-left">Solatium 100% (₹)</th>
+                {/* <th className="p-3 text-left">Solatium 100% (₹)</th> */}
+                   <FilterHeader
+                  label="Solatium 100% (₹)"
+                  field="solatium_100"
+                  options={getOptions("solatium_100")}
+                />
                 <th className="p-3 text-left">No. Days of interest</th>
                 <th className="p-3 text-left">Additional 12% (₹)</th>
                 <th className="p-3 text-left">Total Compensation (₹)</th>
@@ -570,7 +709,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   className="hover:bg-gray-50 shadow-sm transition"
                 >
                   <td className="p-3">{idx + 1}</td>
-                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
                   <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
                   <td className="p-3">{plot.land_category || "N/A"}</td>
@@ -651,7 +790,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-          <TableWrapper title="RR Details">
+          {/* <TableWrapper title="RR Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
                 <th className="p-3 text-left">#</th>
@@ -745,12 +884,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 </tr>
               ))}
             </tbody>
-          </TableWrapper>
+          </TableWrapper> */}
           <TableWrapper title="Grievance & Tribunal Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
               <tr>
                 <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Project Name</th>
+                {/* <th className="p-3 text-left">Project Name</th> */}
                 <th className="p-3 text-left">LA Case File No</th>
                 <th className="p-3 text-left">Grievance No</th>
                 <th className="p-3 text-left">Grievance Date</th>
@@ -777,7 +916,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   className="hover:bg-gray-50 shadow-sm transition"
                 >
                   <td className="p-3">{idx + 1}</td>
-                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
                   <td className="p-3">{plot.grievance_no || "N/A"}</td>
                   <td className="p-3">
@@ -836,7 +975,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
                 <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Project Name</th>
+                {/* <th className="p-3 text-left">Project Name</th> */}
                 <th className="p-3 text-left">LA Case File No</th>
                 <th className="p-3 text-left">Major Male</th>
                 <th className="p-3 text-left">Major Female</th>
@@ -854,7 +993,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
-                  <td className="p-3">{plot.project_name || "N/A"}</td>
+                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
                   <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
                   <td className="p-3">{plot.family_major_female ?? "N/A"}</td>

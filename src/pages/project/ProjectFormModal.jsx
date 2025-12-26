@@ -7,7 +7,7 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
     client_code: "",
-    status: "Active",
+    status: "",
     project_location :""
   });
 

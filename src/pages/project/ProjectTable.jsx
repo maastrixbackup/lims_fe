@@ -3,15 +3,16 @@ import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
 
-const ProjectTable = ({  onEdit, onDelete, loading }) => {
-  if (loading) return <p className="text-center py-6">Loading...</p>;
-  const {projects} = useSelector((state) => state.list);
-
+const ProjectTable = ({ projects = [], onEdit, onDelete, loading }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role_name || "";
-  const canEdit = userRole !== "Viewer";
-  const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
-  // console.log("Projjjj in project table", projects);
+
+  const canEdit = !(userRole === "Data Entry User" || userRole === "Viewer");
+  const canDelete = canEdit;
+
+  if (loading) {
+    return <p className="text-center py-6">Loading...</p>;
+  }
 
   return (
     <div className="card bg-white shadow-lg overflow-hidden">
@@ -62,12 +63,10 @@ const ProjectTable = ({  onEdit, onDelete, loading }) => {
                   <td>{moment(p.created).format("DD-MM-YYYY")}</td>
 
                   <td className="text-right space-x-2">
-                    {/* Edit Button */}
                     <button
                       className={`btn btn-xs btn-warning text-white ${
-                        !canEdit
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
+                        !canEdit &&
+                        "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
                       }`}
                       onClick={() => canEdit && onEdit(p)}
                       disabled={!canEdit}
@@ -75,12 +74,10 @@ const ProjectTable = ({  onEdit, onDelete, loading }) => {
                       <Pencil size={14} /> Edit
                     </button>
 
-                    {/* Delete Button */}
                     <button
                       className={`btn btn-xs btn-error text-white ${
-                        !canDelete
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
+                        !canDelete &&
+                        "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
                       }`}
                       onClick={() => canDelete && onDelete(p)}
                       disabled={!canDelete}
@@ -92,7 +89,7 @@ const ProjectTable = ({  onEdit, onDelete, loading }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
+                <td colSpan="7" className="text-center py-6 text-gray-500">
                   No projects found.
                 </td>
               </tr>

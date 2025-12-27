@@ -1,5 +1,10 @@
 import React, { useRef } from "react";
-import { ArrowUp, Filter,ArrowDown} from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  Filter,
+} from "lucide-react";
 import FilterDropdownPortal from "./FilterDropdownPortal";
 
 const FilterableHeader = ({
@@ -12,80 +17,64 @@ const FilterableHeader = ({
   getFilterOptions,
   className = "",
   sortConfig,
-  onSort
+  onSort,
 }) => {
   const buttonRef = useRef(null);
   const options = getFilterOptions(field) || [];
-   const isActive = sortConfig?.field === field;
+
+  const isActive = sortConfig?.field === field;
   const direction = isActive ? sortConfig.direction : null;
-  
+
+  const renderSortIcon = () => {
+    if (!isActive) return <ArrowUpDown size={14} className="text-gray-400" />;
+    if (direction === "asc")
+      return <ArrowUp size={14} className="text-black" />;
+    return <ArrowDown size={14} className="text-black" />;
+  };
 
   return (
-    <>
-     
-            <th className={className}>
-    
+    <th className={className}>
       <div className="flex items-center gap-1">
         <span>{label}</span>
-                    <button
-          onClick={() => onSort(field)}
-          className="flex items-center gap-1 font-semibold select-none"
-        >
-     
-
-          <div className="flex flex-col leading-none">
-            <ArrowUp
-              size={12}
-              className={
-                direction === "asc"
-                  ? "text-black"
-                  : "text-gray-400"
-              }
-            />
-            <ArrowDown
-              size={12}
-              className={
-                direction === "desc"
-                  ? "text-black"
-                  : "text-gray-400"
-              }
-            />
-          </div>
-        </button>
-
+                {/* FILTER BUTTON */}
         <button
           ref={buttonRef}
           onClick={() =>
             setActiveFilter(activeFilter === field ? null : field)
           }
+          className="p-1 hover:bg-gray-100 rounded"
+          title="Filter"
         >
           <Filter size={14} />
         </button>
+
+        {/* SORT BUTTON */}
+        <button
+          onClick={() => onSort(field)}
+          className="p-1 hover:bg-gray-100 rounded"
+          title="Sort"
+        >
+          {renderSortIcon()}
+        </button>
+
+
       </div>
 
+      {/* FILTER DROPDOWN */}
       {activeFilter === field && (
         <FilterDropdownPortal
           anchorRef={buttonRef}
           onClose={() => setActiveFilter(null)}
         >
-          <div className="bg-white rounded-md shadow-lg w-52 max-h-60 overflow-y-auto"
-                        style={{
-                scrollbarWidth: "thin",
-              }}
->
+          <div className="bg-white rounded-md shadow-lg w-52 max-h-60 overflow-y-auto">
             <ul className="menu p-2 text-sm">
-              {/* ✅ ALL OPTION */}
               <li>
                 <button
-                  className={
-                    !filters[field]
-                      ? "font-semibold text-primary"
-                      : ""
-                  }
+                  className={!filters[field] ? "font-semibold text-primary" : ""}
                   onClick={() => {
                     setFilters((prev) => {
                       const copy = { ...prev };
-                      delete copy[field]; // remove filter
+                      delete copy[field];
                       return copy;
                     });
                     setActiveFilter(null);
@@ -97,7 +86,6 @@ const FilterableHeader = ({
 
               <li className="my-1 border-t" />
 
-              {/* FILTER OPTIONS */}
               {options.map((opt) => (
                 <li key={opt}>
                   <button
@@ -120,8 +108,6 @@ const FilterableHeader = ({
         </FilterDropdownPortal>
       )}
     </th>
-    </>
-
   );
 };
 

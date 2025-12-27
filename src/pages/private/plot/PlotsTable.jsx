@@ -5,6 +5,7 @@ import moment from "moment";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import PlotTabs from "./PlotTabs";
+import FilterHeader from "./FilterHeader";
 // import { useLandTypeParam } from "../../../utils/landtypes";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
@@ -32,31 +33,48 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       [field]: value,
     }));
   };
-  const FilterHeader = ({ label, field, options }) => {
-    return (
-      <th className="p-2 text-left text-gray-700 bg-gray-200 sticky top-0 z-20">
-        <div className="flex items-center gap-2">
-          {/* Column Label */}
-          <span className="font-medium text-gray-700 whitespace-nowrap">{label}</span>
+  // const FilterHeader = ({ label, field, options }) => {
+  //   return (
+  //     <th className="p-2 text-left text-gray-700 bg-gray-200 sticky top-0 z-20">
+  //       <div className="flex items-center gap-2">
+  //         {/* Column Label */}
+  //         <span className="font-medium text-gray-700 whitespace-nowrap">{label}</span>
 
-          {/* Filter Dropdown */}
-          <select
-            className={`select select-xs border-gray-300 min-w-[90px] ${
-              columnFilters[field] ? "border-indigo-500 bg-indigo-50" : ""
-            }`}
-            value={columnFilters[field] || ""}
-            onChange={(e) => updateFilter(field, e.target.value)}
-          >
-            <option value="">All</option>
-            {options.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </div>
-      </th>
-    );
+  //         {/* Filter Dropdown */}
+  //         <select
+  //           className={`select select-xs border-gray-300  ${
+  //             columnFilters[field] ? "border-indigo-500 bg-indigo-50" : ""
+  //           }`}
+  //           value={columnFilters[field] || ""}
+  //           onChange={(e) => updateFilter(field, e.target.value)}
+  //         >
+  //           <option value="">All</option>
+  //           {options.map((opt) => (
+  //             <option key={opt} value={opt}>
+  //               {opt}
+  //             </option>
+  //           ))}
+  //         </select>
+  //       </div>
+  //     </th>
+  //   );
+  // };
+  const [openFilterField, setOpenFilterField] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    field: null,
+    direction: "asc", // or "desc"
+  });
+
+  const handleSort = (field) => {
+    setSortConfig((prev) => {
+      if (prev.field === field) {
+        return {
+          field,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { field, direction: "asc" };
+    });
   };
 
   const getOptions = (field) => {
@@ -146,7 +164,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   //   });
   // }, [projectFilteredPlots, selectedVillage, selectedKhata, searchQuery]);
   const filteredPlots = useMemo(() => {
-    return projectFilteredPlots.filter((plot) => {
+    let data = projectFilteredPlots.filter((plot) => {
       const searchMatch =
         !searchQuery ||
         Object.values(plot)
@@ -160,7 +178,27 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
       return searchMatch && columnMatch;
     });
-  }, [projectFilteredPlots, searchQuery, columnFilters]);
+
+    if (sortConfig.field) {
+      data.sort((a, b) => {
+        const aVal = a[sortConfig.field];
+        const bVal = b[sortConfig.field];
+
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+
+        if (typeof aVal === "number") {
+          return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+        }
+
+        return sortConfig.direction === "asc"
+          ? String(aVal).localeCompare(String(bVal))
+          : String(bVal).localeCompare(String(aVal));
+      });
+    }
+
+    return data;
+  }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig]);
 
   // Reset filters
   const resetFilters = () => {
@@ -411,26 +449,50 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Basic Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">SL/No</th>
                 {/* <th className="p-3 text-left">  <FilterHeader
                 label="Project"
                 field="project_name"
                 options={getOptions("project_name")}
                 
               /></th> */}
-                <th className={stickyCol1Header}>LA Case File No</th>
+                {/* <th className={stickyCol1Header}>LA Case File No</th> */}
+                <FilterHeader
+                  label="LA Case File No"
+                  field="la_case_file_no"
+                  options={getOptions("la_case_file_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  className={stickyCol1Header}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
 
                 <FilterHeader
                   label="Khata"
                   field="khata_no"
                   options={getOptions("khata_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
                   className={stickyCol2Header}
                 />
+
                 <FilterHeader
                   label="Plot"
                   field="plot_no"
                   options={getOptions("plot_no")}
-                  // className={stickyCol2Header}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
 
                 <th className="p-3 text-left">Full/Part Plot</th>
@@ -442,6 +504,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   label="Tenant"
                   field="name_of_present_tenant"
                   options={getOptions("name_of_present_tenant")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Number Of Present Tenant</th>
                 <th className="p-3 text-left">Present Address</th>
@@ -450,11 +518,21 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   label="Village"
                   field="village_name"
                   options={getOptions("village_name")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
                 />
                 <FilterHeader
                   label="Tahasil"
                   field="tahasil_name"
                   options={getOptions("tahasil_name")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">RI Circle</th>
                 <th className="p-3 text-left">Thana No</th>
@@ -547,20 +625,43 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Bank & Personal Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">SL/No</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                <th className="p-3 text-left">LA Case File No</th>
+                <FilterHeader
+                  label="LA Case File No"
+                  field="la_case_file_no"
+                  options={getOptions("la_case_file_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  className={stickyCol1Header}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
                 {/* <th className="p-3 text-left">Bank Name</th> */}
                 <FilterHeader
                   label="Bank"
                   field="bank_name"
                   options={getOptions("bank_name")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Account No</th>
                 <FilterHeader
                   label="IFSC Code"
                   field="branch_ifsc"
                   options={getOptions("branch_ifsc")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 {/* <th className="p-3 text-left">IFSC Code</th> */}
                 {/* <th className="p-3 text-left">Aadhaar No</th> */}
@@ -568,6 +669,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   label="Aadhar Number"
                   field="aadhaar_no"
                   options={getOptions("aadhaar_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">PAN No</th>
                 <th className="p-3 text-left">Age</th>
@@ -586,8 +693,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
-                  <td className="p-3">{plot.project_name || "N/A"}</td>
-                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
+                  <td className={stickyCol1Cell}>
+                    {plot.la_case_file_no || "N/A"}
+                  </td>
                   <td className="p-3">{plot.bank_name || "N/A"}</td>
                   <td className="p-3">{plot.bank_account_no || "N/A"}</td>
                   <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
@@ -640,14 +749,42 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                <th className="p-3 text-left">LA Case File No</th>
+                <FilterHeader
+                  label="LA Case File No"
+                  field="la_case_file_no"
+                  options={getOptions("la_case_file_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  className={stickyCol1Header}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
                 {/* <th className="p-3 text-left">Kissam of Land</th> */}
                 <FilterHeader
                   label="Kissam of Land"
                   field="kissam_of_land"
                   options={getOptions("kissam_of_land")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
-                <th className="p-3 text-left">Land Category</th>
+                {/* <th className="p-3 text-left">Land Category</th> */}
+                <FilterHeader
+                  label="Land Category"
+                  field="land_category"
+                  options={getOptions("land_category")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
                 <th className="p-3 text-left">LO13 Remarks</th>
                 {/* <th className="p-3 text-left">Total Area (Acre)</th>
               <th className="p-3 text-left">Total Area (Hectare)</th>
@@ -658,12 +795,24 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   label="Legal Heir Cert. No"
                   field="legal_heir_certificate_no"
                   options={getOptions("legal_heir_certificate_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 {/* <th className="p-3 text-left">Land Case No</th> */}
                 <FilterHeader
                   label="Land Case No"
                   field="land_case_no"
                   options={getOptions("land_case_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Land Case Date</th>
                 <th className="p-3 text-left">Land Case Type</th>
@@ -676,19 +825,31 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">Value of Trees (₹)</th>
                 <th className="p-3 text-left">No. of Houses</th>
                 {/* <th className="p-3 text-left">Value of Houses (₹)</th> */}
-                   <FilterHeader
+                <FilterHeader
                   label="Value of Houses"
                   field="value_of_house"
                   options={getOptions("value_of_house")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Other Structures</th>
                 <th className="p-3 text-left">Value of Other Structures (₹)</th>
                 <th className="p-3 text-left">Total Value (₹)</th>
                 {/* <th className="p-3 text-left">Solatium 100% (₹)</th> */}
-                   <FilterHeader
+                <FilterHeader
                   label="Solatium 100% (₹)"
                   field="solatium_100"
                   options={getOptions("solatium_100")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">No. Days of interest</th>
                 <th className="p-3 text-left">Additional 12% (₹)</th>
@@ -710,7 +871,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 >
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className={stickyCol1Cell}>
+                    {plot.la_case_file_no || "N/A"}
+                  </td>
                   <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
                   <td className="p-3">{plot.land_category || "N/A"}</td>
                   <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
@@ -890,7 +1053,18 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                <th className="p-3 text-left">LA Case File No</th>
+                <FilterHeader
+                  label="LA Case File No"
+                  field="la_case_file_no"
+                  options={getOptions("la_case_file_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  className={stickyCol1Header}
+                      onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
                 <th className="p-3 text-left">Grievance No</th>
                 <th className="p-3 text-left">Grievance Date</th>
                 <th className="p-3 text-left">Subject</th>
@@ -917,7 +1091,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 >
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                  <td className={stickyCol1Cell}>
+                    {plot.la_case_file_no || "N/A"}
+                  </td>
                   <td className="p-3">{plot.grievance_no || "N/A"}</td>
                   <td className="p-3">
                     {formatDate(plot.grievance_date) || "N/A"}

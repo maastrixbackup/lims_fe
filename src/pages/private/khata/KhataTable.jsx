@@ -387,7 +387,6 @@ const KhataTable = ({
       return 0;
     });
 
-  /* ---------------- RENDER ---------------- */
   return (
     <>
       <div className="card bg-white shadow-lg">
@@ -524,76 +523,6 @@ const KhataTable = ({
                       <td>{khata.plot_count}</td>
                       <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
 
-                      {/* <td className={stickyActionCell}>
-                        <div className="dropdown dropdown-left">
-                          <label
-                            tabIndex={0}
-                            className="btn btn-xs bg-gray-200 border-0"
-                          >
-                            <SlidersHorizontal size={14} />
-                          </label>
-
-                          <ul className="dropdown-content menu p-2 bg-white rounded-md w-40 shadow-[0_4px_10px_rgba(1,1,1,0.25)] z-50 text-md space-y-3 ">
-                            <li>
-                              <button
-                                onClick={() => {
-                                  dispatch(setSelectedKhataId(khata.id));
-                                  setIsPlotModalOpen(true);
-                                }}
-                                className="text-gray-700 font-semibold"
-                              >
-                                <LandPlot size={14} /> View Plots (
-                                {khata.plot_count || 0})
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                disabled={userRole === "Viewer"}
-                                onClick={() => onUpload(khata)}
-                                className={`text-gray-700 font-semibold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                <Upload size={14} /> Upload (
-                                {khata.khata_document_count || 0})
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="text-gray-700 font-semibold"
-                                onClick={() => onMap(khata)}
-                              >
-                                <MapIcon size={14} /> Map (
-                                {khata.khata_map_document_count || 0})
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                disabled={userRole === "Viewer"}
-                                onClick={() => onEdit(khata)}
-                              //  className="text-gray-700 font-semibold"
-                                className={`text-gray-700 font-semibold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ✍️ Edit
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                disabled={isRestricted}
-                                onClick={() => onDelete(khata)}
-                                //  className="text-gray-700 font-semibold"
-                                className={`text-gray-800 font-semibold ${
-                                  isRestricted ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ❌ Delete
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
-                      </td> */}
                       <td className={stickyActionCell}>
                         <select
                           className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
@@ -613,9 +542,9 @@ const KhataTable = ({
                             if (action === "delete") onDelete(khata);
                           }}
                         >
-                          {/* <option value="" disabled>
+                          <option value="" disabled>
                           <Filter size={12}/>
-                          </option> */}
+                          </option>
 
                           <option
                             value="viewPlots"

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Pencil, Trash2, X, Filter, HandCoins } from "lucide-react";
 import moment from "moment";
@@ -64,6 +64,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     field: null,
     direction: "asc", // or "desc"
   });
+const [noData, setNoData] = useState(false);
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
@@ -176,6 +177,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         ([field, value]) => !value || plot[field] === value
       );
 
+
       return searchMatch && columnMatch;
     });
 
@@ -201,11 +203,26 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig]);
 
   // Reset filters
-  const resetFilters = () => {
-    setSelectedVillage("");
-    setSelectedTahasil("");
-    setSearchQuery("");
-  };
+const resetFilters = () => {
+  setSelectedVillage("");
+  setSelectedKhata("");
+  setSearchQuery("");
+  setColumnFilters({});
+  setSortConfig({ field: null, direction: "asc" });
+};
+const isAnyFilterApplied =
+  searchQuery ||
+  Object.values(columnFilters).some(Boolean);
+
+
+useEffect(() => {
+  if (isAnyFilterApplied && filteredPlots.length === 0) {
+    setNoData(true);
+  } else {
+    setNoData(false);
+  }
+}, [filteredPlots, isAnyFilterApplied]);
+
 
   const navigate = useNavigate();
 
@@ -231,10 +248,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   const TableWrapper = ({ title, children }) => (
     <div className="space-y-2">
-      <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 rounded-t-md shadow-sm">
+      <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 shadow-sm">
         {title}
       </h2>
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto rounded-xl shadow-md bg-white">
+      <div className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white" style={{scrollbarWidth:"thin"}}>
         <table className="min-w-full text-xs relative">{children}</table>
       </div>
     </div>
@@ -311,16 +328,52 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const stickyPaymentCell =
     "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
   const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[120px]";
 
   const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[120px]";
 
   const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[130px]";
 
   const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
+    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[130px]";
+    
+  const stickyCol3Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[210px] z-[35] shadow-md min-w-[140px]";
+
+  const stickyCol3Cell =
+    "p-3 text-left bg-white md:sticky md:left-[20px] shadow-sm min-w-[140px]";
+    if (noData) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">
+      <p className="text-lg font-semibold text-red-600">
+        No data available
+      </p>
+
+      <p className="text-sm text-gray-500 mt-1">
+        Try refreshing the page or select filters again.
+      </p>
+
+      <div className="flex gap-4 mt-6">
+        <button
+          className="btn btn-sm btn-outline btn-primary"
+          onClick={() => window.location.reload()}
+        >
+          Reload Page
+        </button>
+
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={resetFilters}
+        >
+          Reset Filters
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
   return (
     <div className="">
@@ -410,6 +463,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </div>
         </div>
       </div>
+      
 
       {(!selectedProject || filteredPlots.length === 0) && (
         <div className=" card bg-white py-10 text-center text-gray-600">
@@ -484,7 +538,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 />
 
                 <FilterHeader
-                  label="Plot"
+                  label="Plot No"
                   field="plot_no"
                   options={getOptions("plot_no")}
                   columnFilters={columnFilters}
@@ -493,6 +547,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   setOpenFilterField={setOpenFilterField}
                   onSort={handleSort}
                   sortConfig={sortConfig}
+                    className={stickyCol3Header}
                 />
 
                 <th className="p-3 text-left">Full/Part Plot</th>
@@ -556,7 +611,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     {plot.la_case_file_no || "N/A"}
                   </td>
                   <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
-                  <td className="p-3">{plot.plot_no || "N/A"}</td>
+                  <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
                   <td className="p-3">{plot.full_plot || "N/A"}</td>
                   <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
                   <td className="p-3">{formatDate(plot.date_of_award)}</td>
@@ -818,7 +873,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">Land Case Type</th>
                 <th className="p-3 text-left">Land Case Status</th>
                 <th className="p-3 text-left">Land Case Action</th>
-                <th className="p-3 text-left">Market Value / Acre</th>
+                <th className="p-3 text-left">Bench Market Value</th>
                 <th className="p-3 text-left">Basic Land Value (₹)</th>
                 <th className="p-3 text-left">Land Value w/ MF (₹)</th>
                 <th className="p-3 text-left">No. of Trees</th>
@@ -854,9 +909,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">No. Days of interest</th>
                 <th className="p-3 text-left">Additional 12% (₹)</th>
                 <th className="p-3 text-left">Total Compensation (₹)</th>
-                <th className="p-3 text-left">Apportionment Amount (₹)</th>
+                {/* <th className="p-3 text-left">Apportionment Amount (₹)</th> */}
                 <th className="p-3 text-left">Priority / Urgency</th>
-                <th className="p-3 text-left">Land Use Plan</th>
+                {/* <th className="p-3 text-left">Land Use Plan</th> */}
                 <th className="p-3 text-left">LA21 Remarks</th>
                 <th className={stickyPaymentHeader}>Payment Status</th>
                 <th className={stickyActionHeader}>Actions</th>
@@ -915,9 +970,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.no_days_interest || "N/A"}</td>
                   <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
                   <td className="p-3">{plot.total_compensation || "N/A"}</td>
-                  <td className="p-3">{plot.apportionment_amount || "N/A"}</td>
+                  {/* <td className="p-3">{plot.apportionment_amount || "N/A"}</td> */}
                   <td className="p-3">{plot.priority_urgency || "N/A"}</td>
-                  <td className="p-3">{plot.land_use_plan || "N/A"}</td>
+                  {/* <td className="p-3">{plot.land_use_plan || "N/A"}</td> */}
                   <td className="p-3">{plot.la21_remarks || "N/A"}</td>
                   <td className={stickyPaymentCell}>
                     <button

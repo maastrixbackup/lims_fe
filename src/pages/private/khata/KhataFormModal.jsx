@@ -27,6 +27,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     khata_no: "",
     type: typeParam,
     plot_no: "",
+    full_part:"",
     kissam_of_land: "",
     land_category: "",
     land_area_total_acres: "",
@@ -57,6 +58,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         khata_no: khata.khata_no || "",
         type: khata.type || typeParam,
         plot_no: khata.plot_no || "",
+        full_part: khata.full_part || "",
         kissam_of_land: khata.kissam_of_land || "",
         land_category: khata.land_category || "",
         land_area_total_acres: khata.land_area_total_acres || "",
@@ -83,6 +85,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         khata_no: "",
         type: typeParam,
         plot_no: "",
+        full_part:"",
         kissam_of_land: "",
         land_category: "",
         land_area_total_acres: "",
@@ -135,9 +138,9 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         method,
         body: formData,
       });
-      console.log("Submitting khata:", khata);
-      console.log("add khata^^^^^^^^^^^^", res);
-      console.log("Submitting payload:", formData);
+      // console.log("Submitting khata:", khata);
+      // console.log("add khata^^^^^^^^^^^^", res);
+      // console.log("Submitting payload:", formData);
 
       if (!res.success) {
         alert(res.message || "Failed to save khata");
@@ -296,6 +299,16 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
                 type="text"
                 name="land_category"
                 value={formData.land_category}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+             <div>
+              <label className="block text-sm font-medium ">Full Part</label>
+              <input
+                type="text"
+                name="full_part"
+                value={formData.full_part}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />

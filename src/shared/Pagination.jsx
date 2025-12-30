@@ -2,7 +2,7 @@ import React from "react";
 
 const Pagination = ({ page, totalPages, setPage, limit, setLimit, total }) => {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center p-4 border-t bg-gray-50">
+    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center p-4 border-t border-gray-200 bg-gray-50">
       <div className="flex items-center justify-center sm:justify-start space-x-2">
         <span className="text-sm text-gray-700">Page Size:</span>
         <select

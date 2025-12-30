@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 
 const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
 
+//retive project data from useProjects hook
 const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -128,24 +129,25 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
               name="client_code"
               value={formData.client_code}
               onChange={handleChange}
-              readOnly={!!project}
-              onClick={() => {
-                if (project) setClientCodeWarning(true);
-              }}
+              // readOnly={!!project}
+              // onClick={() => {
+              //   if (project) setClientCodeWarning(true);
+              // }}
               className={`input input-bordered w-full ${
                 errors.client_code ? "input-error" : ""
-              } ${project ? "bg-gray-100 cursor-not-allowed" : ""}`}
+              } `}
+              // ${project ? "bg-gray-100 cursor-not-allowed" : ""}`}
             />
 
-            {errors.client_code && (
+            {/* {errors.client_code && (
               <p className="text-error text-sm mt-1">{errors.client_code}</p>
-            )}
+            )} */}
 
-            {clientCodeWarning && project && (
+            {/* {clientCodeWarning && project && (
               <p className="text-error text-sm mt-1 font-small">
                 Client code cannot be changed.
               </p>
-            )}
+            )} */}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Status</label>
@@ -167,12 +169,13 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
             )}
           </div>     
           <div className="modal-action">
+             <button type="button" className="btn" onClick={onClose}>
+              Cancel
+            </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? "Saving..." : "Save"}
             </button>
-            <button type="button" className="btn" onClick={onClose}>
-              Cancel
-            </button>
+           
           </div>
 
         </form>

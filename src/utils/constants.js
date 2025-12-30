@@ -45,6 +45,7 @@ export const sections = {
     "khata_no",
     "la_case_file_no",
     "plot_no",
+    "full_part",
     "date_of_award",
     "tahasil_name",
     "ri_circle_name",

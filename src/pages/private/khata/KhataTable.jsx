@@ -542,24 +542,24 @@ if (noData) {
                       <td className={stickyCol1Cell}>{khata.khata_no}</td>
                       <td className={stickyCol2Cell}>{khata.village_name}</td>
                       <td>{khata.village_code}</td>
-                      <td>{formatThreeItems(khata.plot_no)}</td>
-                      <td>{formatThreeItems(khata.kissam_of_land)}</td>
-                      <td>{formatThreeItems(khata.land_category)}</td>
-                      <td>{khata.land_area_total_acres}</td>
-                      <td>{khata.land_area_total_hectares}</td>
+                      <td>{formatThreeItems(khata.plot_no || "No Data")}</td>
+                      <td>{formatThreeItems(khata.kissam_of_land || "No Data")}</td>
+                      <td>{formatThreeItems(khata.land_category || "No Data")}</td>
+                      <td>{khata.land_area_total_acres || "No Data"}</td>
+                      <td>{khata.land_area_total_hectares || "No Data"}</td>
                       <td>{khata.land_area_acquired_acres}</td>
                       <td>{khata.land_area_acquired_hectares}</td>
-                      <td>{khata.lo13_remarks}</td>
-                      <td>{khata.tahasil_name}</td>
-                      <td>{formatThreeItems(khata.ri_circle_name)}</td>
-                      <td>{khata.thana_no}</td>
-                      <td>{khata.date_of_award?.split("T")[0]}</td>
-                      <td>{khata.name_of_recorded_tenant}</td>
-                      <td>{khata.name_of_present_tenant}</td>
-                      <td>{khata.present_address}</td>
-                      <td>{khata.displaced_affected_person}</td>
-                      <td>{khata.unique_id}</td>
-                      <td>{khata.plot_count}</td>
+                      <td>{khata.lo13_remarks || "No Data"}</td>
+                      <td>{khata.tahasil_name || "No Data"}</td>
+                      <td>{formatThreeItems(khata.ri_circle_name || "No Data")}</td>
+                      <td>{khata.thana_no || "No Data"}</td>
+                      <td>{khata.date_of_award?.split("T")[0] || "No Data"}</td>
+                      <td>{khata.name_of_recorded_tenant || "No Data"}</td>
+                      <td>{khata.name_of_present_tenant || "No Data"}</td>
+                      <td>{khata.present_address || "No Data"}</td>
+                      <td>{khata.displaced_affected_person || "No Data"}</td>
+                      <td>{khata.unique_id || "No Data"}</td>
+                      <td>{khata.plot_count || "No Data"}</td>
                       <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
 
                       <td className={stickyActionCell}>

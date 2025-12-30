@@ -438,7 +438,7 @@ const Compensation = () => {
             file: null,
           })),
         }));
-
+        
         setKhatas(mapped);
       } else {
         setKhatas([]);
@@ -625,8 +625,7 @@ const Compensation = () => {
       );
 
       const result = await res.json();
-      if (!result.success) throw new Error("Update failed");
-
+      if (!result.success) throw new Error("Update failed"); 
       setKhatas((prev) => {
         const updated = [...prev];
         updated[kIndex].records[rIndex] = {
@@ -747,7 +746,7 @@ const Compensation = () => {
 
             {openIndex === kIndex && (
               <div className="p-4">
-                <div className="overflow-x-auto mt-4">
+                <div className="overflow-x-auto mt-4" style={{scrollbarWidth:'thin'}}>
                   <table className="table table-zebra w-full text-xs sm:text-sm">
                     <thead className="bg-gray-200 text-gray-700">
                       <tr className="whitespace-nowrap">

@@ -387,46 +387,44 @@ const KhataTable = ({
       return 0;
     });
 
-  /* ---------------- RENDER ---------------- */
   return (
     <>
- 
       <div className="card bg-white shadow-lg">
-      {(!selectedProject || displayKhatas.length === 0) && (
-        <div className="py-10 text-center text-gray-600">
-          {!selectedProject ? (
-            <>
-              <p className="text-lg font-medium">
-                Please{" "}
-                <span className="text-primary font-semibold">
-                  Select a Project
-                </span>{" "}
-                first.
-              </p>
-              <p className="text-lg text-gray-500 mt-1">
-                A project is required to view Khata list.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-md font-medium text-red-500">
-                No Khata found for the{" "}
-                <span className="text-primary font-bold">
-                  Selected Project.
-                </span>
-              </p>
-              <p className="text-md text-gray-500 mt-1">
-                Try selecting a different{" "}
-                <span className="text-gray-700 font-semibold">Project</span>{" "}
-                or add a new Khata.
-              </p>
-            </>
-          )}
-        </div>
-      )}
+        {(!selectedProject || displayKhatas.length === 0) && (
+          <div className="py-10 text-center text-gray-600">
+            {!selectedProject ? (
+              <>
+                <p className="text-lg font-medium">
+                  Please{" "}
+                  <span className="text-primary font-semibold">
+                    Select a Project
+                  </span>{" "}
+                  first.
+                </p>
+                <p className="text-lg text-gray-500 mt-1">
+                  A project is required to view Khata list.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-md font-medium text-red-500">
+                  No Khata found for the{" "}
+                  <span className="text-primary font-bold">
+                    Selected Project.
+                  </span>
+                </p>
+                <p className="text-md text-gray-500 mt-1">
+                  Try selecting a different{" "}
+                  <span className="text-gray-700 font-semibold">Project</span>{" "}
+                  or add a new Khata.
+                </p>
+              </>
+            )}
+          </div>
+        )}
         {selectedProject && filteredKhatas.length > 0 && (
           <>
-            <div className="max-h-[400px] overflow-x-auto relative">
+            <div className="max-h-[400px] overflow-x-auto relative" style={{scrollbarWidth:"thin"}}>
               <table className="table w-full whitespace-nowrap">
                 <thead className="sticky top-0 bg-gray-200 z-20">
                   <tr>
@@ -526,74 +524,65 @@ const KhataTable = ({
                       <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
 
                       <td className={stickyActionCell}>
-                        <div className="dropdown dropdown-left">
-                          <label
-                            tabIndex={0}
-                            className="btn btn-xs bg-gray-200 border-0"
-                          >
-                            <SlidersHorizontal size={14} />
-                          </label>
+                        <select
+                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                          defaultValue=""
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            e.target.value = "";
 
-                          <ul className="dropdown-content menu p-2 bg-white rounded-md w-40 shadow-[0_4px_10px_rgba(1,1,1,0.25)] z-50 text-md space-y-3 ">
-                            <li>
-                              <button
-                                onClick={() => {
-                                  dispatch(setSelectedKhataId(khata.id));
-                                  setIsPlotModalOpen(true);
-                                }}
-                                className="text-gray-700 font-semibold"
-                              >
-                                <LandPlot size={14} /> View Plots (
-                                {khata.plot_count || 0})
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                disabled={userRole === "Viewer"}
-                                onClick={() => onUpload(khata)}
-                                className={`text-gray-700 font-semibold ${
+                            if (action === "viewPlots") {
+                              dispatch(setSelectedKhataId(khata.id));
+                              setIsPlotModalOpen(true);
+                            }
+
+                            if (action === "upload") onUpload(khata);
+                            if (action === "map") onMap(khata);
+                            if (action === "edit") onEdit(khata);
+                            if (action === "delete") onDelete(khata);
+                          }}
+                        >
+                          <option value="" disabled>
+                          <Filter size={12}/>
+                          </option>
+
+                          <option
+                            value="viewPlots"
+                            className="text-md text-gray-700 font-bold"
+                          >
+                            <LandPlot size={14} />View Plots ({khata.plot_count || 0})
+                          </option>
+
+                          <option
+                            value="upload"
+                            disabled={userRole === "Viewer"}
+                            className={`text-md text-gray-700 font-bold ${
+                              userRole === "Viewer" ? "!text-gray-400" : ""
+                            }`}
+                          >
+                           <Upload size={14} />Upload ({khata.khata_document_count || 0})
+                          </option>
+
+                          <option value="map"  className="text-md text-gray-700 font-bold">
+                            <MapIcon size={14} />Map ({khata.khata_map_document_count || 0})
+                          </option>
+
+                          <option value="edit" disabled={userRole === "Viewer"}
+                             className={`text-md text-gray-700 font-bold ${
                                   userRole === "Viewer" ? "!text-gray-400" : ""
                                 }`}
-                              >
-                                <Upload size={14} /> Upload (
-                                {khata.khata_document_count || 0})
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="text-gray-700 font-semibold"
-                                onClick={() => onMap(khata)}
-                              >
-                                <MapIcon size={14} /> Map (
-                                {khata.khata_map_document_count || 0})
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                disabled={userRole === "Viewer"}
-                                onClick={() => onEdit(khata)}
-                              //  className="text-gray-700 font-semibold"
-                                className={`text-gray-700 font-semibold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ✍️ Edit
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                disabled={isRestricted}
-                                onClick={() => onDelete(khata)}
-                                //  className="text-gray-700 font-semibold"
-                                className={`text-gray-800 font-semibold ${
+                          >
+                            ✍️Edit
+                          </option>
+
+                          <option value="delete" disabled={isRestricted}
+                              className={`text-md text-gray-700 font-bold ${
                                   isRestricted ? "!text-gray-400" : ""
                                 }`}
-                              >
-                                ❌ Delete
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
+                          >
+                           ❌Delete
+                          </option>
+                        </select>
                       </td>
                     </tr>
                   ))}

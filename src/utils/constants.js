@@ -52,7 +52,7 @@ export const sections = {
     "kissam_of_land",
     "land_category",
     "priority_urgency",
-    "land_use_plan",
+    // "land_use_plan",
     "lo13_remarks",
     "la21_remarks",
     "ses_survey_no",
@@ -82,7 +82,7 @@ export const sections = {
     "no_days_interest",
     "additional_12_percent",
     "total_compensation",
-    "apportionment_amount",
+    // "apportionment_amount",
   ],
   // "Compensation Details": [
   //   "no_of_trees",

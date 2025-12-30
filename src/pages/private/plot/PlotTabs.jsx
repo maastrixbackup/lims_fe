@@ -6,6 +6,7 @@ const tabs = [
   "Land Area Valuation Details",
   // "RR Details",
   "Grievance & Tribunal Details",
+  "Family Details"
 ];
 
 const PlotTabs = ({ children }) => {

@@ -112,7 +112,6 @@
 
 // export default PlotListModal;
 
-
 // import React, { useEffect, useState } from "react";
 // import { X, MapPin } from "lucide-react";
 // import { useSelector } from "react-redux";
@@ -378,7 +377,7 @@ const PlotListModal = ({ onClose }) => {
           <MapPin size={20} className="text-blue-500" />
           Plot List
         </h3>
-  
+
         <div className="flex flex-wrap gap-2 mb-4">
           <select
             className="select select-bordered w-40"
@@ -449,7 +448,7 @@ const PlotListModal = ({ onClose }) => {
             {ownerNames.length > 0 ? ownerNames.join(", ") : "—"}
           </p>
         </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <SummaryBox
             title="Total Area (Acres)"
             value={areaTotals.totalAcres}
@@ -482,7 +481,10 @@ const PlotListModal = ({ onClose }) => {
         {loading ? (
           <p className="text-center py-6">Loading plots...</p>
         ) : (
-          <div className="overflow-x-auto max-h-[65vh]" style={{scrollbarWidth:"thin"}}>
+          <div
+            className="overflow-x-auto max-h-[65vh]"
+            style={{ scrollbarWidth: "thin" }}
+          >
             <table className="table w-full">
               <thead className="sticky top-0 bg-gray-200 z-10">
                 <tr>
@@ -493,11 +495,38 @@ const PlotListModal = ({ onClose }) => {
                   >
                     Plot No <ArrowUpDown size={14} className="inline" />
                   </th>
-                  <th>Full / Part</th>
-                  <th>Total Area (acres)</th>
-                  <th>Total Area (hectares)</th>
-                  <th>Acquired Area (acres)</th>
-                  <th>Acquired Area (hectares)</th>
+                  <th onClick={() => handleSort("")} className="cursor-pointer">
+                    Full / Part
+                    <ArrowUpDown size={14} className="inline" />
+                  </th>
+                  <th
+                    onClick={() => handleSort("land_area_total_acres")}
+                    className="cursor-pointer"
+                  >
+                    Total Area (acres)
+                    <ArrowUpDown size={14} className="inline" />
+                  </th>
+                  <th
+                    onClick={() => handleSort("land_area_total_hectares")}
+                    className="cursor-pointer"
+                  >
+                    Total Area (hectares)
+                    <ArrowUpDown size={14} className="inline" />
+                  </th>
+                  <th
+                    onClick={() => handleSort("land_area_acquired_acres")}
+                    className="cursor-pointer"
+                  >
+                    Acquired Area (acres)
+                    <ArrowUpDown size={14} className="inline" />
+                  </th>
+                  <th
+                    onClick={() => handleSort("land_area_acquired_hectares")}
+                    className="cursor-pointer"
+                  >
+                    Acquired Area (hectares)
+                    <ArrowUpDown size={14} className="inline" />
+                  </th>
                   <th
                     onClick={() => handleSort("village_name")}
                     className="cursor-pointer"

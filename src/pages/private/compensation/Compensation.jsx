@@ -392,6 +392,9 @@ const Compensation = () => {
   const [khatas, setKhatas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [editIndex, setEditIndex] = useState({ kIndex: null, rIndex: null });
 
   const token = useSelector((state) => state.auth.userToken);
   const selectedProject = useSelector((state) => state.selectedProject);
@@ -412,6 +415,7 @@ const Compensation = () => {
       );
 
       const data = await res.json();
+      console.log('dataaaa', data)
 
       if (data.success && data.data?.length > 0) {
         const mapped = data.data.map((item) => ({
@@ -420,6 +424,7 @@ const Compensation = () => {
           totalArea: Number(item.total_area),
           totalComp: Number(item.total_compensation),
           records: item.tenants.map((t) => ({
+            id:t.id,
             plotNo: t.plot_no,
             tenant: t.present_tenant,
             paymentArea: Number(t.payment_area),
@@ -594,6 +599,49 @@ const Compensation = () => {
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  const handleUpdatePayment = async (kIndex, rIndex, data) => {
+    console.log("data*********", data)
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/plots/updatePlotPayment/${data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            payment_area: data.paymentArea,
+            total_compensation: data.totalComp,
+            compensation_payment: data.compPayment,
+            apportionment_percent: data.apportionment,
+            bank_ac: data.bankAcc,
+            bank_name: data.bankName,
+            ifsc: data.ifsc,
+            transaction_no: data.txnNumber,
+          }),
+        }
+      );
+
+      const result = await res.json();
+      if (!result.success) throw new Error("Update failed");
+
+      setKhatas((prev) => {
+        const updated = [...prev];
+        updated[kIndex].records[rIndex] = {
+          ...updated[kIndex].records[rIndex],
+          ...data,
+          status: "Paid",
+        };
+        return updated;
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Update failed");
+    }
+  };
+
   if (!projectId) {
     return (
       <main className="p-4">
@@ -817,7 +865,17 @@ const Compensation = () => {
                             </label>
                           </td>
                           <td>
-                            <button className="btn btn-xs btn-warning text-white">
+                            <button
+                              className="btn btn-xs btn-warning text-white"
+                              onClick={() => {
+                                setEditData({
+                                  ...r,
+                                  totalComp: khata.totalComp,
+                                });
+                                setEditIndex({ kIndex, rIndex });
+                                setIsEditOpen(true);
+                              }}
+                            >
                               <Pencil size={14} /> Edit
                             </button>
                           </td>
@@ -826,6 +884,169 @@ const Compensation = () => {
                     </tbody>
                   </table>
                 </div>
+                {isEditOpen && editData && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-5">
+                      <h3 className="text-lg font-semibold mb-4">
+                        Edit Compensation
+                      </h3>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-medium">
+                            Payment Area
+                          </label>
+                          <input
+                            type="number"
+                            className="input input-bordered w-full"
+                            value={editData.paymentArea}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                paymentArea: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium">
+                            Total Compensation
+                          </label>
+                          <input
+                            type="number"
+                            className="input input-bordered w-full"
+                            value={editData.totalComp}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                totalComp: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium">
+                            Compensation Payment
+                          </label>
+                          <input
+                            type="number"
+                            className="input input-bordered w-full"
+                            value={editData.compPayment}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                compPayment: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium">
+                            Apportionment (%)
+                          </label>
+                          <input
+                            type="number"
+                            className="input input-bordered w-full"
+                            value={editData.apportionment}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                apportionment: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium">
+                            Transaction No
+                          </label>
+                          <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            value={editData.txnNumber}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                txnNumber: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium">
+                            Bank A/C
+                          </label>
+                          <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            value={editData.bankAcc}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                bankAcc: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium">
+                            Bank Name
+                          </label>
+                          <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            value={editData.bankName}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                bankName: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        <div className="col-span-2">
+                          <label className="text-xs font-medium">IFSC</label>
+                          <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            value={editData.ifsc}
+                            onChange={(e) =>
+                              setEditData({ ...editData, ifsc: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-3 mt-5">
+                        <button
+                          className="btn btn-ghost"
+                          onClick={() => setIsEditOpen(false)}
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          className="btn btn-primary"
+                          onClick={async () => {
+                            await handleUpdatePayment(
+                              editIndex.kIndex,
+                              editIndex.rIndex,
+                              editData
+                            );
+                            setIsEditOpen(false);
+                          }}
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex justify-end mt-4 md:mt-6">
                   <button

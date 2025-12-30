@@ -64,7 +64,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     field: null,
     direction: "asc", // or "desc"
   });
-const [noData, setNoData] = useState(false);
+  const [noData, setNoData] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit, setLimit] = useState(10);
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
@@ -177,7 +180,6 @@ const [noData, setNoData] = useState(false);
         ([field, value]) => !value || plot[field] === value
       );
 
-
       return searchMatch && columnMatch;
     });
 
@@ -203,26 +205,23 @@ const [noData, setNoData] = useState(false);
   }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig]);
 
   // Reset filters
-const resetFilters = () => {
-  setSelectedVillage("");
-  setSelectedKhata("");
-  setSearchQuery("");
-  setColumnFilters({});
-  setSortConfig({ field: null, direction: "asc" });
-};
-const isAnyFilterApplied =
-  searchQuery ||
-  Object.values(columnFilters).some(Boolean);
+  const resetFilters = () => {
+    setSelectedVillage("");
+    setSelectedKhata("");
+    setSearchQuery("");
+    setColumnFilters({});
+    setSortConfig({ field: null, direction: "asc" });
+  };
+  const isAnyFilterApplied =
+    searchQuery || Object.values(columnFilters).some(Boolean);
 
-
-useEffect(() => {
-  if (isAnyFilterApplied && filteredPlots.length === 0) {
-    setNoData(true);
-  } else {
-    setNoData(false);
-  }
-}, [filteredPlots, isAnyFilterApplied]);
-
+  useEffect(() => {
+    if (isAnyFilterApplied && filteredPlots.length === 0) {
+      setNoData(true);
+    } else {
+      setNoData(false);
+    }
+  }, [filteredPlots, isAnyFilterApplied]);
 
   const navigate = useNavigate();
 
@@ -251,7 +250,10 @@ useEffect(() => {
       <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 shadow-sm">
         {title}
       </h2>
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white" style={{scrollbarWidth:"thin"}}>
+      <div
+        className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
+        style={{ scrollbarWidth: "thin" }}
+      >
         <table className="min-w-full text-xs relative">{children}</table>
       </div>
     </div>
@@ -328,48 +330,39 @@ useEffect(() => {
   const stickyPaymentCell =
     "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
   const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[120px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
 
   const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[120px]";
-
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
   const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[130px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
 
   const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[130px]";
-    
+    "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
+
   const stickyCol3Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[210px] z-[35] shadow-md min-w-[140px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
 
   const stickyCol3Cell =
-    "p-3 text-left bg-white md:sticky md:left-[20px] shadow-sm min-w-[140px]";
-    if (noData) {
+    "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
+
+ if (noData) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">
+    <div className="card bg-white shadow-lg py-16 flex flex-col items-center">
       <p className="text-lg font-semibold text-red-600">
-        No data available
+        No matching Khata found
       </p>
 
       <p className="text-sm text-gray-500 mt-1">
-        Try refreshing the page or select filters again.
+        Applied filters returned no results.
       </p>
 
-      <div className="flex gap-4 mt-6">
-        <button
-          className="btn btn-sm btn-outline btn-primary"
-          onClick={() => window.location.reload()}
-        >
-          Reload Page
-        </button>
-
-        <button
-          className="btn btn-sm btn-outline"
-          onClick={resetFilters}
-        >
-          Reset Filters
-        </button>
-      </div>
+      <button
+        className="btn btn-sm btn-outline btn-primary mt-5"
+        onClick={resetFilters}
+      >
+        Reset Filters
+      </button>
     </div>
   );
 }
@@ -463,7 +456,6 @@ useEffect(() => {
           </div>
         </div>
       </div>
-      
 
       {(!selectedProject || filteredPlots.length === 0) && (
         <div className=" card bg-white py-10 text-center text-gray-600">
@@ -547,7 +539,7 @@ useEffect(() => {
                   setOpenFilterField={setOpenFilterField}
                   onSort={handleSort}
                   sortConfig={sortConfig}
-                    className={stickyCol3Header}
+                  className={stickyCol3Header}
                 />
 
                 <th className="p-3 text-left">Full/Part Plot</th>
@@ -586,7 +578,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">RI Circle</th>
@@ -691,10 +683,36 @@ useEffect(() => {
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
                   className={stickyCol1Header}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
-                {/* <th className="p-3 text-left">Bank Name</th> */}
+
+                <FilterHeader
+                  label="Khata"
+                  field="khata_no"
+                  options={getOptions("khata_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol2Header}
+                />
+
+                <FilterHeader
+                  label="Plot No"
+                  field="plot_no"
+                  options={getOptions("plot_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol3Header}
+                />
+
                 <FilterHeader
                   label="Bank"
                   field="bank_name"
@@ -703,7 +721,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Account No</th>
@@ -715,7 +733,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 {/* <th className="p-3 text-left">IFSC Code</th> */}
@@ -728,7 +746,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">PAN No</th>
@@ -752,6 +770,8 @@ useEffect(() => {
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
+                  <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
+                  <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
                   <td className="p-3">{plot.bank_name || "N/A"}</td>
                   <td className="p-3">{plot.bank_account_no || "N/A"}</td>
                   <td className="p-3">{plot.branch_ifsc || "N/A"}</td>
@@ -804,7 +824,7 @@ useEffect(() => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                <FilterHeader
+                               <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
                   options={getOptions("la_case_file_no")}
@@ -813,8 +833,34 @@ useEffect(() => {
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
                   className={stickyCol1Header}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
+                />
+
+                <FilterHeader
+                  label="Khata"
+                  field="khata_no"
+                  options={getOptions("khata_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol2Header}
+                />
+
+                <FilterHeader
+                  label="Plot No"
+                  field="plot_no"
+                  options={getOptions("plot_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol3Header}
                 />
                 {/* <th className="p-3 text-left">Kissam of Land</th> */}
                 <FilterHeader
@@ -825,7 +871,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 {/* <th className="p-3 text-left">Land Category</th> */}
@@ -837,7 +883,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">LO13 Remarks</th>
@@ -854,7 +900,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 {/* <th className="p-3 text-left">Land Case No</th> */}
@@ -866,7 +912,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Land Case Date</th>
@@ -888,7 +934,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">Other Structures</th>
@@ -903,7 +949,7 @@ useEffect(() => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
                 />
                 <th className="p-3 text-left">No. Days of interest</th>
@@ -926,9 +972,11 @@ useEffect(() => {
                 >
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                  <td className={stickyCol1Cell}>
+                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
+                  <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
+                  <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
                   <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
                   <td className="p-3">{plot.land_category || "N/A"}</td>
                   <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
@@ -1108,7 +1156,7 @@ useEffect(() => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                <FilterHeader
+                                <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
                   options={getOptions("la_case_file_no")}
@@ -1117,8 +1165,34 @@ useEffect(() => {
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
                   className={stickyCol1Header}
-                      onSort={handleSort}
+                  onSort={handleSort}
                   sortConfig={sortConfig}
+                />
+
+                <FilterHeader
+                  label="Khata"
+                  field="khata_no"
+                  options={getOptions("khata_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol2Header}
+                />
+
+                <FilterHeader
+                  label="Plot No"
+                  field="plot_no"
+                  options={getOptions("plot_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol3Header}
                 />
                 <th className="p-3 text-left">Grievance No</th>
                 <th className="p-3 text-left">Grievance Date</th>
@@ -1146,9 +1220,11 @@ useEffect(() => {
                 >
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                  <td className={stickyCol1Cell}>
+                <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
+                  <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
+                  <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
                   <td className="p-3">{plot.grievance_no || "N/A"}</td>
                   <td className="p-3">
                     {formatDate(plot.grievance_date) || "N/A"}
@@ -1207,7 +1283,44 @@ useEffect(() => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                <th className="p-3 text-left">LA Case File No</th>
+                                <FilterHeader
+                  label="LA Case File No"
+                  field="la_case_file_no"
+                  options={getOptions("la_case_file_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  className={stickyCol1Header}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
+
+                <FilterHeader
+                  label="Khata"
+                  field="khata_no"
+                  options={getOptions("khata_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol2Header}
+                />
+
+                <FilterHeader
+                  label="Plot No"
+                  field="plot_no"
+                  options={getOptions("plot_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol3Header}
+                />
                 <th className="p-3 text-left">Major Male</th>
                 <th className="p-3 text-left">Major Female</th>
                 <th className="p-3 text-left">Minor Male</th>
@@ -1225,7 +1338,11 @@ useEffect(() => {
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
+                    <td className={stickyCol1Cell}>
+                    {plot.la_case_file_no || "N/A"}
+                  </td>
+                  <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
+                  <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
                   <td className="p-3">{plot.family_major_male ?? "N/A"}</td>
                   <td className="p-3">{plot.family_major_female ?? "N/A"}</td>
                   <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>

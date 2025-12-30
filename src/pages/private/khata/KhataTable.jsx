@@ -251,7 +251,7 @@
 
 // export default KhataTable;
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SlidersHorizontal,
   Upload,
@@ -269,6 +269,7 @@ import { setSelectedKhataId } from "../../../utils/khataSlice";
 import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "./FilterableHeader";
 
+
 const KhataTable = ({
   khatas,
   page,
@@ -284,6 +285,8 @@ const KhataTable = ({
 }) => {
   const dispatch = useDispatch();
   const selectedProject = useSelector((state) => state.selectedProject.project);
+  const [noData, setNoData] = useState(false);
+
 
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
   const [filters, setFilters] = useState({});
@@ -386,6 +389,42 @@ const KhataTable = ({
       if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
+    const isAnyFilterApplied = Object.values(filters).some(Boolean);
+  useEffect(() => {
+  if (isAnyFilterApplied && filteredKhatas.length === 0) {
+    setNoData(true);
+  } else {
+    setNoData(false);
+  }
+}, [filteredKhatas, isAnyFilterApplied]);
+const resetFilters = () => {
+  setFilters({});
+  setActiveFilter(null);
+  setSortConfig({ field: null, direction: null });
+  setPage?.(1); // optional if pagination exists
+};
+
+if (noData) {
+  return (
+    <div className="card bg-white shadow-lg py-16 flex flex-col items-center">
+      <p className="text-lg font-semibold text-red-600">
+        No matching Khata found
+      </p>
+
+      <p className="text-sm text-gray-500 mt-1">
+        Applied filters returned no results.
+      </p>
+
+      <button
+        className="btn btn-sm btn-outline btn-primary mt-5"
+        onClick={resetFilters}
+      >
+        Reset Filters
+      </button>
+    </div>
+  );
+}
+
 
   return (
     <>

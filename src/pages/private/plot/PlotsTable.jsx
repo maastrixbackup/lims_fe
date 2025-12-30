@@ -343,7 +343,7 @@ useEffect(() => {
     "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[210px] z-[35] shadow-md min-w-[140px]";
 
   const stickyCol3Cell =
-    "p-3 text-left bg-white md:sticky md:left-[20px] shadow-sm min-w-[140px]";
+    "p-3 text-left bg-white md:sticky md:left-[210px] shadow-sm min-w-[140px]";
     if (noData) {
   return (
     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">

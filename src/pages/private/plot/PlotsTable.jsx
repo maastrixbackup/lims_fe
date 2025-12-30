@@ -327,23 +327,23 @@ useEffect(() => {
     "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
   const stickyPaymentCell =
     "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
-  const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[120px]";
+const stickyCol1Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
 
-  const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[120px]";
+const stickyCol1Cell =
+  "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
+const stickyCol2Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
 
-  const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[130px]";
+const stickyCol2Cell =
+  "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
 
-  const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[130px]";
-    
-  const stickyCol3Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[210px] z-[35] shadow-md min-w-[140px]";
+const stickyCol3Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
 
-  const stickyCol3Cell =
-    "p-3 text-left bg-white md:sticky md:left-[210px] shadow-sm min-w-[140px]";
+const stickyCol3Cell =
+  "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
+
     if (noData) {
   return (
     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">

@@ -254,7 +254,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
         style={{ scrollbarWidth: "thin" }}
       >
-        <table className="min-w-full text-xs relative">{children}</table>
+        <table className="min-w-full text-xs relative table-fixed">{children}</table>
       </div>
     </div>
   );
@@ -547,7 +547,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">Date of Award</th>
                 <th className="p-3 text-left">Recorded Tenant</th>
                 {/* <th className="p-3 text-left">Present Tenant</th> */}
-                <FilterHeader
+                {/* <FilterHeader
                   label="Tenant"
                   field="name_of_present_tenant"
                   options={getOptions("name_of_present_tenant")}
@@ -557,11 +557,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   setOpenFilterField={setOpenFilterField}
                   onSort={handleSort}
                   sortConfig={sortConfig}
-                />
+                /> */}
+                <th className="p-3 text-left">Name of Present Tenant</th>
                 <th className="p-3 text-left">Number Of Present Tenant</th>
                 <th className="p-3 text-left">Present Address</th>
                 <th className="p-3 text-left">Displaced/Affected</th>
-                <FilterHeader
+                {/* <FilterHeader
                   label="Village"
                   field="village_name"
                   options={getOptions("village_name")}
@@ -569,8 +570,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   updateFilter={updateFilter}
                   openFilterField={openFilterField}
                   setOpenFilterField={setOpenFilterField}
-                />
-                <FilterHeader
+                /> */}
+                <th className="p-3 text-left">Village Name</th>
+                {/* <FilterHeader
                   label="Tahasil"
                   field="tahasil_name"
                   options={getOptions("tahasil_name")}
@@ -580,7 +582,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   setOpenFilterField={setOpenFilterField}
                   onSort={handleSort}
                   sortConfig={sortConfig}
-                />
+                /> */}
+                <th className="p-3 text-left">Tahasil</th>
                 <th className="p-3 text-left">RI Circle</th>
                 <th className="p-3 text-left">Thana No</th>
                 <th className="p-3 text-left">Total Area (Acre)</th>

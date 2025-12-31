@@ -770,3 +770,75 @@ export const REQUIRED_FIELDS = [
 ];
 
 export const LA_CASE_REGEX = /^.+\/.+\/.+$/;
+
+export const stickyActionHeader =
+    "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
+
+ export const stickyActionCell =
+    "p-3 text-right bg-white md:sticky md:right-0 border-gray-100 shadow-sm";
+ export const stickyPaymentHeader =
+    "p-3 text-left bg-gray-200 md:sticky md:right-10 z-[30] shadow-md";
+ export const stickyPaymentCell =
+    "p-3 bg-white md:sticky md:right-10  border-gray-100 shadow-sm";
+
+ export const stickyCol1Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px] whitespace-none";
+  export const stickyCol1Cell =
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
+
+  export const stickyCol2Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[160px] z-[30] shadow-md min-w-[130px]"; 
+  export const stickyCol2Cell =
+    "p-3 text-left bg-white md:sticky md:left-[160px] shadow-sm min-w-[130px]";
+
+  export const stickyCol3Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[290px] z-[30] shadow-md min-w-[140px]";
+  export const stickyCol3Cell =
+    "p-3 text-left bg-white md:sticky md:left-[290px] shadow-sm min-w-[140px]";
+
+
+  //    const stickyActionHeader =
+  //   "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
+
+  // const stickyActionCell =
+  //   "p-3 text-right bg-white md:sticky md:right-0 border-l border-gray-100 shadow-sm";
+  // const stickyPaymentHeader =
+  //   "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
+  // const stickyPaymentCell =
+  //   "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
+  // const stickyCol1Header =
+  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
+
+  // const stickyCol1Cell =
+  //   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
+  // const stickyCol2Header =
+  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
+
+  // const stickyCol2Cell =
+  //   "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
+
+  // const stickyCol3Header =
+  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
+
+  // const stickyCol3Cell =
+  //   "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
+export const PAYMENT_STATUSES = {
+  READY: {
+    label: "Ready for Payment",
+    short: "RP",
+    color: "bg-orange-500",
+    value: "READY",
+  },
+  PROCESSING: {
+    label: "Payment in Processing",
+    short: "PR",
+    color: "bg-lime-500",
+    value: "PROCESSING",
+  },
+  COMPLETED: {
+    label: "Payment Completed",
+    short: "PC",
+    color: "bg-green-700",
+    value: "COMPLETED",
+  },
+};

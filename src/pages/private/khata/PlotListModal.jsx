@@ -231,6 +231,7 @@ import { X, MapPin, ArrowUpDown } from "lucide-react";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import { apiClient } from "../../../utils/apiClient";
 
 const PlotListModal = ({ onClose }) => {
   const token = useSelector((s) => s.auth.userToken);
@@ -251,29 +252,28 @@ const PlotListModal = ({ onClose }) => {
 
   const typeParam = useLandTypeParam();
 
-  useEffect(() => {
-    if (!khataId) return;
+useEffect(() => {
+  if (!khataId) return;
 
-    const fetchPlots = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/khata/viewPlotsByKhata/${khataId}?type=${typeParam}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = await res.json();
-        setPlots(data?.data?.plots || []);
-      } catch (err) {
-        console.error("Error fetching plots:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPlots = async () => {
+    setLoading(true);
+    try {
+      const data = await apiClient(
+        `/khata/viewPlotsByKhata/${khataId}?type=${typeParam}`
+      );
 
-    fetchPlots();
-  }, [khataId, token, typeParam]);
+      setPlots(data?.data?.plots || []);
+    } catch (err) {
+      console.error("Error fetching plots:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPlots();
+}, [khataId, typeParam]);
+
+
 
   const villages = useMemo(
     () => [...new Set(plots.map((p) => p.village_name).filter(Boolean))],
@@ -365,7 +365,7 @@ const PlotListModal = ({ onClose }) => {
 
   return (
     <dialog open className="modal modal-open">
-      <div className="modal-box max-w-3xl relative">
+      <div className="modal-box max-w-3xl relative" style={{scrollbarWidth:"thin"}}>
         <button
           onClick={onClose}
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -540,13 +540,13 @@ const PlotListModal = ({ onClose }) => {
                   processedPlots.map((plot, i) => (
                     <tr key={plot.id || i} className="whitespace-nowrap">
                       <td>{i + 1}</td>
-                      <td className="font-semibold">{plot.plot_no || "—"}</td>
-                      <td>{plot.full_plot || "—"}</td>
-                      <td>{plot.land_area_total_acres || "—"}</td>
-                      <td>{plot.land_area_total_hectares || "—"}</td>
-                      <td>{plot.land_area_acquired_acres || "—"}</td>
-                      <td>{plot.land_area_acquired_hectares || "—"}</td>
-                      <td>{plot.village_name || "—"}</td>
+                      <td className="font-semibold">{plot.plot_no || "N/A"}</td>
+                      <td>{plot.full_plot || "N/A"}</td>
+                      <td>{plot.land_area_total_acres || "N/A"}</td>
+                      <td>{plot.land_area_total_hectares || "N/A"}</td>
+                      <td>{plot.land_area_acquired_acres || "N/A"}</td>
+                      <td>{plot.land_area_acquired_hectares || "N/A"}</td>
+                      <td>{plot.village_name || "N/A"}</td>
                     </tr>
                   ))
                 ) : (

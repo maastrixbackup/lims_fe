@@ -299,23 +299,23 @@ const KhataTable = ({
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
   /* ---------------- STICKY CLASSES ---------------- */
   const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
+    "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
 
   const stickyCol1Cell =
     "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
 
-  const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
+  const  stickyCol2Header =
+    "p-3 text-left bg-gray-200 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
 
   const stickyCol2Cell =
     "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
 
   const stickyActionHeader =
-    "p-3 text-right bg-gray-200 text-gray-700 sticky right-0 z-[30] shadow-md";
+    "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
   const stickyActionCell =
     "p-3 text-right sticky right-0 border-l border-gray-100 shadow-sm bg-white";
 
-  /* ---------------- HELPERS ---------------- */
+
   const formatThreeItems = (value) => {
     if (!value) return "No data";
     const items =
@@ -345,7 +345,6 @@ const KhataTable = ({
     });
   };
 
-  /* ---------------- DATA ---------------- */
   const displayKhatas = selectedProject
     ? khatas.filter((k) => k.project_id === selectedProject.id)
     : [];
@@ -401,7 +400,7 @@ const resetFilters = () => {
   setFilters({});
   setActiveFilter(null);
   setSortConfig({ field: null, direction: null });
-  setPage?.(1); // optional if pagination exists
+  setPage?.(1); 
 };
 
 if (noData) {

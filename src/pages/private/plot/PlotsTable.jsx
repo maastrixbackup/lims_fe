@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Pencil, Trash2, X, Filter, HandCoins } from "lucide-react";
 import moment from "moment";
@@ -6,6 +6,19 @@ import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import PlotTabs from "./PlotTabs";
 import FilterHeader from "./FilterHeader";
+import {
+  stickyCol1Cell,
+  stickyCol2Header,
+  stickyCol2Cell,
+  stickyCol3Cell,
+  stickyCol3Header,
+  stickyActionCell,
+  stickyCol1Header,
+  stickyActionHeader,
+  stickyPaymentCell,
+  stickyPaymentHeader,
+} from "../../../utils/constants";
+import ResetFilters from "../../../shared/ResetFilters";
 // import { useLandTypeParam } from "../../../utils/landtypes";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
@@ -65,9 +78,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     direction: "asc", // or "desc"
   });
   const [noData, setNoData] = useState(false);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
@@ -205,13 +218,18 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig]);
 
   // Reset filters
-  const resetFilters = () => {
-    setSelectedVillage("");
-    setSelectedKhata("");
+  // const resetFilters = () => {
+  //   setSelectedVillage("");
+  //   setSelectedKhata("");
+  //   setSearchQuery("");
+  //   setColumnFilters({});
+  //   setSortConfig({ field: null, direction: "asc" });
+  // };
+  const resetFilters = useCallback(() => {
     setSearchQuery("");
     setColumnFilters({});
     setSortConfig({ field: null, direction: "asc" });
-  };
+  }, []);
   const isAnyFilterApplied =
     searchQuery || Object.values(columnFilters).some(Boolean);
 
@@ -254,119 +272,76 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
         style={{ scrollbarWidth: "thin" }}
       >
-        <table className="min-w-full text-xs relative table-fixed">{children}</table>
+        <table className="min-w-full text-xs relative table-fixed">
+          {children}
+        </table>
       </div>
     </div>
   );
 
-  const ActionButtons = (plot) => (
-    <div className="flex justify-end gap-2">
-      {/* <button
-        className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-          isRestricted || loadingPlotId === plot.id
-            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-            : "hover:bg-green-700"
-        }`}
-        onClick={() => handlePaymentReady(plot)}
-        disabled={
-          isRestricted ||
-          loadingPlotId === plot.id ||
-          paymentStatusMap[plot.id] === "success"
-        }
-      >
-        {loadingPlotId === plot.id ? (
-          <span className="loading loading-spinner loading-xs"></span>
-        ) : (
-          <HandCoins size={12} />
-        )}
+  // const ActionButtons = (plot) => (
+  //   <div className="flex justify-end gap-2">
+  //     {/* <button
+  //       className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+  //         isRestricted || loadingPlotId === plot.id
+  //           ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+  //           : "hover:bg-green-700"
+  //       }`}
+  //       onClick={() => handlePaymentReady(plot)}
+  //       disabled={
+  //         isRestricted ||
+  //         loadingPlotId === plot.id ||
+  //         paymentStatusMap[plot.id] === "success"
+  //       }
+  //     >
+  //       {loadingPlotId === plot.id ? (
+  //         <span className="loading loading-spinner loading-xs"></span>
+  //       ) : (
+  //         <HandCoins size={12} />
+  //       )}
 
-        {loadingPlotId === plot.id
-          ? "Processing..."
-          : paymentStatusMap[plot.id] === "success"
-          ? "Success"
-          : plot.payment_status === null
-          ? "Ready For Payment"
-          : "Processing"}
-      </button> */}
+  //       {loadingPlotId === plot.id
+  //         ? "Processing..."
+  //         : paymentStatusMap[plot.id] === "success"
+  //         ? "Success"
+  //         : plot.payment_status === null
+  //         ? "Ready For Payment"
+  //         : "Processing"}
+  //     </button> */}
 
-      <button
-        className={`btn btn-xs btn-warning text-white ${
-          // isRestricted
-          !canEdit
-            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-            : ""
-        }`}
-        onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
-        // disabled={isRestricted}
-        disabled={!canEdit}
-      >
-        <Pencil size={12} /> Edit
-      </button>
-      <button
-        className={`btn btn-xs btn-error text-white ${
-          // isRestricted
-          !canDelete
-            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-            : ""
-        }`}
-        onClick={() => setDeleteConfirm(plot)}
-        // disabled={isRestricted}
-        disabled={!canDelete}
-      >
-        <Trash2 size={12} /> Delete
-      </button>
-    </div>
-  );
+  //     <button
+  //       className={`btn btn-xs btn-warning text-white ${
+  //         // isRestricted
+  //         !canEdit
+  //           ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+  //           : ""
+  //       }`}
+  //       onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
+  //       // disabled={isRestricted}
+  //       disabled={!canEdit}
+  //     >
+  //       <Pencil size={12} /> Edit
+  //     </button>
+  //     <button
+  //       className={`btn btn-xs btn-error text-white ${
+  //         // isRestricted
+  //         !canDelete
+  //           ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+  //           : ""
+  //       }`}
+  //       onClick={() => setDeleteConfirm(plot)}
+  //       // disabled={isRestricted}
+  //       disabled={!canDelete}
+  //     >
+  //       <Trash2 size={12} /> Delete
+  //     </button>
+  //   </div>
+  // );
 
   const rowClass = "hover:bg-gray-50 transition-colors";
-
-  const stickyActionHeader =
-    "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
-
-  const stickyActionCell =
-    "p-3 text-right bg-white md:sticky md:right-0 border-l border-gray-100 shadow-sm";
-  const stickyPaymentHeader =
-    "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
-  const stickyPaymentCell =
-    "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
-  const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
-
-  const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
-  const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
-
-  const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
-
-  const stickyCol3Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
-
-  const stickyCol3Cell =
-    "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
-
- if (noData) {
-  return (
-    <div className="card bg-white shadow-lg py-16 flex flex-col items-center">
-      <p className="text-lg font-semibold text-red-600">
-        No matching Khata found
-      </p>
-
-      <p className="text-sm text-gray-500 mt-1">
-        Applied filters returned no results.
-      </p>
-
-      <button
-        className="btn btn-sm btn-outline btn-primary mt-5"
-        onClick={resetFilters}
-      >
-        Reset Filters
-      </button>
-    </div>
-  );
-}
-
+  if (noData) {
+    return <ResetFilters onClick={resetFilters} />;
+  }
 
   return (
     <div className="">
@@ -395,7 +370,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </div>
 
             {/* Khata */}
-            <div className="flex flex-col w-full sm:w-48">
+            {/* <div className="flex flex-col w-full sm:w-48">
               <label className="text-xs font-medium text-gray-600 mb-1">
                 Khata No.
               </label>
@@ -412,10 +387,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
 
             {/* Search */}
-            <div className="flex flex-col w-full sm:flex-1 min-w-[220px]">
+            <div className="flex flex-col w-20 sm:flex-1 min-w-[20px]">
               <label className="text-xs font-medium text-gray-600 mb-1">
                 Search
               </label>
@@ -607,7 +582,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   </td>
                   <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
                   <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
-                  <td className="p-3">{plot.full_plot || "N/A"}</td>
+                  <td className="p-3">{plot.full_part || "N/A"}</td>
                   <td className="p-3">{plot.ses_survey_no || "N/A"}</td>
                   <td className="p-3">{formatDate(plot.date_of_award)}</td>
                   <td className="p-3">
@@ -637,7 +612,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.land_area_acquired_hectares || "N/A"}
                   </td>
-                  <td className={stickyPaymentCell}>
+                  <td className={stickyPaymentCell}
+                  >
                     <button
                       className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
                         isRestricted || loadingPlotId === plot.id
@@ -666,8 +642,70 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         : "Processing..."}
                     </button>
                   </td>
+                  {/* 
+                  <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
+                  <td className={stickyActionCell}>
+                    <select
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      defaultValue=""
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" disabled>
+                        Action
+                      </option>
 
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                      <option
+                        value="edit"
+                        disabled={role === "Viewer"}
+                        className={`text-md text-gray-700 font-bold ${
+                          role === "Viewer" ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-warning text-white ${
+                            // isRestricted
+                            !canEdit
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            navigate(`/${landType}/plot-form`, {
+                              state: { plot },
+                            })
+                          }
+                          // disabled={isRestricted}
+                          disabled={!canEdit}
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                      </option>
+
+                      <option
+                        value="delete"
+                        disabled={isRestricted}
+                        className={`text-md text-gray-700 font-bold ${
+                          isRestricted ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-error text-white ${
+                            // isRestricted
+                            !canDelete
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() => setDeleteConfirm(plot)}
+                          // disabled={isRestricted}
+                          disabled={!canDelete}
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </option>
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -817,7 +855,69 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         : "Processing..."}
                     </button>
                   </td>
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                  {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
+                   <td className={stickyActionCell}>
+                    <select
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      defaultValue=""
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" disabled>
+                        Action
+                      </option>
+
+                      <option
+                        value="edit"
+                        disabled={role === "Viewer"}
+                        className={`text-md text-gray-700 font-bold ${
+                          role === "Viewer" ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-warning text-white ${
+                            // isRestricted
+                            !canEdit
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            navigate(`/${landType}/plot-form`, {
+                              state: { plot },
+                            })
+                          }
+                          // disabled={isRestricted}
+                          disabled={!canEdit}
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                      </option>
+
+                      <option
+                        value="delete"
+                        disabled={isRestricted}
+                        className={`text-md text-gray-700 font-bold ${
+                          isRestricted ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-error text-white ${
+                            // isRestricted
+                            !canDelete
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() => setDeleteConfirm(plot)}
+                          // disabled={isRestricted}
+                          disabled={!canDelete}
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </option>
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -827,7 +927,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                               <FilterHeader
+                <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
                   options={getOptions("la_case_file_no")}
@@ -975,7 +1075,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 >
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                   <td className={stickyCol1Cell}>
+                  <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
                   <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
@@ -1054,7 +1154,69 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         : "Processing..."}
                     </button>
                   </td>
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                  {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
+                   <td className={stickyActionCell}>
+                    <select
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      defaultValue=""
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" disabled>
+                        Action
+                      </option>
+
+                      <option
+                        value="edit"
+                        disabled={role === "Viewer"}
+                        className={`text-md text-gray-700 font-bold ${
+                          role === "Viewer" ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-warning text-white ${
+                            // isRestricted
+                            !canEdit
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            navigate(`/${landType}/plot-form`, {
+                              state: { plot },
+                            })
+                          }
+                          // disabled={isRestricted}
+                          disabled={!canEdit}
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                      </option>
+
+                      <option
+                        value="delete"
+                        disabled={isRestricted}
+                        className={`text-md text-gray-700 font-bold ${
+                          isRestricted ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-error text-white ${
+                            // isRestricted
+                            !canDelete
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() => setDeleteConfirm(plot)}
+                          // disabled={isRestricted}
+                          disabled={!canDelete}
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </option>
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -1159,7 +1321,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                                <FilterHeader
+                <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
                   options={getOptions("la_case_file_no")}
@@ -1223,7 +1385,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 >
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                <td className={stickyCol1Cell}>
+                  <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
                   <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
@@ -1276,7 +1438,69 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         : "Processing..."}
                     </button>
                   </td>
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                  {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
+                   <td className={stickyActionCell}>
+                    <select
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      defaultValue=""
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" disabled>
+                        Action
+                      </option>
+
+                      <option
+                        value="edit"
+                        disabled={role === "Viewer"}
+                        className={`text-md text-gray-700 font-bold ${
+                          role === "Viewer" ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-warning text-white ${
+                            // isRestricted
+                            !canEdit
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            navigate(`/${landType}/plot-form`, {
+                              state: { plot },
+                            })
+                          }
+                          // disabled={isRestricted}
+                          disabled={!canEdit}
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                      </option>
+
+                      <option
+                        value="delete"
+                        disabled={isRestricted}
+                        className={`text-md text-gray-700 font-bold ${
+                          isRestricted ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-error text-white ${
+                            // isRestricted
+                            !canDelete
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() => setDeleteConfirm(plot)}
+                          // disabled={isRestricted}
+                          disabled={!canDelete}
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </option>
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -1286,7 +1510,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
-                                <FilterHeader
+                <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
                   options={getOptions("la_case_file_no")}
@@ -1341,7 +1565,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
-                    <td className={stickyCol1Cell}>
+                  <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
                   <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
@@ -1391,7 +1615,69 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         : "Processing..."}
                     </button>
                   </td>
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
+                  {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
+                   <td className={stickyActionCell}>
+                    <select
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      defaultValue=""
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" disabled>
+                        Action
+                      </option>
+
+                      <option
+                        value="edit"
+                        disabled={role === "Viewer"}
+                        className={`text-md text-gray-700 font-bold ${
+                          role === "Viewer" ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-warning text-white ${
+                            // isRestricted
+                            !canEdit
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            navigate(`/${landType}/plot-form`, {
+                              state: { plot },
+                            })
+                          }
+                          // disabled={isRestricted}
+                          disabled={!canEdit}
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                      </option>
+
+                      <option
+                        value="delete"
+                        disabled={isRestricted}
+                        className={`text-md text-gray-700 font-bold ${
+                          isRestricted ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        <button
+                          className={`btn btn-xs btn-error text-white ${
+                            // isRestricted
+                            !canDelete
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() => setDeleteConfirm(plot)}
+                          // disabled={isRestricted}
+                          disabled={!canDelete}
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </option>
+                    </select>
+                  </td>
                 </tr>
               ))}
             </tbody>

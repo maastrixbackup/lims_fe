@@ -387,6 +387,7 @@ import { API_BASE_URL } from "../../../utils/config";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const Compensation = () => {
   const [khatas, setKhatas] = useState([]);
@@ -399,12 +400,14 @@ const Compensation = () => {
   const token = useSelector((state) => state.auth.userToken);
   const selectedProject = useSelector((state) => state.selectedProject);
   const projectId = selectedProject?.project?.id;
+  const typeParam = useLandTypeParam();
+  console.log("typeParam", typeParam)
 
   const fetchData = async () => {
     if (!projectId) return;
     try {
       const res = await fetch(
-        `${API_BASE_URL}/plots/getCompensationDetails?project_id=${projectId}`,
+        `${API_BASE_URL}/plots/getCompensationDetails?project_id=${projectId}&type=${typeParam}`,
         {
           method: "GET",
           headers: {

@@ -132,22 +132,7 @@ export const sections = {
     "land_case_status",
     "land_case_action",
   ],
-  "R&R Assistance": [
-    "rr_employment",
-    "rr_cash_in_lieu",
-    "rr_training_skill_upgradation",
-    "rr_self_employment",
-    "rr_special_allowance_st_ntfp",
-    "rr_homestead_allotment",
-    "rr_house_building_assistance",
-    "rr_constructed_by",
-    "rr_transit_shed",
-    "rr_transport_allowance",
-    "rr_maintenance_allowance",
-    "rr_multiple_displacement_allowance",
-    "rr_exgratia",
-    "rr_other_benefits",
-  ],
+  
   "Grievance Details": [
     "grievance_no",
     "grievance_date",
@@ -795,7 +780,59 @@ export const stickyActionHeader =
     "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[290px] z-[30] shadow-md min-w-[140px]";
   export const stickyCol3Cell =
     "p-3 text-left bg-white md:sticky md:left-[290px] shadow-sm min-w-[140px]";
+export const RR_FIELDS = [
+  "rr_employment",
+  "rr_cash_in_lieu",
+  "rr_training_skill_upgradation",
+  "rr_self_employment",
+  "rr_special_allowance_st_ntfp",
+  "rr_homestead_allotment",
+  "rr_house_building_assistance",
+  "rr_constructed_by",
+  "rr_transit_shed",
+  "rr_transport_allowance",
+  "rr_maintenance_allowance",
+  "rr_multiple_displacement_allowance",
+  "rr_exgratia",
+  "rr_other_benefits",
+];
 
+export const RR_FIELDS_FORMS =[
+  { label: "RR Employment", name: "rr_employment", type: "text" },
+  { label: "RR Cash in Lieu", name: "rr_cash_in_lieu", type: "text" },
+  {
+    label: "RR Training / Skill Upgradation",
+    name: "rr_training_skill_upgradation",
+    type: "text",
+  },
+  { label: "RR Self Employment", name: "rr_self_employment", type: "text" },
+  {
+    label: "RR Special Allowance (ST / NTFP)",
+    name: "rr_special_allowance_st_ntfp",
+    type: "text",
+  },
+  { label: "RR Homestead Allotment", name: "rr_homestead_allotment", type: "text" },
+  {
+    label: "RR House Building Assistance",
+    name: "rr_house_building_assistance",
+    type: "text",
+  },
+  { label: "RR Constructed By", name: "rr_constructed_by", type: "text" },
+  { label: "RR Transit Shed", name: "rr_transit_shed", type: "text" },
+  { label: "RR Transport Allowance", name: "rr_transport_allowance", type: "text" },
+  {
+    label: "RR Maintenance Allowance",
+    name: "rr_maintenance_allowance",
+    type: "text",
+  },
+  {
+    label: "RR Multiple Displacement Allowance",
+    name: "rr_multiple_displacement_allowance",
+    type: "text",
+  },
+  { label: "RR Ex-gratia", name: "rr_exgratia", type: "text" },
+  { label: "RR Other Benefits", name: "rr_other_benefits", type: "text" },
+];
 
   //    const stickyActionHeader =
   //   "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";

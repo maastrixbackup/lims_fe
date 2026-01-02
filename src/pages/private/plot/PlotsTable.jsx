@@ -612,97 +612,96 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.land_area_acquired_hectares || "N/A"}
                   </td>
-                  <td className={stickyPaymentCell}
-                  >
-                    <button
-                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                  <td className={stickyPaymentCell}>
+                    <select
+                      className={`select select-xs w-36 border-gray-300 ${
                         isRestricted || loadingPlotId === plot.id
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : "hover:bg-green-700"
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white-100 text-green-800"
                       }`}
-                      onClick={() => handlePaymentReady(plot)}
+                      value={
+                        loadingPlotId === plot.id
+                          ? "PROCESSING"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "SUCCESS"
+                          : plot.payment_status === null
+                          ? "READY"
+                          : "PROCESSING"
+                      }
                       disabled={
                         isRestricted ||
                         loadingPlotId === plot.id ||
                         paymentStatusMap[plot.id] === "success"
                       }
+                      onChange={(e) => {
+                        if (e.target.value === "READY") {
+                          handlePaymentReady(plot);
+                        }
+                      }}
                     >
-                      {loadingPlotId === plot.id ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <HandCoins size={12} />
-                      )}
-
-                      {loadingPlotId === plot.id
-                        ? "Processing..."
-                        : paymentStatusMap[plot.id] === "success"
-                        ? "Success"
-                        : plot.payment_status === null
-                        ? "Ready For Payment"
-                        : "Processing..."}
-                    </button>
+                      <option value="READY">
+                        Ready For Payment{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
+                        >
+                          RP
+                        </span>
+                      </option>
+                      <option value="PROCESSING">
+                        Payment in Processing{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
+                        >
+                          PP
+                        </span>
+                      </option>
+                      <option value="SUCCESS">
+                        Payment Completed{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
+                        >
+                          RC
+                        </span>
+                      </option>
+                    </select>
                   </td>
-                  {/* 
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                   <td className={stickyActionCell}>
                     <select
-                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                       defaultValue=""
                       onChange={(e) => {
                         const action = e.target.value;
                         e.target.value = "";
+
+                        if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
+                            state: { plot },
+                          });
+                        }
+
+                        if (action === "delete") {
+                          setDeleteConfirm(plot);
+                        }
                       }}
                     >
                       <option value="" disabled>
-                        Action
+                        Actions
                       </option>
 
                       <option
                         value="edit"
-                        disabled={role === "Viewer"}
-                        className={`text-md text-gray-700 font-bold ${
-                          role === "Viewer" ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canEdit}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-warning text-white ${
-                            // isRestricted
-                            !canEdit
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            })
-                          }
-                          // disabled={isRestricted}
-                          disabled={!canEdit}
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
+                        ✏️ Edit
                       </option>
 
                       <option
                         value="delete"
-                        disabled={isRestricted}
-                        className={`text-md text-gray-700 font-bold ${
-                          isRestricted ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canDelete}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-error text-white ${
-                            // isRestricted
-                            !canDelete
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() => setDeleteConfirm(plot)}
-                          // disabled={isRestricted}
-                          disabled={!canDelete}
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
+                        🗑 Delete
                       </option>
                     </select>
                   </td>
@@ -777,8 +776,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   onSort={handleSort}
                   sortConfig={sortConfig}
                 />
-                {/* <th className="p-3 text-left">IFSC Code</th> */}
-                {/* <th className="p-3 text-left">Aadhaar No</th> */}
                 <FilterHeader
                   label="Aadhar Number"
                   field="aadhaar_no"
@@ -807,7 +804,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
-                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
@@ -826,95 +822,97 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.annual_income || "N/A"}</td>
                   <td className="p-3">{plot.skill_acquired || "N/A"}</td>
                   <td className="p-3">{plot.affidavit_details || "N/A"}</td>
-                  <td className={stickyPaymentCell}>
-                    <button
-                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                <td className={stickyPaymentCell}>
+                    <select
+                      className={`select select-xs w-36 border-gray-300 ${
                         isRestricted || loadingPlotId === plot.id
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : "hover:bg-green-700"
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white-100 text-green-800"
                       }`}
-                      onClick={() => handlePaymentReady(plot)}
+                      value={
+                        loadingPlotId === plot.id
+                          ? "PROCESSING"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "SUCCESS"
+                          : plot.payment_status === null
+                          ? "READY"
+                          : "PROCESSING"
+                      }
                       disabled={
                         isRestricted ||
                         loadingPlotId === plot.id ||
                         paymentStatusMap[plot.id] === "success"
                       }
+                      onChange={(e) => {
+                        if (e.target.value === "READY") {
+                          handlePaymentReady(plot);
+                        }
+                      }}
                     >
-                      {loadingPlotId === plot.id ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <HandCoins size={12} />
-                      )}
-
-                      {loadingPlotId === plot.id
-                        ? "Processing..."
-                        : paymentStatusMap[plot.id] === "success"
-                        ? "Success"
-                        : plot.payment_status === null
-                        ? "Ready For Payment"
-                        : "Processing..."}
-                    </button>
+                      <option value="READY">
+                        Ready For Payment{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
+                        >
+                          RP
+                        </span>
+                      </option>
+                      <option value="PROCESSING">
+                        Payment in Processing{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
+                        >
+                          PP
+                        </span>
+                      </option>
+                      <option value="SUCCESS">
+                        Payment Completed{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
+                        >
+                          RC
+                        </span>
+                      </option>
+                    </select>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
-                   <td className={stickyActionCell}>
+                  <td className={stickyActionCell}>
                     <select
-                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                       defaultValue=""
                       onChange={(e) => {
                         const action = e.target.value;
                         e.target.value = "";
+
+                        if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
+                            state: { plot },
+                          });
+                        }
+
+                        if (action === "delete") {
+                          setDeleteConfirm(plot);
+                        }
                       }}
                     >
                       <option value="" disabled>
-                        Action
+                        Actions
                       </option>
 
                       <option
                         value="edit"
-                        disabled={role === "Viewer"}
-                        className={`text-md text-gray-700 font-bold ${
-                          role === "Viewer" ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canEdit}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-warning text-white ${
-                            // isRestricted
-                            !canEdit
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            })
-                          }
-                          // disabled={isRestricted}
-                          disabled={!canEdit}
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
+                        ✏️ Edit
                       </option>
 
                       <option
                         value="delete"
-                        disabled={isRestricted}
-                        className={`text-md text-gray-700 font-bold ${
-                          isRestricted ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canDelete}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-error text-white ${
-                            // isRestricted
-                            !canDelete
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() => setDeleteConfirm(plot)}
-                          // disabled={isRestricted}
-                          disabled={!canDelete}
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
+                        🗑 Delete
                       </option>
                     </select>
                   </td>
@@ -1125,95 +1123,97 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.priority_urgency || "N/A"}</td>
                   {/* <td className="p-3">{plot.land_use_plan || "N/A"}</td> */}
                   <td className="p-3">{plot.la21_remarks || "N/A"}</td>
-                  <td className={stickyPaymentCell}>
-                    <button
-                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                    <td className={stickyPaymentCell}>
+                    <select
+                      className={`select select-xs w-36 border-gray-300 ${
                         isRestricted || loadingPlotId === plot.id
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : "hover:bg-green-700"
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white-100 text-green-800"
                       }`}
-                      onClick={() => handlePaymentReady(plot)}
+                      value={
+                        loadingPlotId === plot.id
+                          ? "PROCESSING"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "SUCCESS"
+                          : plot.payment_status === null
+                          ? "READY"
+                          : "PROCESSING"
+                      }
                       disabled={
                         isRestricted ||
                         loadingPlotId === plot.id ||
                         paymentStatusMap[plot.id] === "success"
                       }
+                      onChange={(e) => {
+                        if (e.target.value === "READY") {
+                          handlePaymentReady(plot);
+                        }
+                      }}
                     >
-                      {loadingPlotId === plot.id ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <HandCoins size={12} />
-                      )}
-
-                      {loadingPlotId === plot.id
-                        ? "Processing..."
-                        : paymentStatusMap[plot.id] === "success"
-                        ? "Success"
-                        : plot.payment_status === null
-                        ? "Ready For Payment"
-                        : "Processing..."}
-                    </button>
+                      <option value="READY">
+                        Ready For Payment{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
+                        >
+                          RP
+                        </span>
+                      </option>
+                      <option value="PROCESSING">
+                        Payment in Processing{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
+                        >
+                          PP
+                        </span>
+                      </option>
+                      <option value="SUCCESS">
+                        Payment Completed{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
+                        >
+                          RC
+                        </span>
+                      </option>
+                    </select>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
-                   <td className={stickyActionCell}>
+                  <td className={stickyActionCell}>
                     <select
-                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                       defaultValue=""
                       onChange={(e) => {
                         const action = e.target.value;
                         e.target.value = "";
+
+                        if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
+                            state: { plot },
+                          });
+                        }
+
+                        if (action === "delete") {
+                          setDeleteConfirm(plot);
+                        }
                       }}
                     >
                       <option value="" disabled>
-                        Action
+                        Actions
                       </option>
 
                       <option
                         value="edit"
-                        disabled={role === "Viewer"}
-                        className={`text-md text-gray-700 font-bold ${
-                          role === "Viewer" ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canEdit}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-warning text-white ${
-                            // isRestricted
-                            !canEdit
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            })
-                          }
-                          // disabled={isRestricted}
-                          disabled={!canEdit}
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
+                        ✏️ Edit
                       </option>
 
                       <option
                         value="delete"
-                        disabled={isRestricted}
-                        className={`text-md text-gray-700 font-bold ${
-                          isRestricted ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canDelete}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-error text-white ${
-                            // isRestricted
-                            !canDelete
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() => setDeleteConfirm(plot)}
-                          // disabled={isRestricted}
-                          disabled={!canDelete}
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
+                        🗑 Delete
                       </option>
                     </select>
                   </td>
@@ -1409,95 +1409,97 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
                   <td className="p-3">{plot.total ?? "N/A"}</td>
                   <td className="p-3">{plot.abatement || "N/A"}</td>
-                  <td className={stickyPaymentCell}>
-                    <button
-                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+                <td className={stickyPaymentCell}>
+                    <select
+                      className={`select select-xs w-36 border-gray-300 ${
                         isRestricted || loadingPlotId === plot.id
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : "hover:bg-green-700"
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white-100 text-green-800"
                       }`}
-                      onClick={() => handlePaymentReady(plot)}
+                      value={
+                        loadingPlotId === plot.id
+                          ? "PROCESSING"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "SUCCESS"
+                          : plot.payment_status === null
+                          ? "READY"
+                          : "PROCESSING"
+                      }
                       disabled={
                         isRestricted ||
                         loadingPlotId === plot.id ||
                         paymentStatusMap[plot.id] === "success"
                       }
+                      onChange={(e) => {
+                        if (e.target.value === "READY") {
+                          handlePaymentReady(plot);
+                        }
+                      }}
                     >
-                      {loadingPlotId === plot.id ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <HandCoins size={12} />
-                      )}
-
-                      {loadingPlotId === plot.id
-                        ? "Processing..."
-                        : paymentStatusMap[plot.id] === "success"
-                        ? "Success"
-                        : plot.payment_status === null
-                        ? "Ready For Payment"
-                        : "Processing..."}
-                    </button>
+                      <option value="READY">
+                        Ready For Payment{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
+                        >
+                          RP
+                        </span>
+                      </option>
+                      <option value="PROCESSING">
+                        Payment in Processing{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
+                        >
+                          PP
+                        </span>
+                      </option>
+                      <option value="SUCCESS">
+                        Payment Completed{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
+                        >
+                          RC
+                        </span>
+                      </option>
+                    </select>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
-                   <td className={stickyActionCell}>
+                  <td className={stickyActionCell}>
                     <select
-                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                       defaultValue=""
                       onChange={(e) => {
                         const action = e.target.value;
                         e.target.value = "";
+
+                        if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
+                            state: { plot },
+                          });
+                        }
+
+                        if (action === "delete") {
+                          setDeleteConfirm(plot);
+                        }
                       }}
                     >
                       <option value="" disabled>
-                        Action
+                        Actions
                       </option>
 
                       <option
                         value="edit"
-                        disabled={role === "Viewer"}
-                        className={`text-md text-gray-700 font-bold ${
-                          role === "Viewer" ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canEdit}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-warning text-white ${
-                            // isRestricted
-                            !canEdit
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            })
-                          }
-                          // disabled={isRestricted}
-                          disabled={!canEdit}
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
+                        ✏️ Edit
                       </option>
 
                       <option
                         value="delete"
-                        disabled={isRestricted}
-                        className={`text-md text-gray-700 font-bold ${
-                          isRestricted ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canDelete}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-error text-white ${
-                            // isRestricted
-                            !canDelete
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() => setDeleteConfirm(plot)}
-                          // disabled={isRestricted}
-                          disabled={!canDelete}
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
+                        🗑 Delete
                       </option>
                     </select>
                   </td>
@@ -1586,95 +1588,97 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
                   </td>
-                  <td className={stickyPaymentCell}>
-                    <button
-                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
+           <td className={stickyPaymentCell}>
+                    <select
+                      className={`select select-xs w-36 border-gray-300 ${
                         isRestricted || loadingPlotId === plot.id
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : "hover:bg-green-700"
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white-100 text-green-800"
                       }`}
-                      onClick={() => handlePaymentReady(plot)}
+                      value={
+                        loadingPlotId === plot.id
+                          ? "PROCESSING"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "SUCCESS"
+                          : plot.payment_status === null
+                          ? "READY"
+                          : "PROCESSING"
+                      }
                       disabled={
                         isRestricted ||
                         loadingPlotId === plot.id ||
                         paymentStatusMap[plot.id] === "success"
                       }
+                      onChange={(e) => {
+                        if (e.target.value === "READY") {
+                          handlePaymentReady(plot);
+                        }
+                      }}
                     >
-                      {loadingPlotId === plot.id ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <HandCoins size={12} />
-                      )}
-
-                      {loadingPlotId === plot.id
-                        ? "Processing..."
-                        : paymentStatusMap[plot.id] === "success"
-                        ? "Success"
-                        : plot.payment_status === null
-                        ? "Ready For Payment"
-                        : "Processing..."}
-                    </button>
+                      <option value="READY">
+                        Ready For Payment{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
+                        >
+                          RP
+                        </span>
+                      </option>
+                      <option value="PROCESSING">
+                        Payment in Processing{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
+                        >
+                          PP
+                        </span>
+                      </option>
+                      <option value="SUCCESS">
+                        Payment Completed{" "}
+                        <span
+                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
+                        >
+                          RC
+                        </span>
+                      </option>
+                    </select>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
-                   <td className={stickyActionCell}>
+                  <td className={stickyActionCell}>
                     <select
-                      className="select select-sm bg-gray-100 border border-gray-300 w-[32px] "
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                       defaultValue=""
                       onChange={(e) => {
                         const action = e.target.value;
                         e.target.value = "";
+
+                        if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
+                            state: { plot },
+                          });
+                        }
+
+                        if (action === "delete") {
+                          setDeleteConfirm(plot);
+                        }
                       }}
                     >
                       <option value="" disabled>
-                        Action
+                        Actions
                       </option>
 
                       <option
                         value="edit"
-                        disabled={role === "Viewer"}
-                        className={`text-md text-gray-700 font-bold ${
-                          role === "Viewer" ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canEdit}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-warning text-white ${
-                            // isRestricted
-                            !canEdit
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            })
-                          }
-                          // disabled={isRestricted}
-                          disabled={!canEdit}
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
+                        ✏️ Edit
                       </option>
 
                       <option
                         value="delete"
-                        disabled={isRestricted}
-                        className={`text-md text-gray-700 font-bold ${
-                          isRestricted ? "!text-gray-400" : ""
-                        }`}
+                        disabled={!canDelete}
+                        className="text-md text-gray-700 font-bold"
                       >
-                        <button
-                          className={`btn btn-xs btn-error text-white ${
-                            // isRestricted
-                            !canDelete
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() => setDeleteConfirm(plot)}
-                          // disabled={isRestricted}
-                          disabled={!canDelete}
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
+                        🗑 Delete
                       </option>
                     </select>
                   </td>

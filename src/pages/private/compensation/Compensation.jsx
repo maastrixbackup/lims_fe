@@ -456,7 +456,7 @@ const Compensation = () => {
   useEffect(() => {
     setLoading(true);
     fetchData();
-  }, [projectId]);
+  }, [projectId, typeParam]);
 
   const validateTotals = (khata) => {
     const compSum = khata.records.reduce(

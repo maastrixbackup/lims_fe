@@ -482,7 +482,7 @@ useEffect(() => {
           <p className="text-center py-6">Loading plots...</p>
         ) : (
           <div
-            className="overflow-x-auto max-h-[65vh]"
+            className="overflow-x-auto max-h-[55vh]"
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full">

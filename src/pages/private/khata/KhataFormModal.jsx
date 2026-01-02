@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
+import { RR_FIELDS_FORMS } from "../../../utils/constants";
 
 const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   const typeParam = useLandTypeParam();
@@ -101,6 +102,20 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         name_of_present_tenant: "",
         present_address: "",
         displaced_affected_person: "",
+         rr_employment: "",
+  rr_cash_in_lieu: "",
+  rr_training_skill_upgradation: "",
+  rr_self_employment: "",
+  rr_special_allowance_st_ntfp: "",
+  rr_homestead_allotment: "",
+  rr_house_building_assistance: "",
+  rr_constructed_by: "",
+  rr_transit_shed: "",
+  rr_transport_allowance: "",
+  rr_maintenance_allowance: "",
+  rr_multiple_displacement_allowance: "",
+  rr_exgratia: "",
+  rr_other_benefits: "",
       });
     }
   }, [khata, typeParam, selectedProject]);
@@ -182,20 +197,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* <div>
-            <label className="block text-sm font-medium ">Project</label>
-            <input
-              type="text"
-              className="input input-bordered w-full bg-gray-100 font-medium text-gray-700"
-              value={
-                selectedProject?.project_name ||
-                selectedProject?.name ||
-                "No Project Selected"
-              }
-              readOnly
-            />
-            <input type="hidden" name="project_id" value={formData.project_id} />
-          </div> */}
+    
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium ">Project</label>
@@ -469,6 +471,31 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <option value="PDF">PDF</option>
             </select>
           </div>
+   <hr className="my-4" />
+<h3 className="text-md font-semibold text-gray-700">
+  Rehabilitation & Resettlement (RR)
+</h3>
+
+<hr className="my-4" />
+<h3 className="text-md font-semibold text-gray-700">
+  Rehabilitation & Resettlement (RR)
+</h3>
+
+<div className="grid grid-cols-2 gap-3">
+  {RR_FIELDS_FORMS.map((field) => (
+    <div key={field.name}>
+      <label className="text-sm font-medium">{field.label}</label>
+      <input
+        type={field.type}
+        name={field.name}
+        value={formData[field.name] || ""}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+        placeholder={field.label}
+      />
+    </div>
+  ))}
+</div>
 
           <div className="modal-action">
             <button

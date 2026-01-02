@@ -934,7 +934,6 @@ const PlotForm = ({ fetchPlots }) => {
                         <span className="text-red-500">*</span>
                       )}
                     </label>
-
                     {field === "village_name" ? (
                       <select
                         name={field}
@@ -964,6 +963,52 @@ const PlotForm = ({ fetchPlots }) => {
                             {k.khata_no}
                           </option>
                         ))}
+                      </select>
+                    ) : field === "full_part" ? (
+                      <select
+                        name={field}
+                        value={formData[field] || ""}
+                        onChange={handleChange}
+                        className="select select-bordered w-full"
+                      >
+                        <option value="">Select Type</option>
+                        <option value="Full">Full</option>
+                        <option value="Part">Part</option>
+                      </select>
+                    ) : field === "displaced_affected_person" ? (
+                      <select
+                        name={field}
+                        value={formData[field] || ""}
+                        onChange={handleChange}
+                        className="select select-bordered w-full"
+                      >
+                        <option value="">Select Type</option>
+                        <option value="PAF">PAF</option>
+                        <option value="PDF">PDF</option>
+                      </select>
+                    ) : ["family_with_orphan_members", "tribunal"].includes(
+                        field
+                      ) ? (
+                      <select
+                        name={field}
+                        value={formData[field] || ""}
+                        onChange={handleChange}
+                        className="select select-bordered w-full"
+                      >
+                        <option value="">Select</option>
+                        <option value="Y">Yes</option>
+                        <option value="N">No</option>
+                      </select>
+                    ) : field === "abatement" ? (
+                      <select
+                        name={field}
+                        value={formData[field] || ""}
+                        onChange={handleChange}
+                        className="select select-bordered w-full"
+                      >
+                        <option value="">Select Type</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                       </select>
                     ) : (
                       <input

@@ -780,6 +780,21 @@ export const stickyActionHeader =
     "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[290px] z-[30] shadow-md min-w-[140px]";
   export const stickyCol3Cell =
     "p-3 text-left bg-white md:sticky md:left-[290px] shadow-sm min-w-[140px]";
+   export const COMMON_COLUMNS = [
+  { label: "Village Code", field: "village_code" },
+  { label: "Plot No.", field: "plot_no", format: "multi" },
+  { label: "Kissam", field: "kissam_of_land", format: "multi" },
+  { label: "Category", field: "land_category", format: "multi" },
+  { label: "Total Area (Ac)", field: "land_area_total_acres" },
+  { label: "Total Area (Ha)", field: "land_area_total_hectares" },
+  { label: "Acquired Area (Ac)", field: "land_area_acquired_acres" },
+  { label: "Acquired Area (Ha)", field: "land_area_acquired_hectares" },
+  { label: "Remarks", field: "lo13_remarks" },
+  { label: "Tahasil", field: "tahasil_name" },
+  { label: "RI Circle", field: "ri_circle_name", format: "multi" },
+  { label: "Thana", field: "thana_no" },
+];
+
 export const RR_FIELDS = [
   "rr_employment",
   "rr_cash_in_lieu",
@@ -833,6 +848,29 @@ export const RR_FIELDS_FORMS =[
   { label: "RR Ex-gratia", name: "rr_exgratia", type: "text" },
   { label: "RR Other Benefits", name: "rr_other_benefits", type: "text" },
 ];
+
+export const GOVERNMENT_LAND_COLUMNS = [
+  ...COMMON_COLUMNS,
+  { label: "Plot Count", field: "plot_count" },
+  { label: "Created", field: "created_at",},
+  // { label: "Remarks", field: "lo13_remarks" },
+];
+ export const RR_COLUMNS = RR_FIELDS.map((field) => ({
+        label: field.replaceAll("_", " ").toUpperCase(),
+        field,
+      }));
+export const PRIVATE_LAND_COLUMNS = [
+  ...COMMON_COLUMNS,
+  ...RR_COLUMNS,
+  { label: "Remarks", field: "lo13_remarks" },
+];
+
+export const FOREST_LAND_COLUMNS = [
+  ...COMMON_COLUMNS,
+  ...RR_COLUMNS,
+  { label: "Forest Type", field: "forest_type" },
+];
+
 
   //    const stickyActionHeader =
   //   "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";

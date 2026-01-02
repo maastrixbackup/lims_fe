@@ -15,7 +15,15 @@ import PlotListModal from "./PlotListModal";
 import { setSelectedKhataId } from "../../../utils/khataSlice";
 import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "./FilterableHeader";
-import { RR_FIELDS } from "../../../utils/constants";
+import {
+  RR_FIELDS,
+  FOREST_LAND_COLUMNS,
+  GOVERNMENT_LAND_COLUMNS,
+  PRIVATE_LAND_COLUMNS,
+  RR_COLUMNS,
+  RR_FIELDS_FORMS,
+} from "../../../utils/constants";
+import { useLandTypeParam } from "../../../utils/landtypes";
 
 const KhataTable = ({
   khatas,
@@ -60,6 +68,22 @@ const KhataTable = ({
     "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
   const stickyActionCell =
     "p-3 text-right sticky right-0 border-l border-gray-100 shadow-sm bg-white";
+
+  const typeParam = useLandTypeParam();
+
+  const landType =
+    typeParam === 2
+      ? "Government Land"
+      : typeParam === 3
+      ? "Forest Land"
+      : "Private Land";
+
+  const tableColumns =
+    landType === "Government Land"
+      ? GOVERNMENT_LAND_COLUMNS
+      : landType === "Forest Land"
+      ? FOREST_LAND_COLUMNS
+      : PRIVATE_LAND_COLUMNS;
 
   const formatThreeItems = (value) => {
     if (!value) return "No data";
@@ -241,54 +265,7 @@ const KhataTable = ({
                       sortConfig={sortConfig}
                     />
 
-                    {[
-                      ["Village Code", "village_code"],
-                      ["Plot No.", "plot_no"],
-                      ["Kissam", "kissam_of_land"],
-                      ["Category", "land_category"],
-                      ["Total Area (Ac)", "land_area_total_acres"],
-                      ["Total Area (Ha)", "land_area_total_hectares"],
-                      ["Acquired Area (Ac)", "land_area_acquired_acres"],
-                      ["Acquired Area (Ha)", "land_area_acquired_hectares"],
-                      ["Remarks", "lo13_remarks"],
-                      ["Tahasil", "tahasil_name"],
-                      ["RI Circle", "ri_circle_name"],
-                      ["Thana", "thana_no"],
-                      ["Award Date", "date_of_award"],
-                      ["RT Name", "name_of_recorded_tenant"],
-                      ["PT Name", "name_of_present_tenant"],
-                      ["Address", "present_address"],
-                      ["Affected Person", "displaced_affected_person"],
-                      ["Case No", "unique_id"],
-                      ["RR Employment", "rr_employment"],
-                      ["RR Cash in Lieu", "rr_cash_in_lieu"],
-                      [
-                        "RR Training / Skill Upgradation",
-                        "rr_training_skill_upgradation",
-                      ],
-                      ["RR Self Employment", "rr_self_employment"],
-                      [
-                        "RR Special Allowance (ST/NTFP)",
-                        "rr_special_allowance_st_ntfp",
-                      ],
-                      ["RR Homestead Allotment", "rr_homestead_allotment"],
-                      [
-                        "RR House Building Assistance",
-                        "rr_house_building_assistance",
-                      ],
-                      ["RR Constructed By", "rr_constructed_by"],
-                      ["RR Transit Shed", "rr_transit_shed"],
-                      ["RR Transport Allowance", "rr_transport_allowance"],
-                      ["RR Maintenance Allowance", "rr_maintenance_allowance"],
-                      [
-                        "RR Multiple Displacement Allowance",
-                        "rr_multiple_displacement_allowance",
-                      ],
-                      ["RR Ex-gratia", "rr_exgratia"],
-                      ["RR Other Benefits", "rr_other_benefits"],
-                      ["Plot Count", "plot_count"],
-                      ["Created", "created_at"],
-                    ].map(([label, field]) => (
+                    {tableColumns.map(({ label, field }) => (
                       <FilterableHeader
                         key={field}
                         label={label}
@@ -310,39 +287,23 @@ const KhataTable = ({
                 <tbody>
                   {filteredKhatas.map((khata, idx) => (
                     <tr key={khata.id}>
+                      {/* Sl No */}
                       <td>{(page - 1) * limit + idx + 1}</td>
+
+                      {/* Sticky Columns */}
                       <td className={stickyCol1Cell}>{khata.khata_no}</td>
                       <td className={stickyCol2Cell}>{khata.village_name}</td>
-                      <td>{khata.village_code}</td>
-                      <td>{formatThreeItems(khata.plot_no || "No Data")}</td>
-                      <td>
-                        {formatThreeItems(khata.kissam_of_land || "No Data")}
-                      </td>
-                      <td>
-                        {formatThreeItems(khata.land_category || "No Data")}
-                      </td>
-                      <td>{khata.land_area_total_acres || "No Data"}</td>
-                      <td>{khata.land_area_total_hectares || "No Data"}</td>
-                      <td>{khata.land_area_acquired_acres}</td>
-                      <td>{khata.land_area_acquired_hectares}</td>
-                      <td>{khata.lo13_remarks || "No Data"}</td>
-                      <td>{khata.tahasil_name || "No Data"}</td>
-                      <td>
-                        {formatThreeItems(khata.ri_circle_name || "No Data")}
-                      </td>
-                      <td>{khata.thana_no || "No Data"}</td>
-                      <td>{khata.date_of_award?.split("T")[0] || "No Data"}</td>
-                      <td>{khata.name_of_recorded_tenant || "No Data"}</td>
-                      <td>{khata.name_of_present_tenant || "No Data"}</td>
-                      <td>{khata.present_address || "No Data"}</td>
-                      <td>{khata.displaced_affected_person || "No Data"}</td>
-                      <td>{khata.unique_id || "No Data"}</td>
-                      {RR_FIELDS.map((field) => (
-                        <td key={field}>{khata[field] || "No Data"}</td>
-                      ))}
 
-                      <td>{khata.plot_count || "No Data"}</td>
-                      <td>{moment(khata.created_at).format("DD-MM-YYYY")}</td>
+                      {/* Dynamic Columns by Land Type */}
+                      {tableColumns.map(({ field, format }) => (
+                        <td key={field}>
+                          {format === "multi"
+                            ? formatThreeItems(khata[field] || "No Data")
+                            : field === "created_at"
+                            ? moment(khata[field]).format("DD-MM-YYYY")
+                            : khata[field] || "No Data"}
+                        </td>
+                      ))}
 
                       <td className={stickyActionCell}>
                         <select

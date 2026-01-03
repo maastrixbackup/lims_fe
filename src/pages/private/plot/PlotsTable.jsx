@@ -272,7 +272,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
         style={{ scrollbarWidth: "thin" }}
       >
-        <table className="min-w-full text-xs relative table-fixed">
+        <table className="min-w-full relative table-fixed">
           {children}
         </table>
       </div>
@@ -468,7 +468,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       {selectedProject && filteredPlots.length > 0 && (
         <PlotTabs>
           <TableWrapper title="Basic Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">SL/No</th>
                 {/* <th className="p-3 text-left">  <FilterHeader
@@ -569,7 +569,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+            <tbody className="divide-y divide-gray-100 text-xs">
               {filteredPlots.map((plot, idx) => (
                 <tr
                   key={plot.id || idx}
@@ -613,58 +613,52 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     {plot.land_area_acquired_hectares || "N/A"}
                   </td>
                   <td className={stickyPaymentCell}>
-                    <select
-                      className={`select select-xs w-36 border-gray-300 ${
-                        isRestricted || loadingPlotId === plot.id
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-white-100 text-green-800"
-                      }`}
-                      value={
-                        loadingPlotId === plot.id
-                          ? "PROCESSING"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "SUCCESS"
-                          : plot.payment_status === null
-                          ? "READY"
-                          : "PROCESSING"
-                      }
-                      disabled={
-                        isRestricted ||
-                        loadingPlotId === plot.id ||
-                        paymentStatusMap[plot.id] === "success"
-                      }
-                      onChange={(e) => {
-                        if (e.target.value === "READY") {
-                          handlePaymentReady(plot);
+                    <div className="relative group inline-block">
+                      <button
+                        className={`btn btn-sm text-white flex items-center gap-1 ${
+                          isRestricted || loadingPlotId === plot.id
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "bg-green-400 hover:bg-green-700"
+                            : plot.payment_status === null
+                            ? "bg-orange-600 hover:bg-orange-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                        onClick={() => handlePaymentReady(plot)}
+                        disabled={
+                          isRestricted ||
+                          loadingPlotId === plot.id ||
+                          paymentStatusMap[plot.id] === "success"
                         }
-                      }}
-                    >
-                      <option value="READY">
-                        Ready For Payment{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
-                        >
-                          RP
-                        </span>
-                      </option>
-                      <option value="PROCESSING">
-                        Payment in Processing{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
-                        >
-                          PP
-                        </span>
-                      </option>
-                      <option value="SUCCESS">
-                        Payment Completed{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
-                        >
-                          RC
-                        </span>
-                      </option>
-                    </select>
+                      >
+                        {loadingPlotId === plot.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : paymentStatusMap[plot.id] === "success" ? (
+                          "RC"
+                        ) : plot.payment_status === null ? (
+                          "RP"
+                        ) : (
+                          "PP"
+                        )}
+                      </button>
+
+                      {/* Tooltip */}
+                      <span
+                        className="absolute -translate-x-1/2 -top-5
+      opacity-0 group-hover:opacity-100 transition
+      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
+                      >
+                        {loadingPlotId === plot.id
+                          ? "Processing Payment"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "Payment Completed"
+                          : plot.payment_status === null
+                          ? "Ready For Payment"
+                          : "Payment in Processing"}
+                      </span>
+                    </div>
                   </td>
+
                   <td className={stickyActionCell}>
                     <select
                       className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -710,7 +704,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tbody>
           </TableWrapper>
           <TableWrapper title="Bank & Personal Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">SL/No</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
@@ -800,7 +794,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+            <tbody className="divide-y divide-gray-100 text-xs">
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
@@ -822,7 +816,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.annual_income || "N/A"}</td>
                   <td className="p-3">{plot.skill_acquired || "N/A"}</td>
                   <td className="p-3">{plot.affidavit_details || "N/A"}</td>
-                <td className={stickyPaymentCell}>
+                  {/* <td className={stickyPaymentCell}>
                     <select
                       className={`select select-xs w-36 border-gray-300 ${
                         isRestricted || loadingPlotId === plot.id
@@ -874,6 +868,52 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         </span>
                       </option>
                     </select>
+                  </td> */}
+                    <td className={stickyPaymentCell}>
+                    <div className="relative group inline-block">
+                      <button
+                        className={`btn text-white flex items-center gap-1 ${
+                          isRestricted || loadingPlotId === plot.id
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "bg-green-400 hover:bg-green-700"
+                            : plot.payment_status === null
+                            ? "bg-orange-600 hover:bg-orange-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                        onClick={() => handlePaymentReady(plot)}
+                        disabled={
+                          isRestricted ||
+                          loadingPlotId === plot.id ||
+                          paymentStatusMap[plot.id] === "success"
+                        }
+                      >
+                        {loadingPlotId === plot.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : paymentStatusMap[plot.id] === "success" ? (
+                          "RC"
+                        ) : plot.payment_status === null ? (
+                          "RP"
+                        ) : (
+                          "PP"
+                        )}
+                      </button>
+
+                      {/* Tooltip */}
+                      <span
+                        className="absolute -translate-x-1/2 -top-5
+      opacity-0 group-hover:opacity-100 transition
+      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
+                      >
+                        {loadingPlotId === plot.id
+                          ? "Processing Payment"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "Payment Completed"
+                          : plot.payment_status === null
+                          ? "Ready For Payment"
+                          : "Payment in Processing"}
+                      </span>
+                    </div>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                   <td className={stickyActionCell}>
@@ -921,7 +961,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tbody>
           </TableWrapper>
           <TableWrapper title="Land Area Valuation Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
@@ -1065,7 +1105,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+            <tbody className="divide-y divide-gray-100 text-xs">
               {filteredPlots.map((plot, idx) => (
                 <tr
                   key={plot.id || idx}
@@ -1123,58 +1163,51 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.priority_urgency || "N/A"}</td>
                   {/* <td className="p-3">{plot.land_use_plan || "N/A"}</td> */}
                   <td className="p-3">{plot.la21_remarks || "N/A"}</td>
-                    <td className={stickyPaymentCell}>
-                    <select
-                      className={`select select-xs w-36 border-gray-300 ${
-                        isRestricted || loadingPlotId === plot.id
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-white-100 text-green-800"
-                      }`}
-                      value={
-                        loadingPlotId === plot.id
-                          ? "PROCESSING"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "SUCCESS"
-                          : plot.payment_status === null
-                          ? "READY"
-                          : "PROCESSING"
-                      }
-                      disabled={
-                        isRestricted ||
-                        loadingPlotId === plot.id ||
-                        paymentStatusMap[plot.id] === "success"
-                      }
-                      onChange={(e) => {
-                        if (e.target.value === "READY") {
-                          handlePaymentReady(plot);
+                  <td className={stickyPaymentCell}>
+                    <div className="relative group inline-block">
+                      <button
+                        className={`btn text-white flex items-center gap-1 ${
+                          isRestricted || loadingPlotId === plot.id
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "bg-green-400 hover:bg-green-700"
+                            : plot.payment_status === null
+                            ? "bg-orange-600 hover:bg-orange-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                        onClick={() => handlePaymentReady(plot)}
+                        disabled={
+                          isRestricted ||
+                          loadingPlotId === plot.id ||
+                          paymentStatusMap[plot.id] === "success"
                         }
-                      }}
-                    >
-                      <option value="READY">
-                        Ready For Payment{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
-                        >
-                          RP
-                        </span>
-                      </option>
-                      <option value="PROCESSING">
-                        Payment in Processing{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
-                        >
-                          PP
-                        </span>
-                      </option>
-                      <option value="SUCCESS">
-                        Payment Completed{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
-                        >
-                          RC
-                        </span>
-                      </option>
-                    </select>
+                      >
+                        {loadingPlotId === plot.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : paymentStatusMap[plot.id] === "success" ? (
+                          "RC"
+                        ) : plot.payment_status === null ? (
+                          "RP"
+                        ) : (
+                          "PP"
+                        )}
+                      </button>
+
+                      {/* Tooltip */}
+                      <span
+                        className="absolute -translate-x-1/2 -top-5
+      opacity-0 group-hover:opacity-100 transition
+      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
+                      >
+                        {loadingPlotId === plot.id
+                          ? "Processing Payment"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "Payment Completed"
+                          : plot.payment_status === null
+                          ? "Ready For Payment"
+                          : "Payment in Processing"}
+                      </span>
+                    </div>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                   <td className={stickyActionCell}>
@@ -1221,103 +1254,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-          {/* <TableWrapper title="RR Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-              <tr>
-                <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Project Name</th>
-                <th className="p-3 text-left">LA Case File No</th>
-                <th className="p-3 text-left">RR Employment</th>
-                <th className="p-3 text-left">RR Cash In Lieu</th>
-                <th className="p-3 text-left">RR Training/Skill Upgradation</th>
-                <th className="p-3 text-left">RR Self Employment</th>
-                <th className="p-3 text-left">RR Special Allowance ST/NTFP</th>
-                <th className="p-3 text-left">RR Homestead Allotment</th>
-                <th className="p-3 text-left">RR House Building Assistance</th>
-                <th className="p-3 text-left">RR Constructed By</th>
-                <th className="p-3 text-left">RR Transit Shed</th>
-                <th className="p-3 text-left">RR Transport Allowance</th>
-                <th className="p-3 text-left">RR Maintenance Allowance</th>
-                <th className="p-3 text-left">
-                  RR Multiple Displacement Allowance
-                </th>
-                <th className="p-3 text-left">RR Ex-Gratia</th>
-                <th className="p-3 text-left">RR Other Benefits</th>
-                <th className={stickyPaymentHeader}>Payment Status</th>
-                <th className={stickyActionHeader}>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
-              {filteredPlots.map((plot, idx) => (
-                <tr key={plot.id || idx} className={rowClass}>
-                  <td className="p-3">{idx + 1}</td>
-                  <td className="p-3">{plot.project_name || "N/A"}</td>
-                  <td className="p-3">{plot.la_case_file_no || "N/A"}</td>
-                  <td className="p-3">{plot.rr_employment || "N/A"}</td>
-                  <td className="p-3">{plot.rr_cash_in_lieu || "N/A"}</td>
-                  <td className="p-3">
-                    {plot.rr_training_skill_upgradation || "N/A"}
-                  </td>
-                  <td className="p-3">{plot.rr_self_employment || "N/A"}</td>
-                  <td className="p-3">
-                    {plot.rr_special_allowance_st_ntfp || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {plot.rr_homestead_allotment || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {plot.rr_house_building_assistance || "N/A"}
-                  </td>
-                  <td className="p-3">{plot.rr_constructed_by || "N/A"}</td>
-                  <td className="p-3">{plot.rr_transit_shed || "N/A"}</td>
-                  <td className="p-3">
-                    {plot.rr_transport_allowance || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {plot.rr_maintenance_allowance || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {plot.rr_multiple_displacement_allowance || "N/A"}
-                  </td>
-                  <td className="p-3">{plot.rr_exgratia || "N/A"}</td>
-                  <td className="p-3">{plot.rr_other_benefits || "N/A"}</td>
-                  <td className={stickyPaymentCell}>
-                    <button
-                      className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-                        isRestricted || loadingPlotId === plot.id
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : "hover:bg-green-700"
-                      }`}
-                      onClick={() => handlePaymentReady(plot)}
-                      disabled={
-                        isRestricted ||
-                        loadingPlotId === plot.id ||
-                        paymentStatusMap[plot.id] === "success"
-                      }
-                    >
-                      {loadingPlotId === plot.id ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <HandCoins size={12} />
-                      )}
-
-                      {loadingPlotId === plot.id
-                        ? "Processing..."
-                        : paymentStatusMap[plot.id] === "success"
-                        ? "Success"
-                        : plot.payment_status === null
-                        ? "Ready For Payment"
-                        : "Processing..."}
-                    </button>
-                  </td>
-                  <td className={stickyActionCell}>{ActionButtons(plot)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </TableWrapper> */}
           <TableWrapper title="Grievance & Tribunal Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap shadow-md">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
@@ -1377,7 +1315,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+            <tbody className="divide-y divide-gray-100 text-xs ">
               {filteredPlots.map((plot, idx) => (
                 <tr
                   key={plot.id || idx}
@@ -1409,58 +1347,51 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
                   <td className="p-3">{plot.total ?? "N/A"}</td>
                   <td className="p-3">{plot.abatement || "N/A"}</td>
-                <td className={stickyPaymentCell}>
-                    <select
-                      className={`select select-xs w-36 border-gray-300 ${
-                        isRestricted || loadingPlotId === plot.id
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-white-100 text-green-800"
-                      }`}
-                      value={
-                        loadingPlotId === plot.id
-                          ? "PROCESSING"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "SUCCESS"
-                          : plot.payment_status === null
-                          ? "READY"
-                          : "PROCESSING"
-                      }
-                      disabled={
-                        isRestricted ||
-                        loadingPlotId === plot.id ||
-                        paymentStatusMap[plot.id] === "success"
-                      }
-                      onChange={(e) => {
-                        if (e.target.value === "READY") {
-                          handlePaymentReady(plot);
+                    <td className={stickyPaymentCell}>
+                    <div className="relative group inline-block">
+                      <button
+                        className={`btn text-white flex items-center gap-1 ${
+                          isRestricted || loadingPlotId === plot.id
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "bg-green-400 hover:bg-green-700"
+                            : plot.payment_status === null
+                            ? "bg-orange-600 hover:bg-orange-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                        onClick={() => handlePaymentReady(plot)}
+                        disabled={
+                          isRestricted ||
+                          loadingPlotId === plot.id ||
+                          paymentStatusMap[plot.id] === "success"
                         }
-                      }}
-                    >
-                      <option value="READY">
-                        Ready For Payment{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
-                        >
-                          RP
-                        </span>
-                      </option>
-                      <option value="PROCESSING">
-                        Payment in Processing{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
-                        >
-                          PP
-                        </span>
-                      </option>
-                      <option value="SUCCESS">
-                        Payment Completed{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
-                        >
-                          RC
-                        </span>
-                      </option>
-                    </select>
+                      >
+                        {loadingPlotId === plot.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : paymentStatusMap[plot.id] === "success" ? (
+                          "RC"
+                        ) : plot.payment_status === null ? (
+                          "RP"
+                        ) : (
+                          "PP"
+                        )}
+                      </button>
+
+                      {/* Tooltip */}
+                      <span
+                        className="absolute -translate-x-1/2 -top-5
+      opacity-0 group-hover:opacity-100 transition
+      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
+                      >
+                        {loadingPlotId === plot.id
+                          ? "Processing Payment"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "Payment Completed"
+                          : plot.payment_status === null
+                          ? "Ready For Payment"
+                          : "Payment in Processing"}
+                      </span>
+                    </div>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                   <td className={stickyActionCell}>
@@ -1508,7 +1439,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tbody>
           </TableWrapper>
           <TableWrapper title="Family Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">#</th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
@@ -1562,7 +1493,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+            <tbody className="divide-y divide-gray-100 text-xs">
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
                   <td className="p-3">{idx + 1}</td>
@@ -1588,58 +1519,51 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
                   </td>
-           <td className={stickyPaymentCell}>
-                    <select
-                      className={`select select-xs w-36 border-gray-300 ${
-                        isRestricted || loadingPlotId === plot.id
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-white-100 text-green-800"
-                      }`}
-                      value={
-                        loadingPlotId === plot.id
-                          ? "PROCESSING"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "SUCCESS"
-                          : plot.payment_status === null
-                          ? "READY"
-                          : "PROCESSING"
-                      }
-                      disabled={
-                        isRestricted ||
-                        loadingPlotId === plot.id ||
-                        paymentStatusMap[plot.id] === "success"
-                      }
-                      onChange={(e) => {
-                        if (e.target.value === "READY") {
-                          handlePaymentReady(plot);
+                   <td className={stickyPaymentCell}>
+                    <div className="relative group inline-block">
+                      <button
+                        className={`btn text-white flex items-center gap-1 ${
+                          isRestricted || loadingPlotId === plot.id
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "bg-green-400 hover:bg-green-700"
+                            : plot.payment_status === null
+                            ? "bg-orange-600 hover:bg-orange-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                        onClick={() => handlePaymentReady(plot)}
+                        disabled={
+                          isRestricted ||
+                          loadingPlotId === plot.id ||
+                          paymentStatusMap[plot.id] === "success"
                         }
-                      }}
-                    >
-                      <option value="READY">
-                        Ready For Payment{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-orange-600 ml-12`}
-                        >
-                          RP
-                        </span>
-                      </option>
-                      <option value="PROCESSING">
-                        Payment in Processing{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-600 ml-8`}
-                        >
-                          PP
-                        </span>
-                      </option>
-                      <option value="SUCCESS">
-                        Payment Completed{" "}
-                        <span
-                          className={`px-2 py-1 text-xs text-white rounded font-bold bg-green-400 ml-11`}
-                        >
-                          RC
-                        </span>
-                      </option>
-                    </select>
+                      >
+                        {loadingPlotId === plot.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : paymentStatusMap[plot.id] === "success" ? (
+                          "RC"
+                        ) : plot.payment_status === null ? (
+                          "RP"
+                        ) : (
+                          "PP"
+                        )}
+                      </button>
+
+                      {/* Tooltip */}
+                      <span
+                        className="absolute -translate-x-1/2 -top-5
+      opacity-0 group-hover:opacity-100 transition
+      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
+                      >
+                        {loadingPlotId === plot.id
+                          ? "Processing Payment"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "Payment Completed"
+                          : plot.payment_status === null
+                          ? "Ready For Payment"
+                          : "Payment in Processing"}
+                      </span>
+                    </div>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                   <td className={stickyActionCell}>

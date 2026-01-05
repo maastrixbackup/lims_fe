@@ -742,6 +742,7 @@ const PlotForm = ({ fetchPlots }) => {
 
       if (response?.success) {
         // adjust this based on actual API structure
+        console.log("khata list in form", response.khatas)
         setKhatas(response.khatas || []);
       } else {
         setKhatas([]);
@@ -823,24 +824,24 @@ const PlotForm = ({ fetchPlots }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors = {};
+    // const newErrors = {};
 
-    REQUIRED_FIELDS.forEach((f) => {
-      if (!formData[f]) newErrors[f] = "This field is required";
-    });
+    // REQUIRED_FIELDS.forEach((f) => {
+    //   if (!formData[f]) newErrors[f] = "This field is required";
+    // });
 
-    if (!LA_CASE_REGEX.test(formData.la_case_file_no)) {
-      newErrors.la_case_file_no =
-        "Format must be PROJECT/VILLAGECODE/KHATANO (e.g. IRCT/PPJ/012)";
-    }
+    // if (!LA_CASE_REGEX.test(formData.la_case_file_no)) {
+    //   newErrors.la_case_file_no =
+    //     "Format must be PROJECT/VILLAGECODE/KHATANO (e.g. IRCT/PPJ/012)";
+    // }
 
-    if (Object.keys(newErrors).length) {
-      setErrors(newErrors);
-      showToast("All required fields must be filled correctly.", "error");
-      return;
-    }
+    // if (Object.keys(newErrors).length) {
+    //   setErrors(newErrors);
+    //   showToast("All required fields must be filled correctly.", "error");
+    //   return;
+    // }
 
-    setLoading(true);
+    // setLoading(true);
 
     try {
       const url = editingPlot
@@ -857,9 +858,9 @@ const PlotForm = ({ fetchPlots }) => {
       });
 
       const data = await res.json();
-
+  console.log("dataaaaa", data)
       if (data.success) {
-        showToast("Plot saved successfully!");
+        showToast("Plot saved successfully!","success");
         fetchPlots?.();
         navigate(`/${landType}/plots`);
       }
@@ -1015,10 +1016,10 @@ const PlotForm = ({ fetchPlots }) => {
                         name={field}
                         value={formData[field]}
                         onChange={handleChange}
-                        readOnly={
-                          field === "la_case_file_no" ||
-                          field === "village_code"
-                        }
+                        // readOnly={
+                        //   field === "la_case_file_no" ||
+                        //   field === "village_code" 
+                        // }
                         type={
                           field.includes("date")
                             ? "date"

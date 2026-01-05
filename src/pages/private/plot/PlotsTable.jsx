@@ -598,7 +598,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.displaced_affected_person || "N/A"}
                   </td>
-                  <td className="p-3">{plot.village_name || "N/A"}</td>
+                  <td className="p-3 whitespace-nowrap">{plot.village_name || "N/A"}</td>
                   <td className="p-3">{plot.tahasil_name || "N/A"}</td>
                   <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
                   <td className="p-3">{plot.thana_no || "N/A"}</td>
@@ -872,7 +872,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className={stickyPaymentCell}>
                     <div className="relative group inline-block">
                       <button
-                        className={`btn text-white flex items-center gap-1 ${
+                        className={`btn btn-sm  text-white flex items-center gap-1 ${
                           isRestricted || loadingPlotId === plot.id
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : paymentStatusMap[plot.id] === "success"
@@ -1166,7 +1166,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className={stickyPaymentCell}>
                     <div className="relative group inline-block">
                       <button
-                        className={`btn text-white flex items-center gap-1 ${
+                        className={`btn btn-sm text-white flex items-center gap-1 ${
                           isRestricted || loadingPlotId === plot.id
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : paymentStatusMap[plot.id] === "success"
@@ -1350,7 +1350,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className={stickyPaymentCell}>
                     <div className="relative group inline-block">
                       <button
-                        className={`btn text-white flex items-center gap-1 ${
+                        className={`btn btn-sm text-white flex items-center gap-1 ${
                           isRestricted || loadingPlotId === plot.id
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : paymentStatusMap[plot.id] === "success"
@@ -1522,7 +1522,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                    <td className={stickyPaymentCell}>
                     <div className="relative group inline-block">
                       <button
-                        className={`btn text-white flex items-center gap-1 ${
+                        className={`btn btn-sm text-white flex items-center gap-1 ${
                           isRestricted || loadingPlotId === plot.id
                             ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
                             : paymentStatusMap[plot.id] === "success"

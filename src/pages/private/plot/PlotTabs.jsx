@@ -1,21 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useParams } from "react-router";
 
-const tabs = [
+const ALL_TABS = [
   "Basic Details",
   "Bank & Personal Details",
   "Land Area Valuation Details",
-  // "RR Details",
   "Grievance & Tribunal Details",
-  "Family Details"
+  "Family Details",
+  "Legal Issues",
 ];
 
 const PlotTabs = ({ children }) => {
+  const { landType } = useParams();
   const [activeTab, setActiveTab] = useState(0);
+
+  // ✅ Filter tabs based on landType
+  const tabs = useMemo(() => {
+    return landType === "govt-land"
+      ? ALL_TABS
+      : ALL_TABS.filter((tab) => tab !== "Legal Issues");
+  }, [landType]);
 
   return (
     <div className="w-full">
-
-      {/* <div className="flex border-b mb-4 overflow-x-auto scrollbar-hide"> */}
+      <div className="flex mb-2 overflow-x-auto scrollbar-hide">
         {tabs.map((tab, idx) => (
           <button
             key={idx}
@@ -32,8 +40,9 @@ const PlotTabs = ({ children }) => {
             {tab}
           </button>
         ))}
-      {/* </div> */}
+      </div>
 
+      {/* ✅ Match children with filtered tabs */}
       <div className="mt-2">{children[activeTab]}</div>
     </div>
   );

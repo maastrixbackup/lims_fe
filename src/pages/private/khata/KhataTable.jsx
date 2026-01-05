@@ -325,7 +325,7 @@ const KhataTable = ({
                           }}
                         >
                           <option value="" disabled>
-                            <Filter size={12} />
+                            Actions
                           </option>
 
                           <option

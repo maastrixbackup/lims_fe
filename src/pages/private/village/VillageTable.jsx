@@ -58,31 +58,33 @@ const VillageTable = ({
       )}
       {!showNoProject && !showNoVillages && (
         <>
-        <div className="max-h-[400px] overflow-x-auto"
-        style={{ scrollbarWidth: "thin" }}>
-          <table className="table w-full">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
-              <tr>
-                <th>Sl/No</th>
-                <th>Village Code</th>
-                <th>Village</th>
-                <th>District</th>
-                <th>Tahasil</th>
-                <th>Date</th>
-                <th className="text-right pr-6">Actions</th>
-              </tr>
-            </thead>
+          <div
+            className="max-h-[400px] overflow-x-auto"
+            style={{ scrollbarWidth: "thin" }}
+          >
+            <table className="table w-full">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+                <tr>
+                  <th>Sl/No</th>
+                  <th>Village Code</th>
+                  <th>Village</th>
+                  <th>District</th>
+                  <th>Tahasil</th>
+                  <th>Date</th>
+                  <th className="text-right pr-6">Actions</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {filteredVillages.map((v, i) => (
-                <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
-                  <td>{i + 1}</td>
-                  <td>{v.village_code}</td>
-                  <td>{v.village_name}</td>
-                  <td>{v.district}</td>
-                  <td>{v.tahasil}</td>
-                  <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
-                  {/* 
+              <tbody>
+                {filteredVillages.map((v, i) => (
+                  <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
+                    <td>{i + 1}</td>
+                    <td>{v.village_code}</td>
+                    <td>{v.village_name}</td>
+                    <td>{v.district}</td>
+                    <td>{v.tahasil}</td>
+                    <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
+                    {/* 
                   <td className="text-right space-x-2">
                     <button
                       // className={`btn btn-xs btn-warning text-white ${
@@ -115,8 +117,8 @@ const VillageTable = ({
                     </button>
                   </td> */}
 
-                  <td className="text-right space-x-2">
-                    {/* Edit Button */}
+                    {/* <td className="text-right space-x-2">
+           
                     <button
                       className={`btn btn-xs btn-warning text-white ${
                         !canEdit
@@ -129,7 +131,7 @@ const VillageTable = ({
                       <Pencil size={14} /> Edit
                     </button>
 
-                    {/* Delete Button */}
+          
                     <button
                       className={`btn btn-xs btn-error text-white ${
                         !canDelete
@@ -141,23 +143,59 @@ const VillageTable = ({
                     >
                       <Trash2 size={14} /> Delete
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-       
-        </div>
+                  </td> */}
+                    <td className="text-right">
+                      <select
+                    className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                        defaultValue=""
+                        onChange={(e) => {
+                          const action = e.target.value;
+                          e.target.value = "";
+
+                          if (action === "edit" && canEdit) {
+                            onEdit(v);
+                          }
+
+                          if (action === "delete" && canDelete) {
+                            onDelete(v);
+                          }
+                        }}
+                        // disabled={!canEdit && !canDelete}
+                      >
+                        <option value="" disabled>
+                          Actions
+                        </option>
+
+                        <option value="edit" disabled={userRole === "Viewer"}
+                            className={`text-md text-gray-700 font-bold ${
+                              userRole === "Viewer" ? "!text-gray-400" : ""
+                            }`}>
+                          ✏️ Edit
+                        </option>
+
+                        <option value="delete"  disabled={!canDelete}
+                            className={`text-md text-gray-700 font-bold ${
+                              !canDelete ? "!text-gray-400" : ""
+                            }`}>
+                          🗑 Delete
+                        </option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <Pagination
-              page={page}
-              limit={limit}
-              setPage={setPage}
-              totalPages={totalPages}
-              setLimit={setLimit}
-            />
+            page={page}
+            limit={limit}
+            setPage={setPage}
+            totalPages={totalPages}
+            setLimit={setLimit}
+          />
         </>
       )}
-         {/* {selectedProject && (
+      {/* {selectedProject && (
             <Pagination
               page={page}
               limit={limit}

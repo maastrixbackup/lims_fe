@@ -7,7 +7,7 @@ import { API_BASE_URL } from "../../../utils/config";
 import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
-import { columns } from "../../../utils/constants";
+import { columns, showToast } from "../../../utils/constants";
 import { FolderUp } from "lucide-react";
 import Pagination from "../../../shared/Pagination";
 import { apiClient } from "../../../utils/apiClient";
@@ -74,11 +74,12 @@ const Plots = () => {
       );
 
       const data = await res.json();
-      console.log("Delete Response:", data);
+      // console.log("Delete Response:", data);
 
       if (data.success) {
         setPlots((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
         setDeleteConfirm(null);
+        showToast("Plot Deeleted SuccessFully","error")
       } else {
         alert(data.message || "Failed to delete plot.");
       }

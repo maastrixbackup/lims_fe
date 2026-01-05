@@ -760,26 +760,26 @@ export const stickyActionHeader =
     "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
 
  export const stickyActionCell =
-    "p-3 text-right bg-white md:sticky md:right-0 border-gray-100 shadow-sm";
+    "text-right md:sticky md:right-0 border-gray-100 shadow-sm";
  export const stickyPaymentHeader =
-    "p-3 text-left bg-gray-200 md:sticky md:right-10 z-[30] shadow-md";
+    "p-3 text-center bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
  export const stickyPaymentCell =
-    "p-3 bg-white md:sticky md:right-10  border-gray-100 shadow-sm";
+    "p-3 text-center bg-white md:sticky md:right-5  border-gray-100 shadow-sm";
 
  export const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px] whitespace-none";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";
   export const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
 
   export const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[160px] z-[30] shadow-md min-w-[130px]"; 
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md"; 
   export const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[160px] shadow-sm min-w-[130px]";
+    "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
 
   export const stickyCol3Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[290px] z-[30] shadow-md min-w-[140px]";
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md";
   export const stickyCol3Cell =
-    "p-3 text-left bg-white md:sticky md:left-[290px] shadow-sm min-w-[140px]";
+    "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm";
    export const COMMON_COLUMNS = [
   { label: "Village Code", field: "village_code" },
   { label: "Plot No.", field: "plot_no", format: "multi" },
@@ -855,14 +855,14 @@ export const GOVERNMENT_LAND_COLUMNS = [
   { label: "Created", field: "created_at",},
   // { label: "Remarks", field: "lo13_remarks" },
 ];
- export const RR_COLUMNS = RR_FIELDS.map((field) => ({
-        label: field.replaceAll("_", " ").toUpperCase(),
-        field,
-      }));
+export const RR_COLUMNS = RR_FIELDS_FORMS.map((rr) => ({
+  label: rr.label,
+  field: rr.name,
+}));
 export const PRIVATE_LAND_COLUMNS = [
   ...COMMON_COLUMNS,
   ...RR_COLUMNS,
-  { label: "Remarks", field: "lo13_remarks" },
+  // { label: "Remarks", field: "lo13_remarks" },
 ];
 
 export const FOREST_LAND_COLUMNS = [

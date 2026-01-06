@@ -22,8 +22,10 @@ import {
   PRIVATE_LAND_COLUMNS,
   RR_COLUMNS,
   RR_FIELDS_FORMS,
+  COMMON_COLUMNS,
 } from "../../../utils/constants";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import KhataTabs from "./KhataTabs";
 
 const KhataTable = ({
   khatas,
@@ -230,165 +232,289 @@ const KhataTable = ({
         )}
         {selectedProject && filteredKhatas.length > 0 && (
           <>
-            <div
-              className="max-h-[400px] overflow-x-auto relative"
-              style={{ scrollbarWidth: "thin" }}
-            >
-              <table className="table w-full whitespace-nowrap">
-                <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
-                  <tr>
-                    <th>Sl/No</th>
+            <KhataTabs>
+              {/* ================= TAB 1 : KHATA DETAILS ================= */}
+              <div>
+                <div
+                  className="max-h-[400px] overflow-x-auto relative"
+                  style={{ scrollbarWidth: "thin" }}
+                >
+                  <table className="table w-full whitespace-nowrap">
+                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
+                      <tr>
+                        <th>Sl/No</th>
 
-                    <FilterableHeader
-                      label="Khata No."
-                      field="khata_no"
-                      className={stickyCol1Header}
-                      filters={filters}
-                      setFilters={setFilters}
-                      activeFilter={activeFilter}
-                      setActiveFilter={setActiveFilter}
-                      getFilterOptions={getFilterOptions}
-                      onSort={handleSort}
-                      sortConfig={sortConfig}
-                    />
+                        <FilterableHeader
+                          label="Khata No."
+                          field="khata_no"
+                          className={stickyCol1Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
 
-                    <FilterableHeader
-                      label="Village"
-                      field="village_name"
-                      className={stickyCol2Header}
-                      filters={filters}
-                      setFilters={setFilters}
-                      activeFilter={activeFilter}
-                      setActiveFilter={setActiveFilter}
-                      getFilterOptions={getFilterOptions}
-                      onSort={handleSort}
-                      sortConfig={sortConfig}
-                    />
+                        <FilterableHeader
+                          label="Village"
+                          field="village_name"
+                          className={stickyCol2Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
 
-                    {tableColumns.map(({ label, field }) => (
-                      <FilterableHeader
-                        key={field}
-                        label={label}
-                        field={field}
-                        filters={filters}
-                        setFilters={setFilters}
-                        activeFilter={activeFilter}
-                        setActiveFilter={setActiveFilter}
-                        getFilterOptions={getFilterOptions}
-                        onSort={handleSort}
-                        sortConfig={sortConfig}
-                      />
-                    ))}
+                        {COMMON_COLUMNS.map(({ label, field }) => (
+                          <FilterableHeader
+                            key={field}
+                            label={label}
+                            field={field}
+                            filters={filters}
+                            setFilters={setFilters}
+                            activeFilter={activeFilter}
+                            setActiveFilter={setActiveFilter}
+                            getFilterOptions={getFilterOptions}
+                            onSort={handleSort}
+                            sortConfig={sortConfig}
+                          />
+                        ))}
 
-                    <th className={stickyActionHeader}>Actions</th>
-                  </tr>
-                </thead>
+                        <th className={stickyActionHeader}>Actions</th>
+                      </tr>
+                    </thead>
 
-                <tbody>
-                  {filteredKhatas.map((khata, idx) => (
-                    <tr key={khata.id}>
-                      {/* Sl No */}
-                      <td>{(page - 1) * limit + idx + 1}</td>
+                    <tbody>
+                      {filteredKhatas.map((khata, idx) => (
+                        <tr key={khata.id}>
+                          <td>{(page - 1) * limit + idx + 1}</td>
+                          <td className={stickyCol1Cell}>{khata.khata_no}</td>
+                          <td className={stickyCol2Cell}>
+                            {khata.village_name}
+                          </td>
 
-                      {/* Sticky Columns */}
-                      <td className={stickyCol1Cell}>{khata.khata_no}</td>
-                      <td className={stickyCol2Cell}>{khata.village_name}</td>
+                          {COMMON_COLUMNS.map(({ field, format }) => (
+                            <td key={field}>
+                              {format === "multi"
+                                ? formatThreeItems(khata[field])
+                                : field === "created_at"
+                                ? moment(khata[field]).format("DD-MM-YYYY")
+                                : khata[field] || "No Data"}
+                            </td>
+                          ))}
 
-                      {/* Dynamic Columns by Land Type */}
-                      {tableColumns.map(({ field, format }) => (
-                        <td key={field}>
-                          {format === "multi"
-                            ? formatThreeItems(khata[field] || "No Data")
-                            : field === "created_at"
-                            ? moment(khata[field]).format("DD-MM-YYYY")
-                            : khata[field] || "No Data"}
-                        </td>
+                          <td className={stickyActionCell}>
+                            <select
+                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                              defaultValue=""
+                              onChange={(e) => {
+                                const action = e.target.value;
+                                e.target.value = "";
+
+                                if (action === "viewPlots") {
+                                  dispatch(setSelectedKhataId(khata.id));
+                                  setIsPlotModalOpen(true);
+                                }
+
+                                if (action === "upload") onUpload(khata);
+                                if (action === "map") onMap(khata);
+                                if (action === "edit") onEdit(khata);
+                                if (action === "delete") onDelete(khata);
+                              }}
+                            >
+                              <option value="" disabled>
+                                Actions
+                              </option>
+
+                              <option
+                                value="viewPlots"
+                                className="text-md text-gray-700 font-bold"
+                              >
+                                <LandPlot size={14} />
+                                View Plots ({khata.plot_count || 0})
+                              </option>
+
+                              <option
+                                value="upload"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                <Upload size={14} />
+                                Upload ({khata.khata_document_count || 0})
+                              </option>
+
+                              <option
+                                value="map"
+                                className="text-md text-gray-700 font-bold"
+                              >
+                                <MapIcon size={14} />
+                                Map ({khata.khata_map_document_count || 0})
+                              </option>
+
+                              <option
+                                value="edit"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ✍️Edit
+                              </option>
+
+                              <option
+                                value="delete"
+                                disabled={isRestricted}
+                                className={`text-md text-gray-700 font-bold ${
+                                  isRestricted ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ❌Delete
+                              </option>
+                            </select>
+                          </td>
+                        </tr>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
 
-                      <td className={stickyActionCell}>
-                        <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
-                          defaultValue=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            e.target.value = "";
+                <Pagination
+                  page={page}
+                  totalPages={totalPages}
+                  setPage={setPage}
+                  limit={limit}
+                  setLimit={setLimit}
+                />
+              </div>
+              <div>
+                <div
+                  className="max-h-[400px] overflow-x-auto relative"
+                  style={{ scrollbarWidth: "thin" }}
+                >
+                  <table className="table w-full whitespace-nowrap">
+                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
+                      <tr>
+                        <th>Sl/No</th>
 
-                            if (action === "viewPlots") {
-                              dispatch(setSelectedKhataId(khata.id));
-                              setIsPlotModalOpen(true);
-                            }
+                        <th className={stickyCol1Header}>Khata No.</th>
+                        <th className={stickyCol2Header}>Village</th>
+                        {RR_FIELDS_FORMS.map(({ label }) => (
+                          <th key={label}>{label}</th>
+                        ))}
 
-                            if (action === "upload") onUpload(khata);
-                            if (action === "map") onMap(khata);
-                            if (action === "edit") onEdit(khata);
-                            if (action === "delete") onDelete(khata);
-                          }}
-                        >
-                          <option value="" disabled>
-                            Actions
-                          </option>
+                        <th className={stickyActionHeader}>Actions</th>
+                      </tr>
+                    </thead>
 
-                          <option
-                            value="viewPlots"
-                            className="text-md text-gray-700 font-bold"
-                          >
-                            <LandPlot size={14} />
-                            View Plots ({khata.plot_count || 0})
-                          </option>
+                    <tbody>
+                      {filteredKhatas.map((khata, idx) => (
+                        <tr key={khata.id}>
+                          <td>{(page - 1) * limit + idx + 1}</td>
 
-                          <option
-                            value="upload"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            <Upload size={14} />
-                            Upload ({khata.khata_document_count || 0})
-                          </option>
+                          {/* Sticky common cells */}
+                          <td className={stickyCol1Cell}>{khata.khata_no}</td>
+                          <td className={stickyCol2Cell}>
+                            {khata.village_name}
+                          </td>
 
-                          <option
-                            value="map"
-                            className="text-md text-gray-700 font-bold"
-                          >
-                            <MapIcon size={14} />
-                            Map ({khata.khata_map_document_count || 0})
-                          </option>
+                          {/* RR values */}
+                          {RR_FIELDS_FORMS.map(({ name }) => (
+                            <td key={name}>{khata[name] || "—"}</td>
+                          ))}
 
-                          <option
-                            value="edit"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            ✍️Edit
-                          </option>
+                           <td className={stickyActionCell}>
+                            <select
+                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                              defaultValue=""
+                              onChange={(e) => {
+                                const action = e.target.value;
+                                e.target.value = "";
 
-                          <option
-                            value="delete"
-                            disabled={isRestricted}
-                            className={`text-md text-gray-700 font-bold ${
-                              isRestricted ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            ❌Delete
-                          </option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                                if (action === "viewPlots") {
+                                  dispatch(setSelectedKhataId(khata.id));
+                                  setIsPlotModalOpen(true);
+                                }
 
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              setPage={setPage}
-              limit={limit}
-              setLimit={setLimit}
-            />
+                                if (action === "upload") onUpload(khata);
+                                if (action === "map") onMap(khata);
+                                if (action === "edit") onEdit(khata);
+                                if (action === "delete") onDelete(khata);
+                              }}
+                            >
+                              <option value="" disabled>
+                                Actions
+                              </option>
+
+                              <option
+                                value="viewPlots"
+                                className="text-md text-gray-700 font-bold"
+                              >
+                                <LandPlot size={14} />
+                                View Plots ({khata.plot_count || 0})
+                              </option>
+
+                              <option
+                                value="upload"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                <Upload size={14} />
+                                Upload ({khata.khata_document_count || 0})
+                              </option>
+
+                              <option
+                                value="map"
+                                className="text-md text-gray-700 font-bold"
+                              >
+                                <MapIcon size={14} />
+                                Map ({khata.khata_map_document_count || 0})
+                              </option>
+
+                              <option
+                                value="edit"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ✍️Edit
+                              </option>
+
+                              <option
+                                value="delete"
+                                disabled={isRestricted}
+                                className={`text-md text-gray-700 font-bold ${
+                                  isRestricted ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ❌Delete
+                              </option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <Pagination
+                  page={page}
+                  totalPages={totalPages}
+                  setPage={setPage}
+                  limit={limit}
+                  setLimit={setLimit}
+                />
+              </div>
+            </KhataTabs>
           </>
         )}
       </div>

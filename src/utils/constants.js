@@ -760,11 +760,11 @@ export const stickyActionHeader =
     "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
 
  export const stickyActionCell =
-    "text-right md:sticky md:right-0 border-gray-100 shadow-sm";
+    "text-right md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
  export const stickyPaymentHeader =
-    "p-3 text-center bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
+    "p-3 text-left bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
  export const stickyPaymentCell =
-    "p-3 text-center bg-white md:sticky md:right-5  border-gray-100 shadow-sm";
+    "p-3 text-left bg-white md:sticky md:right-5  border-gray-100 shadow-sm";
 
  export const stickyCol1Header =
     "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";
@@ -793,6 +793,10 @@ export const stickyActionHeader =
   { label: "Tahasil", field: "tahasil_name" },
   { label: "RI Circle", field: "ri_circle_name", format: "multi" },
   { label: "Thana", field: "thana_no" },
+   { label: "Name of Recorded Tentant", field: "name_of_recorded_tenant", },
+  { label: "Name of Present Tentant", field: "name_of_present_tenant", },
+   { label: "Plot Count", field: "plot_count"},
+    { label: "Created At", field: "created_at"},
 ];
 
 export const RR_FIELDS = [

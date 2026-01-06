@@ -8,6 +8,8 @@ import Loader from "./shared/Loader";
 import "./App.css";
 
 import { fetchProjects, fetchVillages } from "./utils/listSlice";
+import GovernmentPlot from "./pages/government/plot/GovernmentPlot";
+import GovernmentKhata from "./pages/government/khata/GovernmentKhata";
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const ForgotPassword = lazy(() =>import("./components/features/ForgotPassword"));
 const ResetPassword = lazy(() =>import("./components/features/ResetPassword"));
@@ -83,9 +85,12 @@ export default function App() {
                 <Route path="/project-table" element={<ProjectTable />} />
 
                 <Route path="/:landType/villages" element={<Villages />} />
+                <Route path="/:landType/government-village" element={<Villages />} />
                 <Route path="/:landType/khatas" element={<Khata />} />
                 <Route path="/:landType/plots" element={<Plots />} />
                 <Route path="/:landType/plot-form" element={<PlotForm />} />
+                <Route path="/:landType/government-plot" element={<GovernmentPlot />} />
+                <Route path="/:landType/government-khata" element={<GovernmentKhata />} />
 
                 <Route path="/import" element={<UploadPlots />} />
 

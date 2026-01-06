@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
-import { RR_FIELDS_FORMS } from "../../../utils/constants";
+import { RR_FIELDS_FORMS, showToast } from "../../../utils/constants";
 
 const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   const typeParam = useLandTypeParam();
@@ -18,6 +18,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((state) => state.list.projects || []);
   const [openVillage, setOpenVillage] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     project_id: "",
@@ -86,20 +87,22 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         name_of_present_tenant: khata.name_of_present_tenant || "",
         present_address: khata.present_address || "",
         displaced_affected_person: khata.displaced_affected_person || "",
-        rr_employment: "",
-        rr_cash_in_lieu: "",
-        rr_training_skill_upgradation: "",
-        rr_self_employment: "",
-        rr_special_allowance_st_ntfp: "",
-        rr_homestead_allotment: "",
-        rr_house_building_assistance: "",
-        rr_constructed_by: "",
-        rr_transit_shed: "",
-        rr_transport_allowance: "",
-        rr_maintenance_allowance: "",
-        rr_multiple_displacement_allowance: "",
-        rr_exgratia: "",
-        rr_other_benefits: "",
+        rr_employment: khata.rr_employment || "",
+rr_cash_in_lieu: khata.rr_cash_in_lieu || "",
+rr_training_skill_upgradation: khata.rr_training_skill_upgradation || "",
+rr_self_employment: khata.rr_self_employment || "",
+rr_special_allowance_st_ntfp: khata.rr_special_allowance_st_ntfp || "",
+rr_homestead_allotment: khata.rr_homestead_allotment || "",
+rr_house_building_assistance: khata.rr_house_building_assistance || "",
+rr_constructed_by: khata.rr_constructed_by || "",
+rr_transit_shed: khata.rr_transit_shed || "",
+rr_transport_allowance: khata.rr_transport_allowance || "",
+rr_maintenance_allowance: khata.rr_maintenance_allowance || "",
+rr_multiple_displacement_allowance:
+  khata.rr_multiple_displacement_allowance || "",
+rr_exgratia: khata.rr_exgratia || "",
+rr_other_benefits: khata.rr_other_benefits || "",
+
       });
 
       setTimeout(() => (initializing.current = false), 300);
@@ -165,46 +168,45 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+
+    setSubmitting(true);
 
     try {
-      const endpoint = khata
+      const isEdit = Boolean(khata);
+
+      const endpoint = isEdit
         ? `/khata/updateKhata/${khata.id}`
         : `/khata/addKhata`;
 
-      const method = khata ? "PUT" : "POST";
+      const method = isEdit ? "PUT" : "POST";
 
       const res = await apiClient(endpoint, {
         method,
         body: formData,
       });
-      // console.log("Submitting khata:", khata);
-      // console.log("add khata^^^^^^^^^^^^", res);
-      // console.log("Submitting payload:", formData);
 
       if (!res.success) {
-        alert(res.message || "Failed to save khata");
+        showToast(res.message || "Failed to save khata", "error");
         return;
       }
 
       await fetchKhatas();
-      const toast = document.createElement("div");
-      toast.textContent = khata
-        ? "Khata updated successfully!"
-        : "Khata added successfully!";
-      toast.className =
-        "fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md shadow-md animate-fade-in";
-      document.body.appendChild(toast);
 
-      setTimeout(() => {
-        toast.classList.add("opacity-0", "transition-opacity", "duration-500");
-        setTimeout(() => toast.remove(), 500);
-        onClose();
-      }, 1000);
+      showToast(
+        isEdit ? "Khata Updated Successfully" : "Khata Added Successfully",
+        "success"
+      );
+
+      onClose();
     } catch (err) {
       console.error(err);
-      alert("Error saving khata");
+      showToast("Error saving khata", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
+
   return (
     <dialog open className="modal modal-open ">
       <div className="modal-box max-w-2xl max-h-130 relative">
@@ -520,8 +522,12 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              Save
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+            >
+              {submitting ? "Saving..." : khata ? "Update" : "Save"}
             </button>
           </div>
         </form>

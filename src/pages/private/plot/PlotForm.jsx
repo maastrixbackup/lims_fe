@@ -737,13 +737,13 @@ const PlotForm = ({ fetchPlots }) => {
 
     try {
       const response = await apiClient(
-        `/khata/khataList?project_id=${formData.project_id}&type=${typeParam}`
+        `/khata/getMasterData?project_id=${formData.project_id}&type=${typeParam}`
       );
 
       if (response?.success) {
         // adjust this based on actual API structure
-        console.log("khata list in form", response.khatas)
-        setKhatas(response.khatas || []);
+        console.log("khata list in form", response.data.khatas)
+        setKhatas(response.data.khatas || []);
       } else {
         setKhatas([]);
       }

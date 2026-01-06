@@ -176,7 +176,7 @@ export default function Khata() {
 
   return (
     <>
-    <div className="space-y-5 overflow-hide">
+    <div className="space-y-2 overflow-hide">
       <h2 className="text-xl font-semibold capitalize">
         {landType?.replace("-", " ") || "Private"} Khata
       </h2>

@@ -132,7 +132,7 @@ export const sections = {
     "land_case_status",
     "land_case_action",
   ],
-  
+
   "Grievance Details": [
     "grievance_no",
     "grievance_date",
@@ -213,7 +213,7 @@ export const DOCUMENT_TYPES = [
   "Bank Passbook / Cancelled Cheque Copy",
   "Electronic Fund Transfer Form",
   "Receipt of Compensation",
-   "Photo of Physical Possession",
+  "Photo of Physical Possession",
   "Grievance doc(if any)",
   "Form 9A + Sample Photo (if any)",
   "Form 9B + Sample Photo (if any)",
@@ -732,7 +732,6 @@ export const khataColumn = [
   { label: "Reference Document", key: "reference_document" },
 ];
 
-
 export const REQUIRED_FIELDS = [
   // "name_of_recorded_tenant",
   // "name_of_present_tenant",
@@ -757,30 +756,31 @@ export const REQUIRED_FIELDS = [
 export const LA_CASE_REGEX = /^.+\/.+\/.+$/;
 
 export const stickyActionHeader =
-    "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
+  "p-3 text-right bg-gray-200 font-semibold text-sm text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
 
- export const stickyActionCell =
-    "text-right md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
- export const stickyPaymentHeader =
-    "p-3 text-left bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
- export const stickyPaymentCell =
-    "p-3 text-left bg-white md:sticky md:right-5  border-gray-100 shadow-sm";
+export const stickyActionCell =
+  "text-right md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
+export const stickyPaymentHeader =
+  "p-3 text-left bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
+export const stickyPaymentCell =
+  "p-3 text-left bg-white md:sticky md:right-5  border-gray-100 shadow-sm";
 
- export const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";
-  export const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
+export const stickyCol1Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";
+export const stickyCol1Cell =
+  "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
 
-  export const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md"; 
-  export const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
+export const stickyCol2Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
+export const stickyCol2Cell =
+  "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
 
-  export const stickyCol3Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md";
-  export const stickyCol3Cell =
-    "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm";
-   export const COMMON_COLUMNS = [
+export const stickyCol3Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md";
+export const stickyCol3Cell =
+  "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm";
+export const COMMON_COLUMNS = [
+  { label: "Present Tenant", field: "name_of_present_tenant" },
   { label: "Village Code", field: "village_code" },
   { label: "Plot No.", field: "plot_no", format: "multi" },
   { label: "Kissam", field: "kissam_of_land", format: "multi" },
@@ -793,10 +793,10 @@ export const stickyActionHeader =
   { label: "Tahasil", field: "tahasil_name" },
   { label: "RI Circle", field: "ri_circle_name", format: "multi" },
   { label: "Thana", field: "thana_no" },
-   { label: "Name of Recorded Tentant", field: "name_of_recorded_tenant", },
-  { label: "Name of Present Tentant", field: "name_of_present_tenant", },
-   { label: "Plot Count", field: "plot_count"},
-    { label: "Created At", field: "created_at"},
+  // { label: "Recorded Tenant", field: "name_of_recorded_tenant" },
+  // { label: "Present Tenant", field: "name_of_present_tenant" },
+  { label: "Plot Count", field: "plot_count" },
+  { label: "Created At", field: "created_at" },
 ];
 
 export const RR_FIELDS = [
@@ -816,7 +816,7 @@ export const RR_FIELDS = [
   "rr_other_benefits",
 ];
 
-export const RR_FIELDS_FORMS =[
+export const RR_FIELDS_FORMS = [
   { label: "RR Employment", name: "rr_employment", type: "text" },
   { label: "RR Cash in Lieu", name: "rr_cash_in_lieu", type: "text" },
   {
@@ -830,7 +830,11 @@ export const RR_FIELDS_FORMS =[
     name: "rr_special_allowance_st_ntfp",
     type: "text",
   },
-  { label: "RR Homestead Allotment", name: "rr_homestead_allotment", type: "text" },
+  {
+    label: "RR Homestead Allotment",
+    name: "rr_homestead_allotment",
+    type: "text",
+  },
   {
     label: "RR House Building Assistance",
     name: "rr_house_building_assistance",
@@ -838,7 +842,11 @@ export const RR_FIELDS_FORMS =[
   },
   { label: "RR Constructed By", name: "rr_constructed_by", type: "text" },
   { label: "RR Transit Shed", name: "rr_transit_shed", type: "text" },
-  { label: "RR Transport Allowance", name: "rr_transport_allowance", type: "text" },
+  {
+    label: "RR Transport Allowance",
+    name: "rr_transport_allowance",
+    type: "text",
+  },
   {
     label: "RR Maintenance Allowance",
     name: "rr_maintenance_allowance",
@@ -856,7 +864,7 @@ export const RR_FIELDS_FORMS =[
 export const GOVERNMENT_LAND_COLUMNS = [
   ...COMMON_COLUMNS,
   { label: "Plot Count", field: "plot_count" },
-  { label: "Created", field: "created_at",},
+  { label: "Created", field: "created_at" },
   // { label: "Remarks", field: "lo13_remarks" },
 ];
 export const RR_COLUMNS = RR_FIELDS_FORMS.map((rr) => ({
@@ -875,32 +883,31 @@ export const FOREST_LAND_COLUMNS = [
   { label: "Forest Type", field: "forest_type" },
 ];
 
+//    const stickyActionHeader =
+//   "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
 
-  //    const stickyActionHeader =
-  //   "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
+// const stickyActionCell =
+//   "p-3 text-right bg-white md:sticky md:right-0 border-l border-gray-100 shadow-sm";
+// const stickyPaymentHeader =
+//   "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
+// const stickyPaymentCell =
+//   "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
+// const stickyCol1Header =
+//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
 
-  // const stickyActionCell =
-  //   "p-3 text-right bg-white md:sticky md:right-0 border-l border-gray-100 shadow-sm";
-  // const stickyPaymentHeader =
-  //   "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
-  // const stickyPaymentCell =
-  //   "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
-  // const stickyCol1Header =
-  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
+// const stickyCol1Cell =
+//   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
+// const stickyCol2Header =
+//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
 
-  // const stickyCol1Cell =
-  //   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
-  // const stickyCol2Header =
-  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
+// const stickyCol2Cell =
+//   "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
 
-  // const stickyCol2Cell =
-  //   "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
+// const stickyCol3Header =
+//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
 
-  // const stickyCol3Header =
-  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
-
-  // const stickyCol3Cell =
-  //   "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
+// const stickyCol3Cell =
+//   "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
 export const PAYMENT_STATUSES = {
   READY: {
     label: "Ready for Payment",
@@ -921,3 +928,90 @@ export const PAYMENT_STATUSES = {
     value: "COMPLETED",
   },
 };
+
+export const GovernmentPlotFields = [
+  { key: "khataNo", label: "Khata No", type: "text" },
+  { key: "plotNo", label: "Plot No", type: "text" },
+  { key: "thanaNo", label: "Thana No", type: "text" },
+  { key: "village", label: "Village", type: "text" },
+  { key: "tahashil", label: "Tahashil", type: "text" },
+  { key: "riCircle", label: "RI Circle", type: "text" },
+  { key: "kissam", label: "Kissam", type: "text" },
+  { key: "rorName", label: "Name of ROR", type: "text" },
+
+  { key: "totalAreaAcres", label: "Total Area (Acres)", type: "number" },
+  { key: "proposedAreaAcres", label: "Proposed Area (Acres)", type: "number" },
+  {
+    key: "totalAreaHectares",
+    label: "Total Area (Hectares)",
+    type: "number",
+  },
+  {
+    key: "proposedAreaHectares",
+    label: "Proposed Area (Hectares)",
+    type: "number",
+  },
+
+  { key: "leaseCaseNo", label: "Lease Case No", type: "text" },
+
+  {
+    key: "presentStatus",
+    label: "Present Status",
+    type: "select",
+    options: [
+      "Lease Case to Sub-Collector",
+      "Lease Case to ADM (Rev Sec)",
+      "Demand Raised",
+      "Lease Sanctioned by Collector",
+    ],
+  },
+
+  {
+    key: "uaIdcoToTahasildar",
+    label: "UA / IDCO to Tahasildar",
+    type: "yesno",
+  },
+
+  {
+    key: "caseDetails",
+    label: "Case Details/Deservation Req.",
+    type: "text",
+  },
+  { key: "actionToBeTaken", label: "Action to be Taken", type: "text" },
+
+  { key: "riReport", label: "RI Report", type: "status" },
+
+  { key: "proclamation", label: "Proclamation", type: "text" },
+  { key: "objectionReceived", label: "Objection Received", type: "yesno" },
+  { key: "others", label: "Others", type: "text" },
+  { key: "modificationRevision", label: "Modification/Revision", type: "yesno" },
+  {
+    key: "missingCasePrep",
+    label: "Missing Case Prep./DR Case Prep.",
+    type: "yesno",
+  },
+  {
+    key: "missingCasePrepNo",
+    label: "Missing Case Prep./DR Case Number",
+    type: "text",
+  },
+  { key: "reasonForMiscDrCase", label: "Reason for Misc/DR Case", type: "text" },
+  { key: "treeEnumeration", label: "Tree Enumeration", type: "status" },
+  { key: "orderSheet", label: "Order Sheet", type: "status" },
+  { key: "leaseToIDCO", label: "Lease to IDCO", type: "yesno" },
+  { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
+  { key: "remarks", label: "Remarks", type: "text" },
+];
+export const GovtKhataColumn = [
+  { key: "plotNo", label: "Plot No", type: "text" },
+  { key: "leaseCaseNo", label: "Lease Case No", type: "text" },
+  {
+    key: "presentStatus",
+    label: "Present Status",
+    type: "select",
+    options: ["Vacant", "Occupied"],
+  },
+  { key: "caseDetails", label: "Case Details", type: "text" },
+  { key: "plot_count", label: "Plot Count", type: "text" },
+];
+

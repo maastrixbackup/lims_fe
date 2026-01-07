@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
+import { GovtKhataColumn } from "../../../utils/constants";
+import FilterHeader from "../plot/FilterHeader";
 
 const GovernmentKhata = () => {
   // Khata data
@@ -30,9 +32,15 @@ const GovernmentKhata = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKhata, setEditingKhata] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-   const userRole = useSelector((state) => state.auth.user?.role_name);
+  const userRole = useSelector((state) => state.auth.user?.role_name);
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
+  const [filters, setFilters] = useState({});
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
+  const [activeFilterKey, setActiveFilterKey] = useState(null);
 
   const [formData, setFormData] = useState({
     plotNo: "",
@@ -83,6 +91,28 @@ const GovernmentKhata = () => {
 
     setIsModalOpen(false);
   };
+  const getUniqueValues = (key) => {
+    return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
+  };
+
+  const filteredKhatas = khatas
+    .filter((k) =>
+      Object.entries(filters).every(([key, value]) =>
+        value
+          ? String(k[key]).toLowerCase().includes(value.toLowerCase())
+          : true
+      )
+    )
+    .sort((a, b) => {
+      if (!sortConfig.key) return 0;
+
+      const aVal = a[sortConfig.key] ?? "";
+      const bVal = b[sortConfig.key] ?? "";
+
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
 
   const confirmDelete = () => {
     setKhatas(khatas.filter((k) => k.id !== deleteConfirm.id));
@@ -92,32 +122,44 @@ const GovernmentKhata = () => {
   return (
     <main className="p-2 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Government Khata</h2>
+        <h2 className="text-lg font-semibold">Government Land Khata</h2>
         <button className="btn btn-primary" onClick={() => openModal()}>
           + Add Khata
         </button>
       </div>
 
       <div className="card bg-white shadow-lg">
-       <div
+        <div
           className="overflow-x-auto max-h-[400px] overflow-y-auto"
           style={{ scrollbarWidth: "thin" }}
         >
-       <table className="table w-full whitespace-nowrap">
+          <table className="table w-full whitespace-nowrap">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
               <tr>
                 <th>Sl/No</th>
-                <th>Plot No</th>
-                <th>Lease Case No</th>
-                <th>Preset Status</th>
-                <th>Case Details/Deservation Req.</th>
-                <th>Plot Count</th>
+
+                {GovtKhataColumn.map((col) => (
+                  <th key={col.key}>
+                    <FilterHeader
+                      column={col}
+                      filters={filters}
+                      setFilters={setFilters}
+                      sortConfig={sortConfig}
+                      setSortConfig={setSortConfig}
+                      getUniqueValues={getUniqueValues}
+                      activeFilterKey={activeFilterKey}
+                      setActiveFilterKey={setActiveFilterKey}
+                    />
+                  </th>
+                ))}
+
                 <th className="text-right">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {khatas.length > 0 ? (
-                khatas.map((khata, idx) => (
+                filteredKhatas.map((khata, idx) => (
                   <tr key={khata.id}>
                     <td>{idx + 1}</td>
                     <td>{khata.plotNo}</td>
@@ -125,49 +167,49 @@ const GovernmentKhata = () => {
                     <td>{khata.presentStatus}</td>
                     <td>{khata.caseDetails}</td>
                     <td>{khata.plot_count}</td>
-                      <td className="text-right">
-                                         <select
-                                           className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
-                                           defaultValue=""
-                                           onChange={(e) => {
-                                             const action = e.target.value;
-                                             e.target.value = "";
-                   
-                                             if (action === "edit" && canEdit) {
-                                               onEdit(v);
-                                             }
-                   
-                                             if (action === "delete" && canDelete) {
-                                               onDelete(v);
-                                             }
-                                           }}
-                                           // disabled={!canEdit && !canDelete}
-                                         >
-                                           <option value="" disabled>
-                                             Actions
-                                           </option>
-                   
-                                           <option
-                                             value="edit"
-                                             disabled={userRole === "Viewer"}
-                                             className={`text-md text-gray-700 font-bold ${
-                                               userRole === "Viewer" ? "!text-gray-400" : ""
-                                             }`}
-                                           >
-                                             ✏️ Edit
-                                           </option>
-                   
-                                           <option
-                                             value="delete"
-                                             disabled={!canDelete}
-                                             className={`text-md text-gray-700 font-bold ${
-                                               !canDelete ? "!text-gray-400" : ""
-                                             }`}
-                                           >
-                                             🗑 Delete
-                                           </option>
-                                         </select>
-                                       </td>
+                    <td className="text-right">
+                      <select
+                        className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                        defaultValue=""
+                        onChange={(e) => {
+                          const action = e.target.value;
+                          e.target.value = "";
+
+                          if (action === "edit" && canEdit) {
+                            onEdit(v);
+                          }
+
+                          if (action === "delete" && canDelete) {
+                            onDelete(v);
+                          }
+                        }}
+                        // disabled={!canEdit && !canDelete}
+                      >
+                        <option value="" disabled>
+                          Actions
+                        </option>
+
+                        <option
+                          value="edit"
+                          disabled={userRole === "Viewer"}
+                          className={`text-md text-gray-700 font-bold ${
+                            userRole === "Viewer" ? "!text-gray-400" : ""
+                          }`}
+                        >
+                          ✏️ Edit
+                        </option>
+
+                        <option
+                          value="delete"
+                          disabled={!canDelete}
+                          className={`text-md text-gray-700 font-bold ${
+                            !canDelete ? "!text-gray-400" : ""
+                          }`}
+                        >
+                          🗑 Delete
+                        </option>
+                      </select>
+                    </td>
                   </tr>
                 ))
               ) : (

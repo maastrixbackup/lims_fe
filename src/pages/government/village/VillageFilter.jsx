@@ -36,6 +36,7 @@ const VillageFilter = ({
     });
   };
 
+  // ---- SELECT ALL HANDLERS ----
   const handleSelectAll = (key, list) => {
     setFormData((prev) => ({ ...prev, [key]: [...list] }));
   };

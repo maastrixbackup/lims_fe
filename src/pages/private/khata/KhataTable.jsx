@@ -23,7 +23,13 @@ import {
   RR_COLUMNS,
   RR_FIELDS_FORMS,
   COMMON_COLUMNS,
-} from "../../../utils/constants";
+  stickyCol3Header,
+  stickyCol3Cell,
+  stickyCol1Cell,
+   stickyCol1Header,
+  stickyCol2Cell,
+  stickyCol2Header,
+  } from "../../../utils/constants";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import KhataTabs from "./KhataTabs";
 
@@ -54,17 +60,17 @@ const KhataTable = ({
   const userRole = useSelector((state) => state.auth.user?.role_name);
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
-  const stickyCol1Header =
-    "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
+  // const stickyCol1Header =
+  //   "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
 
-  const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
+  // const stickyCol1Cell =
+  //   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
 
-  const stickyCol2Header =
-    "p-3 text-left bg-gray-200 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
+  // const stickyCol2Header =
+  //   "p-3 text-left bg-gray-200 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
 
-  const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
+  // const stickyCol2Cell =
+  //   "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
 
   const stickyActionHeader =
     "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
@@ -269,6 +275,31 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
+                           <FilterableHeader
+                          label="Recorded Tenant"
+                          field="name_of_recorded_tenant"
+                          className={stickyCol3Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
+
+                        {/* <FilterableHeader
+                          label="Village"
+                          field="village_name"
+                          className={stickyCol2Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        /> */}
 
                         {COMMON_COLUMNS.map(({ label, field }) => (
                           <FilterableHeader
@@ -296,6 +327,9 @@ const KhataTable = ({
                           <td className={stickyCol1Cell}>{khata.khata_no}</td>
                           <td className={stickyCol2Cell}>
                             {khata.village_name}
+                          </td>
+                            <td className={stickyCol3Cell}>
+                            {khata.name_of_recorded_tenant}
                           </td>
 
                           {COMMON_COLUMNS.map(({ field, format }) => (

@@ -29,7 +29,7 @@ const PlotForm = ({
 
   return (
     <dialog open className="modal modal-open">
-      <div className="modal-box max-w-3xl">
+      <div className="modal-box max-w-2xl max-h-[90vh] overflow-y-auto">
         <h3 className="font-bold text-lg mb-2">
           {formData.id ? "Edit Plot" : "Add Plot"}
         </h3>
@@ -138,7 +138,7 @@ const PlotForm = ({
           <div className="card bg-base-100 shadow-md">
             <h2 className="text-lg font-semibold mb-2">📐 Area Details</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2">
               {[
                 ["totalAreaAcres", "Total Area (Acres)"],
                 ["proposedAreaAcres", "Proposed Area (Acres)"],
@@ -214,6 +214,56 @@ const PlotForm = ({
                 onChange={handleChange}
               />
             </div>
+            {/* MISSING / DR CASE DETAILS */}
+<div className="mt-4">
+  <div>
+    <label className="label">Missing Case Prep./ DR Case. Prep.</label>
+    <div className="flex gap-6">
+      {["Yes", "No"].map((v) => (
+        <label key={v} className="flex items-center gap-2">
+          <input
+            type="radio"
+            name="missingDrCasePrep"
+            value={v}
+            checked={formData.missingDrCasePrep === v}
+            onChange={handleChange}
+          />
+          {v}
+        </label>
+      ))}
+    </div>
+  </div>
+
+  {/* CASE NUMBER – ONLY IF YES */}
+  {formData.missingDrCasePrep === "Yes" && (
+    <div className="mt-3">
+      <label className="label">Case Number</label>
+      <input
+        type="text"
+        name="missingDrCaseNo"
+        value={formData.missingDrCaseNo}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+        placeholder="Enter Case Number"
+      />
+    </div>
+  )}
+
+  {/* REASON – MANUAL ENTRY */}
+  <div className="mt-4">
+    <label className="label">
+      Reason for Misc/DR case (Not Mandatory)
+    </label>
+    <textarea
+      className="textarea textarea-bordered w-full"
+      name="missingDrCaseReason"
+      value={formData.missingDrCaseReason}
+      onChange={handleChange}
+      placeholder="Enter reason for missing or DR case"
+    />
+  </div>
+</div>
+
 
             <div className="mt-4">
               <label className="label">Action to be Taken</label>

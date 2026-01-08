@@ -262,7 +262,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
         style={{ scrollbarWidth: "thin" }}
       >
-        <table className="min-w-full relative table-fixed">{children}</table>
+        <table className="min-w-full relative table-fixed whitespace-nowrap">{children}</table>
       </div>
     </div>
   );

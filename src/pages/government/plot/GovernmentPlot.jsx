@@ -1,324 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import PlotForm from "./PlotForm";
-import { stickyActionCell, stickyActionHeader } from "../../../utils/constants";
+import {
+  GovernmentPlotFields,
+  stickyActionCell,
+  stickyActionHeader,
+} from "../../../utils/constants";
 import { useSelector } from "react-redux";
+import FilterHeader from "./FilterHeader";
 
 // Dummy data
 const plotData = [
   {
     id: 1,
-    thanaNo: "T001",
-    riCircle: "RI-A",
     khataNo: "K001",
+    plotNo: "P001",
+    thanaNo: "T001",
+    village: "Village 1",
+    tahashil: "Tahashil A",
+    riCircle: "RI-A",
+
     kissam: "Agriculture",
     rorName: "John Doe",
-    plotNo: "P001",
+
     totalAreaAcres: 2.5,
     proposedAreaAcres: 1.5,
     totalAreaHectares: 1.01,
     proposedAreaHectares: 0.61,
     leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
+    presentStatus: "Lease case to sub-collector",
+    uaIdcoToTahasildar: "Yes",
     caseDetails: "Pending approval",
     actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-    objectionReceived: "",
-    others: "",
-    modificationRevision: "",
-    missingCasePrep: "",
+    riReport: "In Progress",
+    proclamation: "Yes",
+    objectionReceived: "No",
+    others: "N/A",
+    modificationRevision: "No",
+    missingCasePrep: "No",
+    missingCasePrepNo: "MCP002",
     reasonForMiscDrCase: "",
-    treeEnumeration: "",
-    orderSheetPrep: "",
-    leaseToIdco: "",
-    leaseToUa: "",
+    treeEnumeration: "Completed",
+    orderSheetPrep: "not started",
+    leaseToIdco: "Yes",
+    leaseToUa: "No",
+    remarks: "Urgent",
   },
   {
     id: 2,
+    khataNo: "K002",
+    plotNo: "P002",
     thanaNo: "T002",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "ssssss",
-  objectionReceived: "ssssssssss",
-  others: "ssssssss",
-  modificationRevision: "sssssssss",
-  missingCasePrep: "sssssssss",
-  reasonForMiscDrCase: "ssssssssss",
-  treeEnumeration: "ssssssssss",
-  orderSheetPrep: "ssssssssssss",
-  leaseToIdco: "ssssssssssss",
-  leaseToUa: "sssssssssss",
+    village: "Village 2",
+    tahashil: "Tahashil B",
+    riCircle: "RI-B",
+    kissam: "Residential",
+    rorName: "Jane Smith",
 
-  },
-  {
-    id: 3,
-    thanaNo: "T003",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-  objectionReceived: "",
-  others: "",
-  modificationRevision: "",
-  missingCasePrep: "",
-  reasonForMiscDrCase: "",
-  treeEnumeration: "",
-  orderSheetPrep: "",
-  leaseToIdco: "",
-  leaseToUa: "",
- 
-  },
-  {
-    id: 4,
-    thanaNo: "T004",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-  objectionReceived: "",
-  others: "",
-  modificationRevision: "",
-  missingCasePrep: "",
-  reasonForMiscDrCase: "",
-  treeEnumeration: "",
-  orderSheetPrep: "",
-  leaseToIdco: "",
-  leaseToUa: "",
-  },
-  {
-    id: 5,
-    thanaNo: "T005",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-  objectionReceived: "",
-  others: "",
-  modificationRevision: "",
-  missingCasePrep: "",
-  reasonForMiscDrCase: "",
-  treeEnumeration: "",
-  orderSheetPrep: "",
-  leaseToIdco: "",
-  leaseToUa: "",
-  },
-  {
-    id: 6,
-    thanaNo: "T006",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-  objectionReceived: "",
-  others: "",
-  modificationRevision: "",
-  missingCasePrep: "",
-  reasonForMiscDrCase: "",
-  treeEnumeration: "",
-  orderSheetPrep: "",
-  leaseToIdco: "",
-  leaseToUa: "",
-  },
-  {
-    id: 7,
-    thanaNo: "T007",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-  objectionReceived: "",
-  others: "",
-  modificationRevision: "",
-  missingCasePrep: "",
-  reasonForMiscDrCase: "",
-  treeEnumeration: "",
-  orderSheetPrep: "",
-  leaseToIdco: "",
-  leaseToUa: "",
-  
-  },
-  {
-    id: 8,
-    thanaNo: "T008",
-    riCircle: "RI-A",
-    khataNo: "K001",
-    kissam: "Agriculture",
-    rorName: "John Doe",
-    plotNo: "P001",
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Vacant",
-    uaIdcoToTahasildar: "Submitted",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "OK",
-    project: "Project A",
-    village: "Village 1",
-    code: "C001",
-    sl: 1,
-    plotNo1: "P-101",
-    plotNo2: "P-102",
-    tenant: "Tenant A",
-    rorArea: 2.5,
-    occupiedArea: 1.0,
-    remarks: "No remarks",
-    proclamation: "",
-  objectionReceived: "",
-  others: "",
-  modificationRevision: "",
-  missingCasePrep: "",
-  reasonForMiscDrCase: "",
-  treeEnumeration: "",
-  orderSheetPrep: "",
-  leaseToIdco: "",
-  leaseToUa: "",
+    totalAreaAcres: 3.0,
+    proposedAreaAcres: 2.0,
+    totalAreaHectares: 1.21,
+    proposedAreaHectares: 0.81,
+    leaseCaseNo: "LC002",
+    presentStatus: "Lease Sanctioned by Collector",
+    uaIdcoToTahasildar: "No",
+    caseDetails: "Under review",
+    actionToBeTaken: "Inspection",
+    riReport: "Not Started",
+    proclamation: "No",
+    objectionReceived: "Yes",
+    others: "Requires follow-up",
+    modificationRevision: "Yes",
+    missingCasePrep: "Yes",
+    missingCasePrepNo: "MCP001",
+    reasonForMiscDrCase: "Incomplete documents",
+    treeEnumeration: "Pending",
+    orderSheetPrep: "not started",
+    leaseToIdco: "No",
+    leaseToUa: "Yes",
+    remarks: "Follow up next week",
   },
 ];
 
@@ -337,10 +96,10 @@ const stickyCol1Header =
 const stickyCol1Cell = "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
 
 const stickyCol2Header =
-  "p-3 text-left bg-gray-200 md:sticky md:left-[80px] z-[35] shadow-md ";
+  "p-3 text-left bg-gray-200 md:sticky md:left-[110px] z-[35] shadow-md ";
 
 const stickyCol2Cell =
-  "p-3 text-left bg-white md:sticky md:left-[80px] shadow-sm ";
+  "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
 const Plots = () => {
   const [plots, setPlots] = useState(plotData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -349,6 +108,7 @@ const Plots = () => {
   const userRole = useSelector((state) => state.auth.user?.role_name);
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
+  const [activeFilterKey, setActiveFilterKey] = useState(null);
 
   const [formData, setFormData] = useState({
     thanaNo: "",
@@ -377,6 +137,11 @@ const Plots = () => {
     rorArea: "",
     occupiedArea: "",
     remarks: "",
+  });
+  const [filters, setFilters] = useState({});
+  const [sortConfig, setSortConfig] = useState({
+    key: "",
+    direction: "",
   });
 
   const openModal = (plot = null) => {
@@ -412,6 +177,9 @@ const Plots = () => {
         rorArea: "",
         occupiedArea: "",
         remarks: "",
+        missingDrCasePrep: "",
+        missingDrCaseNo: "",
+        missingDrCaseReason: "",
       });
     }
     setIsModalOpen(true);
@@ -435,11 +203,43 @@ const Plots = () => {
     setPlots(plots.filter((p) => p.id !== deleteConfirm.id));
     setDeleteConfirm(null);
   };
+  const getUniqueValues = (key) => {
+    return [...new Set(plots.map((p) => p[key]).filter(Boolean))];
+  };
+  const filteredPlots = useMemo(() => {
+    let data = [...plots];
+
+    // FILTERING
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        data = data.filter((row) =>
+          String(row[key] ?? "")
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        );
+      }
+    });
+    if (sortConfig.key) {
+      data.sort((a, b) => {
+        const aVal = a[sortConfig.key];
+        const bVal = b[sortConfig.key];
+
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+
+        return sortConfig.direction === "asc"
+          ? String(aVal).localeCompare(String(bVal))
+          : String(bVal).localeCompare(String(aVal));
+      });
+    }
+
+    return data;
+  }, [plots, filters, sortConfig]);
 
   return (
     <main className="flex-1 overflow-y-auto space-y-2">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Government Plot</h2>
+        <h2 className="text-lg font-semibold">Government Land Plot</h2>
         <button className="btn btn-primary" onClick={() => openModal()}>
           + Add Plot
         </button>
@@ -452,44 +252,65 @@ const Plots = () => {
           style={{ scrollbarWidth: "thin" }}
         >
           <table className="table w-full whitespace-nowrap">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
+           <thead className="bg-gray-200 sticky top-0 z-10">
               <tr>
                 <th>Sl/No</th>
-                <th className={stickyCol1Header}>Khata No</th>
-                <th className={stickyCol2Header}>Plot No</th>
-                <th>Thana No</th>
-                <th>Village Name</th>
-                <th>Tahashil</th>
-                <th>RI Circle</th>
-                <th>Kissam</th>
-                <th>Name of ROR</th>
-                <th>Total Area (Acres)</th>
-                <th>Proposed Area (Acres)</th>
-                <th>Total Area (Hectares)</th>
-                <th>Proposed Area (Hectares)</th>
-                <th>Lease Case No</th>
-                <th>Present Status</th>
-                <th>UA / IDCO to Tahasildar</th>
-                <th>Case Details/Deservation Details Req.</th>
-                <th>Action to be taken</th>
-                <th>RI Report</th>
-                <th>Proclamation</th>
-                <th>Objection Received</th>
-                <th>Others</th>
-                <th>Modification / Revision</th>
-                <th>Missing Case Prep. / DR Case Prep.</th>
-                <th>Reason for Misc / DR Case</th>
-                <th>Tree Enumeration</th>
-                <th>Order Sheet Prep.</th>
-                <th>Lease to IDCO</th>
-                <th>Lease to UA</th>
-                <th>Remarks</th>
+  <th className={stickyCol1Header}>
+                  <FilterHeader
+                    column={GovernmentPlotFields.find(
+                      (c) => c.key === "khataNo"
+                    )}
+                    filters={filters}
+                    setFilters={setFilters}
+                    sortConfig={sortConfig}
+                    setSortConfig={setSortConfig}
+                    getUniqueValues={getUniqueValues}
+                    activeFilterKey={activeFilterKey}
+                    setActiveFilterKey={setActiveFilterKey}
+                  />
+                </th>
+
+                {/* PLOT NO */}
+                <th className={stickyCol2Header}>
+                  <FilterHeader
+                    column={GovernmentPlotFields.find(
+                      (c) => c.key === "plotNo"
+                    )}
+                    filters={filters}
+                    setFilters={setFilters}
+                    sortConfig={sortConfig}
+                    setSortConfig={setSortConfig}
+                    getUniqueValues={getUniqueValues}
+                    activeFilterKey={activeFilterKey}
+                    setActiveFilterKey={setActiveFilterKey}
+                  />
+                </th>
+
+                {GovernmentPlotFields.filter(
+                  (c) => !["khataNo", "plotNo"].includes(c.key)
+                ).map((col) => (
+                  <th key={col.key}>
+                    <FilterHeader
+                      column={col}
+                      filters={filters}
+                      setFilters={setFilters}
+                      sortConfig={sortConfig}
+                      setSortConfig={setSortConfig}
+                      getUniqueValues={getUniqueValues}
+                      activeFilterKey={activeFilterKey}
+                      setActiveFilterKey={setActiveFilterKey}
+                    />
+                  </th>
+                ))}
+
+
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {plots.length > 0 ? (
-                plots.map((plot, idx) => (
+                filteredPlots.map((plot, idx) => (
                   <tr
                     key={plot.id}
                     className="hover:bg-gray-50 transition-colors"
@@ -518,6 +339,7 @@ const Plots = () => {
                     <td>{plot.others}</td>
                     <td>{plot.modificationRevision}</td>
                     <td>{plot.missingCasePrep}</td>
+                    <td>{plot.missingCasePrepNo}</td>
                     <td>{plot.reasonForMiscDrCase}</td>
                     <td>{plot.treeEnumeration}</td>
                     <td>{plot.orderSheetPrep}</td>

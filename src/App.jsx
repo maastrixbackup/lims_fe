@@ -26,6 +26,7 @@ const PlotForm = lazy(() => import("./pages/private/plot/PlotForm"));
 const UploadPlots = lazy(() => import("./pages/UploadPlots"));
 const Compensation = lazy(() =>import("./pages/private/compensation/Compensation"));
 const SocialSurvey = lazy(() => import("./pages/SocialSurvey"));
+const GovtVillages = lazy(() => import("./pages/government/village/Villages"));
 
 const UserManagement = lazy(() => import("./pages/UserManagement"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -85,12 +86,12 @@ export default function App() {
                 <Route path="/project-table" element={<ProjectTable />} />
 
                 <Route path="/:landType/villages" element={<Villages />} />
-                <Route path="/:landType/government-village" element={<Villages />} />
                 <Route path="/:landType/khatas" element={<Khata />} />
                 <Route path="/:landType/plots" element={<Plots />} />
                 <Route path="/:landType/plot-form" element={<PlotForm />} />
-                <Route path="/:landType/government-plot" element={<GovernmentPlot />} />
-                <Route path="/:landType/government-khata" element={<GovernmentKhata />} />
+                <Route path="/:landType/government/villages" element={<GovtVillages />} />
+                <Route path="/:landType/government/plots" element={<GovernmentPlot />} />
+                <Route path="/:landType/government/khatas" element={<GovernmentKhata />} />
 
                 <Route path="/import" element={<UploadPlots />} />
 

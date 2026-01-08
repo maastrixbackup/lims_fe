@@ -1155,6 +1155,203 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
+          <TableWrapper title="Legal Issues">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
+                <tr>
+                  <th className="p-3 text-left">#</th>
+
+                  <FilterHeader
+                    label="LA Case File No"
+                    field="la_case_file_no"
+                    options={getOptions("la_case_file_no")}
+                    columnFilters={columnFilters}
+                    updateFilter={updateFilter}
+                    openFilterField={openFilterField}
+                    setOpenFilterField={setOpenFilterField}
+                    className={stickyCol1Header}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
+                  />
+
+                  <FilterHeader
+                    label="Khata"
+                    field="khata_no"
+                    options={getOptions("khata_no")}
+                    columnFilters={columnFilters}
+                    updateFilter={updateFilter}
+                    openFilterField={openFilterField}
+                    setOpenFilterField={setOpenFilterField}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
+                    className={stickyCol2Header}
+                  />
+
+                  <FilterHeader
+                    label="Plot No"
+                    field="plot_no"
+                    options={getOptions("plot_no")}
+                    columnFilters={columnFilters}
+                    updateFilter={updateFilter}
+                    openFilterField={openFilterField}
+                    setOpenFilterField={setOpenFilterField}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
+                    className={stickyCol3Header}
+                  />
+
+                  <FilterHeader
+                    label="Legal Heir Cert. No"
+                    field="legal_heir_certificate_no"
+                    options={getOptions("legal_heir_certificate_no")}
+                    columnFilters={columnFilters}
+                    updateFilter={updateFilter}
+                    openFilterField={openFilterField}
+                    setOpenFilterField={setOpenFilterField}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
+                  />
+
+                  <FilterHeader
+                    label="Land Case No"
+                    field="land_case_no"
+                    options={getOptions("land_case_no")}
+                    columnFilters={columnFilters}
+                    updateFilter={updateFilter}
+                    openFilterField={openFilterField}
+                    setOpenFilterField={setOpenFilterField}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
+                  />
+
+                  <th className="p-3 text-left">Land Case Date</th>
+                  <th className="p-3 text-left">Land Case Type</th>
+                  <th className="p-3 text-left">Land Case Status</th>
+                  <th className="p-3 text-left">Land Case Action</th>
+
+                  <th className={stickyPaymentHeader}>Payment Status</th>
+                  <th className={stickyActionHeader}>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-100 text-xs">
+                {filteredPlots.map((plot, idx) => (
+                  <tr
+                    key={plot.id || idx}
+                    className="hover:bg-gray-50 shadow-sm transition"
+                  >
+                    <td className="p-3">{idx + 1}</td>
+                    <td className={stickyCol1Cell}>
+                      {plot.la_case_file_no || "N/A"}
+                    </td>
+                    <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
+                    <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
+                    <td className="p-3">
+                      {plot.legal_heir_certificate_no || "N/A"}
+                    </td>
+                    <td className="p-3">{plot.land_case_no || "N/A"}</td>
+                    <td className="p-3">
+                      {formatDate(plot.land_case_date) || "N/A"}
+                    </td>
+                    <td className="p-3">{plot.land_case_type || "N/A"}</td>
+                    <td className="p-3">{plot.land_case_status || "N/A"}</td>
+                    <td className="p-3">{plot.land_case_action || "N/A"}</td>
+
+                    <td className={stickyPaymentCell}>
+                      <div className="relative group inline-block">
+                        <button
+                          className={`btn btn-sm text-white flex items-center gap-1 ${
+                            isRestricted || loadingPlotId === plot.id
+                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                              : paymentStatusMap[plot.id] === "success"
+                              ? "bg-green-400 hover:bg-green-700"
+                              : plot.payment_status === null
+                              ? "bg-orange-600 hover:bg-orange-700"
+                              : "bg-green-600 hover:bg-green-700"
+                          }`}
+                          onClick={() => handlePaymentReady(plot)}
+                          disabled={
+                            isRestricted ||
+                            loadingPlotId === plot.id ||
+                            paymentStatusMap[plot.id] === "success"
+                          }
+                        >
+                          {loadingPlotId === plot.id ? (
+                            <span className="loading loading-spinner loading-xs"></span>
+                          ) : paymentStatusMap[plot.id] === "success" ? (
+                            "RC"
+                          ) : plot.payment_status === null ? (
+                            "RP"
+                          ) : (
+                            "PP"
+                          )}
+                        </button>
+
+              
+                        <span
+                          className="absolute -translate-x-1/2 -top-5
+      opacity-0 group-hover:opacity-100 transition
+      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
+                        >
+                          {loadingPlotId === plot.id
+                            ? "Processing Payment"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "Payment Completed"
+                            : plot.payment_status === null
+                            ? "Ready For Payment"
+                            : "Payment in Processing"}
+                        </span>
+                      </div>
+                    </td>
+                 
+                    <td className={stickyActionCell}>
+                      <select
+                        className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                        defaultValue=""
+                        onChange={(e) => {
+                          const action = e.target.value;
+                          e.target.value = "";
+
+                          if (action === "edit") {
+                            navigate(`/${landType}/plot-form`, {
+                              state: { plot },
+                            });
+                          }
+
+                          if (action === "delete") {
+                            setDeleteConfirm(plot);
+                          }
+                        }}
+                      >
+                        <option value="" disabled>
+                          Actions
+                        </option>
+
+                        <option
+                          value="edit"
+
+                          disabled={!canEdit}
+                          className={`text-md text-gray-700 font-bold ${
+                            !canEdit ? "!text-gray-400" : ""
+                          }`}
+                        >
+                          ✏️ Edit
+                        </option>
+
+                        <option
+                          value="delete"
+                          disabled={!canDelete}
+                          className={`text-md text-gray-700 font-bold ${
+                            !canDelete ? "!text-gray-400" : ""
+                          }`}
+                        >
+                          🗑 Delete
+                        </option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </TableWrapper>
           <TableWrapper title="Land Area Valuation Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
@@ -1228,33 +1425,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <th className="p-3 text-left">Acquired Area (Acre)</th>
               <th className="p-3 text-left">Acquired Area (Hectare)</th> */}
                 {/* <th className="p-3 text-left">Legal Heir Cert. No</th> */}
-                <FilterHeader
-                  label="Legal Heir Cert. No"
-                  field="legal_heir_certificate_no"
-                  options={getOptions("legal_heir_certificate_no")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                  onSort={handleSort}
-                  sortConfig={sortConfig}
-                />
+             
                 {/* <th className="p-3 text-left">Land Case No</th> */}
-                <FilterHeader
-                  label="Land Case No"
-                  field="land_case_no"
-                  options={getOptions("land_case_no")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                  onSort={handleSort}
-                  sortConfig={sortConfig}
-                />
-                <th className="p-3 text-left">Land Case Date</th>
-                <th className="p-3 text-left">Land Case Type</th>
-                <th className="p-3 text-left">Land Case Status</th>
-                <th className="p-3 text-left">Land Case Action</th>
+              
                 <th className="p-3 text-left">Bench Market Value</th>
                 <th className="p-3 text-left">Basic Land Value (₹)</th>
                 <th className="p-3 text-left">Land Value w/ MF (₹)</th>
@@ -1326,16 +1499,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <td className="p-3">
                   {plot.land_area_acquired_hectares || "N/A"}
                 </td> */}
-                  <td className="p-3">
-                    {plot.legal_heir_certificate_no || "N/A"}
-                  </td>
-                  <td className="p-3">{plot.land_case_no || "N/A"}</td>
-                  <td className="p-3">
-                    {formatDate(plot.land_case_date) || "N/A"}
-                  </td>
-                  <td className="p-3">{plot.land_case_type || "N/A"}</td>
-                  <td className="p-3">{plot.land_case_status || "N/A"}</td>
-                  <td className="p-3">{plot.land_case_action || "N/A"}</td>
+                
                   <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
                   <td className="p-3">{plot.basic_land_value || "N/A"}</td>
                   <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>
@@ -1818,7 +1982,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-          {landType === "govt-land" && (
+          {/* {landType === "govt-land" && (
             <TableWrapper title="Legal Issues">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
@@ -1950,7 +2114,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                           )}
                         </button>
 
-                        {/* Tooltip */}
+              
                         <span
                           className="absolute -translate-x-1/2 -top-5
       opacity-0 group-hover:opacity-100 transition
@@ -1966,7 +2130,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         </span>
                       </div>
                     </td>
-                    {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
+                 
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -1992,7 +2156,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
                         <option
                           value="edit"
-                          // disabled={!canEdit}
+
                           disabled={!canEdit}
                           className={`text-md text-gray-700 font-bold ${
                             !canEdit ? "!text-gray-400" : ""
@@ -2016,7 +2180,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 ))}
               </tbody>
             </TableWrapper>
-          )}
+          )} */}
         </PlotTabs>
       )}
     </div>

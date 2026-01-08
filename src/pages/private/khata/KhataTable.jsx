@@ -287,6 +287,18 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
+                              <FilterableHeader
+                          label="Present Tenant"
+                          field="name_of_present_tenant"
+                          // className={stickyCol3Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
 
                         {/* <FilterableHeader
                           label="Village"
@@ -330,6 +342,11 @@ const KhataTable = ({
                           </td>
                             <td className={stickyCol3Cell}>
                             {khata.name_of_recorded_tenant}
+                          </td>
+                           <td 
+                          //  className={stickyCol3Cell}
+                           >
+                            {khata.name_of_present_tenant}
                           </td>
 
                           {COMMON_COLUMNS.map(({ field, format }) => (
@@ -436,13 +453,72 @@ const KhataTable = ({
                     <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
                       <tr>
                         <th>Sl/No</th>
+  <FilterableHeader
+                          label="Khata No."
+                          field="khata_no"
+                          className={stickyCol1Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
 
-                        <th className={stickyCol1Header}>Khata No.</th>
-                        <th className={stickyCol2Header}>Village</th>
-                        {RR_FIELDS_FORMS.map(({ label }) => (
+                        <FilterableHeader
+                          label="Village"
+                          field="village_name"
+                          className={stickyCol2Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
+                           <FilterableHeader
+                          label="Recorded Tenant"
+                          field="name_of_recorded_tenant"
+                          className={stickyCol3Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
+                              <FilterableHeader
+                          label="Present Tenant"
+                          field="name_of_present_tenant"
+                          // className={stickyCol3Header}
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                        />
+                        {/* {RR_FIELDS_FORMS.map(({ label }) => (
                           <th key={label}>{label}</th>
+                        ))} */}
+   {RR_FIELDS_FORMS.map(({ label, field }) => (
+                          <FilterableHeader
+                            key={field}
+                            label={label}
+                            field={field}
+                            filters={filters}
+                            setFilters={setFilters}
+                            activeFilter={activeFilter}
+                            setActiveFilter={setActiveFilter}
+                            getFilterOptions={getFilterOptions}
+                            onSort={handleSort}
+                            sortConfig={sortConfig}
+                          />
                         ))}
-
                         <th className={stickyActionHeader}>Actions</th>
                       </tr>
                     </thead>
@@ -452,15 +528,22 @@ const KhataTable = ({
                         <tr key={khata.id}>
                           <td>{(page - 1) * limit + idx + 1}</td>
 
-                          {/* Sticky common cells */}
-                          <td className={stickyCol1Cell}>{khata.khata_no}</td>
+                          <td className={stickyCol1Cell}>{khata.khata_no|| "No Data"}</td>
                           <td className={stickyCol2Cell}>
-                            {khata.village_name}
+                            {khata.village_name || "No Data"}
+                          </td>
+                            <td className={stickyCol3Cell}>
+                            {khata.name_of_recorded_tenant || "No Data"}
+                          </td>
+                           <td 
+                          //  className={stickyCol3Cell}
+                           >
+                            {khata.name_of_present_tenant || "No Data"}
                           </td>
 
                           {/* RR values */}
                           {RR_FIELDS_FORMS.map(({ name }) => (
-                            <td key={name}>{khata[name] || "—"}</td>
+                            <td key={name}>{khata[name] || "No Data"}</td>
                           ))}
 
                            <td className={stickyActionCell}>

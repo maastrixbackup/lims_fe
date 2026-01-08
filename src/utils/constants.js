@@ -1002,16 +1002,88 @@ export const GovernmentPlotFields = [
   { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
   { key: "remarks", label: "Remarks", type: "text" },
 ];
+// export const GovernmentPlotFields = [
+//   { key: "khata_no", label: "Khata No", type: "text" },
+//   { key: "plot_no", label: "Plot No", type: "text" },
+//   { key: "thana_no", label: "Thana No", type: "text" },
+//   { key: "mouza", label: "Village", type: "text" },
+//   { key: "tahasil", label: "Tahasil", type: "text" },
+//   { key: "ri_circle", label: "RI Circle", type: "text" },
+//   { key: "kissam", label: "Kissam", type: "text" },
+//   { key: "name_of_ror", label: "Name of ROR", type: "text" },
+
+//   { key: "total_area_acres", label: "Total Area (Acres)", type: "number" },
+//   { key: "proposed_area_acres", label: "Proposed Area (Acres)", type: "number" },
+//   {
+//     key: "total_area_hectares",
+//     label: "Total Area (Hectares)",
+//     type: "number",
+//   },
+//   {
+//     key: "proposed_area_hectares",
+//     label: "Proposed Area (Hectares)",
+//     type: "number",
+//   },
+
+//   { key: "lease_case_no", label: "Lease Case No", type: "text" },
+
+//   {
+//     key: "present_status",
+//     label: "Present Status",
+//     type: "select",
+//     options: [
+//       "Lease Case to Sub-Collector",
+//       "Lease Case to ADM (Rev Sec)",
+//       "Demand Raised",
+//       "Lease Sanctioned by Collector",
+//     ],
+//   },
+
+//   {
+//     key: "ua_idco_to_tahasildar",
+//     label: "UA / IDCO to Tahasildar",
+//     type: "yesno",
+//   },
+
+//   {
+//     key: "case_details",
+//     label: "Case Details/Deservation Req.",
+//     type: "text",
+//   },
+//   { key: "action_to_be_taken", label: "Action to be Taken", type: "text" },
+//   { key: "ri_report", label: "RI Report", type: "status" },
+
+//   { key: "proclamation", label: "Proclamation", type: "text" },
+//   { key: "objection_received", label: "Objection Received", type: "yesno" },
+//   { key: "others", label: "Others", type: "text" },
+//   { key: "modification_revision", label: "Modification/Revision", type: "yesno" },
+//   {
+//     key: "misc_dr_case_prep",
+//     label: "Missing Case Prep./DR Case Prep.",
+//     type: "yesno",
+//   },
+//   {
+//     key: "misc_dr_case_prep_number",
+//     label: "Missing Case Prep./DR Case Number",
+//     type: "text",
+//   },
+//   { key: "reason_for_misc_dr_case", label: "Reason for Misc/DR Case", type: "text" },
+//   { key: "tree_enumeration", label: "Tree Enumeration", type: "status" },
+//   { key: "order_sheet", label: "Order Sheet", type: "status" },
+//   { key: "lease_to_idco", label: "Lease to IDCO", type: "yesno" },
+//   { key: "lease_to_ua", label: "Lease to UA", type: "yesno" },
+//   { key: "remarks", label: "Remarks", type: "text" },
+// ];
 export const GovtKhataColumn = [
-  { key: "plotNo", label: "Plot No", type: "text" },
-  { key: "leaseCaseNo", label: "Lease Case No", type: "text" },
+  { key: "plot_no", label: "Plot No", type: "text" },
+  { key: "lease_case_no", label: "Lease Case No", type: "text" },
   {
-    key: "presentStatus",
+    key: "present_status",
     label: "Present Status",
     type: "select",
     options: ["Vacant", "Occupied"],
   },
-  { key: "caseDetails", label: "Case Details", type: "text" },
+  { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },
 ];
 

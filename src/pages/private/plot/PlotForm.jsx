@@ -729,33 +729,33 @@ const PlotForm = ({ fetchPlots }) => {
     }
   }, [formData.project_id, typeParam]);
 
-  const fetchKhata = useCallback(async () => {
-    if (!formData.project_id) {
-      setKhatas([]);
-      return;
-    }
+  // const fetchKhata = useCallback(async () => {
+  //   if (!formData.project_id) {
+  //     setKhatas([]);
+  //     return;
+  //   }
 
-    try {
-      const response = await apiClient(
-        `/khata/getMasterData?project_id=${formData.project_id}&type=${typeParam}`
-      );
+  //   try {
+  //     const response = await apiClient(
+  //       `/khata/getMasterData?project_id=${formData.project_id}&type=${typeParam}`
+  //     );
 
-      if (response?.success) {
-        // adjust this based on actual API structure
-        console.log("khata list in form", response.data.khatas)
-        setKhatas(response.data.khatas || []);
-      } else {
-        setKhatas([]);
-      }
-    } catch (error) {
-      console.error("Khata List Not Found", error);
-      setKhatas([]);
-    }
-  }, [formData.project_id, typeParam]);
+  //     if (response?.success) {
+  //       // adjust this based on actual API structure
+  //       console.log("khata list in form", response.data.khatas)
+  //       setKhatas(response.data.khatas || []);
+  //     } else {
+  //       setKhatas([]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Khata List Not Found", error);
+  //     setKhatas([]);
+  //   }
+  // }, [formData.project_id, typeParam]);
 
-  useEffect(() => {
-    fetchKhata();
-  }, [fetchKhata]);
+  // useEffect(() => {
+  //   fetchKhata();
+  // }, [fetchKhata]);
 
   useEffect(() => {
     fetchVillages();

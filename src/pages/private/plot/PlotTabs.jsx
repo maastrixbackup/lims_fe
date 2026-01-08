@@ -57,6 +57,7 @@ const tabs = [
   "Basic Details",
   "Tenant Information",
   "Bank & Personal Details",
+  "Legal Issues",
   "Land Area Valuation Details",
   // "RR Details",
   "Grievance & Tribunal Details",

@@ -770,15 +770,19 @@ export const stickyCol1Header =
 export const stickyCol1Cell =
   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
 
+// export const stickyCol2Header =
+//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
+// export const stickyCol2Cell =
+//   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
 export const stickyCol2Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[90px] z-[30] shadow-md";
 export const stickyCol2Cell =
-  "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
+  "p-3 text-left bg-white md:sticky md:left-[90px] shadow-sm";
 
 export const stickyCol3Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md";
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[180px] z-[30] shadow-md";
 export const stickyCol3Cell =
-  "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm";
+  "p-3 text-left bg-white md:sticky md:left-[180px] shadow-sm";
 export const COMMON_COLUMNS = [
   { label: "Present Tenant", field: "name_of_present_tenant" },
   { label: "Village Code", field: "village_code" },
@@ -800,6 +804,7 @@ export const COMMON_COLUMNS = [
 ];
 
 export const RR_FIELDS = [
+  "name_of_present_tenant",
   "rr_employment",
   "rr_cash_in_lieu",
   "rr_training_skill_upgradation",
@@ -817,48 +822,48 @@ export const RR_FIELDS = [
 ];
 
 export const RR_FIELDS_FORMS = [
-  { label: "RR Employment", name: "rr_employment", type: "text" },
-  { label: "RR Cash in Lieu", name: "rr_cash_in_lieu", type: "text" },
+  { label: "RR Employment", field: "rr_employment", type: "text" },
+  { label: "RR Cash in Lieu", field: "rr_cash_in_lieu", type: "text" },
   {
     label: "RR Training / Skill Upgradation",
-    name: "rr_training_skill_upgradation",
+    field: "rr_training_skill_upgradation",
     type: "text",
   },
-  { label: "RR Self Employment", name: "rr_self_employment", type: "text" },
+  { label: "RR Self Employment", field: "rr_self_employment", type: "text" },
   {
     label: "RR Special Allowance (ST / NTFP)",
-    name: "rr_special_allowance_st_ntfp",
+    field: "rr_special_allowance_st_ntfp",
     type: "text",
   },
   {
     label: "RR Homestead Allotment",
-    name: "rr_homestead_allotment",
+    field: "rr_homestead_allotment",
     type: "text",
   },
   {
     label: "RR House Building Assistance",
-    name: "rr_house_building_assistance",
+    field: "rr_house_building_assistance",
     type: "text",
   },
-  { label: "RR Constructed By", name: "rr_constructed_by", type: "text" },
-  { label: "RR Transit Shed", name: "rr_transit_shed", type: "text" },
+  { label: "RR Constructed By", field: "rr_constructed_by", type: "text" },
+  { label: "RR Transit Shed", field: "rr_transit_shed", type: "text" },
   {
     label: "RR Transport Allowance",
-    name: "rr_transport_allowance",
+    field: "rr_transport_allowance",
     type: "text",
   },
   {
     label: "RR Maintenance Allowance",
-    name: "rr_maintenance_allowance",
+    field: "rr_maintenance_allowance",
     type: "text",
   },
   {
     label: "RR Multiple Displacement Allowance",
-    name: "rr_multiple_displacement_allowance",
+    field: "rr_multiple_displacement_allowance",
     type: "text",
   },
-  { label: "RR Ex-gratia", name: "rr_exgratia", type: "text" },
-  { label: "RR Other Benefits", name: "rr_other_benefits", type: "text" },
+  { label: "RR Ex-gratia", field: "rr_exgratia", type: "text" },
+  { label: "RR Other Benefits", field: "rr_other_benefits", type: "text" },
 ];
 
 export const GOVERNMENT_LAND_COLUMNS = [
@@ -1001,6 +1006,10 @@ export const GovernmentPlotFields = [
   { key: "leaseToIDCO", label: "Lease to IDCO", type: "yesno" },
   { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
   { key: "remarks", label: "Remarks", type: "text" },
+  { key: "ri_report_attachment", label: "RI Report Attachment", type: "text" },
+  { key: "tree_enumeration_attachment", label: "Tree Enumeration Attachment", type: "text" },
+  { key: "lease_to_idco_attachment", label: "Lease to IDCO Attachment", type: "text" },
+  { key: "lease_to_ua_attachment", label: "Lease to UA Attachment", type: "text" },
 ];
 // export const GovernmentPlotFields = [
 //   { key: "khata_no", label: "Khata No", type: "text" },

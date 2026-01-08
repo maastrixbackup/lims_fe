@@ -8,88 +8,6 @@ import {
 import { useSelector } from "react-redux";
 import FilterHeader from "./FilterHeader";
 
-// Dummy data
-const plotData = [
-  {
-    id: 1,
-    khataNo: "K001",
-    plotNo: "P001",
-    thanaNo: "T001",
-    village: "Village 1",
-    tahashil: "Tahashil A",
-    riCircle: "RI-A",
-
-    kissam: "Agriculture",
-    rorName: "John Doe",
-
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Lease case to sub-collector",
-    uaIdcoToTahasildar: "Yes",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "In Progress",
-    proclamation: "Yes",
-    objectionReceived: "No",
-    others: "N/A",
-    modificationRevision: "No",
-    missingCasePrep: "No",
-    missingCasePrepNo: "MCP002",
-    reasonForMiscDrCase: "",
-    treeEnumeration: "Completed",
-    orderSheetPrep: "not started",
-    leaseToIdco: "Yes",
-    leaseToUa: "No",
-    remarks: "Urgent",
-  },
-  {
-    id: 2,
-    khataNo: "K002",
-    plotNo: "P002",
-    thanaNo: "T002",
-    village: "Village 2",
-    tahashil: "Tahashil B",
-    riCircle: "RI-B",
-    kissam: "Residential",
-    rorName: "Jane Smith",
-
-    totalAreaAcres: 3.0,
-    proposedAreaAcres: 2.0,
-    totalAreaHectares: 1.21,
-    proposedAreaHectares: 0.81,
-    leaseCaseNo: "LC002",
-    presentStatus: "Lease Sanctioned by Collector",
-    uaIdcoToTahasildar: "No",
-    caseDetails: "Under review",
-    actionToBeTaken: "Inspection",
-    riReport: "Not Started",
-    proclamation: "No",
-    objectionReceived: "Yes",
-    others: "Requires follow-up",
-    modificationRevision: "Yes",
-    missingCasePrep: "Yes",
-    missingCasePrepNo: "MCP001",
-    reasonForMiscDrCase: "Incomplete documents",
-    treeEnumeration: "Pending",
-    orderSheetPrep: "not started",
-    leaseToIdco: "No",
-    leaseToUa: "Yes",
-    remarks: "Follow up next week",
-  },
-];
-
-const projectVillageKhataMap = {
-  "Project A": {
-    "Village 1": ["K001", "K002"],
-    "Village 2": ["K003"],
-  },
-  "Project B": {
-    "Village 3": ["K004", "K005"],
-  },
-};
 const stickyCol1Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md ";
 
@@ -100,8 +18,8 @@ const stickyCol2Header =
 
 const stickyCol2Cell =
   "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
-const Plots = () => {
-  const [plots, setPlots] = useState(plotData);
+const Plots = ({ }) => {
+  const [plots, setPlots] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlot, setEditingPlot] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -109,35 +27,6 @@ const Plots = () => {
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
   const [activeFilterKey, setActiveFilterKey] = useState(null);
-
-  const [formData, setFormData] = useState({
-    thanaNo: "",
-    riCircle: "",
-    khataNo: "",
-    kissam: "",
-    rorName: "",
-    plotNo: "",
-    totalAreaAcres: "",
-    proposedAreaAcres: "",
-    totalAreaHectares: "",
-    proposedAreaHectares: "",
-    leaseCaseNo: "",
-    presentStatus: "",
-    uaIdcoToTahasildar: "",
-    caseDetails: "",
-    actionToBeTaken: "",
-    riReport: "",
-    project: "",
-    village: "",
-    code: "",
-    sl: "",
-    plotNo1: "",
-    plotNo2: "",
-    tenant: "",
-    rorArea: "",
-    occupiedArea: "",
-    remarks: "",
-  });
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     key: "",
@@ -147,56 +36,42 @@ const Plots = () => {
   const openModal = (plot = null) => {
     if (plot) {
       setEditingPlot(plot);
-      setFormData(plot);
+      // setFormData(plot);
     } else {
       setEditingPlot(null);
-      setFormData({
-        thanaNo: "",
-        riCircle: "",
-        khataNo: "",
-        kissam: "",
-        rorName: "",
-        plotNo: "",
-        totalAreaAcres: "",
-        proposedAreaAcres: "",
-        totalAreaHectares: "",
-        proposedAreaHectares: "",
-        leaseCaseNo: "",
-        presentStatus: "",
-        uaIdcoToTahasildar: "",
-        caseDetails: "",
-        actionToBeTaken: "",
-        riReport: "",
-        project: "",
-        village: "",
-        code: "",
-        sl: "",
-        plotNo1: "",
-        plotNo2: "",
-        tenant: "",
-        rorArea: "",
-        occupiedArea: "",
-        remarks: "",
-        missingDrCasePrep: "",
-        missingDrCaseNo: "",
-        missingDrCaseReason: "",
-      });
+      // setFormData({
+      //   thanaNo: "",
+      //   riCircle: "",
+      //   khataNo: "",
+      //   kissam: "",
+      //   rorName: "",
+      //   plotNo: "",
+      //   totalAreaAcres: "",
+      //   proposedAreaAcres: "",
+      //   totalAreaHectares: "",
+      //   proposedAreaHectares: "",
+      //   leaseCaseNo: "",
+      //   presentStatus: "",
+      //   uaIdcoToTahasildar: "",
+      //   caseDetails: "",
+      //   actionToBeTaken: "",
+      //   riReport: "",
+      //   project: "",
+      //   village: "",
+      //   code: "",
+      //   sl: "",
+      //   plotNo1: "",
+      //   plotNo2: "",
+      //   tenant: "",
+      //   rorArea: "",
+      //   occupiedArea: "",
+      //   remarks: "",
+      //   missingDrCasePrep: "",
+      //   missingDrCaseNo: "",
+      //   missingDrCaseReason: "",
+      // });
     }
     setIsModalOpen(true);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editingPlot) {
-      setPlots(
-        plots.map((p) =>
-          p.id === editingPlot.id ? { ...formData, id: p.id } : p
-        )
-      );
-    } else {
-      setPlots([...plots, { ...formData, id: plots.length + 1 }]);
-    }
-    setIsModalOpen(false);
   };
 
   const confirmDelete = () => {
@@ -252,13 +127,13 @@ const Plots = () => {
           style={{ scrollbarWidth: "thin" }}
         >
           <table className="table w-full whitespace-nowrap">
-           <thead className="bg-gray-200 sticky top-0 z-10">
+            <thead className="bg-gray-200 sticky top-0 z-10">
               <tr>
                 <th>Sl/No</th>
-  <th className={stickyCol1Header}>
+                <th className={stickyCol1Header}>
                   <FilterHeader
                     column={GovernmentPlotFields.find(
-                      (c) => c.key === "khataNo"
+                      (c) => c.key === "khata_no"
                     )}
                     filters={filters}
                     setFilters={setFilters}
@@ -274,7 +149,7 @@ const Plots = () => {
                 <th className={stickyCol2Header}>
                   <FilterHeader
                     column={GovernmentPlotFields.find(
-                      (c) => c.key === "plotNo"
+                      (c) => c.key === "plot_no"
                     )}
                     filters={filters}
                     setFilters={setFilters}
@@ -287,7 +162,7 @@ const Plots = () => {
                 </th>
 
                 {GovernmentPlotFields.filter(
-                  (c) => !["khataNo", "plotNo"].includes(c.key)
+                  (c) => !["khata_no", "plot_no"].includes(c.key)
                 ).map((col) => (
                   <th key={col.key}>
                     <FilterHeader
@@ -303,11 +178,9 @@ const Plots = () => {
                   </th>
                 ))}
 
-
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {plots.length > 0 ? (
                 filteredPlots.map((plot, idx) => (
@@ -316,35 +189,35 @@ const Plots = () => {
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td>{idx + 1}</td>
-                    <td className={stickyCol1Cell}>{plot.khataNo}</td>
-                    <td className={stickyCol2Cell}>{plot.plotNo}</td>
-                    <td>{plot.thanaNo}</td>
-                    <td>{plot.village}</td>
-                    <td>{plot.tahashil}</td>
-                    <td>{plot.riCircle}</td>
+                    <td className={stickyCol1Cell}>{plot.khata_no}</td>
+                    <td className={stickyCol2Cell}>{plot.plot_no}</td>
+                    <td>{plot.thana_no}</td>
+                    <td>{plot.mouza}</td>
+                    <td>{plot.tahasil}</td>
+                    <td>{plot.ri_circle}</td>
                     <td>{plot.kissam}</td>
-                    <td>{plot.rorName}</td>
-                    <td>{plot.totalAreaAcres}</td>
-                    <td>{plot.proposedAreaAcres}</td>
-                    <td>{plot.totalAreaHectares}</td>
-                    <td>{plot.proposedAreaHectares}</td>
-                    <td>{plot.leaseCaseNo}</td>
-                    <td>{plot.presentStatus}</td>
-                    <td>{plot.uaIdcoToTahasildar}</td>
-                    <td>{plot.caseDetails}</td>
-                    <td>{plot.actionToBeTaken}</td>
-                    <td>{plot.riReport}</td>
+                    <td>{plot.ror_of_name}</td>
+                    <td>{plot.total_area_acres}</td>
+                    <td>{plot.proposed_area_acres}</td>
+                    <td>{plot.total_area_hectares}</td>
+                    <td>{plot.proposed_area_hectares}</td>
+                    <td>{plot.lease_case_no}</td>
+                    <td>{plot.present_status}</td>
+                    <td>{plot.ua_idco_to_tahasildar}</td>
+                    <td>{plot.case_details}</td>
+                    <td>{plot.action_to_be_taken}</td>
+                    <td>{plot.ri_report}</td>
                     <td>{plot.proclamation}</td>
-                    <td>{plot.objectionReceived}</td>
+                    <td>{plot.objection_received}</td>
                     <td>{plot.others}</td>
-                    <td>{plot.modificationRevision}</td>
-                    <td>{plot.missingCasePrep}</td>
-                    <td>{plot.missingCasePrepNo}</td>
-                    <td>{plot.reasonForMiscDrCase}</td>
-                    <td>{plot.treeEnumeration}</td>
-                    <td>{plot.orderSheetPrep}</td>
-                    <td>{plot.leaseToIdco}</td>
-                    <td>{plot.leaseToUa}</td>
+                    <td>{plot.modification_revision}</td>
+                    <td>{plot.misc_dr_case_prep}</td>
+                    <td>{plot.misc_dr_case_prep_number}</td>
+                    <td>{plot.reason_for_misc_dr_case}</td>
+                    <td>{plot.tree_enumeration}</td>
+                    <td>{plot.order_sheet_prep}</td>
+                    <td>{plot.lease_to_idco}</td>
+                    <td>{plot.lease_to_ua}</td>
                     <td>{plot.remarks}</td>
 
                     <td className={stickyActionCell}>
@@ -407,15 +280,7 @@ const Plots = () => {
       </div>
 
       {/* PlotForm Modal */}
-      {isModalOpen && (
-        <PlotForm
-          formData={formData}
-          setFormData={setFormData}
-          handleSubmit={handleSubmit}
-          closeModal={() => setIsModalOpen(false)}
-          projectVillageKhataMap={projectVillageKhataMap}
-        />
-      )}
+      {isModalOpen && <PlotForm closeModal={() => setIsModalOpen(false)} />}
 
       {/* Delete Modal */}
       {deleteConfirm && (

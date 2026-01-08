@@ -950,21 +950,6 @@ const PlotForm = ({ fetchPlots }) => {
                           </option>
                         ))}
                       </select>
-                    ) : field === "khata_no" ? (
-                      <select
-                        name="khata_no"
-                        value={formData.khata_no}
-                        onChange={handleChange}
-                        disabled={!formData.project_id}
-                        className="select select-bordered w-full"
-                      >
-                        <option value="">Select Khata No</option>
-                        {khatas.map((k) => (
-                          <option key={k.id} value={k.khata_no}>
-                            {k.khata_no}
-                          </option>
-                        ))}
-                      </select>
                     ) : field === "full_part" ? (
                       <select
                         name={field}

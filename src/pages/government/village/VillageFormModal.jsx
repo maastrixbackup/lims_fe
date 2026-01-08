@@ -220,7 +220,7 @@ const VillageFormModal = ({
             <label>Land Type</label>
             <input
               type="text"
-              value={
+              value={ 
                 typeParam === 1
                   ? "Private Land"
                   : typeParam === 2
@@ -270,6 +270,10 @@ const VillageFormModal = ({
             )}
 
             <div className="modal-action">
+              
+              <button className="btn btn-error text-white" type="button" onClick={onClose}>
+                Cancel
+              </button>
               <button
                 className="btn btn-primary"
                 type="submit"
@@ -284,9 +288,6 @@ const VillageFormModal = ({
                   : "Save"}
               </button>
 
-              <button className="btn btn-error text-white" type="button" onClick={onClose}>
-                Cancel
-              </button>
             </div>
           </form>
         )}

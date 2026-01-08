@@ -29,18 +29,17 @@ export default function Sidebar({ open, setOpen, isMobile }) {
   const [active, setActive] = useState(
     localStorage.getItem("activeMenu") || "Dashboard"
   );
-
-  const storedExpanded = localStorage.getItem("expandedMenu");
   const [expanded, setExpanded] = useState(
-    storedExpanded !== "null" ? storedExpanded : null
+    localStorage.getItem("expandedMenu") || null
   );
-
   const [reportGroupExpanded, setReportGroupExpanded] = useState(
     JSON.parse(localStorage.getItem("reportGroups")) || {}
   );
 
-  const sanitize = (str) =>
-    str.charAt(0).toUpperCase() + str.slice(1).replace("-", " ");
+  const sanitize = (str = "") =>
+    str
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
   const menuItems = useMemo(
     () => [
@@ -67,7 +66,7 @@ export default function Sidebar({ open, setOpen, isMobile }) {
         name: "Govt Land",
         icon: MapPinHouse,
         basePath: "govt-land/government",
-        submenu: ["Villages", "Khatas","Plots", "Land Cost"],
+        submenu: ["Villages", "Khatas", "Plots", "Land Cost"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
@@ -80,8 +79,7 @@ export default function Sidebar({ open, setOpen, isMobile }) {
       {
         name: "CA Land",
         icon: TreePalm,
-        basePath: "govt-land",
-        submenu: [],
+        path: "govt-land",
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {
@@ -116,30 +114,6 @@ export default function Sidebar({ open, setOpen, isMobile }) {
             base: "plot-reports",
             children: ["Plot Details", "Plot Owner History"],
           },
-          {
-            title: "Project Reports",
-            base: "project-reports",
-            children: [
-              "Project Summary",
-              "Project Document Register",
-              "Total Tenants",
-            ],
-          },
-          {
-            title: "Document Reports",
-            base: "document-reports",
-            children: ["Document Upload Report", "Missing Documents Report"],
-          },
-          {
-            title: "GIS / Maps Reports",
-            base: "maps-reports",
-            children: ["KMZ Availability", "Map Summary Report"],
-          },
-          {
-            title: "User Reports",
-            base: "user-reports",
-            children: ["Activity Log", "Audit Trail"],
-          },
         ],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
@@ -170,59 +144,54 @@ export default function Sidebar({ open, setOpen, isMobile }) {
   }, [reportGroupExpanded]);
 
   useEffect(() => {
-    const parts = location.pathname.split("/").filter(Boolean);
-    if (!parts.length) return;
+    const path = location.pathname.replace(/^\/+/, "");
 
-    const main = parts[0];
-    const sub = parts[1]; 
-    const group = parts[2];
-
-    const foundMain = menuItems.find(
-      (m) => m.path?.toLowerCase() === main || m.basePath === main
+    const mainItem = menuItems.find(
+      (m) =>
+        m.path === path ||
+        (m.basePath && path.startsWith(m.basePath))
     );
 
-    if (foundMain) {
-      setExpanded(
-        foundMain.submenu || foundMain.submenuGroups ? foundMain.name : null
-      );
+    if (!mainItem) return;
 
-      if (foundMain.name === "Reports" && group) {
-        const reportGroup = foundMain.submenuGroups.find(
-          (g) => g.base === group
-        );
-        if (reportGroup) {
-          setReportGroupExpanded((prev) => ({
-            ...prev,
-            [reportGroup.title]: true,
-          }));
-          if (sub) setActive(sanitize(sub));
-        }
-      } else {
-        if (sub) setActive(sanitize(sub));
-        else setActive(foundMain.name);
+    if (mainItem.submenu || mainItem.submenuGroups) {
+      setExpanded(mainItem.name);
+    } else {
+      setExpanded(null);
+    }
+
+    const parts = path.split("/");
+    if (parts.length > 1) {
+      setActive(sanitize(parts[parts.length - 1]));
+    } else {
+      setActive(mainItem.name);
+    }
+
+    if (mainItem.name === "Reports" && parts.length >= 3) {
+      const group = mainItem.submenuGroups.find(
+        (g) => g.base === parts[1]
+      );
+      if (group) {
+        setReportGroupExpanded((p) => ({
+          ...p,
+          [group.title]: true,
+        }));
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuItems]);
+
   const handleClick = (item) => {
-    if (item.submenu || item.submenuGroups)
-      return setExpanded(expanded === item.name ? null : item.name);
-
-    setActive(item.name);
-    navigate("/" + item.path.toLowerCase());
-  };
-
-  const handleSubClick = (parentPath, sub) => {
-    let subPath = sub.toLowerCase().replace(/\s+/g, "-");
-
-    if (["private-land", "govt-land", "forest-land"].includes(parentPath)) {
-      if (subPath === "khata") subPath = "khatas";
-      if (subPath === "plot") subPath = "plots";
-      if (subPath === "village") subPath = "villages";
+    if (item.submenu || item.submenuGroups) {
+      setExpanded(expanded === item.name ? null : item.name);
+      return;
     }
-
-    const path = `/${parentPath}/${subPath}`;
+    setActive(item.name);
+    navigate("/" + item.path);
+  };
+  const handleSubClick = (parentPath, sub) => {
+    const subPath = sub.toLowerCase().replace(/\s+/g, "-");
     setActive(sub);
-    navigate(path);
+    navigate(`/${parentPath}/${subPath}`);
   };
 
   return (

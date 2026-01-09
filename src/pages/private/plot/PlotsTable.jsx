@@ -17,6 +17,7 @@ import {
   stickyActionHeader,
   stickyPaymentCell,
   stickyPaymentHeader,
+  showToast,
 } from "../../../utils/constants";
 import ResetFilters from "../../../shared/ResetFilters";
 // import { useLandTypeParam } from "../../../utils/landtypes";
@@ -52,32 +53,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       [field]: value,
     }));
   };
-  // const FilterHeader = ({ label, field, options }) => {
-  //   return (
-  //     <th className="p-2 text-left text-gray-700 bg-gray-200 sticky top-0 z-20">
-  //       <div className="flex items-center gap-2">
-  //         {/* Column Label */}
-  //         <span className="font-medium text-gray-700 whitespace-nowrap">{label}</span>
-
-  //         {/* Filter Dropdown */}
-  //         <select
-  //           className={`select select-xs border-gray-300  ${
-  //             columnFilters[field] ? "border-indigo-500 bg-indigo-50" : ""
-  //           }`}
-  //           value={columnFilters[field] || ""}
-  //           onChange={(e) => updateFilter(field, e.target.value)}
-  //         >
-  //           <option value="">All</option>
-  //           {options.map((opt) => (
-  //             <option key={opt} value={opt}>
-  //               {opt}
-  //             </option>
-  //           ))}
-  //         </select>
-  //       </div>
-  //     </th>
-  //   );
-  // };
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
@@ -97,43 +72,100 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     ];
   };
 
-  const handlePaymentReady = async (plot) => {
+
+  const getPaymentCode = (plot) => {
+    if (paymentStatusMap[plot.id]) return paymentStatusMap[plot.id];
+
+    if (plot.payment_status === "processing") return "PP";
+    if (plot.payment_status === "complete") return "RC";
+
+    return "RP";
+  };
+
+  // const handlePaymentReady = async (plot) => {
+  //   if (isRestricted) return;
+
+  //   setLoadingPlotId(plot.id);
+
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify({ plot_id: plot.id }),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (data.success) {
+  //       window.toast?.success(data.message || "Payment processed successfully");
+
+  //       // Update local status map
+  //       setPaymentStatusMap((prev) => ({
+  //         ...prev,
+  //         [plot.id]: "success",
+  //       }));
+  //       navigate(`/${landType}/land-cost`, { state: { plot } });
+
+  //       // setTimeout(() => refreshPlots && refreshPlots(), 1000);
+  //     } else {
+  //       window.toast?.error(data.message || "Payment request failed");
+  //     }
+  //   } catch (error) {
+  //     console.error("Payment API error:", error);
+  //     window.toast?.error("Network error, please try again");
+  //   }
+
+  //   setLoadingPlotId(null);
+  // };
+  const handlePaymentStatusChange = async (plot, code) => {
     if (isRestricted) return;
 
-    setLoadingPlotId(plot.id);
+    // RP → do nothing
+    if (code === "RP") return;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ plot_id: plot.id }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        window.toast?.success(data.message || "Payment processed successfully");
-
-        // Update local status map
-        setPaymentStatusMap((prev) => ({
-          ...prev,
-          [plot.id]: "success",
-        }));
-        navigate(`/${landType}/land-cost`, { state: { plot } });
-
-        // setTimeout(() => refreshPlots && refreshPlots(), 1000);
-      } else {
-        window.toast?.error(data.message || "Payment request failed");
-      }
-    } catch (error) {
-      console.error("Payment API error:", error);
-      window.toast?.error("Network error, please try again");
+    // RC → redirect only
+    if (code === "RC") {
+      navigate(`/${landType}/land-cost`, { state: { plot } });
+      return;
     }
 
-    setLoadingPlotId(null);
+    // PP → call API
+    if (code === "PP") {
+      setLoadingPlotId(plot.id);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ plot_id: plot.id }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showToast("Payment moved to processing", "primary");
+
+          setPaymentStatusMap((prev) => ({
+            ...prev,
+            [plot.id]: "PP",
+          }));
+
+          navigate(`/${landType}/land-cost`, { state: { plot } });
+        } else {
+          window.toast?.error(data.message);
+        }
+      } catch (err) {
+        window.toast?.error("Network error");
+      }
+
+      setLoadingPlotId(null);
+    }
   };
 
   const sortedPlots = useMemo(() => {
@@ -157,19 +189,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return [...uniqueVillages];
   }, [projectFilteredPlots]);
 
-  // const filteredPlots = useMemo(() => {
-  //   return projectFilteredPlots.filter((plot) => {
-  //     const matchVillage =
-  //       !selectedVillage || plot.village_name === selectedVillage;
-  //     const matchKhata = !selectedKhata || plot.khata_no === selectedKhata;
-  //     const query = searchQuery.toLowerCase();
-  //     const matchSearch =
-  //       !searchQuery ||
-  //       Object.values(plot).join(" ").toLowerCase().includes(query);
-
-  //     return matchVillage && matchKhata && matchSearch;
-  //   });
-  // }, [projectFilteredPlots, selectedVillage, selectedKhata, searchQuery]);
   const filteredPlots = useMemo(() => {
     let data = projectFilteredPlots.filter((plot) => {
       const searchMatch =
@@ -207,14 +226,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return data;
   }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig]);
 
-  // Reset filters
-  // const resetFilters = () => {
-  //   setSelectedVillage("");
-  //   setSelectedKhata("");
-  //   setSearchQuery("");
-  //   setColumnFilters({});
-  //   setSortConfig({ field: null, direction: "asc" });
-  // };
   const resetFilters = useCallback(() => {
     setSearchQuery("");
     setColumnFilters({});
@@ -233,20 +244,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   const navigate = useNavigate();
 
-  // if (!filteredPlots.length) {
-  //   return (
-  //     <div className="text-center py-10 text-gray-500">
-  //       No plots found. Click{" "}
-  //       <span
-  //         className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-all duration-200"
-  //         onClick={() => navigate(`/${landType}/plot-form`)}
-  //       >
-  //         + Add Plot
-  //       </span>{" "}
-  //       to create one.
-  //     </div>
-  //   );
-  // }
   const formatDate = (date) => {
     if (!date) return "N/A";
     const d = moment(date);
@@ -262,82 +259,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
         style={{ scrollbarWidth: "thin" }}
       >
-        <table className="min-w-full relative table-fixed whitespace-nowrap">{children}</table>
+        <table className="min-w-full relative table-fixed whitespace-nowrap">
+          {children}
+        </table>
       </div>
     </div>
   );
-  // const TableWrapper = ({ title, children }) => (
-  //   <div className="space-y-2">
-  //     <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 shadow-sm">
-  //       {title}
-  //     </h2>
-  //     <div
-  //       className="max-h-[400px] overflow-x-auto relative"
-  //       style={{ scrollbarWidth: "thin" }}
-  //     >
-  //       <table className="table w-full whitespace-nowrap">{children}</table>
-  //     </div>
-  //   </div>
-  // );
-
-  // const ActionButtons = (plot) => (
-  //   <div className="flex justify-end gap-2">
-  //     {/* <button
-  //       className={`btn btn-xs btn-success text-white flex items-center gap-1 px-3 w-40 ${
-  //         isRestricted || loadingPlotId === plot.id
-  //           ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-  //           : "hover:bg-green-700"
-  //       }`}
-  //       onClick={() => handlePaymentReady(plot)}
-  //       disabled={
-  //         isRestricted ||
-  //         loadingPlotId === plot.id ||
-  //         paymentStatusMap[plot.id] === "success"
-  //       }
-  //     >
-  //       {loadingPlotId === plot.id ? (
-  //         <span className="loading loading-spinner loading-xs"></span>
-  //       ) : (
-  //         <HandCoins size={12} />
-  //       )}
-
-  //       {loadingPlotId === plot.id
-  //         ? "Processing..."
-  //         : paymentStatusMap[plot.id] === "success"
-  //         ? "Success"
-  //         : plot.payment_status === null
-  //         ? "Ready For Payment"
-  //         : "Processing"}
-  //     </button> */}
-
-  //     <button
-  //       className={`btn btn-xs btn-warning text-white ${
-  //         // isRestricted
-  //         !canEdit
-  //           ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-  //           : ""
-  //       }`}
-  //       onClick={() => navigate(`/${landType}/plot-form`, { state: { plot } })}
-  //       // disabled={isRestricted}
-  //       disabled={!canEdit}
-  //     >
-  //       <Pencil size={12} /> Edit
-  //     </button>
-  //     <button
-  //       className={`btn btn-xs btn-error text-white ${
-  //         // isRestricted
-  //         !canDelete
-  //           ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-  //           : ""
-  //       }`}
-  //       onClick={() => setDeleteConfirm(plot)}
-  //       // disabled={isRestricted}
-  //       disabled={!canDelete}
-  //     >
-  //       <Trash2 size={12} /> Delete
-  //     </button>
-  //   </div>
-  // );
 
   const rowClass = "hover:bg-gray-50 transition-colors";
   if (noData) {
@@ -472,13 +399,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">#</th>
-                {/* <th className="p-3 text-left">  <FilterHeader
-                label="Project"
-                field="project_name"
-                options={getOptions("project_name")}
-                
-              /></th> */}
-                {/* <th className={stickyCol1Header}>LA Case File No</th> */}
+
                 <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
@@ -522,43 +443,14 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">SES Survey No</th>
                 <th className="p-3 text-left">Date of Award</th>
                 <th className="p-3 text-left">Recorded Tenant</th>
-                {/* <th className="p-3 text-left">Present Tenant</th> */}
-                {/* <FilterHeader
-                  label="Tenant"
-                  field="name_of_present_tenant"
-                  options={getOptions("name_of_present_tenant")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                  onSort={handleSort}
-                  sortConfig={sortConfig}
-                /> */}
+
                 <th className="p-3 text-left">Name of Present Tenant</th>
                 <th className="p-3 text-left">Number Of Present Tenant</th>
                 <th className="p-3 text-left">Present Address</th>
                 <th className="p-3 text-left">Displaced/Affected</th>
-                {/* <FilterHeader
-                  label="Village"
-                  field="village_name"
-                  options={getOptions("village_name")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                /> */}
+
                 <th className="p-3 text-left">Village Name</th>
-                {/* <FilterHeader
-                  label="Tahasil"
-                  field="tahasil_name"
-                  options={getOptions("tahasil_name")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                  onSort={handleSort}
-                  sortConfig={sortConfig}
-                /> */}
+
                 <th className="p-3 text-left">Tahasil</th>
                 <th className="p-3 text-left">RI Circle</th>
                 <th className="p-3 text-left">Thana No</th>
@@ -615,52 +507,65 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.land_area_acquired_hectares || "N/A"}
                   </td>
-                  <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
-                      >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                <td className={stickyPaymentCell}>
+  <div className={`dropdown dropdown-left ${isRestricted ? "opacity-60 pointer-events-none" : ""}`}>
+    {/* Trigger Button */}
+    <label
+      tabIndex={0}
+      className={`btn btn-sm w-[40px] font-bold justify-center flex items-center
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : "bg-green-600 text-white"
+        }
+      `}
+    >
+      {getPaymentCode(plot)}
+      {loadingPlotId === plot.id && (
+        <span className="ml-1 loading loading-spinner loading-xs"></span>
+      )}
+    </label>
 
-                      {/* Tooltip */}
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
-                    </div>
-                  </td>
+    {/* Dropdown Menu */}
+    {!isRestricted && loadingPlotId !== plot.id && (
+      <ul
+        tabIndex={0}
+        className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+      >
+        <li>
+          <button
+            onClick={() => handlePaymentStatusChange(plot, "RP")}
+            className="justify-start"
+          >
+            Ready for Payment
+          </button>
+        </li>
+
+        <li>
+          <button
+            onClick={() => handlePaymentStatusChange(plot, "PP")}
+            className="justify-start"
+          >
+            Payment Processing
+          </button>
+        </li>
+
+        <li>
+          <button
+            onClick={() => handlePaymentStatusChange(plot, "RC")}
+            className="justify-start"
+          >
+            Payment Complete
+          </button>
+        </li>
+      </ul>
+    )}
+  </div>
+</td>
+
+
                   <td className={stickyActionCell}>
                     <select
                       className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -710,11 +615,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-            <TableWrapper title="Tenant Information">
+          <TableWrapper title="Tenant Information">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
                 <th className="p-3 text-left">#</th>
-    
+
                 <FilterHeader
                   label="LA Case File No"
                   field="la_case_file_no"
@@ -1156,202 +1061,200 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tbody>
           </TableWrapper>
           <TableWrapper title="Legal Issues">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
-                <tr>
-                  <th className="p-3 text-left">#</th>
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
+              <tr>
+                <th className="p-3 text-left">#</th>
 
-                  <FilterHeader
-                    label="LA Case File No"
-                    field="la_case_file_no"
-                    options={getOptions("la_case_file_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    className={stickyCol1Header}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                  />
+                <FilterHeader
+                  label="LA Case File No"
+                  field="la_case_file_no"
+                  options={getOptions("la_case_file_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  className={stickyCol1Header}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
 
-                  <FilterHeader
-                    label="Khata"
-                    field="khata_no"
-                    options={getOptions("khata_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                    className={stickyCol2Header}
-                  />
+                <FilterHeader
+                  label="Khata"
+                  field="khata_no"
+                  options={getOptions("khata_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol2Header}
+                />
 
-                  <FilterHeader
-                    label="Plot No"
-                    field="plot_no"
-                    options={getOptions("plot_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                    className={stickyCol3Header}
-                  />
+                <FilterHeader
+                  label="Plot No"
+                  field="plot_no"
+                  options={getOptions("plot_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                  className={stickyCol3Header}
+                />
 
-                  <FilterHeader
-                    label="Legal Heir Cert. No"
-                    field="legal_heir_certificate_no"
-                    options={getOptions("legal_heir_certificate_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                  />
+                <FilterHeader
+                  label="Legal Heir Cert. No"
+                  field="legal_heir_certificate_no"
+                  options={getOptions("legal_heir_certificate_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
 
-                  <FilterHeader
-                    label="Land Case No"
-                    field="land_case_no"
-                    options={getOptions("land_case_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                  />
+                <FilterHeader
+                  label="Land Case No"
+                  field="land_case_no"
+                  options={getOptions("land_case_no")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
 
-                  <th className="p-3 text-left">Land Case Date</th>
-                  <th className="p-3 text-left">Land Case Type</th>
-                  <th className="p-3 text-left">Land Case Status</th>
-                  <th className="p-3 text-left">Land Case Action</th>
+                <th className="p-3 text-left">Land Case Date</th>
+                <th className="p-3 text-left">Land Case Type</th>
+                <th className="p-3 text-left">Land Case Status</th>
+                <th className="p-3 text-left">Land Case Action</th>
 
-                  <th className={stickyPaymentHeader}>Payment Status</th>
-                  <th className={stickyActionHeader}>Actions</th>
-                </tr>
-              </thead>
+                <th className={stickyPaymentHeader}>Payment Status</th>
+                <th className={stickyActionHeader}>Actions</th>
+              </tr>
+            </thead>
 
-              <tbody className="divide-y divide-gray-100 text-xs">
-                {filteredPlots.map((plot, idx) => (
-                  <tr
-                    key={plot.id || idx}
-                    className="hover:bg-gray-50 shadow-sm transition"
-                  >
-                    <td className="p-3">{idx + 1}</td>
-                    <td className={stickyCol1Cell}>
-                      {plot.la_case_file_no || "N/A"}
-                    </td>
-                    <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
-                    <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
-                    <td className="p-3">
-                      {plot.legal_heir_certificate_no || "N/A"}
-                    </td>
-                    <td className="p-3">{plot.land_case_no || "N/A"}</td>
-                    <td className="p-3">
-                      {formatDate(plot.land_case_date) || "N/A"}
-                    </td>
-                    <td className="p-3">{plot.land_case_type || "N/A"}</td>
-                    <td className="p-3">{plot.land_case_status || "N/A"}</td>
-                    <td className="p-3">{plot.land_case_action || "N/A"}</td>
+            <tbody className="divide-y divide-gray-100 text-xs">
+              {filteredPlots.map((plot, idx) => (
+                <tr
+                  key={plot.id || idx}
+                  className="hover:bg-gray-50 shadow-sm transition"
+                >
+                  <td className="p-3">{idx + 1}</td>
+                  <td className={stickyCol1Cell}>
+                    {plot.la_case_file_no || "N/A"}
+                  </td>
+                  <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
+                  <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.legal_heir_certificate_no || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.land_case_no || "N/A"}</td>
+                  <td className="p-3">
+                    {formatDate(plot.land_case_date) || "N/A"}
+                  </td>
+                  <td className="p-3">{plot.land_case_type || "N/A"}</td>
+                  <td className="p-3">{plot.land_case_status || "N/A"}</td>
+                  <td className="p-3">{plot.land_case_action || "N/A"}</td>
 
-                    <td className={stickyPaymentCell}>
-                      <div className="relative group inline-block">
-                        <button
-                          className={`btn btn-sm text-white flex items-center gap-1 ${
-                            isRestricted || loadingPlotId === plot.id
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : paymentStatusMap[plot.id] === "success"
-                              ? "bg-green-400 hover:bg-green-700"
-                              : plot.payment_status === null
-                              ? "bg-orange-600 hover:bg-orange-700"
-                              : "bg-green-600 hover:bg-green-700"
-                          }`}
-                          onClick={() => handlePaymentReady(plot)}
-                          disabled={
-                            isRestricted ||
-                            loadingPlotId === plot.id ||
-                            paymentStatusMap[plot.id] === "success"
-                          }
-                        >
-                          {loadingPlotId === plot.id ? (
-                            <span className="loading loading-spinner loading-xs"></span>
-                          ) : paymentStatusMap[plot.id] === "success" ? (
-                            "RC"
-                          ) : plot.payment_status === null ? (
-                            "RP"
-                          ) : (
-                            "PP"
-                          )}
-                        </button>
+                  <td className={stickyPaymentCell}>
+                    <div className="relative group inline-block">
+                      <button
+                        className={`btn btn-sm text-white flex items-center gap-1 ${
+                          isRestricted || loadingPlotId === plot.id
+                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                            : paymentStatusMap[plot.id] === "success"
+                            ? "bg-green-400 hover:bg-green-700"
+                            : plot.payment_status === null
+                            ? "bg-orange-600 hover:bg-orange-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                        onClick={() => handlePaymentReady(plot)}
+                        disabled={
+                          isRestricted ||
+                          loadingPlotId === plot.id ||
+                          paymentStatusMap[plot.id] === "success"
+                        }
+                      >
+                        {loadingPlotId === plot.id ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : paymentStatusMap[plot.id] === "success" ? (
+                          "RC"
+                        ) : plot.payment_status === null ? (
+                          "RP"
+                        ) : (
+                          "PP"
+                        )}
+                      </button>
 
-              
-                        <span
-                          className="absolute -translate-x-1/2 -top-5
+                      <span
+                        className="absolute -translate-x-1/2 -top-5
       opacity-0 group-hover:opacity-100 transition
       bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                        >
-                          {loadingPlotId === plot.id
-                            ? "Processing Payment"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "Payment Completed"
-                            : plot.payment_status === null
-                            ? "Ready For Payment"
-                            : "Payment in Processing"}
-                        </span>
-                      </div>
-                    </td>
-                 
-                    <td className={stickyActionCell}>
-                      <select
-                        className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                        defaultValue=""
-                        onChange={(e) => {
-                          const action = e.target.value;
-                          e.target.value = "";
-
-                          if (action === "edit") {
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            });
-                          }
-
-                          if (action === "delete") {
-                            setDeleteConfirm(plot);
-                          }
-                        }}
                       >
-                        <option value="" disabled>
-                          Actions
-                        </option>
+                        {loadingPlotId === plot.id
+                          ? "Processing Payment"
+                          : paymentStatusMap[plot.id] === "success"
+                          ? "Payment Completed"
+                          : plot.payment_status === null
+                          ? "Ready For Payment"
+                          : "Payment in Processing"}
+                      </span>
+                    </div>
+                  </td>
 
-                        <option
-                          value="edit"
+                  <td className={stickyActionCell}>
+                    <select
+                      className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                      defaultValue=""
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        e.target.value = "";
 
-                          disabled={!canEdit}
-                          className={`text-md text-gray-700 font-bold ${
-                            !canEdit ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          ✏️ Edit
-                        </option>
+                        if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
+                            state: { plot },
+                          });
+                        }
 
-                        <option
-                          value="delete"
-                          disabled={!canDelete}
-                          className={`text-md text-gray-700 font-bold ${
-                            !canDelete ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          🗑 Delete
-                        </option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </TableWrapper>
+                        if (action === "delete") {
+                          setDeleteConfirm(plot);
+                        }
+                      }}
+                    >
+                      <option value="" disabled>
+                        Actions
+                      </option>
+
+                      <option
+                        value="edit"
+                        disabled={!canEdit}
+                        className={`text-md text-gray-700 font-bold ${
+                          !canEdit ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        ✏️ Edit
+                      </option>
+
+                      <option
+                        value="delete"
+                        disabled={!canDelete}
+                        className={`text-md text-gray-700 font-bold ${
+                          !canDelete ? "!text-gray-400" : ""
+                        }`}
+                      >
+                        🗑 Delete
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </TableWrapper>
           <TableWrapper title="Land Area Valuation Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
@@ -1425,9 +1328,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               <th className="p-3 text-left">Acquired Area (Acre)</th>
               <th className="p-3 text-left">Acquired Area (Hectare)</th> */}
                 {/* <th className="p-3 text-left">Legal Heir Cert. No</th> */}
-             
+
                 {/* <th className="p-3 text-left">Land Case No</th> */}
-              
+
                 <th className="p-3 text-left">Bench Market Value</th>
                 <th className="p-3 text-left">Basic Land Value (₹)</th>
                 <th className="p-3 text-left">Land Value w/ MF (₹)</th>
@@ -1499,7 +1402,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <td className="p-3">
                   {plot.land_area_acquired_hectares || "N/A"}
                 </td> */}
-                
+
                   <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
                   <td className="p-3">{plot.basic_land_value || "N/A"}</td>
                   <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>

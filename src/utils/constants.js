@@ -763,7 +763,7 @@ export const stickyActionCell =
 export const stickyPaymentHeader =
   "p-3 text-left bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
 export const stickyPaymentCell =
-  "p-3 text-left bg-white md:sticky md:right-5  border-gray-100 shadow-sm";
+  "p-3 text-center md:sticky md:right-5  border-gray-100 shadow-sm";
 
 export const stickyCol1Header =
   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";
@@ -1006,11 +1006,14 @@ export const GovernmentPlotFields = [
   { key: "leaseToIDCO", label: "Lease to IDCO", type: "yesno" },
   { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
   { key: "remarks", label: "Remarks", type: "text" },
-  { key: "ri_report_attachment", label: "RI Report Attachment", type: "text" },
-  { key: "tree_enumeration_attachment", label: "Tree Enumeration Attachment", type: "text" },
-  { key: "lease_to_idco_attachment", label: "Lease to IDCO Attachment", type: "text" },
-  { key: "lease_to_ua_attachment", label: "Lease to UA Attachment", type: "text" },
+  // { key: "ri_report_attachment", label: "RI Report Attachment", type: "text" },
+  // { key: "tree_enumeration_attachment", label: "Tree Enumeration Attachment", type: "text" },
+  // { key: "lease_to_idco_attachment", label: "Lease to IDCO Attachment", type: "text" },
+  // { key: "lease_to_ua_attachment", label: "Lease to UA Attachment", type: "text" },
 ];
+
+
+
 // export const GovernmentPlotFields = [
 //   { key: "khata_no", label: "Khata No", type: "text" },
 //   { key: "plot_no", label: "Plot No", type: "text" },
@@ -1022,7 +1025,11 @@ export const GovernmentPlotFields = [
 //   { key: "name_of_ror", label: "Name of ROR", type: "text" },
 
 //   { key: "total_area_acres", label: "Total Area (Acres)", type: "number" },
-//   { key: "proposed_area_acres", label: "Proposed Area (Acres)", type: "number" },
+//   {
+//     key: "proposed_area_acres",
+//     label: "Proposed Area (Acres)",
+//     type: "number",
+//   },
 //   {
 //     key: "total_area_hectares",
 //     label: "Total Area (Hectares)",
@@ -1065,7 +1072,11 @@ export const GovernmentPlotFields = [
 //   { key: "proclamation", label: "Proclamation", type: "text" },
 //   { key: "objection_received", label: "Objection Received", type: "yesno" },
 //   { key: "others", label: "Others", type: "text" },
-//   { key: "modification_revision", label: "Modification/Revision", type: "yesno" },
+//   {
+//     key: "modification_revision",
+//     label: "Modification/Revision",
+//     type: "yesno",
+//   },
 //   {
 //     key: "misc_dr_case_prep",
 //     label: "Missing Case Prep./DR Case Prep.",
@@ -1076,13 +1087,34 @@ export const GovernmentPlotFields = [
 //     label: "Missing Case Prep./DR Case Number",
 //     type: "text",
 //   },
-//   { key: "reason_for_misc_dr_case", label: "Reason for Misc/DR Case", type: "text" },
+//   {
+//     key: "reason_for_misc_dr_case",
+//     label: "Reason for Misc/DR Case",
+//     type: "text",
+//   },
 //   { key: "tree_enumeration", label: "Tree Enumeration", type: "status" },
 //   { key: "order_sheet", label: "Order Sheet", type: "status" },
 //   { key: "lease_to_idco", label: "Lease to IDCO", type: "yesno" },
 //   { key: "lease_to_ua", label: "Lease to UA", type: "yesno" },
 //   { key: "remarks", label: "Remarks", type: "text" },
+//   { key: "ri_report_attachment", label: "RI Report Attachment", type: "text" },
+//   {
+//     key: "tree_enumeration_attachment",
+//     label: "Tree Enumeration Attachment",
+//     type: "text",
+//   },
+//   {
+//     key: "lease_to_idco_attachment",
+//     label: "Lease to IDCO Attachment",
+//     type: "text",
+//   },
+//   {
+//     key: "lease_to_ua_attachment",
+//     label: "Lease to UA Attachment",
+//     type: "text",
+//   },
 // ];
+
 export const GovtKhataColumn = [
   { key: "plot_no", label: "Plot No", type: "text" },
   { key: "lease_case_no", label: "Lease Case No", type: "text" },
@@ -1095,4 +1127,3 @@ export const GovtKhataColumn = [
   { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },
 ];
-

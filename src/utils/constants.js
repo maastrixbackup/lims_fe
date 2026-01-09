@@ -761,9 +761,9 @@ export const stickyActionHeader =
 export const stickyActionCell =
   "text-right md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
 export const stickyPaymentHeader =
-  "p-3 text-left bg-gray-200 md:sticky md:right-5 z-[30] shadow-md";
+  "p-3 text-left bg-gray-200 md:sticky md:right-0 z-[30] shadow-md";
 export const stickyPaymentCell =
-  "p-3 text-center md:sticky md:right-5  border-gray-100 shadow-sm";
+  "p-3 text-center bg-white md:sticky md:right-0  border-gray-100 shadow-sm text-sm";
 
 export const stickyCol1Header =
   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";

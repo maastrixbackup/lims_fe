@@ -72,11 +72,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     ];
   };
 
-const PAYMENT_OPTIONS = [
-  { code: "RP", label: "Ready for Payment", color: "bg-orange-600" },
-  { code: "PP", label: "Payment Processing", color: "bg-green-700" },
-  { code: "RC", label: "Payment Complete", color: "bg-green-600" },
-];
 
   const getPaymentCode = (plot) => {
     if (paymentStatusMap[plot.id]) return paymentStatusMap[plot.id];

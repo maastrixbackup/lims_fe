@@ -674,6 +674,8 @@ const PlotForm = ({ fetchPlots }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { landType } = useParams();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
 
   const token = useSelector((s) => s.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
@@ -824,25 +826,6 @@ const PlotForm = ({ fetchPlots }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // const newErrors = {};
-
-    // REQUIRED_FIELDS.forEach((f) => {
-    //   if (!formData[f]) newErrors[f] = "This field is required";
-    // });
-
-    // if (!LA_CASE_REGEX.test(formData.la_case_file_no)) {
-    //   newErrors.la_case_file_no =
-    //     "Format must be PROJECT/VILLAGECODE/KHATANO (e.g. IRCT/PPJ/012)";
-    // }
-
-    // if (Object.keys(newErrors).length) {
-    //   setErrors(newErrors);
-    //   showToast("All required fields must be filled correctly.", "error");
-    //   return;
-    // }
-
-    // setLoading(true);
-
     try {
       const url = editingPlot
         ? `${API_BASE_URL}/plots/updatePlot/${editingPlot.id}`
@@ -859,17 +842,19 @@ const PlotForm = ({ fetchPlots }) => {
 
       const data = await res.json();
   console.log("dataaaaa", data)
-      if (data.success) {
-        showToast("Plot saved successfully!","success");
-        fetchPlots?.();
-        navigate(`/${landType}/plots`);
-      }
+    if (data.success) {
+ 
+  setShowSuccessModal(true);
+   fetchPlots();
+}
+
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <main className="overflow-y-auto">
@@ -1043,6 +1028,32 @@ const PlotForm = ({ fetchPlots }) => {
           </div>
         </form>
       </div>
+      {showSuccessModal && (
+  <dialog className="modal modal-open">
+    <div className="modal-box text-center">
+      <h3 className="font-bold text-lg text-green-600">
+       <CheckCircle className="text-green-500 w-12 h-12" />Plot Added Successfully
+      </h3>
+
+      {/* <p className="py-4 text-sm text-gray-600">
+        The plot details have been saved successfully.
+      </p> */}
+
+      <div className="modal-action justify-center">
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setShowSuccessModal(false);
+            navigate(`/${landType}/plots`);
+          }}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </dialog>
+)}
+
     </main>
   );
 };

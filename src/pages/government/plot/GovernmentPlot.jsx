@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { API_BASE_URL } from "../../../utils/config";
 import PlotForm from "./PlotForm";
 import {
   GovernmentPlotFields,
@@ -7,79 +8,13 @@ import {
 } from "../../../utils/constants";
 import { useSelector } from "react-redux";
 import FilterHeader from "./FilterHeader";
+export const PRESENT_STATUS_MAP = {
+  1: "Lease Case to Sub-Collector",
+  2: "Lease Case to ADM (Rev.Sec)",
+  3: "Demand Raised",
+  4: "Lease Sanctioned by Collector",
+};
 
-// Dummy data
-const plotData = [
-  {
-    id: 1,
-    khataNo: "K001",
-    plotNo: "P001",
-    thanaNo: "T001",
-    village: "Village 1",
-    tahashil: "Tahashil A",
-    riCircle: "RI-A",
-
-    kissam: "Agriculture",
-    rorName: "John Doe",
-
-    totalAreaAcres: 2.5,
-    proposedAreaAcres: 1.5,
-    totalAreaHectares: 1.01,
-    proposedAreaHectares: 0.61,
-    leaseCaseNo: "LC001",
-    presentStatus: "Lease case to sub-collector",
-    uaIdcoToTahasildar: "Yes",
-    caseDetails: "Pending approval",
-    actionToBeTaken: "Survey",
-    riReport: "In Progress",
-    proclamation: "Yes",
-    objectionReceived: "No",
-    others: "N/A",
-    modificationRevision: "No",
-    missingCasePrep: "No",
-    missingCasePrepNo: "MCP002",
-    reasonForMiscDrCase: "",
-    treeEnumeration: "Completed",
-    orderSheetPrep: "not started",
-    leaseToIdco: "Yes",
-    leaseToUa: "No",
-    remarks: "Urgent",
-  },
-  {
-    id: 2,
-    khataNo: "K002",
-    plotNo: "P002",
-    thanaNo: "T002",
-    village: "Village 2",
-    tahashil: "Tahashil B",
-    riCircle: "RI-B",
-    kissam: "Residential",
-    rorName: "Jane Smith",
-
-    totalAreaAcres: 3.0,
-    proposedAreaAcres: 2.0,
-    totalAreaHectares: 1.21,
-    proposedAreaHectares: 0.81,
-    leaseCaseNo: "LC002",
-    presentStatus: "Lease Sanctioned by Collector",
-    uaIdcoToTahasildar: "No",
-    caseDetails: "Under review",
-    actionToBeTaken: "Inspection",
-    riReport: "Not Started",
-    proclamation: "No",
-    objectionReceived: "Yes",
-    others: "Requires follow-up",
-    modificationRevision: "Yes",
-    missingCasePrep: "Yes",
-    missingCasePrepNo: "MCP001",
-    reasonForMiscDrCase: "Incomplete documents",
-    treeEnumeration: "Pending",
-    orderSheetPrep: "not started",
-    leaseToIdco: "No",
-    leaseToUa: "Yes",
-    remarks: "Follow up next week",
-  },
-];
 
 const projectVillageKhataMap = {
   "Project A": {
@@ -101,7 +36,7 @@ const stickyCol2Header =
 const stickyCol2Cell =
   "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
 const Plots = () => {
-  const [plots, setPlots] = useState(plotData);
+  // const [plots, setPlots] = useState(plotData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlot, setEditingPlot] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -109,7 +44,10 @@ const Plots = () => {
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
   const [activeFilterKey, setActiveFilterKey] = useState(null);
-
+  const [plots, setPlots] = useState([]);
+const [loading, setLoading] = useState(false);
+const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
   const [formData, setFormData] = useState({
     thanaNo: "",
     riCircle: "",
@@ -143,6 +81,85 @@ const Plots = () => {
     key: "",
     direction: "",
   });
+
+// selected project id (from redux / props / dropdown)
+const selectedProjectId = useSelector((state) => state.selectedProject.project?.id);
+
+const token = useSelector((state) => state.auth.userToken); 
+const mapGovtPlot = (item) => ({
+  id: item.id,
+  projectId: item.project_id,
+  village: item.mouza,
+  tahashil: item.tahasil,
+  thanaNo: item.thana_no,
+  riCircle: item.ri_circle,
+  khataNo: item.khata_no,
+  kissam: item.kissam,
+  rorName: item.name_of_ror,
+  plotNo: item.plot_no,
+  totalAreaAcres: item.total_area_acres,
+  proposedAreaAcres: item.proposed_area_acres,
+  totalAreaHectares: item.total_area_hectares,
+  proposedAreaHectares: item.proposed_area_hectares,
+  leaseCaseNo: item.lease_case_no,
+ presentStatus:
+    PRESENT_STATUS_MAP[item.present_status] || "No Data",
+  uaIdcoToTahasildar: item.ua_idco_to_tahasildar ? "Yes" : "No",
+  caseDetails: item.case_details,
+  actionToBeTaken: item.action_to_be_taken,
+  riReport: item.ri_report,
+  proclamation: item.proclamation ? "Yes" : "No",
+  objectionReceived: item.objection_received ? "Yes" : "No",
+  others: item.others,
+  modificationRevision: item.modification_revision ? "Yes" : "No",
+  missingCasePrep: item.misc_dr_case_prep ? "Yes" : "No",
+  missingCasePrepNo: item.misc_dr_case_prep_number,
+  reasonForMiscDrCase: item.reason_for_misc_dr_case,
+  treeEnumeration: item.tree_enumeration,
+  orderSheetPrep: item.order_sheet_prep,
+  leaseToIdco: item.lease_to_idco ? "Yes" : "No",
+  leaseToUa: item.lease_to_ua ? "Yes" : "No",
+  remarks: item.remarks,
+});
+useEffect(() => {
+  if (!selectedProjectId || !token) return;
+
+  const fetchPlots = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const json = await res.json();
+
+      // assuming response format
+      // { data: [], meta: { total_pages: X } }
+
+      const mappedData = json.data.map(mapGovtPlot);
+
+      setPlots(mappedData);
+      setTotalPages(json.meta?.total_pages || 1);
+    } catch (error) {
+      console.error("Failed to fetch plots", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPlots();
+}, [selectedProjectId, page, token]);
+
+
+
+
 
   const openModal = (plot = null) => {
     if (plot) {
@@ -332,7 +349,7 @@ const Plots = () => {
                     <td>{plot.presentStatus}</td>
                     <td>{plot.uaIdcoToTahasildar}</td>
                     <td>{plot.caseDetails}</td>
-                    <td>{plot.actionToBeTaken}</td>
+                    <td>{plot.actionToBeTaken}</td> 
                     <td>{plot.riReport}</td>
                     <td>{plot.proclamation}</td>
                     <td>{plot.objectionReceived}</td>

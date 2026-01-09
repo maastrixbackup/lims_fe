@@ -1,6 +1,13 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Pencil, Trash2, X, Filter, HandCoins } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  X,
+  Filter,
+  HandCoins,
+  ChevronDown,
+} from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
@@ -71,7 +78,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       ...new Set(projectFilteredPlots.map((p) => p[field]).filter(Boolean)),
     ];
   };
-
 
   const getPaymentCode = (plot) => {
     if (paymentStatusMap[plot.id]) return paymentStatusMap[plot.id];
@@ -507,12 +513,17 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.land_area_acquired_hectares || "N/A"}
                   </td>
-                <td className={stickyPaymentCell}>
-  <div className={`dropdown dropdown-left ${isRestricted ? "opacity-60 pointer-events-none" : ""}`}>
-    {/* Trigger Button */}
-    <label
-      tabIndex={0}
-      className={`btn btn-sm w-[40px] font-bold justify-center flex items-center
+                  <td className={stickyPaymentCell}>
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[60px] font-bold justify-center flex items-center
         ${
           getPaymentCode(plot) === "RP"
             ? "bg-orange-600 text-white"
@@ -521,50 +532,57 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             : "bg-green-600 text-white"
         }
       `}
-    >
-      {getPaymentCode(plot)}
-      {loadingPlotId === plot.id && (
-        <span className="ml-1 loading loading-spinner loading-xs"></span>
-      )}
-    </label>
+                      >
+                        
+                        {getPaymentCode(plot)}
+                        {/* {loadingPlotId === plot.id && (
+                          <span className="ml-1 loading loading-spinner loading-xs"></span>
+                        )} */}
+                       <ChevronDown size={16} strokeWidth={5} />
+                      </label>
 
-    {/* Dropdown Menu */}
-    {!isRestricted && loadingPlotId !== plot.id && (
-      <ul
-        tabIndex={0}
-        className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-      >
-        <li>
-          <button
-            onClick={() => handlePaymentStatusChange(plot, "RP")}
-            className="justify-start"
-          >
-            Ready for Payment
-          </button>
-        </li>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                              className="justify-start"
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
 
-        <li>
-          <button
-            onClick={() => handlePaymentStatusChange(plot, "PP")}
-            className="justify-start"
-          >
-            Payment Processing
-          </button>
-        </li>
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                              className="justify-start"
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
 
-        <li>
-          <button
-            onClick={() => handlePaymentStatusChange(plot, "RC")}
-            className="justify-start"
-          >
-            Payment Complete
-          </button>
-        </li>
-      </ul>
-    )}
-  </div>
-</td>
-
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                              className="justify-start"
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
+                    </div>
+                  </td>
 
                   <td className={stickyActionCell}>
                     <select

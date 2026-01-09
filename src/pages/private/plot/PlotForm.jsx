@@ -843,9 +843,8 @@ const PlotForm = ({ fetchPlots }) => {
       const data = await res.json();
   console.log("dataaaaa", data)
     if (data.success) {
- 
+  fetchPlots?.();
   setShowSuccessModal(true);
-   fetchPlots();
 }
 
     } catch (err) {
@@ -1032,7 +1031,7 @@ const PlotForm = ({ fetchPlots }) => {
   <dialog className="modal modal-open">
     <div className="modal-box text-center">
       <h3 className="font-bold text-lg text-green-600">
-       <CheckCircle className="text-green-500 w-12 h-12" />Plot Added Successfully
+        ✅ Plot Added Successfully
       </h3>
 
       {/* <p className="py-4 text-sm text-gray-600">

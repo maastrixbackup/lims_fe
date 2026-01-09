@@ -388,6 +388,7 @@ import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useLandTypeParam } from "../../../utils/landtypes";
+import { useSearchParams } from "react-router";
 
 const Compensation = () => {
   const [khatas, setKhatas] = useState([]);
@@ -402,12 +403,16 @@ const Compensation = () => {
   const projectId = selectedProject?.project?.id;
   const typeParam = useLandTypeParam();
   console.log("typeParam", typeParam)
+  const [searchParams] = useSearchParams();
+const plotId = searchParams.get("plotId");
+console.log("plotId", plotId)
+
 
   const fetchData = async () => {
     if (!projectId) return;
     try {
       const res = await fetch(
-        `${API_BASE_URL}/plots/getCompensationDetails?project_id=${projectId}&type=${typeParam}`,
+        `${API_BASE_URL}/plots/getCompensationDetails?project_id=${projectId}&type=${typeParam}&plot_id=${plotId}`,
         {
           method: "GET",
           headers: {
@@ -481,38 +486,51 @@ const Compensation = () => {
   //     return newData;
   //   });
   // };
-  const handleApportionChange = (kIndex, rIndex, value) => {
-    let num = value;
-    if (num < 0) num = 0;
-    if (num > 100) num = 100;
+ const handleApportionChange = (kIndex, rIndex, value) => {
+  let num = Number(value);
+  if (num < 0) num = 0;
+  if (num > 100) num = 100;
 
-    setKhatas((prev) => {
-      const newData = [...prev];
-      const khata = newData[kIndex];
-      const records = khata.records;
+  setKhatas((prev) => {
+    const newData = [...prev];
+    const khata = newData[kIndex];
+    const records = khata.records;
 
-      records[rIndex].apportionment = num;
-      let usedPercent = 0;
-      records.forEach((r, i) => {
-        if (i !== records.length - 1) {
-          usedPercent += Number(r.apportionment || 0);
-        }
-      });
+    // Update current record
+    records[rIndex].apportionment = num;
 
-      const remaining = Math.max(0, 100 - usedPercent);
-      const lastIndex = records.length - 1;
-
-      records[lastIndex].apportionment = rIndex === lastIndex ? num : remaining;
-      records.forEach((r) => {
-        r.compPayment = (
-          (Number(r.apportionment) / 100) *
-          khata.totalComp
-        ).toFixed(2);
-      });
-
-      return newData;
+    // Calculate used percentage (except last)
+    let usedPercent = 0;
+    records.forEach((r, i) => {
+      if (i !== records.length - 1) {
+        usedPercent += Number(r.apportionment || 0);
+      }
     });
-  };
+
+    const lastIndex = records.length - 1;
+    const remaining = Math.max(0, 100 - usedPercent);
+
+    // Auto-adjust last row
+    records[lastIndex].apportionment =
+      rIndex === lastIndex ? num : remaining;
+
+    // 🔥 RECALCULATE paymentArea + compPayment
+    records.forEach((r) => {
+      r.compPayment = (
+        (Number(r.apportionment) / 100) *
+        khata.totalComp
+      ).toFixed(2);
+
+      r.paymentArea = (
+        (Number(r.apportionment) / 100) *
+        khata.totalArea
+      ).toFixed(2);
+    });
+
+    return newData;
+  });
+};
+
   const handlePaymentChange = (kIndex, rIndex, value) => {
     let amount = value;
 

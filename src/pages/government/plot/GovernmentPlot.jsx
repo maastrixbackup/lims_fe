@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../../../utils/config";
 import PlotForm from "./PlotForm";
 import {
@@ -10,20 +10,9 @@ import { useSelector } from "react-redux";
 import FilterHeader from "./FilterHeader";
 export const PRESENT_STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
-  2: "Lease Case to ADM (Rev.Sec)",
+  2: "Lease Case to ADM (Rev Sec)",
   3: "Demand Raised",
   4: "Lease Sanctioned by Collector",
-};
-
-
-const projectVillageKhataMap = {
-  "Project A": {
-    "Village 1": ["K001", "K002"],
-    "Village 2": ["K003"],
-  },
-  "Project B": {
-    "Village 3": ["K004", "K005"],
-  },
 };
 const stickyCol1Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md ";
@@ -37,6 +26,12 @@ const stickyCol2Cell =
   "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
 const Plots = () => {
   // const [plots, setPlots] = useState(plotData);
+  const [attachmentModal, setAttachmentModal] = useState({
+    open: false,
+    files: [],
+    title: "",
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlot, setEditingPlot] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -45,91 +40,65 @@ const Plots = () => {
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
   const [activeFilterKey, setActiveFilterKey] = useState(null);
   const [plots, setPlots] = useState([]);
-const [loading, setLoading] = useState(false);
-const [page, setPage] = useState(1);
-const [totalPages, setTotalPages] = useState(1);
-  const [formData, setFormData] = useState({
-    thanaNo: "",
-    riCircle: "",
-    khataNo: "",
-    kissam: "",
-    rorName: "",
-    plotNo: "",
-    totalAreaAcres: "",
-    proposedAreaAcres: "",
-    totalAreaHectares: "",
-    proposedAreaHectares: "",
-    leaseCaseNo: "",
-    presentStatus: "",
-    uaIdcoToTahasildar: "",
-    caseDetails: "",
-    actionToBeTaken: "",
-    riReport: "",
-    project: "",
-    village: "",
-    code: "",
-    sl: "",
-    plotNo1: "",
-    plotNo2: "",
-    tenant: "",
-    rorArea: "",
-    occupiedArea: "",
-    remarks: "",
-  });
+  const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     key: "",
     direction: "",
   });
+ const [loading, setLoading] = useState(false); 
+  // selected project id (from redux / props / dropdown)
+  const selectedProjectId = useSelector(
+    (state) => state.selectedProject.project?.id
+  );
 
-// selected project id (from redux / props / dropdown)
-const selectedProjectId = useSelector((state) => state.selectedProject.project?.id);
+  const token = useSelector((state) => state.auth.userToken);
+  const mapGovtPlot = (item) => ({
+    id: item.id,
+    projectId: item.project_id || "",
+    village: item.mouza || "",
+    tahashil: item.tahasil || "",
+    thanaNo: item.thana_no || "",
+    riCircle: item.ri_circle || "",
+    khataNo: item.khata_no || "",
+    kissam: item.kissam || "",
+    rorName: item.name_of_ror || "",
+    plotNo: item.plot_no || "",
+    totalAreaAcres: item.total_area_acres || "",
+    proposedAreaAcres: item.proposed_area_acres || "",
+    totalAreaHectares: item.total_area_hectares || "",
+    proposedAreaHectares: item.proposed_area_hectares || "",
+    leaseCaseNo: item.lease_case_no,
+    presentStatus: PRESENT_STATUS_MAP[item.present_status] || "",
+    uaIdcoToTahasildar: item.ua_idco_to_tahasildar ? "Yes" : "No",
+    caseDetails: item.case_details || "",
+    actionToBeTaken: item.action_to_be_taken || "",
+    riReport: item.ri_report || "",
+    proclamation: item.proclamation ? "Yes" : "No",
+    objectionReceived: item.objection_received ? "Yes" : "No",
+    others: item.others,
+    modificationRevision: item.modification_revision ? "Yes" : "No",
+    missingCasePrep: item.misc_dr_case_prep ? "Yes" : "No",
+    missingCasePrepNo: item.misc_dr_case_prep_number || "",
+    reasonForMiscDrCase: item.reason_for_misc_dr_case || "",
+    treeEnumeration: item.tree_enumeration || "",
+    orderSheet: item.order_sheet_prep || "",
+    leaseToIDCO: item.lease_to_idco ? "Yes" : "No",
+    leaseToUA: item.lease_to_ua ? "Yes" : "No",
+    remarks: item.remarks || "",
+    riReportAttachment: item.ri_report_attachment || "",
+    treeEnumerationAttachment: item.tree_enumeration_attachment || "",
+    leaseToIDCOAttachment: item.lease_to_idco_attachment || "",
+    leaseToUAAttachment: item.lease_to_ua_attachment || "",
+  });
+  const fetchPlots = useCallback(async () => {
+    if (!selectedProjectId || !token) return;
 
-const token = useSelector((state) => state.auth.userToken); 
-const mapGovtPlot = (item) => ({
-  id: item.id,
-  projectId: item.project_id,
-  village: item.mouza,
-  tahashil: item.tahasil,
-  thanaNo: item.thana_no,
-  riCircle: item.ri_circle,
-  khataNo: item.khata_no,
-  kissam: item.kissam,
-  rorName: item.name_of_ror,
-  plotNo: item.plot_no,
-  totalAreaAcres: item.total_area_acres,
-  proposedAreaAcres: item.proposed_area_acres,
-  totalAreaHectares: item.total_area_hectares,
-  proposedAreaHectares: item.proposed_area_hectares,
-  leaseCaseNo: item.lease_case_no,
- presentStatus:
-    PRESENT_STATUS_MAP[item.present_status] || "No Data",
-  uaIdcoToTahasildar: item.ua_idco_to_tahasildar ? "Yes" : "No",
-  caseDetails: item.case_details,
-  actionToBeTaken: item.action_to_be_taken,
-  riReport: item.ri_report,
-  proclamation: item.proclamation ? "Yes" : "No",
-  objectionReceived: item.objection_received ? "Yes" : "No",
-  others: item.others,
-  modificationRevision: item.modification_revision ? "Yes" : "No",
-  missingCasePrep: item.misc_dr_case_prep ? "Yes" : "No",
-  missingCasePrepNo: item.misc_dr_case_prep_number,
-  reasonForMiscDrCase: item.reason_for_misc_dr_case,
-  treeEnumeration: item.tree_enumeration,
-  orderSheetPrep: item.order_sheet_prep,
-  leaseToIdco: item.lease_to_idco ? "Yes" : "No",
-  leaseToUa: item.lease_to_ua ? "Yes" : "No",
-  remarks: item.remarks,
-});
-useEffect(() => {
-  if (!selectedProjectId || !token) return;
-
-  const fetchPlots = async () => {
     try {
       setLoading(true);
 
       const res = await fetch(
-        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&page=${page}`,
+        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&page=1`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -139,81 +108,76 @@ useEffect(() => {
       );
 
       const json = await res.json();
-
-      // assuming response format
-      // { data: [], meta: { total_pages: X } }
-
       const mappedData = json.data.map(mapGovtPlot);
 
       setPlots(mappedData);
-      setTotalPages(json.meta?.total_pages || 1);
+
     } catch (error) {
       console.error("Failed to fetch plots", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProjectId, page, token]);
+ 
+  useEffect(() => {
+    fetchPlots();
+  }, [fetchPlots]);
 
-  fetchPlots();
-}, [selectedProjectId, page, token]);
-
-
-
-
-
-  const openModal = (plot = null) => {
-    if (plot) {
-      setEditingPlot(plot);
-      setFormData(plot);
-    } else {
-      setEditingPlot(null);
-      setFormData({
-        thanaNo: "",
-        riCircle: "",
-        khataNo: "",
-        kissam: "",
-        rorName: "",
-        plotNo: "",
-        totalAreaAcres: "",
-        proposedAreaAcres: "",
-        totalAreaHectares: "",
-        proposedAreaHectares: "",
-        leaseCaseNo: "",
-        presentStatus: "",
-        uaIdcoToTahasildar: "",
-        caseDetails: "",
-        actionToBeTaken: "",
-        riReport: "",
-        project: "",
-        village: "",
-        code: "",
-        sl: "",
-        plotNo1: "",
-        plotNo2: "",
-        tenant: "",
-        rorArea: "",
-        occupiedArea: "",
-        remarks: "",
-        missingDrCasePrep: "",
-        missingDrCaseNo: "",
-        missingDrCaseReason: "",
-      });
-    }
+  const onEdit = (plot) => {
+    setEditingPlot(plot);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editingPlot) {
-      setPlots(
-        plots.map((p) =>
-          p.id === editingPlot.id ? { ...formData, id: p.id } : p
-        )
-      );
-    } else {
-      setPlots([...plots, { ...formData, id: plots.length + 1 }]);
-    }
-    setIsModalOpen(false);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const renderAttachments = (attachments, title = "Attachments") => {
+    if (!attachments) return "No Attachments";
+
+    const files = Array.isArray(attachments)
+      ? attachments
+      : attachments.split(",").map((f) => f.trim());
+
+    if (files.length === 0) return "No Attachments";
+
+    const visibleFiles = files.slice(0, 3);
+    const remainingCount = files.length - 3;
+
+    return (
+      <div className="text-sm text-gray-700 space-y-1">
+        {visibleFiles.map((file, idx) => (
+          <div
+            key={idx}
+            className="truncate max-w-[180px] cursor-pointer hover:underline"
+            onClick={() =>
+              setAttachmentModal({
+                open: true,
+                files,
+                title,
+              })
+            }
+          >
+            {file}
+          </div>
+        ))}
+
+        {remainingCount > 0 && (
+          <div
+            className="text-gray-500 font-semibold cursor-pointer hover:underline"
+            onClick={() =>
+              setAttachmentModal({
+                open: true,
+                files,
+                title,
+              })
+            }
+          >
+            ... +{remainingCount} more
+          </div>
+        )}
+      </div>
+    );
   };
 
   const confirmDelete = () => {
@@ -261,18 +225,16 @@ useEffect(() => {
           + Add Plot
         </button>
       </div>
-
-      {/* Table */}
       <div className="card bg-white shadow-lg rounded-2xl">
         <div
           className="overflow-x-auto max-h-[400px] overflow-y-auto"
           style={{ scrollbarWidth: "thin" }}
         >
           <table className="table w-full whitespace-nowrap">
-           <thead className="bg-gray-200 sticky top-0 z-10">
+            <thead className="bg-gray-200 sticky top-0 z-10">
               <tr>
                 <th>Sl/No</th>
-  <th className={stickyCol1Header}>
+                <th className={stickyCol1Header}>
                   <FilterHeader
                     column={GovernmentPlotFields.find(
                       (c) => c.key === "khataNo"
@@ -320,7 +282,6 @@ useEffect(() => {
                   </th>
                 ))}
 
-
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
@@ -333,37 +294,60 @@ useEffect(() => {
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td>{idx + 1}</td>
-                    <td className={stickyCol1Cell}>{plot.khataNo}</td>
-                    <td className={stickyCol2Cell}>{plot.plotNo}</td>
-                    <td>{plot.thanaNo}</td>
-                    <td>{plot.village}</td>
-                    <td>{plot.tahashil}</td>
-                    <td>{plot.riCircle}</td>
-                    <td>{plot.kissam}</td>
-                    <td>{plot.rorName}</td>
-                    <td>{plot.totalAreaAcres}</td>
-                    <td>{plot.proposedAreaAcres}</td>
-                    <td>{plot.totalAreaHectares}</td>
-                    <td>{plot.proposedAreaHectares}</td>
-                    <td>{plot.leaseCaseNo}</td>
-                    <td>{plot.presentStatus}</td>
-                    <td>{plot.uaIdcoToTahasildar}</td>
-                    <td>{plot.caseDetails}</td>
-                    <td>{plot.actionToBeTaken}</td> 
-                    <td>{plot.riReport}</td>
-                    <td>{plot.proclamation}</td>
-                    <td>{plot.objectionReceived}</td>
-                    <td>{plot.others}</td>
-                    <td>{plot.modificationRevision}</td>
-                    <td>{plot.missingCasePrep}</td>
-                    <td>{plot.missingCasePrepNo}</td>
-                    <td>{plot.reasonForMiscDrCase}</td>
-                    <td>{plot.treeEnumeration}</td>
-                    <td>{plot.orderSheetPrep}</td>
-                    <td>{plot.leaseToIdco}</td>
-                    <td>{plot.leaseToUa}</td>
-                    <td>{plot.remarks}</td>
-
+                    <td className={stickyCol1Cell}>{plot.khataNo || "No Data"}</td>
+                    <td className={stickyCol2Cell}>{plot.plotNo || "No Data"}</td>
+                    <td>{plot.thanaNo || "No Data"}</td>
+                    <td>{plot.village || "No Data"}</td>
+                    <td>{plot.tahashil || "No Data"}</td>
+                    <td>{plot.riCircle || "No Data"}</td>
+                    <td>{plot.kissam || "No Data"}</td>
+                    <td>{plot.rorName || "No Data"}</td>
+                    <td>{plot.totalAreaAcres || "No Data"}</td>
+                    <td>{plot.proposedAreaAcres || "No Data"}</td>
+                    <td>{plot.totalAreaHectares || "No Data"}</td>
+                    <td>{plot.proposedAreaHectares || "No Data"}</td>
+                    <td>{plot.leaseCaseNo || "No Data"}</td>
+                    <td>{plot.presentStatus || "No Data"}</td>
+                    <td>{plot.uaIdcoToTahasildar || "No Data"}</td>
+                    <td>{plot.caseDetails || "No Data"}</td>
+                    <td>{plot.actionToBeTaken || "No Data"}</td>
+                    <td>{plot.riReport || "No Data"}</td>
+                    <td>
+                      {renderAttachments(
+                        plot.riReportAttachment,
+                        "RI Report Attachments" || "No Data"
+                      )}
+                    </td>
+                    <td>{plot.proclamation || "No Data"}</td>
+                    <td>{plot.objectionReceived || "No Data"}</td>
+                    <td>{plot.others || "No Data"}</td>
+                    <td>{plot.modificationRevision || "No Data"}</td>
+                    <td>{plot.missingCasePrep || "No Data"}</td>
+                    <td>{plot.missingCasePrepNo || "No Data"}</td>
+                    <td>{plot.reasonForMiscDrCase || "No Data"}</td>
+                    <td>{plot.treeEnumeration || "No Data"}</td>
+                    <td>
+                      {renderAttachments(
+                        plot.treeEnumerationAttachment,
+                        "Tree Enumeration Attachments" || "No Data"
+                      )}
+                    </td>
+                    <td>{plot.orderSheet || "No Data"}</td>
+                    <td>{plot.leaseToIDCO || "No Data"}</td>
+                    <td>
+                      {renderAttachments(
+                        plot.leaseToIDCOAttachment,
+                        "Lease to IDCO Attachments" || "No Data"
+                      )}
+                    </td>
+                    <td>{plot.leaseToUA || "No Data"}</td>
+                    <td>
+                      {renderAttachments(
+                        plot.leaseToUAAttachment,
+                        "Lease to UA Attachments" || "No Data"
+                      )}
+                    </td>
+                    <td>{plot.remarks || "No Data"}</td>
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
@@ -420,17 +404,50 @@ useEffect(() => {
               )}
             </tbody>
           </table>
+          {attachmentModal.open && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+              <div className="bg-white rounded-xl shadow-xl w-[500px] max-h-[70vh] overflow-hidden">
+                {/* Header */}
+                <div className="flex justify-between items-center px-4 py-3 border-b">
+                  <h3 className="font-bold text-lg">{attachmentModal.title}</h3>
+                  <button
+                    className="text-gray-500 hover:text-red-600 text-xl"
+                    onClick={() =>
+                      setAttachmentModal({ open: false, files: [], title: "" })
+                    }
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Body */}
+                <div className="p-4 overflow-y-auto space-y-2">
+                  {attachmentModal.files.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-lg"
+                    >
+                      <span className="truncate max-w-[350px]">{file}</span>
+                      <a
+                        href={file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        View
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* PlotForm Modal */}
       {isModalOpen && (
         <PlotForm
-          formData={formData}
-          setFormData={setFormData}
-          handleSubmit={handleSubmit}
           closeModal={() => setIsModalOpen(false)}
-          projectVillageKhataMap={projectVillageKhataMap}
+          fetchPlots={fetchPlots}
         />
       )}
 

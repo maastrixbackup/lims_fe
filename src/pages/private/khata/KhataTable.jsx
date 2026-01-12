@@ -23,12 +23,7 @@ import {
   RR_COLUMNS,
   RR_FIELDS_FORMS,
   COMMON_COLUMNS,
-  stickyCol3Header,
-  stickyCol3Cell,
-  stickyCol1Cell,
-   stickyCol1Header,
-  stickyCol2Cell,
-  stickyCol2Header,
+
   } from "../../../utils/constants";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import KhataTabs from "./KhataTabs";
@@ -60,17 +55,28 @@ const KhataTable = ({
   const userRole = useSelector((state) => state.auth.user?.role_name);
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
-  // const stickyCol1Header =
-  //   "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md min-w-[140px]";
+ const stickyCol1Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";
+ const stickyCol1Cell =
+  "p-3 text-left bg-white md:sticky md:left-10 shadow-sm ";
 
-  // const stickyCol1Cell =
-  //   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[140px]";
+// export const stickyCol2Header =
+//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
+// export const stickyCol2Cell =
+//   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
+ const stickyCol2Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[90px] z-[30] shadow-md";
+ const stickyCol2Cell =
+  "p-3 text-left bg-white md:sticky md:left-[90px] shadow-sm";
 
-  // const stickyCol2Header =
-  //   "p-3 text-left bg-gray-200 md:sticky md:left-[140px] z-[35] shadow-md min-w-[180px]";
-
-  // const stickyCol2Cell =
-  //   "p-3 text-left bg-white md:sticky md:left-[140px] shadow-sm min-w-[180px]";
+ const stickyCol3Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[180px] z-[30] shadow-md";
+ const stickyCol3Cell =
+  "p-3 text-left bg-white md:sticky md:left-[180px] shadow-sm";
+   const stickyCol4Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[320px] z-[30] shadow-md";
+ const stickyCol4Cell =
+  "p-3 text-left bg-white md:sticky md:left-[320px] shadow-sm";
 
   const stickyActionHeader =
     "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
@@ -245,11 +251,10 @@ const KhataTable = ({
                   className="max-h-[400px] overflow-x-auto relative"
                   style={{ scrollbarWidth: "thin" }}
                 >
-                  <table className="table w-full whitespace-nowrap">
+                  <table className="table w-full">
                     <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
                       <tr>
-                        <th>Sl/No</th>
-
+                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">Sl/No</th>
                         <FilterableHeader
                           label="Khata No."
                           field="khata_no"
@@ -290,7 +295,7 @@ const KhataTable = ({
                               <FilterableHeader
                           label="Present Tenant"
                           field="name_of_present_tenant"
-                          // className={stickyCol3Header}
+                          className={stickyCol4Header}
                           filters={filters}
                           setFilters={setFilters}
                           activeFilter={activeFilter}
@@ -335,7 +340,7 @@ const KhataTable = ({
                     <tbody>
                       {filteredKhatas.map((khata, idx) => (
                         <tr key={khata.id}>
-                          <td>{(page - 1) * limit + idx + 1}</td>
+                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>{khata.khata_no}</td>
                           <td className={stickyCol2Cell}>
                             {khata.village_name}
@@ -344,7 +349,7 @@ const KhataTable = ({
                             {khata.name_of_recorded_tenant}
                           </td>
                            <td 
-                          //  className={stickyCol3Cell}
+                           className={stickyCol4Cell}
                            >
                             {khata.name_of_present_tenant}
                           </td>
@@ -449,10 +454,10 @@ const KhataTable = ({
                   className="max-h-[400px] overflow-x-auto relative"
                   style={{ scrollbarWidth: "thin" }}
                 >
-                  <table className="table w-full whitespace-nowrap">
+                  <table className="table w-full ">
                     <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
                       <tr>
-                        <th>Sl/No</th>
+                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">Sl/No</th>
   <FilterableHeader
                           label="Khata No."
                           field="khata_no"
@@ -493,7 +498,7 @@ const KhataTable = ({
                               <FilterableHeader
                           label="Present Tenant"
                           field="name_of_present_tenant"
-                          // className={stickyCol3Header}
+                          className={stickyCol4Header}
                           filters={filters}
                           setFilters={setFilters}
                           activeFilter={activeFilter}
@@ -526,7 +531,7 @@ const KhataTable = ({
                     <tbody>
                       {filteredKhatas.map((khata, idx) => (
                         <tr key={khata.id}>
-                          <td>{(page - 1) * limit + idx + 1}</td>
+                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">{(page - 1) * limit + idx + 1}</td>
 
                           <td className={stickyCol1Cell}>{khata.khata_no|| "No Data"}</td>
                           <td className={stickyCol2Cell}>
@@ -536,7 +541,7 @@ const KhataTable = ({
                             {khata.name_of_recorded_tenant || "No Data"}
                           </td>
                            <td 
-                          //  className={stickyCol3Cell}
+                           className={stickyCol4Cell}
                            >
                             {khata.name_of_present_tenant || "No Data"}
                           </td>

@@ -784,7 +784,7 @@ export const stickyCol3Header =
 export const stickyCol3Cell =
   "p-3 text-left bg-white md:sticky md:left-[180px] shadow-sm";
 export const COMMON_COLUMNS = [
-  { label: "Present Tenant", field: "name_of_present_tenant" },
+  // { label: "Present Tenant", field: "name_of_present_tenant" },
   { label: "Village Code", field: "village_code" },
   { label: "Plot No.", field: "plot_no", format: "multi" },
   { label: "Kissam", field: "kissam_of_land", format: "multi" },
@@ -944,17 +944,17 @@ export const GovernmentPlotFields = [
   { key: "kissam", label: "Kissam", type: "text" },
   { key: "rorName", label: "Name of ROR", type: "text" },
 
-  { key: "totalAreaAcres", label: "Total Area (Acres)", type: "number" },
-  { key: "proposedAreaAcres", label: "Proposed Area (Acres)", type: "number" },
+  { key: "totalAreaAcres", label: "Total Area (Acres)", type: "text" },
+  { key: "proposedAreaAcres", label: "Proposed Area (Acres)", type: "text" },
   {
     key: "totalAreaHectares",
     label: "Total Area (Hectares)",
-    type: "number",
+    type: "text",
   },
   {
     key: "proposedAreaHectares",
     label: "Proposed Area (Hectares)",
-    type: "number",
+    type: "text",
   },
 
   { key: "leaseCaseNo", label: "Lease Case No", type: "text" },
@@ -985,7 +985,7 @@ export const GovernmentPlotFields = [
   { key: "actionToBeTaken", label: "Action to be Taken", type: "text" },
 
   { key: "riReport", label: "RI Report", type: "status" },
-
+ { key: "riReportAttachment", label: "RI Report Attachment", type: "text" },
   { key: "proclamation", label: "Proclamation", type: "text" },
   { key: "objectionReceived", label: "Objection Received", type: "yesno" },
   { key: "others", label: "Others", type: "text" },
@@ -1001,15 +1001,15 @@ export const GovernmentPlotFields = [
     type: "text",
   },
   { key: "reasonForMiscDrCase", label: "Reason for Misc/DR Case", type: "text" },
+  
   { key: "treeEnumeration", label: "Tree Enumeration", type: "status" },
+  { key: "tree_enumeration_attachment", label: "Tree Enumeration Attachment", type: "text" },
   { key: "orderSheet", label: "Order Sheet", type: "status" },
   { key: "leaseToIDCO", label: "Lease to IDCO", type: "yesno" },
+  { key: "leaseToIDCOAttachment", label: "Lease to IDCO Attachment", type: "text" },
   { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
+   { key: "leaseToUAAttachment", label: "Lease to UA Attachment", type: "text" },
   { key: "remarks", label: "Remarks", type: "text" },
-  // { key: "ri_report_attachment", label: "RI Report Attachment", type: "text" },
-  // { key: "tree_enumeration_attachment", label: "Tree Enumeration Attachment", type: "text" },
-  // { key: "lease_to_idco_attachment", label: "Lease to IDCO Attachment", type: "text" },
-  // { key: "lease_to_ua_attachment", label: "Lease to UA Attachment", type: "text" },
 ];
 
 

@@ -404,7 +404,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Basic Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
-                <th className="p-3 text-left">#</th>
+                 <td className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">Sl/No</td>
 
                 <FilterHeader
                   label="LA Case File No"
@@ -474,7 +474,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   key={plot.id || idx}
                   className="hover:bg-gray-50 transition"
                 >
-                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">{idx + 1}</td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}

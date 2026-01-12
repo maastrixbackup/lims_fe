@@ -7,6 +7,25 @@ import moment from "moment";
 import ConfirmDelete from "../shared/ConfirmDelete";
 import { apiClient } from "../utils/apiClient";
 
+/* ================= LAND TYPE API MAP ================= */
+const LANDTYPE_API = {
+  "1": {
+    upload: "/plots/upload",
+    list: "/plots/plotDocumentList",
+    delete: "/plots/plotDocumentDelete",
+  },
+  "2": {
+    upload: "/govtplots/uploadGovtPlotExcel",
+    // list: "/govtplots/plotDocumentList",
+    delete: "/govtplots/plotDocumentDelete",
+  },
+  "3": {
+    upload: "/plots/upload",
+    list: "/plots/plotDocumentList",
+    delete: "/plots/plotDocumentDelete",
+  },
+};
+
 const UploadPlots = () => {
   const [plots, setPlots] = useState([]);
   const [file, setFile] = useState(null);
@@ -18,26 +37,41 @@ const UploadPlots = () => {
   const [selectedType, setSelectedType] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [docToDelete, setDocToDelete] = useState(null);
+  const [hasUploaded, setHasUploaded] = useState(false);
+
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projectId = selectedProject?.id;
 
   /* ================= FETCH DOCUMENTS ================= */
   const fetchPlotDocuments = async () => {
+    if (!selectedType || !projectId) return;
+
     try {
       setLoadingDocs(true);
-      const data = await apiClient("/plots/plotDocumentList");
+      // setError(null);
+
+      const api = LANDTYPE_API[selectedType].list;
+
+      const data = await apiClient(api, {
+        params: { project_id: projectId },
+      });
+
       setPlotDocs(data.files || []);
     } catch (err) {
-      setError(err.message || "Failed to fetch plot documents");
+      console.log(err);
+      // setError(err.message || "Failed to fetch plot documents");
     } finally {
       setLoadingDocs(false);
     }
   };
 
-  useEffect(() => {
-    if (selectedProject) fetchPlotDocuments();
-  }, [selectedProject]);
+useEffect(() => {
+  if (selectedProject && selectedType && hasUploaded) {
+    fetchPlotDocuments();
+  }
+}, [selectedProject, selectedType, hasUploaded]);
+
 
   /* ================= FILE PARSING ================= */
   const handleFileUpload = (e) => {
@@ -45,6 +79,7 @@ const UploadPlots = () => {
     if (!selectedFile) return;
 
     const ext = selectedFile.name.split(".").pop().toLowerCase();
+
     setError(null);
     setPlots([]);
     setSuccess(false);
@@ -69,6 +104,7 @@ const UploadPlots = () => {
       reader.readAsArrayBuffer(selectedFile);
     } else {
       setError("Unsupported file type");
+      setFile(null);
     }
   };
 
@@ -83,20 +119,22 @@ const UploadPlots = () => {
       setError(null);
       setSuccess(false);
 
+      const api = LANDTYPE_API[selectedType].upload;
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("project_id", projectId);
-      formData.append("type", selectedType);
+      formData.append("type", Number(selectedType));
+await apiClient(api, {
+  method: "POST",
+  body: formData,
+});
 
-      await apiClient("/plots/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      setSuccess(true);
-      setFile(null);
-      setPlots([]);
-      fetchPlotDocuments();
+setSuccess(true);
+setHasUploaded(true);   // ✅ enable list loading
+setFile(null);
+setPlots([]);
+fetchPlotDocuments();
 
       setTimeout(() => setSuccess(false), 1000);
     } catch (err) {
@@ -106,13 +144,20 @@ const UploadPlots = () => {
     }
   };
 
+  useEffect(() => {
+  setPlotDocs([]);
+  setHasUploaded(false);
+}, [selectedType]);
+
   /* ================= DELETE ================= */
   const handleDelete = async () => {
-    if (!docToDelete) return;
+    if (!docToDelete || !selectedType) return;
 
     try {
+      const api = LANDTYPE_API[selectedType].delete;
+
       await apiClient(
-        `/plots/plotDocumentDelete/${encodeURIComponent(docToDelete)}`,
+        `${api}/${encodeURIComponent(docToDelete)}`,
         { method: "DELETE" }
       );
 
@@ -128,8 +173,6 @@ const UploadPlots = () => {
   };
 
   const isUploadEnabled = selectedProject && selectedType;
-
-  /* ================= UI ================= */
   return (
     <main className="p-6 space-y-8 h-screen overflow-y-auto">
       <h2 className="text-xl font-bold">Upload Plots (CSV / Excel)</h2>
@@ -156,14 +199,7 @@ const UploadPlots = () => {
           <option value="3">Forest Land</option>
         </select>
 
-        {/* <input
-          type="file"
-          accept=".csv,.xlsx,.xls"
-          disabled={!isUploadEnabled}
-          onChange={handleFileUpload}
-          className="file-input file-input-bordered w-full"
-        /> */}
-         <input
+        <input
           type="file"
           accept=".csv, .xlsx, .xls"
           disabled={!isUploadEnabled}
@@ -173,12 +209,6 @@ const UploadPlots = () => {
               ? "bg-gray-200 cursor-not-allowed"
               : "file-input-bordered file-input-primary"
           }`}
-          // title={
-          //   !isUploadEnabled
-          //     ? "Select both Project and Type to enable upload"
-          //     : "Choose CSV or Excel file"
-          // }
-          readOnly
         />
 
         <button
@@ -217,26 +247,28 @@ const UploadPlots = () => {
                   <td>{doc.name}</td>
                   <td>{doc.size}</td>
                   <td>
-                    {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
+                    {moment(doc.uploadedAt).format(
+                      "DD MMM YYYY, hh:mm A"
+                    )}
                   </td>
                   <td className="flex gap-3">
-                       <a
-                        href={doc.documentUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Download size={18} />
-                      </a>
-                      <button
-                        onClick={() => {
-                          setDocToDelete(doc.name);
-                          setIsDeleteModalOpen(true);
-                        }}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                    <a
+                      href={doc.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <Download size={18} />
+                    </a>
+                    <button
+                      onClick={() => {
+                        setDocToDelete(doc.name);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -1,28 +1,29 @@
 import React, { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
-import { GovtKhataColumn } from "../../../utils/constants";
+import { GovtKhataColumn, stickyActionCell, stickyActionHeader } from "../../../utils/constants";
 import FilterHeader from "../plot/FilterHeader";
+import KhataForm from "./KhataForm";
 
 const GovernmentKhata = () => {
   // Khata data
   const [khatas, setKhatas] = useState([
     {
       id: 1,
-      plotNo: "P001",
-      leaseCaseNo: "LC001",
-      presentStatus: "Vacant",
-      caseDetails: "Survey pending",
+      plot_no: "P001",
+      lease_case_no: "LC001",
+      present_status: "Vacant",
+      case_details: "Survey pending",
       village: "Village 1",
       plot_count: 2,
       created: "2025-01-01",
     },
     {
       id: 2,
-      plotNo: "P002",
-      leaseCaseNo: "LC002",
-      presentStatus: "Occupied",
-      caseDetails: "Approval pending",
+      plot_no: "P002",
+      lease_case_no: "LC002",
+      present_status: "Occupied",
+      case_details: "Approval pending",
       village: "Village 1",
       plot_count: 3,
       created: "2025-01-02",
@@ -42,55 +43,16 @@ const GovernmentKhata = () => {
   });
   const [activeFilterKey, setActiveFilterKey] = useState(null);
 
-  const [formData, setFormData] = useState({
-    plotNo: "",
-    leaseCaseNo: "",
-    presentStatus: "",
-    caseDetails: "",
-    village: "",
-    plot_count: "",
-    created: new Date().toISOString().split("T")[0],
-  });
+const openModal = (khata = null) => {
+  if (khata) {
+    setEditingKhata(khata);
+  } else {
+    setEditingKhata(null);
+  }
+  setIsModalOpen(true);
+};
 
-  // Open modal
-  const openModal = (khata = null) => {
-    if (khata) {
-      setEditingKhata(khata);
-      setFormData(khata);
-    } else {
-      setEditingKhata(null);
-      setFormData({
-        plotNo: "",
-        leaseCaseNo: "",
-        presentStatus: "",
-        caseDetails: "",
-        village: "",
-        plot_count: "",
-        created: new Date().toISOString().split("T")[0],
-      });
-    }
-    setIsModalOpen(true);
-  };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (editingKhata) {
-      setKhatas(
-        khatas.map((k) =>
-          k.id === editingKhata.id ? { ...formData, id: k.id } : k
-        )
-      );
-    } else {
-      setKhatas([...khatas, { ...formData, id: khatas.length + 1 }]);
-    }
-
-    setIsModalOpen(false);
-  };
   const getUniqueValues = (key) => {
     return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
   };
@@ -153,7 +115,7 @@ const GovernmentKhata = () => {
                   </th>
                 ))}
 
-                <th className="text-right">Actions</th>
+                <th className={stickyActionHeader}>Actions</th>
               </tr>
             </thead>
 
@@ -162,12 +124,15 @@ const GovernmentKhata = () => {
                 filteredKhatas.map((khata, idx) => (
                   <tr key={khata.id}>
                     <td>{idx + 1}</td>
-                    <td>{khata.plotNo}</td>
-                    <td>{khata.leaseCaseNo}</td>
-                    <td>{khata.presentStatus}</td>
-                    <td>{khata.caseDetails}</td>
-                    <td>{khata.plot_count}</td>
-                    <td className="text-right">
+                    <td>{khata.khata_no || "no data"}</td>
+                    <td>{khata.kissam || "no data"}</td>
+                    <td>{khata.village || "no data"}</td>
+                    <td>{khata.plot_no || "no data"}</td>
+                    <td>{khata.lease_case_no || "no data"}</td>
+                    <td>{khata.present_status || "no data"}</td>
+                    <td>{khata.case_details || "no data"}</td>
+                    <td>{khata.plot_count || "no data"}</td>
+                    <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
                         defaultValue=""
@@ -224,66 +189,15 @@ const GovernmentKhata = () => {
         </div>
       </div>
 
-      {/* Add/Edit Khata Modal */}
-      {isModalOpen && (
-        <dialog open className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">
-              {editingKhata ? "Edit Khata" : "Add Khata"}
-            </h3>
+ {isModalOpen && (
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                name="plotNo"
-                placeholder="Plot No"
-                value={formData.plotNo}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-                required
-              />
 
-              <input
-                name="leaseCaseNo"
-                placeholder="Lease Case No"
-                value={formData.leaseCaseNo}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-                required
-              />
-
-              <input
-                name="presentStatus"
-                placeholder="Present Status"
-                value={formData.presentStatus}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-                required
-              />
-
-              <input
-                name="caseDetails"
-                placeholder="Case Details/ Deservation Req"
-                value={formData.caseDetails}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-
-              <div className="modal-action">
-                <button type="submit" className="btn btn-primary">
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </dialog>
-      )}
+      <KhataForm
+        onCancel={() => setIsModalOpen(false)}
+        isEdit={!!editingKhata}
+      />
+ 
+)}
 
       {/* Delete Confirmation */}
       {deleteConfirm && (

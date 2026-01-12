@@ -123,9 +123,10 @@ export const sections = {
     "family_minor_transgender",
     "persons_with_disability",
     "family_with_orphan_members",
-    "legal_heir_certificate_no",
+   
   ],
   "Land Case Details": [
+     "legal_heir_certificate_no",
     "land_case_no",
     "land_case_date",
     "land_case_type",
@@ -766,23 +767,27 @@ export const stickyPaymentCell =
   "p-3 text-center bg-white md:sticky md:right-0  border-gray-100 shadow-sm text-sm";
 
 export const stickyCol1Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md";
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";
 export const stickyCol1Cell =
-  "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
+  "p-3 text-left bg-white md:sticky md:left-10 shadow-sm ";
 
 // export const stickyCol2Header =
 //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
 // export const stickyCol2Cell =
 //   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
 export const stickyCol2Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[90px] z-[30] shadow-md";
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[170px] z-[30] shadow-md";
 export const stickyCol2Cell =
-  "p-3 text-left bg-white md:sticky md:left-[90px] shadow-sm";
+  "p-3 text-left bg-white md:sticky md:left-[170px] shadow-sm";
 
 export const stickyCol3Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[180px] z-[30] shadow-md";
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[260px] z-[30] shadow-md";
 export const stickyCol3Cell =
-  "p-3 text-left bg-white md:sticky md:left-[180px] shadow-sm";
+  "p-3 text-left bg-white md:sticky md:left-[260px] shadow-sm";
+export const stickyCol4Header =
+  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[320px] z-[30] shadow-md";
+export const stickyCol4Cell =
+  "p-3 text-left bg-white md:sticky md:left-[320px] shadow-sm";
 export const COMMON_COLUMNS = [
   // { label: "Present Tenant", field: "name_of_present_tenant" },
   { label: "Village Code", field: "village_code" },
@@ -985,11 +990,15 @@ export const GovernmentPlotFields = [
   { key: "actionToBeTaken", label: "Action to be Taken", type: "text" },
 
   { key: "riReport", label: "RI Report", type: "status" },
- { key: "riReportAttachment", label: "RI Report Attachment", type: "text" },
+  { key: "riReportAttachment", label: "RI Report Attachment", type: "text" },
   { key: "proclamation", label: "Proclamation", type: "text" },
   { key: "objectionReceived", label: "Objection Received", type: "yesno" },
   { key: "others", label: "Others", type: "text" },
-  { key: "modificationRevision", label: "Modification/Revision", type: "yesno" },
+  {
+    key: "modificationRevision",
+    label: "Modification/Revision",
+    type: "yesno",
+  },
   {
     key: "missingCasePrep",
     label: "Missing Case Prep./DR Case Prep.",
@@ -1000,19 +1009,68 @@ export const GovernmentPlotFields = [
     label: "Missing Case Prep./DR Case Number",
     type: "text",
   },
-  { key: "reasonForMiscDrCase", label: "Reason for Misc/DR Case", type: "text" },
-  
+  {
+    key: "reasonForMiscDrCase",
+    label: "Reason for Misc/DR Case",
+    type: "text",
+  },
+
   { key: "treeEnumeration", label: "Tree Enumeration", type: "status" },
-  { key: "tree_enumeration_attachment", label: "Tree Enumeration Attachment", type: "text" },
+  {
+    key: "tree_enumeration_attachment",
+    label: "Tree Enumeration Attachment",
+    type: "text",
+  },
   { key: "orderSheet", label: "Order Sheet", type: "status" },
   { key: "leaseToIDCO", label: "Lease to IDCO", type: "yesno" },
-  { key: "leaseToIDCOAttachment", label: "Lease to IDCO Attachment", type: "text" },
+  {
+    key: "leaseToIDCOAttachment",
+    label: "Lease to IDCO Attachment",
+    type: "text",
+  },
   { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
-   { key: "leaseToUAAttachment", label: "Lease to UA Attachment", type: "text" },
+  { key: "leaseToUAAttachment", label: "Lease to UA Attachment", type: "text" },
   { key: "remarks", label: "Remarks", type: "text" },
 ];
+export const legalIssue = [
+  { key: "khata_no", label: "Khata_No", type: "text" },
+  { key: "plot_no", label: "Plot_No", type: "text" },
+  { key: "legal_heir_case_no", label: "Legal Heir Case No", type: "text" },
+  { key: "land_case_no", label: "Land Case No", type: "text" },
+  { key: "land_case_date", label: "Land Case Date", type: "text" },
+  { key: "land_case_type", label: "Land Case Type", type: "text" },
+  { key: "land_case_status", label: "Land Case Status", type: "text" },
+  { key: "land_case_action", label: "Land Case Details", type: "text" },
+];
 
-
+export const LandAreaEvaluationFields = [
+  { key: "khata_no", label: "Khata No", type: "text" },
+  { key: "plot_no", label: "Plot No", type: "text" }, 
+   {key:"land_area_total_acres", label: "Land Area Total (Acres)", type: "number"},
+    {key:"land_area_total_hectares", label: "Land Area Total (Hectares)", type: "number"},
+    {key:"land_area_acquired_acres", label: "Land Area Acquired (Acres)", type: "number"},
+    {key:"land_area_acquired_hectares", label: "Land Area Acquired (Hectares)", type: "number"},
+    {key:"market_value_per_acre", label: "Market Value Per Acre", type: "number"},
+    {key:"bench_market_value", label: "Bench Market Value", type: "number"},
+    {key:"premium", label: "Premium", type: "number"},
+    {key:"ground_rate", label: "Ground Rate", type: "number"},
+    {key:"cess", label: "Cess", type: "number"},
+    {key:"admin_cost", label: "Admin Cost", type: "number"},
+    {key:"total_cost", label: "Total Cost", type: "number"},
+    {key:"basic_land_value", label: "Basic Land Value", type: "number"},
+    {key:"land_value_with_mf", label: "Land Value With MF", type: "number"},
+    {key:"no_of_trees", label: "No of Trees", type: "number"},
+    {key:"total_value_of_trees", label: "Total Value of Trees", type: "number"},
+    {key:"no_of_house", label: "No of House", type: "number"},
+    {key:"value_of_house", label: "Value of House", type: "number"},
+    {key:"details_of_other_structures", label: "Details of Other Structures", type: "text"},
+    {key:"value_of_other_structures", label: "Value of Other Structures", type: "number"},
+    {key:"total_value", label: "Total Value", type: "number"},
+    {key:"solatium_100", label: "Solatium 100%", type: "number"},
+    {key:"no_days_interest", label: "No of Days Interest", type: "number"},
+    {key:"additional_12_percent", label: "Additional 12%", type: "number"},
+    {key:"total_compensation", label: "Total Compensation", type: "number"},
+];
 
 // export const GovernmentPlotFields = [
 //   { key: "khata_no", label: "Khata No", type: "text" },
@@ -1116,13 +1174,21 @@ export const GovernmentPlotFields = [
 // ];
 
 export const GovtKhataColumn = [
+  { key: "khata_no", label: "Khata No", type: "text" },
+  { key: "kissam", label: "Kissam", type: "text" },
+  { key: "villae_name", label: "Village", type: "text" },
   { key: "plot_no", label: "Plot No", type: "text" },
   { key: "lease_case_no", label: "Lease Case No", type: "text" },
   {
     key: "present_status",
     label: "Present Status",
     type: "select",
-    options: ["Vacant", "Occupied"],
+    options: [
+      "Lease Case to Sub-Collector",
+      "Lease Case to ADM (Rev Sec)",
+      "Demand Raised",
+      "Lease Sanctioned by Collector",
+    ],
   },
   { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },

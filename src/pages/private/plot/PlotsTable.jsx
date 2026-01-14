@@ -80,97 +80,107 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   };
 
   const getPaymentCode = (plot) => {
-    if (paymentStatusMap[plot.id]) return paymentStatusMap[plot.id];
+    if (paymentStatusMap[plot.id]) {
+      return paymentStatusMap[plot.id];
+    }
 
     if (plot.payment_status === "processing") return "PP";
-    if (plot.payment_status === "complete") return "RC";
+    if (plot.payment_status === "complete") return "PC";
+    if (plot.payment_status === "ready") return "RP";
 
-    return "RP";
+    return "";
   };
 
-  // const handlePaymentReady = async (plot) => {
-  //   if (isRestricted) return;
-
-  //   setLoadingPlotId(plot.id);
-
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify({ plot_id: plot.id }),
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (data.success) {
-  //       window.toast?.success(data.message || "Payment processed successfully");
-
-  //       // Update local status map
-  //       setPaymentStatusMap((prev) => ({
-  //         ...prev,
-  //         [plot.id]: "success",
-  //       }));
-  //       navigate(`/${landType}/land-cost`, { state: { plot } });
-
-  //       // setTimeout(() => refreshPlots && refreshPlots(), 1000);
-  //     } else {
-  //       window.toast?.error(data.message || "Payment request failed");
-  //     }
-  //   } catch (error) {
-  //     console.error("Payment API error:", error);
-  //     window.toast?.error("Network error, please try again");
-  //   }
-
-  //   setLoadingPlotId(null);
-  // };
   const handlePaymentStatusChange = async (plot, code) => {
     if (isRestricted) return;
 
-    // RP → do nothing
-    if (code === "RP") return;
-
-    // RC → redirect only
-    if (code === "RC") {
-      navigate(`/${landType}/land-cost`, { state: { plot } });
-      return;
-    }
-
-    // PP → call API
-    if (code === "PP") {
+    // RP → API call (NO redirect)
+    if (code === "RP") {
       setLoadingPlotId(plot.id);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+        const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ plot_id: plot.id }),
+          body: JSON.stringify({
+            plot_id: plot.id,
+            payment_status: "ready",
+          }),
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
-        if (data.success) {
-          showToast("Payment moved to processing", "primary");
+        if (data.success === true) {
+          showToast("Marked as Ready for Payment", "success");
 
+          setPaymentStatusMap((prev) => ({
+            ...prev,
+            [plot.id]: "RP",
+          }));
+        } else if (data.success === false) {
+          showToast(data.message || "Failed to update status", "error");
+        } else {
+          // window.toast?.error(data.message || "Failed to update status");
+          showToast(data.message || "Failed to update status", "error");
+        }
+      } catch (err) {
+        showToast("Network error", "error");
+      }
+
+      setLoadingPlotId(null);
+      return;
+    }
+
+    // PC → redirect only
+    if (code === "RC") {
+      navigate(`/${landType}/land-cost`, { state: { plot } });
+      return;
+    }
+
+    // PP → API + redirect (already correct)
+    if (code === "PP") {
+      setLoadingPlotId(plot.id);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            plot_id: plot.id,
+            payment_status: "processing",
+          }),
+        });
+
+        const data = await res.json();
+
+        // ✅ Already processing → treat as success
+        if (
+          data.success ||
+          data.message === "Payment already in processing state"
+        ) {
           setPaymentStatusMap((prev) => ({
             ...prev,
             [plot.id]: "PP",
           }));
 
-          navigate(`/${landType}/land-cost`, { state: { plot } });
-        } else {
-          window.toast?.error(data.message);
-        }
-      } catch (err) {
-        window.toast?.error("Network error");
-      }
+          showToast("Payment is already in processing", "info");
 
-      setLoadingPlotId(null);
+          navigate(`/${landType}/land-cost`, { state: { plot } });
+          return;
+        }
+
+        showToast(data.message || "Failed to update payment", "error");
+      } catch (err) {
+        showToast("Network error. Please try again", "error");
+      } finally {
+        setLoadingPlotId(null);
+      }
     }
   };
 
@@ -402,9 +412,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       {selectedProject && filteredPlots.length > 0 && (
         <PlotTabs>
           <TableWrapper title="Basic Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
               <tr>
-                 <td className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">Sl/No</td>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
 
                 <FilterHeader
                   label="LA Case File No"
@@ -460,10 +472,30 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">Tahasil</th>
                 <th className="p-3 text-left">RI Circle</th>
                 <th className="p-3 text-left">Thana No</th>
-                <th className="p-3 text-left">Total Area (Acre)</th>
-                <th className="p-3 text-left">Total Area (Hectare)</th>
-                <th className="p-3 text-left">Acquired Area (Acre)</th>
-                <th className="p-3 text-left">Acquired Area (Hectare)</th>
+                <FilterHeader
+                  label="Kissam of Land"
+                  field="kissam_of_land"
+                  options={getOptions("kissam_of_land")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
+                <FilterHeader
+                  label="Land Category"
+                  field="land_category"
+                  options={getOptions("land_category")}
+                  columnFilters={columnFilters}
+                  updateFilter={updateFilter}
+                  openFilterField={openFilterField}
+                  setOpenFilterField={setOpenFilterField}
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
+                />
+                <th className="p-3 text-left">LO13 Remarks</th>
+
                 <th className={stickyPaymentHeader}>Payment Status</th>
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
@@ -474,7 +506,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   key={plot.id || idx}
                   className="hover:bg-gray-50 transition"
                 >
-                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
@@ -503,16 +537,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.tahasil_name || "N/A"}</td>
                   <td className="p-3">{plot.ri_circle_name || "N/A"}</td>
                   <td className="p-3">{plot.thana_no || "N/A"}</td>
-                  <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
-                  <td className="p-3">
-                    {plot.land_area_total_hectares || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {plot.land_area_acquired_acres || "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {plot.land_area_acquired_hectares || "N/A"}
-                  </td>
+                  <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
+                  <td className="p-3">{plot.land_category || "N/A"}</td>
+                  <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
+
                   <td className={stickyPaymentCell}>
                     <div
                       className={`dropdown dropdown-left ${
@@ -520,25 +548,22 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       }`}
                     >
                       {/* Trigger Button */}
-                      
                       <label
                         tabIndex={0}
-                        className={`btn btn-sm w-[60px] font-bold justify-center flex items-center
-        ${
-          getPaymentCode(plot) === "RP"
-            ? "bg-orange-600 text-white"
-            : getPaymentCode(plot) === "PP"
-            ? "bg-green-700 text-white"
-            : "bg-green-600 text-white"
-        }
-      `}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        
                         {getPaymentCode(plot)}
-                        {/* {loadingPlotId === plot.id && (
-                          <span className="ml-1 loading loading-spinner loading-xs"></span>
-                        )} */}
-                       <ChevronDown size={16} strokeWidth={5} />
+                        <ChevronDown size={12} strokeWidth={5} />
                       </label>
 
                       {/* Dropdown Menu */}
@@ -552,7 +577,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                               onClick={() =>
                                 handlePaymentStatusChange(plot, "RP")
                               }
-                              className="justify-start"
                             >
                               Ready for Payment
                             </button>
@@ -563,7 +587,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                               onClick={() =>
                                 handlePaymentStatusChange(plot, "PP")
                               }
-                              className="justify-start"
                             >
                               Payment Processing
                             </button>
@@ -574,7 +597,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                               onClick={() =>
                                 handlePaymentStatusChange(plot, "RC")
                               }
-                              className="justify-start"
                             >
                               Payment Complete
                             </button>
@@ -593,7 +615,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         e.target.value = "";
 
                         if (action === "edit") {
-                          navigate(`/${landType}/plot-form`, {
+                          navigate(`/${landType}/land-cost?plotId=${plot.id}`, {
                             state: { plot },
                           });
                         }
@@ -634,9 +656,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tbody>
           </TableWrapper>
           <TableWrapper title="Tenant Information">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
 
                 <FilterHeader
                   label="LA Case File No"
@@ -702,7 +726,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   key={plot.id || idx}
                   className="hover:bg-gray-50 transition"
                 >
-                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
@@ -715,57 +741,73 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">
                     {plot.name_of_present_tenant || "N/A"}
                   </td>
-                  <td className="p-3">
-                    {plot.number_of_present_tenant || "N/A"}
-                  </td>
+                  <td className="p-3">{plot.present_tenant_count || "N/A"}</td>
                   <td className="p-3">{plot.present_address || "N/A"}</td>
                   <td className="p-3">
                     {plot.displaced_affected_person || "N/A"}
                   </td>
                   <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                        {getPaymentCode(plot)}
+                        <ChevronDown size={12} strokeWidth={5} />
+                      </label>
 
-                      {/* Tooltip */}
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </td>
                   <td className={stickyActionCell}>
@@ -820,7 +862,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Bank & Personal Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
-                <th className="p-3 text-left">SL/No</th>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
                 <FilterHeader
                   label="LA Case File No"
@@ -911,7 +955,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <tbody className="divide-y divide-gray-100 text-xs">
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
-                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
@@ -984,49 +1030,67 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     </select>
                   </td> */}
                   <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm  text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                        {getPaymentCode(plot)}
+                        <ChevronDown size={12} strokeWidth={5} />
+                      </label>
 
-                      {/* Tooltip */}
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </td>
                   <td className={stickyActionCell}>
@@ -1081,7 +1145,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Legal Issues">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
 
                 <FilterHeader
                   label="LA Case File No"
@@ -1162,7 +1228,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   key={plot.id || idx}
                   className="hover:bg-gray-50 shadow-sm transition"
                 >
-                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
@@ -1180,48 +1248,67 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.land_case_action || "N/A"}</td>
 
                   <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                        {getPaymentCode(plot)}
+                        <ChevronDown size={12} strokeWidth={5} />
+                      </label>
 
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </td>
 
@@ -1276,7 +1363,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Land Area Valuation Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
                 <FilterHeader
                   label="LA Case File No"
@@ -1316,31 +1405,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   sortConfig={sortConfig}
                   className={stickyCol3Header}
                 />
-                {/* <th className="p-3 text-left">Kissam of Land</th> */}
-                <FilterHeader
-                  label="Kissam of Land"
-                  field="kissam_of_land"
-                  options={getOptions("kissam_of_land")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                  onSort={handleSort}
-                  sortConfig={sortConfig}
-                />
-                {/* <th className="p-3 text-left">Land Category</th> */}
-                <FilterHeader
-                  label="Land Category"
-                  field="land_category"
-                  options={getOptions("land_category")}
-                  columnFilters={columnFilters}
-                  updateFilter={updateFilter}
-                  openFilterField={openFilterField}
-                  setOpenFilterField={setOpenFilterField}
-                  onSort={handleSort}
-                  sortConfig={sortConfig}
-                />
-                <th className="p-3 text-left">LO13 Remarks</th>
+
+                <th className="p-3 text-left">Total Area (Acre)</th>
+                <th className="p-3 text-left">Total Area (Hectare)</th>
+                <th className="p-3 text-left">Acquired Area (Acre)</th>
+                <th className="p-3 text-left">Acquired Area (Hectare)</th>
                 {/* <th className="p-3 text-left">Total Area (Acre)</th>
               <th className="p-3 text-left">Total Area (Hectare)</th>
               <th className="p-3 text-left">Acquired Area (Acre)</th>
@@ -1400,27 +1469,25 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   key={plot.id || idx}
                   className="hover:bg-gray-50 shadow-sm transition"
                 >
-                  <td className="p-3">{idx + 1}</td>
-                  {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
                   </td>
                   <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
                   <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
-                  <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
-                  <td className="p-3">{plot.land_category || "N/A"}</td>
-                  <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
-                  {/* <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
-                <td className="p-3">
-                  {plot.land_area_total_hectares || "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.land_area_acquired_acres || "N/A"}
-                </td>
-                <td className="p-3">
-                  {plot.land_area_acquired_hectares || "N/A"}
-                </td> */}
 
+                  <td className="p-3">{plot.land_area_total_acres || "N/A"}</td>
+                  <td className="p-3">
+                    {plot.land_area_total_hectares || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.land_area_acquired_acres || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {plot.land_area_acquired_hectares || "N/A"}
+                  </td>
                   <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
                   <td className="p-3">{plot.basic_land_value || "N/A"}</td>
                   <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>
@@ -1439,54 +1506,71 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.no_days_interest || "N/A"}</td>
                   <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
                   <td className="p-3">{plot.total_compensation || "N/A"}</td>
-                  {/* <td className="p-3">{plot.apportionment_amount || "N/A"}</td> */}
                   <td className="p-3">{plot.priority_urgency || "N/A"}</td>
                   {/* <td className="p-3">{plot.land_use_plan || "N/A"}</td> */}
                   <td className="p-3">{plot.la21_remarks || "N/A"}</td>
                   <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                        {getPaymentCode(plot)}
+                        <ChevronDown size={12} strokeWidth={5} />
+                      </label>
 
-                      {/* Tooltip */}
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </td>
                   <td className={stickyActionCell}>
@@ -1541,7 +1625,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Grievance & Tribunal Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
                 <FilterHeader
                   label="LA Case File No"
@@ -1605,7 +1691,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   key={plot.id || idx}
                   className="hover:bg-gray-50 shadow-sm transition"
                 >
-                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
@@ -1632,49 +1720,67 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.total ?? "N/A"}</td>
                   <td className="p-3">{plot.abatement || "N/A"}</td>
                   <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                        {getPaymentCode(plot)}
+                        <ChevronDown size={12} strokeWidth={5} />
+                      </label>
 
-                      {/* Tooltip */}
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </td>
                   <td className={stickyActionCell}>
@@ -1729,7 +1835,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           <TableWrapper title="Family Details">
             <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
               <tr>
-                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                  Sl/No
+                </th>
                 {/* <th className="p-3 text-left">Project Name</th> */}
                 <FilterHeader
                   label="LA Case File No"
@@ -1784,7 +1892,9 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <tbody className="divide-y divide-gray-100 text-xs">
               {filteredPlots.map((plot, idx) => (
                 <tr key={plot.id || idx} className={rowClass}>
-                  <td className="p-3">{idx + 1}</td>
+                  <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                    {idx + 1}
+                  </td>
                   {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                   <td className={stickyCol1Cell}>
                     {plot.la_case_file_no || "N/A"}
@@ -1808,49 +1918,67 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     {plot.family_with_orphan_members === "Y" ? "Yes" : "No"}
                   </td>
                   <td className={stickyPaymentCell}>
-                    <div className="relative group inline-block">
-                      <button
-                        className={`btn btn-sm text-white flex items-center gap-1 ${
-                          isRestricted || loadingPlotId === plot.id
-                            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "bg-green-400 hover:bg-green-700"
-                            : plot.payment_status === null
-                            ? "bg-orange-600 hover:bg-orange-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                        onClick={() => handlePaymentReady(plot)}
-                        disabled={
-                          isRestricted ||
-                          loadingPlotId === plot.id ||
-                          paymentStatusMap[plot.id] === "success"
-                        }
+                    <div
+                      className={`dropdown dropdown-left ${
+                        isRestricted ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      {/* Trigger Button */}
+                      <label
+                        tabIndex={0}
+                        className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
+    ${
+      getPaymentCode(plot) === "RP"
+        ? "bg-orange-600 text-white"
+        : getPaymentCode(plot) === "PP"
+        ? "bg-green-700 text-white"
+        : getPaymentCode(plot) === "PC"
+        ? "bg-blue-200 text-blue-700"
+        : "bg-white text-gray-600 border border-gray-300"
+    }
+  `}
                       >
-                        {loadingPlotId === plot.id ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : paymentStatusMap[plot.id] === "success" ? (
-                          "RC"
-                        ) : plot.payment_status === null ? (
-                          "RP"
-                        ) : (
-                          "PP"
-                        )}
-                      </button>
+                        {getPaymentCode(plot)}
+                        <ChevronDown size={12} strokeWidth={5} />
+                      </label>
 
-                      {/* Tooltip */}
-                      <span
-                        className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                      >
-                        {loadingPlotId === plot.id
-                          ? "Processing Payment"
-                          : paymentStatusMap[plot.id] === "success"
-                          ? "Payment Completed"
-                          : plot.payment_status === null
-                          ? "Ready For Payment"
-                          : "Payment in Processing"}
-                      </span>
+                      {/* Dropdown Menu */}
+                      {!isRestricted && loadingPlotId !== plot.id && (
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
+                        >
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RP")
+                              }
+                            >
+                              Ready for Payment
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "PP")
+                              }
+                            >
+                              Payment Processing
+                            </button>
+                          </li>
+
+                          <li>
+                            <button
+                              onClick={() =>
+                                handlePaymentStatusChange(plot, "RC")
+                              }
+                            >
+                              Payment Complete
+                            </button>
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </td>
                   {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
@@ -1903,205 +2031,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               ))}
             </tbody>
           </TableWrapper>
-          {/* {landType === "govt-land" && (
-            <TableWrapper title="Legal Issues">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
-                <tr>
-                  <th className="p-3 text-left">#</th>
-
-                  <FilterHeader
-                    label="LA Case File No"
-                    field="la_case_file_no"
-                    options={getOptions("la_case_file_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    className={stickyCol1Header}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                  />
-
-                  <FilterHeader
-                    label="Khata"
-                    field="khata_no"
-                    options={getOptions("khata_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                    className={stickyCol2Header}
-                  />
-
-                  <FilterHeader
-                    label="Plot No"
-                    field="plot_no"
-                    options={getOptions("plot_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                    className={stickyCol3Header}
-                  />
-
-                  <FilterHeader
-                    label="Legal Heir Cert. No"
-                    field="legal_heir_certificate_no"
-                    options={getOptions("legal_heir_certificate_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                  />
-
-                  <FilterHeader
-                    label="Land Case No"
-                    field="land_case_no"
-                    options={getOptions("land_case_no")}
-                    columnFilters={columnFilters}
-                    updateFilter={updateFilter}
-                    openFilterField={openFilterField}
-                    setOpenFilterField={setOpenFilterField}
-                    onSort={handleSort}
-                    sortConfig={sortConfig}
-                  />
-
-                  <th className="p-3 text-left">Land Case Date</th>
-                  <th className="p-3 text-left">Land Case Type</th>
-                  <th className="p-3 text-left">Land Case Status</th>
-                  <th className="p-3 text-left">Land Case Action</th>
-
-                  <th className={stickyPaymentHeader}>Payment Status</th>
-                  <th className={stickyActionHeader}>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-100 text-xs">
-                {filteredPlots.map((plot, idx) => (
-                  <tr
-                    key={plot.id || idx}
-                    className="hover:bg-gray-50 shadow-sm transition"
-                  >
-                    <td className="p-3">{idx + 1}</td>
-                    <td className={stickyCol1Cell}>
-                      {plot.la_case_file_no || "N/A"}
-                    </td>
-                    <td className={stickyCol2Cell}>{plot.khata_no || "N/A"}</td>
-                    <td className={stickyCol3Cell}>{plot.plot_no || "N/A"}</td>
-                    <td className="p-3">
-                      {plot.legal_heir_certificate_no || "N/A"}
-                    </td>
-                    <td className="p-3">{plot.land_case_no || "N/A"}</td>
-                    <td className="p-3">
-                      {formatDate(plot.land_case_date) || "N/A"}
-                    </td>
-                    <td className="p-3">{plot.land_case_type || "N/A"}</td>
-                    <td className="p-3">{plot.land_case_status || "N/A"}</td>
-                    <td className="p-3">{plot.land_case_action || "N/A"}</td>
-
-                    <td className={stickyPaymentCell}>
-                      <div className="relative group inline-block">
-                        <button
-                          className={`btn btn-sm text-white flex items-center gap-1 ${
-                            isRestricted || loadingPlotId === plot.id
-                              ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                              : paymentStatusMap[plot.id] === "success"
-                              ? "bg-green-400 hover:bg-green-700"
-                              : plot.payment_status === null
-                              ? "bg-orange-600 hover:bg-orange-700"
-                              : "bg-green-600 hover:bg-green-700"
-                          }`}
-                          onClick={() => handlePaymentReady(plot)}
-                          disabled={
-                            isRestricted ||
-                            loadingPlotId === plot.id ||
-                            paymentStatusMap[plot.id] === "success"
-                          }
-                        >
-                          {loadingPlotId === plot.id ? (
-                            <span className="loading loading-spinner loading-xs"></span>
-                          ) : paymentStatusMap[plot.id] === "success" ? (
-                            "RC"
-                          ) : plot.payment_status === null ? (
-                            "RP"
-                          ) : (
-                            "PP"
-                          )}
-                        </button>
-
-              
-                        <span
-                          className="absolute -translate-x-1/2 -top-5
-      opacity-0 group-hover:opacity-100 transition
-      bg-white text-gray-700 text-xs font-bold rounded px-2 py-1 whitespace-nowrap z-50"
-                        >
-                          {loadingPlotId === plot.id
-                            ? "Processing Payment"
-                            : paymentStatusMap[plot.id] === "success"
-                            ? "Payment Completed"
-                            : plot.payment_status === null
-                            ? "Ready For Payment"
-                            : "Payment in Processing"}
-                        </span>
-                      </div>
-                    </td>
-                 
-                    <td className={stickyActionCell}>
-                      <select
-                        className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                        defaultValue=""
-                        onChange={(e) => {
-                          const action = e.target.value;
-                          e.target.value = "";
-
-                          if (action === "edit") {
-                            navigate(`/${landType}/plot-form`, {
-                              state: { plot },
-                            });
-                          }
-
-                          if (action === "delete") {
-                            setDeleteConfirm(plot);
-                          }
-                        }}
-                      >
-                        <option value="" disabled>
-                          Actions
-                        </option>
-
-                        <option
-                          value="edit"
-
-                          disabled={!canEdit}
-                          className={`text-md text-gray-700 font-bold ${
-                            !canEdit ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          ✏️ Edit
-                        </option>
-
-                        <option
-                          value="delete"
-                          disabled={!canDelete}
-                          className={`text-md text-gray-700 font-bold ${
-                            !canDelete ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          🗑 Delete
-                        </option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </TableWrapper>
-          )} */}
         </PlotTabs>
       )}
     </div>

@@ -355,7 +355,7 @@ const KhataTable = ({
                           </td>
 
                           {COMMON_COLUMNS.map(({ field, format }) => (
-                            <td key={field}>
+                            <td key={field} className="whitespace-nowrap">
                               {format === "multi"
                                 ? formatThreeItems(khata[field])
                                 : field === "created_at"

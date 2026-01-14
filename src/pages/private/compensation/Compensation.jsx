@@ -388,7 +388,8 @@ import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useLandTypeParam } from "../../../utils/landtypes";
-import { useSearchParams } from "react-router";
+// import { useSearchParams } from "react-router";
+import { useLocation } from "react-router";
 
 const Compensation = () => {
   const [khatas, setKhatas] = useState([]);
@@ -402,28 +403,36 @@ const Compensation = () => {
   const selectedProject = useSelector((state) => state.selectedProject);
   const projectId = selectedProject?.project?.id;
   const typeParam = useLandTypeParam();
-  console.log("typeParam", typeParam)
-  const [searchParams] = useSearchParams();
-const plotId = searchParams.get("plotId");
-console.log("plotId", plotId)
-
+  console.log("typeParam", typeParam);
+  const location = useLocation();
+  const plotId = location.state?.plot?.id;
+  console.log("plotId", plotId);
+  const [uploadingId, setUploadingId] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const fetchData = async () => {
     if (!projectId) return;
+
+    const query = new URLSearchParams({
+      project_id: projectId,
+      type: typeParam,
+    });
+
+    if (plotId) {
+      query.append("plot_id", plotId);
+    }
+
     try {
       const res = await fetch(
-        `${API_BASE_URL}/plots/getCompensationDetails?project_id=${projectId}&type=${typeParam}&plot_id=${plotId}`,
+        `${API_BASE_URL}/plots/getCompensationDetails?${query.toString()}`,
         {
-          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
       const data = await res.json();
-      console.log('dataaaa', data)
 
       if (data.success && data.data?.length > 0) {
         const mapped = data.data.map((item) => ({
@@ -432,7 +441,7 @@ console.log("plotId", plotId)
           totalArea: Number(item.total_area),
           totalComp: Number(item.total_compensation),
           records: item.tenants.map((t) => ({
-            id:t.id,
+            id: t.id,
             plotNo: t.plot_no,
             tenant: t.present_tenant,
             paymentArea: Number(t.payment_area),
@@ -442,11 +451,11 @@ console.log("plotId", plotId)
             bankName: t.bank_name,
             ifsc: t.ifsc,
             status: t.status,
-            txnNumber: "",
+            txnNumber: t.transaction_no,
             file: null,
           })),
         }));
-        
+console.log("mapped data", mapped);
         setKhatas(mapped);
       } else {
         setKhatas([]);
@@ -461,7 +470,7 @@ console.log("plotId", plotId)
   useEffect(() => {
     setLoading(true);
     fetchData();
-  }, [projectId, typeParam]);
+  }, [projectId, typeParam, plotId]);
 
   const validateTotals = (khata) => {
     const compSum = khata.records.reduce(
@@ -486,50 +495,49 @@ console.log("plotId", plotId)
   //     return newData;
   //   });
   // };
- const handleApportionChange = (kIndex, rIndex, value) => {
-  let num = Number(value);
-  if (num < 0) num = 0;
-  if (num > 100) num = 100;
+  const handleApportionChange = (kIndex, rIndex, value) => {
+    let num = value;
+    if (num < 0) num = 0;
+    if (num > 100) num = 100;
 
-  setKhatas((prev) => {
-    const newData = [...prev];
-    const khata = newData[kIndex];
-    const records = khata.records;
+    setKhatas((prev) => {
+      const newData = [...prev];
+      const khata = newData[kIndex];
+      const records = khata.records;
 
-    // Update current record
-    records[rIndex].apportionment = num;
+      // Update current record
+      records[rIndex].apportionment = num;
 
-    // Calculate used percentage (except last)
-    let usedPercent = 0;
-    records.forEach((r, i) => {
-      if (i !== records.length - 1) {
-        usedPercent += Number(r.apportionment || 0);
-      }
+      // Calculate used percentage (except last)
+      let usedPercent = 0;
+      records.forEach((r, i) => {
+        if (i !== records.length - 1) {
+          usedPercent += Number(r.apportionment || 0);
+        }
+      });
+
+      const lastIndex = records.length - 1;
+      const remaining = Math.max(0, 100 - usedPercent);
+
+      // Auto-adjust last row
+      records[lastIndex].apportionment = rIndex === lastIndex ? num : remaining;
+
+      // 🔥 RECALCULATE paymentArea + compPayment
+      records.forEach((r) => {
+        r.compPayment = (
+          (Number(r.apportionment) / 100) *
+          khata.totalComp
+        ).toFixed(2);
+
+        r.paymentArea = (
+          (Number(r.apportionment) / 100) *
+          khata.totalArea
+        ).toFixed(2);
+      });
+
+      return newData;
     });
-
-    const lastIndex = records.length - 1;
-    const remaining = Math.max(0, 100 - usedPercent);
-
-    // Auto-adjust last row
-    records[lastIndex].apportionment =
-      rIndex === lastIndex ? num : remaining;
-
-    // 🔥 RECALCULATE paymentArea + compPayment
-    records.forEach((r) => {
-      r.compPayment = (
-        (Number(r.apportionment) / 100) *
-        khata.totalComp
-      ).toFixed(2);
-
-      r.paymentArea = (
-        (Number(r.apportionment) / 100) *
-        khata.totalArea
-      ).toFixed(2);
-    });
-
-    return newData;
-  });
-};
+  };
 
   const handlePaymentChange = (kIndex, rIndex, value) => {
     let amount = value;
@@ -569,12 +577,49 @@ console.log("plotId", plotId)
     });
   };
 
-  const handleFileChange = (kIndex, rIndex, file) => {
-    setKhatas((prev) => {
-      const newData = [...prev];
-      newData[kIndex].records[rIndex].file = file;
-      return newData;
-    });
+  const handleFileChange = async (kIndex, rIndex, file) => {
+    if (!file) return;
+
+    const record = khatas[kIndex].records[rIndex];
+
+    setUploadingId(record.id);
+
+    try {
+      const formData = new FormData();
+      formData.append("land_cost_id", record.id);
+      formData.append("payment_proof", file);
+
+      const res = await fetch(`${API_BASE_URL}/plots/landCostPaymentUpload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.toast?.success("Payment proof uploaded");
+
+        setKhatas((prev) => {
+          const updated = [...prev];
+          updated[kIndex].records[rIndex] = {
+            ...updated[kIndex].records[rIndex],
+            file: null,
+            status: "processing",
+          };
+          return updated;
+        });
+      } else {
+        window.toast?.error(data.message || "Upload failed");
+      }
+    } catch (err) {
+      console.error("UPLOAD ERROR:", err);
+      window.toast?.error("Network error");
+    }
+
+    setUploadingId(null);
   };
 
   const handleExportExcel = () => {
@@ -622,7 +667,7 @@ console.log("plotId", plotId)
   };
 
   const handleUpdatePayment = async (kIndex, rIndex, data) => {
-    console.log("data*********", data)
+    console.log("data*********", data);
     try {
       const res = await fetch(
         `${API_BASE_URL}/plots/updatePlotPayment/${data.id}`,
@@ -646,7 +691,7 @@ console.log("plotId", plotId)
       );
 
       const result = await res.json();
-      if (!result.success) throw new Error("Update failed"); 
+      if (!result.success) throw new Error("Update failed");
       setKhatas((prev) => {
         const updated = [...prev];
         updated[kIndex].records[rIndex] = {
@@ -767,7 +812,10 @@ console.log("plotId", plotId)
 
             {openIndex === kIndex && (
               <div className="p-4">
-                <div className="overflow-x-auto mt-4" style={{scrollbarWidth:'thin'}}>
+                <div
+                  className="overflow-x-auto mt-4"
+                  style={{ scrollbarWidth: "thin" }}
+                >
                   <table className="table table-zebra w-full text-xs sm:text-sm">
                     <thead className="bg-gray-200 text-gray-700">
                       <tr className="whitespace-nowrap">
@@ -840,25 +888,12 @@ console.log("plotId", plotId)
                             </span>
                           </td>
 
-                          <td>
-                            <input
-                              type="text"
-                              className="input input-bordered input-xs sm:input-sm w-24"
-                              value={r.txnNumber}
-                              onChange={(e) =>
-                                setKhatas((prev) => {
-                                  const data = [...prev];
-                                  data[kIndex].records[rIndex].txnNumber =
-                                    e.target.value;
-                                  return data;
-                                })
-                              }
-                            />
-                          </td>
+                          <td>{r.txnNumber ?? "No Data"}</td>
 
                           <td>
                             <label className="cursor-pointer flex items-center gap-2">
                               <Upload size={16} />
+
                               <input
                                 type="file"
                                 className="hidden"
@@ -870,7 +905,10 @@ console.log("plotId", plotId)
                                   )
                                 }
                               />
-                              {r.file ? (
+
+                              {uploadingId === r.id ? (
+                                <span className="loading loading-spinner loading-xs"></span>
+                              ) : r.file ? (
                                 <span
                                   className="text-green-600 text-xs max-w-[120px] truncate"
                                   title={r.file.name}
@@ -884,6 +922,7 @@ console.log("plotId", plotId)
                               )}
                             </label>
                           </td>
+
                           <td>
                             <button
                               className="btn btn-xs btn-warning text-white"

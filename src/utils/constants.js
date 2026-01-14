@@ -757,14 +757,14 @@ export const REQUIRED_FIELDS = [
 export const LA_CASE_REGEX = /^.+\/.+\/.+$/;
 
 export const stickyActionHeader =
-  "p-3 text-right bg-gray-200 font-semibold text-sm text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
+  "p-3 text-right bg-gray-200 font-bold text-sm text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
 
 export const stickyActionCell =
-  "text-right md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
+  "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
 export const stickyPaymentHeader =
-  "p-3 text-left bg-gray-200 md:sticky md:right-0 z-[30] shadow-md";
+  "p-3 text-right bg-gray-200 md:sticky md:right-14 z-[30] shadow-md";
 export const stickyPaymentCell =
-  "p-3 text-left  md:sticky md:right-0  border-gray-100 shadow-sm text-sm";
+  "p-3 text-right md:sticky md:right-14  border-gray-100 shadow-sm text-sm";
 
 export const stickyCol1Header =
   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";

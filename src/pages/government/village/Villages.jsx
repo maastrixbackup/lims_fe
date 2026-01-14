@@ -111,8 +111,10 @@ const Villages = () => {
     if (!deleteVillage) return;
     try {
       const data = await apiClient(
-        `/village/deleteVillage/${deleteVillage.id}`,
-        "DELETE"
+        `/village/deleteVillage/${deleteVillage.id} `,{
+        method: "DELETE",
+      },
+     
       );
       if (data && data.success) {
         alert("Village deleted successfully!");

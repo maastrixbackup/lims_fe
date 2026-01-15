@@ -84,66 +84,7 @@ const VillageTable = ({
                     <td>{v.district}</td>
                     <td>{v.tahasil}</td>
                     <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
-                    {/* 
-                  <td className="text-right space-x-2">
-                    <button
-                      // className={`btn btn-xs btn-warning text-white ${
-                      //   isRestricted
-                      //     ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                      //     : ""
-                      // }`}
-                        className={`btn btn-xs btn-warning text-white ${
-                              userRole === "Viewer"
-                                ? "!bg-gray-300 !text-gray-400"
-                                : ""
-                            }`}
-                      onClick={() => onEdit(v)}
-                      disabled={userRole === "Viewer"}
-                      // disabled={isRestricted}
-                    >
-                      <Pencil size={14} /> Edit
-                    </button>
-
-                    <button
-                      className={`btn btn-xs btn-error text-white ${
-                        isRestricted
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() => onDelete(v)}
-                      disabled={isRestricted}
-                    >
-                      <Trash2 size={14} /> Delete
-                    </button>
-                  </td> */}
-
-                    {/* <td className="text-right space-x-2">
-           
-                    <button
-                      className={`btn btn-xs btn-warning text-white ${
-                        !canEdit
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() => canEdit && onEdit(v)}
-                      disabled={!canEdit}
-                    >
-                      <Pencil size={14} /> Edit
-                    </button>
-
-          
-                    <button
-                      className={`btn btn-xs btn-error text-white ${
-                        !canDelete
-                          ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() => canDelete && onDelete(v)}
-                      disabled={!canDelete}
-                    >
-                      <Trash2 size={14} /> Delete
-                    </button>
-                  </td> */}
+                 
                     <td className="text-right">
                       <select
                     className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "

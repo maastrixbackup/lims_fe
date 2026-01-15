@@ -826,7 +826,7 @@ const Plots = () => {
 
       {isModalOpen && (
         <PlotForm
-          closeModal={() => setIsModalOpen(false)}
+          close={() => setIsModalOpen(false)}
           fetchPlots={fetchPlots}
           editingPlot={editingPlot}
         />

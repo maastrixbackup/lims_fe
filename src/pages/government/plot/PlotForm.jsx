@@ -3,8 +3,11 @@ import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import { X } from "lucide-react";
 
-const PlotForm = ({ closeModal, fetchPlots, editingPlot }) => {
+const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   const token = useSelector((s) => s.auth.userToken);
   console.log("govrt plots token:", token);
   const selectedProject = useSelector((s) => s.selectedProject.project);
@@ -12,7 +15,7 @@ const PlotForm = ({ closeModal, fetchPlots, editingPlot }) => {
   console.log("govrt plots selected project:", selectedProject);
   const typeParam = useLandTypeParam();
   const [villages, setVillages] = useState([]);
-
+const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const [formData, setFormData] = useState(() => ({
     project_id: editingPlot?.project_id || selectedProject?.id || "",
     type: typeParam,
@@ -141,14 +144,13 @@ const PlotForm = ({ closeModal, fetchPlots, editingPlot }) => {
 
       if (data.success) {
         await fetchPlots();
-        alert(isEdit ? "Plot updated successfully" : "Plot added successfully");
-        closeModal();
+        showSuccess(data.message || "Added Successfully");
       } else {
-        alert(data.message || "Operation failed");
+        showError(data.message || "Operation failed");
       }
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
+      // console.error(err);
+      showError(data.message || "Operation failed");
     }
   };
 
@@ -175,6 +177,9 @@ const PlotForm = ({ closeModal, fetchPlots, editingPlot }) => {
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-2xl max-h-[90vh] overflow-y-auto">
+         <button className="absolute right-3 top-3" onClick={close}>
+          <X size={20} />
+        </button>
         <h3 className="font-bold text-lg mb-2">
           {formData.id ? "Edit Plot" : "Add Plot"}
         </h3>
@@ -537,7 +542,7 @@ const PlotForm = ({ closeModal, fetchPlots, editingPlot }) => {
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              onClick={closeModal}
+              onClick={close}
               className="btn btn-ghost"
             >
               Cancel
@@ -548,6 +553,12 @@ const PlotForm = ({ closeModal, fetchPlots, editingPlot }) => {
           </div>
         </form>
       </div>
+        <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </dialog>
   );
 };

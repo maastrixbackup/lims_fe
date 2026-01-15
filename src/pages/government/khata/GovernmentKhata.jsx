@@ -1,84 +1,111 @@
-import React, { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { GovtKhataColumn, stickyActionCell, stickyActionHeader } from "../../../utils/constants";
-import FilterHeader from "../plot/FilterHeader";
+import KhataTable from "./KhataTable";
 import KhataForm from "./KhataForm";
+import { API_BASE_URL } from "../../../utils/config";
+import { useLandTypeParam } from "../../../utils/landtypes";
+import { apiClient } from "../../../utils/apiClient";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 const GovernmentKhata = () => {
-  // Khata data
-  const [khatas, setKhatas] = useState([
-    {
-      id: 1,
-      plot_no: "P001",
-      lease_case_no: "LC001",
-      present_status: "Vacant",
-      case_details: "Survey pending",
-      village: "Village 1",
-      plot_count: 2,
-      created: "2025-01-01",
-    },
-    {
-      id: 2,
-      plot_no: "P002",
-      lease_case_no: "LC002",
-      present_status: "Occupied",
-      case_details: "Approval pending",
-      village: "Village 1",
-      plot_count: 3,
-      created: "2025-01-02",
-    },
-  ]);
-
+  const [khatas, setKhatas] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKhata, setEditingKhata] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const userRole = useSelector((state) => state.auth.user?.role_name);
-  const canEdit = userRole !== "Viewer";
-  const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
-  const [filters, setFilters] = useState({});
-  const [sortConfig, setSortConfig] = useState({
-    key: null,
-    direction: "asc",
-  });
-  const [activeFilterKey, setActiveFilterKey] = useState(null);
+  
+ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
-const openModal = (khata = null) => {
-  if (khata) {
-    setEditingKhata(khata);
-  } else {
-    setEditingKhata(null);
-  }
-  setIsModalOpen(true);
-};
+  const token = useSelector((s) => s.auth.userToken);
+  const userRole = useSelector((s) => s.auth.user?.role_name);
+  const projectId = useSelector((s) => s.selectedProject.project?.id);
 
+  const typeParam = useLandTypeParam();
 
-  const getUniqueValues = (key) => {
-    return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
+  const PRESENT_STATUS_MAP = {
+    1: "Lease Case to Sub-Collector",
+    2: "Lease Case to ADM (Rev Sec)",
+    3: "Demand Raised",
+    4: "Lease Sanctioned by Collector",
   };
 
-  const filteredKhatas = khatas
-    .filter((k) =>
-      Object.entries(filters).every(([key, value]) =>
-        value
-          ? String(k[key]).toLowerCase().includes(value.toLowerCase())
-          : true
-      )
-    )
-    .sort((a, b) => {
-      if (!sortConfig.key) return 0;
+  // 🔹 Fetch Khatas (reusable)
+  const fetchKhatas = useCallback(async () => {
+    if (!projectId || !typeParam) return;
 
-      const aVal = a[sortConfig.key] ?? "";
-      const bVal = b[sortConfig.key] ?? "";
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
+      const res = await response.json();
 
-  const confirmDelete = () => {
-    setKhatas(khatas.filter((k) => k.id !== deleteConfirm.id));
-    setDeleteConfirm(null);
+      if (res.success) {
+        const mapped = res.data.map((k) => ({
+          id: k.id,
+          khata_no: k.khata_no,
+          plot_no: k.plot_no || "-",
+          lease_case_no: k.lease_case_no || "-",
+          present_status: PRESENT_STATUS_MAP[k.present_status] || "",
+          case_details: k.case_details,
+          village: k.village_name || k.village || "-",
+          plot_count: k.plot_count || 0,
+          kissam_of_land: k.kissam_of_land || "",
+        }));
+
+        setKhatas(mapped);
+      } else {
+        setKhatas([]);
+      }
+    } catch (err) {
+      console.error("Khata list fetch failed:", err);
+      setKhatas([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId, typeParam, token]);
+
+  useEffect(() => {
+    fetchKhatas();
+  }, [fetchKhatas]);
+
+
+  const openModal = (khata = null) => {
+    setEditingKhata(khata);
+    setIsModalOpen(true);
+  };
+
+  const onCancel = () => {
+    setEditingKhata(null);
+    setIsModalOpen(false);
+  };
+
+  const openDeleteConfirm = (khata) => {
+    setDeleteConfirm(khata);
+  };
+
+
+  const handleDelete = async () => {
+    try {
+      await apiClient(`/govtkhata/deleteGovtKhata/${deleteConfirm.id}`, {
+        method: "DELETE",
+      });
+      showSuccess("Data Deleted Successfully")
+        //  closeModal()
+      fetchKhatas();
+   
+    } catch (err) {
+     showError(err.message || "Someting Went Wrong")
+    } finally {
+      setDeleteConfirm(null);
+    }
   };
 
   return (
@@ -90,135 +117,49 @@ const openModal = (khata = null) => {
         </button>
       </div>
 
-      <div className="card bg-white shadow-lg">
-        <div
-          className="overflow-x-auto max-h-[400px] overflow-y-auto"
-          style={{ scrollbarWidth: "thin" }}
-        >
-          <table className="table w-full whitespace-nowrap">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
-              <tr>
-                <th>Sl/No</th>
+      {loading ? (
+        <p className="text-center py-4">Loading...</p>
+      ) : (
+        <KhataTable
+          khatas={khatas}
+          onEdit={openModal}
+          onDelete={openDeleteConfirm} 
+          userRole={userRole}
+        />
+      )}
 
-                {GovtKhataColumn.map((col) => (
-                  <th key={col.key}>
-                    <FilterHeader
-                      column={col}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-                ))}
+      {isModalOpen && (
+        <KhataForm editingKhata={editingKhata} onCancel={onCancel} />
+      )}
 
-                <th className={stickyActionHeader}>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {khatas.length > 0 ? (
-                filteredKhatas.map((khata, idx) => (
-                  <tr key={khata.id}>
-                    <td>{idx + 1}</td>
-                    <td>{khata.khata_no || "no data"}</td>
-                    <td>{khata.kissam || "no data"}</td>
-                    <td>{khata.village || "no data"}</td>
-                    <td>{khata.plot_no || "no data"}</td>
-                    <td>{khata.lease_case_no || "no data"}</td>
-                    <td>{khata.present_status || "no data"}</td>
-                    <td>{khata.case_details || "no data"}</td>
-                    <td>{khata.plot_count || "no data"}</td>
-                    <td className={stickyActionCell}>
-                      <select
-                        className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
-                        defaultValue=""
-                        onChange={(e) => {
-                          const action = e.target.value;
-                          e.target.value = "";
-
-                          if (action === "edit" && canEdit) {
-                            onEdit(v);
-                          }
-
-                          if (action === "delete" && canDelete) {
-                            onDelete(v);
-                          }
-                        }}
-                        // disabled={!canEdit && !canDelete}
-                      >
-                        <option value="" disabled>
-                          Actions
-                        </option>
-
-                        <option
-                          value="edit"
-                          disabled={userRole === "Viewer"}
-                          className={`text-md text-gray-700 font-bold ${
-                            userRole === "Viewer" ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          ✏️ Edit
-                        </option>
-
-                        <option
-                          value="delete"
-                          disabled={!canDelete}
-                          className={`text-md text-gray-700 font-bold ${
-                            !canDelete ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          🗑 Delete
-                        </option>
-                      </select>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
-                    No khata found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
- {isModalOpen && (
-
-
-      <KhataForm
-        onCancel={() => setIsModalOpen(false)}
-        isEdit={!!editingKhata}
-      />
- 
-)}
-
-      {/* Delete Confirmation */}
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Confirm Delete</h3>
             <p className="my-3">
               Are you sure you want to delete Khata{" "}
-              <b>{deleteConfirm.plotNo}</b>?
+              <b>{deleteConfirm.khata_no}</b>?
             </p>
             <div className="modal-action">
-              <button className="btn btn-error" onClick={confirmDelete}>
+              <button className="btn btn-error" onClick={handleDelete}>
                 Yes, Delete
               </button>
-              <button className="btn" onClick={() => setDeleteConfirm(null)}>
+              <button
+                className="btn"
+                onClick={() => setDeleteConfirm(null)}
+              >
                 Cancel
               </button>
             </div>
           </div>
         </dialog>
       )}
+       <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </main>
   );
 };

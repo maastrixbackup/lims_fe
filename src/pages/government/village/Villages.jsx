@@ -11,6 +11,8 @@ import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
 import { apiClient } from "../../../utils/apiClient";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
@@ -18,7 +20,7 @@ const Villages = () => {
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const role = user?.role_name;
   const canEdit = role !== "Viewer"; // users that can add/edit/delete
-
+ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const { landType } = useParams();
   const typeParam = useLandTypeParam();
 
@@ -81,7 +83,7 @@ const Villages = () => {
         setTotalPages(1);
       }
     } catch (err) {
-      console.error("Error fetching villages:", err);
+      showError(err.message || "Error fetching villages:", );
       setVillages([]);
       setTotalPages(1);
     } finally {
@@ -117,14 +119,14 @@ const Villages = () => {
      
       );
       if (data && data.success) {
-        alert("Village deleted successfully!");
+       showSuccess( data.message || "Village Deleted Successfully")
         fetchVillages();
       } else {
-        alert(data?.message || "Failed to delete village.");
+        showError(data?.message || "Failed to delete village.");
       }
     } catch (err) {
-      console.error("Delete error:", err);
-      alert("An error occurred while deleting the village.");
+      // console.error("Delete error:", err);
+     showError(err.message, "An error occurred while deleting the village.");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteVillage(null);
@@ -265,7 +267,7 @@ const Villages = () => {
       {isModalOpen && (
         <VillageFormModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onCancel={() => setIsModalOpen(false)}
           editingVillage={editingVillage}
           projects={projects}
           odishaDistricts={odishaDistricts}
@@ -279,6 +281,12 @@ const Villages = () => {
         message={`Are you sure you want to delete "${deleteVillage?.village_name}"?`}
         onConfirm={handleDelete}
         onCancel={() => setIsDeleteModalOpen(false)}
+      />
+       <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
       />
     </div>
   );

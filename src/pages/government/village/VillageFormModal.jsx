@@ -3,10 +3,12 @@ import { X, CheckCircle } from "lucide-react";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../utils/apiClient";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import SuccessMessage from "../../../shared/SuccessMessage";
 
 const VillageFormModal = ({
   isOpen,
-  onClose,
+  onCancel,
   editingVillage,
   odishaDistricts,
   // api,
@@ -15,6 +17,7 @@ const VillageFormModal = ({
   const { projects } = useSelector((s) => s.list);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const typeParam = useLandTypeParam();
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const [formData, setFormData] = useState({
     project_id: "",
@@ -27,7 +30,7 @@ const VillageFormModal = ({
   });
 
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
+  
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -73,50 +76,50 @@ const VillageFormModal = ({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  setLoading(true);
 
-    setLoading(true);
+  const endpoint = editingVillage
+    ? `/village/updateVillage/${editingVillage.id}`
+    : `/village/addVillage`;
 
-    const endpoint = editingVillage
-      ? `/village/updateVillage/${editingVillage.id}`
-      : `/village/addVillage`;
+  const method = editingVillage ? "PUT" : "POST";
 
-    const method = editingVillage ? "PUT" : "POST";
+  try {
+    const data = await apiClient(endpoint, {
+      method,
+      body: formData,
+    });
 
-     const data = await apiClient(endpoint, {
-           method,
-           body: formData,
-         });
-
-    setLoading(false);
-
-    if (data.success) {
-      setSuccessMessage(
-        editingVillage
-          ? "Village updated successfully!"
-          : "Village added successfully!"
-      );
+    if (data?.success) {
+      showSuccess(data.message || "");
 
       fetchVillages();
 
       setTimeout(() => {
-        setSuccessMessage("");
-        onClose();
-      }, 1500);
+        closeModal();   // closes success modal
+        onCancel();     // closes form modal
+      }, 1200);
     } else {
-      setSuccessMessage(data.message || "Something went wrong.");
+      showError(data?.message || "Something went wrong.");
     }
-  };
+  } catch (error) {
+    showError("Failed to save village. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (!isOpen) return null;
 
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box relative">
-        <button className="absolute right-3 top-3" onClick={onClose}>
+        <button className="absolute right-3 top-3" onClick={onCancel}>
           <X size={20} />
         </button>
 
@@ -124,14 +127,6 @@ const VillageFormModal = ({
           {editingVillage ? "Edit Village" : "Add Village"}
         </h3>
 
-        {successMessage ? (
-          <div className="flex flex-col items-center justify-center text-center space-y-3 py-6">
-            <CheckCircle className="text-green-500 w-12 h-12" />
-            <p className="text-lg font-semibold text-green-600">
-              {successMessage}
-            </p>
-          </div>
-        ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
 
             {/* Project Name */}
@@ -271,7 +266,7 @@ const VillageFormModal = ({
 
             <div className="modal-action">
               
-              <button className="btn btn-error text-white" type="button" onClick={onClose}>
+              <button className="btn btn-error text-white" type="button" onClick={onCancel}>
                 Cancel
               </button>
               <button
@@ -290,8 +285,14 @@ const VillageFormModal = ({
 
             </div>
           </form>
-        )}
+     
       </div>
+       <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </dialog>
   );
 };

@@ -11,6 +11,11 @@ import {
 import { useSelector } from "react-redux";
 import FilterHeader from "./FilterHeader";
 import PlotTabs from "./PlotTab";
+import DeleteConfirmModal from "../../../shared/DeleteConfirmModal";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
+import { apiClient } from "../../../utils/apiClient";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 export const PRESENT_STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
@@ -30,6 +35,7 @@ const stickyCol2Cell =
   "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
 const Plots = () => {
   // const [plots, setPlots] = useState(plotData);
+   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const [attachmentModal, setAttachmentModal] = useState({
     open: false,
     files: [],
@@ -51,6 +57,8 @@ const Plots = () => {
     direction: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletePlotList, setDeletePlotList] = useState(null);
   // selected project id (from redux / props / dropdown)
   const selectedProjectId = useSelector(
     (state) => state.selectedProject.project?.id
@@ -59,41 +67,41 @@ const Plots = () => {
   const token = useSelector((state) => state.auth.userToken);
   const mapGovtPlot = (item) => ({
     id: item.id,
-    projectId: item.project_id || "",
-    village: item.mouza || "",
-    tahashil: item.tahasil || "",
-    thanaNo: item.thana_no || "",
-    riCircle: item.ri_circle || "",
-    khataNo: item.khata_no || "",
+    project_id: item.project_id || "",
+    mouza: item.mouza || "",
+    tahasil: item.tahasil || "",
+    thana_no: item.thana_no || "",
+    ri_circle: item.ri_circle || "",
+    khata_no: item.khata_no || "",
     kissam: item.kissam || "",
-    rorName: item.name_of_ror || "",
-    plotNo: item.plot_no || "",
-    totalAreaAcres: item.total_area_acres || "",
-    proposedAreaAcres: item.proposed_area_acres || "",
-    totalAreaHectares: item.total_area_hectares || "",
-    proposedAreaHectares: item.proposed_area_hectares || "",
-    leaseCaseNo: item.lease_case_no,
-    presentStatus: PRESENT_STATUS_MAP[item.present_status] || "",
-    uaIdcoToTahasildar: item.ua_idco_to_tahasildar ? "Yes" : "No",
-    caseDetails: item.case_details || "",
-    actionToBeTaken: item.action_to_be_taken || "",
-    riReport: item.ri_report || "",
+    name_of_ror: item.name_of_ror || "",
+    plot_no: item.plot_no || "",
+    total_area_acres: item.total_area_acres || "",
+    proposed_area_acres: item.proposed_area_acres || "",
+    total_area_hectares: item.total_area_hectares || "",
+    proposed_area_hectares: item.proposed_area_hectares || "",
+    lease_case_no: item.lease_case_no,
+    present_status: PRESENT_STATUS_MAP[item.present_status] || "",
+    ua_idco_to_tahasildar: item.ua_idco_to_tahasildar ? "Yes" : "No",
+    case_details: item.case_details || "",
+    action_to_be_taken: item.action_to_be_taken || "",
+    ri_report: item.ri_report || "",
     proclamation: item.proclamation ? "Yes" : "No",
-    objectionReceived: item.objection_received ? "Yes" : "No",
+    objection_received: item.objection_received ? "Yes" : "No",
     others: item.others,
-    modificationRevision: item.modification_revision ? "Yes" : "No",
-    missingCasePrep: item.misc_dr_case_prep ? "Yes" : "No",
-    missingCasePrepNo: item.misc_dr_case_prep_number || "",
-    reasonForMiscDrCase: item.reason_for_misc_dr_case || "",
-    treeEnumeration: item.tree_enumeration || "",
-    orderSheet: item.order_sheet_prep || "",
-    leaseToIDCO: item.lease_to_idco ? "Yes" : "No",
-    leaseToUA: item.lease_to_ua ? "Yes" : "No",
+    modification_revision: item.modification_revision ? "Yes" : "No",
+    misc_dr_case_prep: item.misc_dr_case_prep ? "Yes" : "No",
+    misc_dr_case_prep_number: item.misc_dr_case_prep_number || "",
+    reason_for_misc_dr_case: item.reason_for_misc_dr_case || "",
+    tree_enumeration: item.tree_enumeration || "",
+    order_sheet_prep: item.order_sheet_prep || "",
+    lease_to_idco: item.lease_to_idco ? "Yes" : "No",
+    lease_to_ua: item.lease_to_ua ? "Yes" : "No",
     remarks: item.remarks || "",
-    riReportAttachment: item.ri_report_attachment || "",
-    treeEnumerationAttachment: item.tree_enumeration_attachment || "",
-    leaseToIDCOAttachment: item.lease_to_idco_attachment || "",
-    leaseToUAAttachment: item.lease_to_ua_attachment || "",
+    ri_report_attachment: item.ri_report_attachment || "",
+    tree_enumeration_attachment: item.tree_enumeration_attachment || "",
+    lease_to_idco_attachment: item.lease_to_idco_attachment || "",
+    lease_to_ua_attachment: item.lease_to_ua_attachment || "",
     legal_heir_certificate_no: item.legal_heir_certificate_no || "",
     land_case_no: item.land_case_no || "",
     land_case_date: item.land_case_date || "",
@@ -132,7 +140,7 @@ const Plots = () => {
       setLoading(true);
 
       const res = await fetch(
-        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&page=1`,
+        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=1`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -156,39 +164,39 @@ const Plots = () => {
     fetchPlots();
   }, [fetchPlots]);
 
-  const onEdit = (plot) => {
+  const openModal = (plot) => {
     setEditingPlot(plot);
     setIsModalOpen(true);
   };
-
-  const openModal = () => {
-    setIsModalOpen(true);
+  const onDelete = (plot) => {
+    setDeletePlotList(plot);
+    setIsDeleteModalOpen(true);
   };
 
   const renderAttachments = (attachments, title = "Attachments") => {
-   if (!attachments) return "No Attachments";
+    if (!attachments) return "No Attachments";
 
-  let files = [];
+    let files = [];
 
-  // 1️⃣ If already an array
-  if (Array.isArray(attachments)) {
-    files = attachments.map((f) => {
-      // API object
-      if (typeof f === "object" && f !== null) {
-        return f.file_name || f.path || f.url || "";
-      }
-      // String filename
-      return String(f);
-    });
-  }
+    // 1️⃣ If already an array
+    if (Array.isArray(attachments)) {
+      files = attachments.map((f) => {
+        // API object
+        if (typeof f === "object" && f !== null) {
+          return f.file_name || f.path || f.url || "";
+        }
+        // String filename
+        return String(f);
+      });
+    }
 
-  // 2️⃣ If backend sent comma-separated string
-  else if (typeof attachments === "string") {
-    files = attachments
-      .split(",")
-      .map((f) => f.trim())
-      .filter(Boolean);
-  }
+    // 2️⃣ If backend sent comma-separated string
+    else if (typeof attachments === "string") {
+      files = attachments
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean);
+    }
 
     if (files.length === 0) return "No Attachments";
 
@@ -230,10 +238,28 @@ const Plots = () => {
       </div>
     );
   };
-
-  const confirmDelete = () => {
-    setPlots(plots.filter((p) => p.id !== deleteConfirm.id));
-    setDeleteConfirm(null);
+  const handleDelete = async () => {
+    if (!deletePlotList) return;
+    try {
+      const data = await apiClient(
+        `/govtplots/deleteGovtPlot/${deletePlotList.id}`,
+        {
+        method: "DELETE",
+      }
+      );
+      if (data && data.success) {
+       showSuccess(data.message || "Plot deleted successfully!");
+        fetchPlots();
+      } else {
+        alert(data?.message || "Failed to delete Plot.");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      showError(err.message || "Plot Deleletd Successfully")
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeletePlotList(null);
+    }
   };
   const getUniqueValues = (key) => {
     return [...new Set(plots.map((p) => p[key]).filter(Boolean))];
@@ -350,59 +376,59 @@ const Plots = () => {
                     >
                       <td>{idx + 1}</td>
                       <td className={stickyCol1Cell}>
-                        {plot.khataNo || "No Data"}
+                        {plot.khata_no || "No Data"}
                       </td>
                       <td className={stickyCol2Cell}>
-                        {plot.plotNo || "No Data"}
+                        {plot.plot_no || "No Data"}
                       </td>
-                      <td>{plot.thanaNo || "No Data"}</td>
-                      <td>{plot.village || "No Data"}</td>
-                      <td>{plot.tahashil || "No Data"}</td>
-                      <td>{plot.riCircle || "No Data"}</td>
+                      <td>{plot.thana_no || "No Data"}</td>
+                      <td>{plot.mouza || "No Data"}</td>
+                      <td>{plot.tahasil || "No Data"}</td>
+                      <td>{plot.ri_circle || "No Data"}</td>
                       <td>{plot.kissam || "No Data"}</td>
-                      <td>{plot.rorName || "No Data"}</td>
-                      <td>{plot.totalAreaAcres || "No Data"}</td>
-                      <td>{plot.proposedAreaAcres || "No Data"}</td>
-                      <td>{plot.totalAreaHectares || "No Data"}</td>
-                      <td>{plot.proposedAreaHectares || "No Data"}</td>
-                      <td>{plot.leaseCaseNo || "No Data"}</td>
-                      <td>{plot.presentStatus || "No Data"}</td>
-                      <td>{plot.uaIdcoToTahasildar || "No Data"}</td>
-                      <td>{plot.caseDetails || "No Data"}</td>
-                      <td>{plot.actionToBeTaken || "No Data"}</td>
-                      <td>{plot.riReport || "No Data"}</td>
+                      <td>{plot.name_of_ror || "No Data"}</td>
+                      <td>{plot.total_area_acres || "No Data"}</td>
+                      <td>{plot.proposed_area_acres || "No Data"}</td>
+                      <td>{plot.total_area_hectares || "No Data"}</td>
+                      <td>{plot.proposed_area_hectares || "No Data"}</td>
+                      <td>{plot.lease_case_no || "No Data"}</td>
+                      <td>{plot.present_status || "No Data"}</td>
+                      <td>{plot.ua_idco_to_tahasildar || "No Data"}</td>
+                      <td>{plot.case_details || "No Data"}</td>
+                      <td>{plot.action_to_be_taken || "No Data"}</td>
+                      <td>{plot.ri_report || "No Data"}</td>
                       <td>
                         {renderAttachments(
-                          plot.riReportAttachment.file_name,
+                          plot.ri_report_attachment.file_name,
                           "RI Report Attachments" || "No Data"
                         )}
                       </td>
                       <td>{plot.proclamation || "No Data"}</td>
-                      <td>{plot.objectionReceived || "No Data"}</td>
+                      <td>{plot.objection_received || "No Data"}</td>
                       <td>{plot.others || "No Data"}</td>
-                      <td>{plot.modificationRevision || "No Data"}</td>
-                      <td>{plot.missingCasePrep || "No Data"}</td>
-                      <td>{plot.missingCasePrepNo || "No Data"}</td>
-                      <td>{plot.reasonForMiscDrCase || "No Data"}</td>
-                      <td>{plot.treeEnumeration || "No Data"}</td>
+                      <td>{plot.modification_revision || "No Data"}</td>
+                      <td>{plot.misc_dr_case_prep || "No Data"}</td>
+                      <td>{plot.misc_dr_case_prep_number || "No Data"}</td>
+                      <td>{plot.reason_for_misc_dr_case || "No Data"}</td>
+                      <td>{plot.tree_enumeration || "No Data"}</td>
                       <td>
                         {renderAttachments(
-                          plot.treeEnumerationAttachment.file_name,
+                          plot.tree_enumeration_attachment.file_name,
                           "Tree Enumeration Attachments" || "No Data"
                         )}
                       </td>
-                      <td>{plot.orderSheet || "No Data"}</td>
-                      <td>{plot.leaseToIDCO || "No Data"}</td>
+                      <td>{plot.order_sheet_prep || "No Data"}</td>
+                      <td>{plot.lease_to_idco || "No Data"}</td>
                       <td>
                         {renderAttachments(
-                          plot.leaseToIDCOAttachment.file_name,
+                          plot.lease_to_idco_attachment.file_name,
                           "Lease to IDCO Attachments" || "No Data"
                         )}
                       </td>
-                      <td>{plot.leaseToUA || "No Data"}</td>
+                      <td>{plot.lease_to_ua || "No Data"}</td>
                       <td>
                         {renderAttachments(
-                          plot.leaseToUAAttachment.file_name,
+                          plot.lease_to_ua_attachment.file_name,
                           "Lease to UA Attachments" || "No Data"
                         )}
                       </td>
@@ -416,11 +442,11 @@ const Plots = () => {
                             e.target.value = "";
 
                             if (action === "edit" && canEdit) {
-                              onEdit(v);
+                              openModal(plot);
                             }
 
                             if (action === "delete" && canDelete) {
-                              onDelete(v);
+                              onDelete(plot);
                             }
                           }}
                           // disabled={!canEdit && !canDelete}
@@ -574,10 +600,10 @@ const Plots = () => {
                     >
                       <td>{idx + 1}</td>
                       <td className={stickyCol1Cell}>
-                        {plot.khataNo || "No Data"}
+                        {plot.khata_no || "No Data"}
                       </td>
                       <td className={stickyCol2Cell}>
-                        {plot.plotNo || "No Data"}
+                        {plot.plot_no || "No Data"}
                       </td>
                       <td>{plot.legal_heir_certificate_no || "no data"}</td>
                       <td>{plot.land_case_no || "no data"}</td>
@@ -588,21 +614,20 @@ const Plots = () => {
 
                       <td className={stickyActionCell}>
                         <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                           defaultValue=""
                           onChange={(e) => {
                             const action = e.target.value;
                             e.target.value = "";
 
                             if (action === "edit" && canEdit) {
-                              onEdit(v);
+                              openModal(plot);
                             }
 
                             if (action === "delete" && canDelete) {
-                              onDelete(v);
+                              onDelete(plot);
                             }
                           }}
-                          // disabled={!canEdit && !canDelete}
                         >
                           <option value="" disabled>
                             Actions
@@ -711,10 +736,10 @@ const Plots = () => {
                     >
                       <td>{idx + 1}</td>
                       <td className={stickyCol1Cell}>
-                        {plot.khataNo || "No Data"}
+                        {plot.khata_no || "No Data"}
                       </td>
                       <td className={stickyCol2Cell}>
-                        {plot.plotNo || "No Data"}
+                        {plot.plot_no || "No Data"}
                       </td>
                       <td>{plot.land_area_total_acres || "no data"}</td>
                       <td>{plot.land_area_total_hectares || "no data"}</td>
@@ -742,21 +767,20 @@ const Plots = () => {
                       <td>{plot.total_compensation || "no data"}</td>
                       <td className={stickyActionCell}>
                         <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
                           defaultValue=""
                           onChange={(e) => {
                             const action = e.target.value;
                             e.target.value = "";
 
                             if (action === "edit" && canEdit) {
-                              onEdit(v);
+                              openModal(plot);
                             }
 
                             if (action === "delete" && canDelete) {
-                              onDelete(v);
+                              onDelete(plot);
                             }
                           }}
-                          // disabled={!canEdit && !canDelete}
                         >
                           <option value="" disabled>
                             Actions
@@ -804,29 +828,27 @@ const Plots = () => {
         <PlotForm
           closeModal={() => setIsModalOpen(false)}
           fetchPlots={fetchPlots}
+          editingPlot={editingPlot}
         />
       )}
-
-      {/* Delete Modal */}
-      {deleteConfirm && (
-        <dialog open className="modal modal-open">
-          <div className="modal-box max-w-md">
-            <h3 className="font-bold text-lg mb-4">Confirm Delete</h3>
-            <p>
-              Are you sure you want to delete{" "}
-              <span className="font-semibold">{deleteConfirm.code}</span>?
-            </p>
-            <div className="modal-action">
-              <button className="btn btn-error" onClick={confirmDelete}>
-                Yes, Delete
-              </button>
-              <button className="btn" onClick={() => setDeleteConfirm(null)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </dialog>
+      {isDeleteModalOpen && deletePlotList && (
+        <ConfirmDelete
+          isOpen={isDeleteModalOpen}
+          title="Confirm Delete"
+          message={`Are you sure you want to delete plot no "${deletePlotList.plot_no}"?`}
+          onConfirm={handleDelete}
+          onCancel={() => {
+            setIsDeleteModalOpen(false);
+            setDeletePlotList(null);
+          }}
+        />
       )}
+        <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </main>
   );
 };

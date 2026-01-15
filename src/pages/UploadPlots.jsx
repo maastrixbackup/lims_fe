@@ -6,25 +6,8 @@ import { Download, Trash2 } from "lucide-react";
 import moment from "moment";
 import ConfirmDelete from "../shared/ConfirmDelete";
 import { apiClient } from "../utils/apiClient";
-
-/* ================= LAND TYPE API MAP ================= */
-const LANDTYPE_API = {
-  "1": {
-    upload: "/plots/upload",
-    list: "/plots/plotDocumentList",
-    delete: "/plots/plotDocumentDelete",
-  },
-  "2": {
-    upload: "/govtplots/uploadGovtPlotExcel",
-    // list: "/govtplots/plotDocumentList",
-    delete: "/govtplots/plotDocumentDelete",
-  },
-  "3": {
-    upload: "/plots/upload",
-    list: "/plots/plotDocumentList",
-    delete: "/plots/plotDocumentDelete",
-  },
-};
+import { useSuccessMessage } from "../hooks/useSuccessMessage";
+import SuccessMessage from "../shared/SuccessMessage";
 
 const UploadPlots = () => {
   const [plots, setPlots] = useState([]);
@@ -37,49 +20,62 @@ const UploadPlots = () => {
   const [selectedType, setSelectedType] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [docToDelete, setDocToDelete] = useState(null);
-  const [hasUploaded, setHasUploaded] = useState(false);
-
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projectId = selectedProject?.id;
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
-  /* ================= FETCH DOCUMENTS ================= */
+  const LANDTYPE_API = {
+    1: {
+      upload: "/plots/upload",
+      list: "/plots/plotDocumentList",
+      delete: "/plots/plotDocumentDelete",
+    },
+    2: {
+      upload: "/govtplots/uploadGovtPlotExcel",
+      list: "/govtplots/govtPlotDocumentList",
+      delete: "/govtplots/govtPlotDocumentDelete",
+    },
+    3: {
+      upload: "/forestplots/uploadForestPlotExcel",
+      list: "/forestplots/plotDocumentList",
+      delete: "/forestplots/plotDocumentDelete",
+    },
+  };
+
   const fetchPlotDocuments = async () => {
-    if (!selectedType || !projectId) return;
+    if (!selectedType) return;
 
     try {
       setLoadingDocs(true);
-      // setError(null);
 
-      const api = LANDTYPE_API[selectedType].list;
-
-      const data = await apiClient(api, {
+      const api = LANDTYPE_API[selectedType];
+      const data = await apiClient(api.list, {
         params: { project_id: projectId },
       });
 
       setPlotDocs(data.files || []);
     } catch (err) {
-      console.log(err);
-      // setError(err.message || "Failed to fetch plot documents");
+      setError(err.message || "Failed to fetch plot documents");
     } finally {
       setLoadingDocs(false);
     }
   };
 
-useEffect(() => {
-  if (selectedProject && selectedType && hasUploaded) {
-    fetchPlotDocuments();
-  }
-}, [selectedProject, selectedType, hasUploaded]);
+  // useEffect(() => {
+  //   if (selectedProject) fetchPlotDocuments();
+  // }, [selectedProject]);
+  useEffect(() => {
+    if (selectedProject && selectedType) {
+      fetchPlotDocuments();
+    }
+  }, [selectedProject, selectedType]);
 
-
-  /* ================= FILE PARSING ================= */
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
     const ext = selectedFile.name.split(".").pop().toLowerCase();
-
     setError(null);
     setPlots([]);
     setSuccess(false);
@@ -104,11 +100,9 @@ useEffect(() => {
       reader.readAsArrayBuffer(selectedFile);
     } else {
       setError("Unsupported file type");
-      setFile(null);
     }
   };
 
-  /* ================= UPLOAD ================= */
   const handleUploadToAPI = async () => {
     if (!file) return setError("No file selected");
     if (!selectedProject || !selectedType)
@@ -117,53 +111,39 @@ useEffect(() => {
     try {
       setUploading(true);
       setError(null);
-      setSuccess(false);
-
       const api = LANDTYPE_API[selectedType].upload;
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("project_id", projectId);
       formData.append("type", Number(selectedType));
-await apiClient(api, {
-  method: "POST",
-  body: formData,
-});
+      await apiClient(api, {
+        method: "POST",
+        body: formData,
+      });
 
-setSuccess(true);
-setHasUploaded(true);   // ✅ enable list loading
-setFile(null);
-setPlots([]);
-fetchPlotDocuments();
-
-      setTimeout(() => setSuccess(false), 1000);
+      showSuccess("Document Uploaded Successfully");
+      fetchPlotDocuments();
+      setFile(null);
+      setPlots([]);
+      fetchPlotDocuments();
     } catch (err) {
-      setError(err.message || "Upload failed");
+      showError(err.message || "Payment completion failed");
     } finally {
       setUploading(false);
     }
   };
-
-  useEffect(() => {
-  setPlotDocs([]);
-  setHasUploaded(false);
-}, [selectedType]);
-
-  /* ================= DELETE ================= */
   const handleDelete = async () => {
     if (!docToDelete || !selectedType) return;
 
     try {
-      const api = LANDTYPE_API[selectedType].delete;
+      const api = LANDTYPE_API[selectedType];
 
-      await apiClient(
-        `${api}/${encodeURIComponent(docToDelete)}`,
-        { method: "DELETE" }
-      );
-
-      setPlotDocs((prev) =>
-        prev.filter((doc) => doc.name !== docToDelete)
-      );
+      await apiClient(`${api.delete}/${encodeURIComponent(docToDelete)}`, {
+        method: "DELETE",
+      });
+      showSuccess("Data Deleted Successfully");
+      setPlotDocs((prev) => prev.filter((doc) => doc.name !== docToDelete));
     } catch (err) {
       setError(err.message || "Delete failed");
     } finally {
@@ -209,6 +189,7 @@ fetchPlotDocuments();
               ? "bg-gray-200 cursor-not-allowed"
               : "file-input-bordered file-input-primary"
           }`}
+          readOnly
         />
 
         <button
@@ -221,9 +202,6 @@ fetchPlotDocuments();
       </div>
 
       {error && <p className="text-red-500">{error}</p>}
-      {success && <p className="text-green-600">Upload successful!</p>}
-
-      {/* ================= DOCUMENT LIST ================= */}
       <section>
         <h3 className="text-lg font-semibold mb-3">📄 Uploaded Documents</h3>
 
@@ -247,9 +225,7 @@ fetchPlotDocuments();
                   <td>{doc.name}</td>
                   <td>{doc.size}</td>
                   <td>
-                    {moment(doc.uploadedAt).format(
-                      "DD MMM YYYY, hh:mm A"
-                    )}
+                    {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
                   </td>
                   <td className="flex gap-3">
                     <a
@@ -285,6 +261,12 @@ fetchPlotDocuments();
         message={`Delete "${docToDelete}"?`}
         onConfirm={handleDelete}
         onCancel={() => setIsDeleteModalOpen(false)}
+      />
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
       />
     </main>
   );

@@ -543,9 +543,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
                   <td className={stickyPaymentCell}>
                     <div
-                      className={`dropdown dropdown-left ${
-                        isRestricted ? "opacity-60 pointer-events-none" : ""
-                      }`}
+                      className={"dropdown dropdown-left"}
+                      // isRestricted ? "opacity-60 pointer-events-none" : ""
                     >
                       {/* Trigger Button */}
                       <label
@@ -567,7 +566,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       </label>
 
                       {/* Dropdown Menu */}
-                      {!isRestricted && loadingPlotId !== plot.id && (
+                      {loadingPlotId !== plot.id && (
                         <ul
                           tabIndex={0}
                           className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"

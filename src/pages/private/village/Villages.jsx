@@ -107,27 +107,32 @@ const Villages = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!deleteVillage) return;
-    try {
-      const data = await apiClient(
-        `/village/deleteVillage/${deleteVillage.id}`,
-        "DELETE"
-      );
-      if (data && data.success) {
-        alert("Village deleted successfully!");
-        fetchVillages();
-      } else {
-        alert(data?.message || "Failed to delete village.");
+ const handleDelete = async () => {
+  if (!deleteVillage) return;
+
+  try {
+    const data = await apiClient(
+      `/village/deleteVillage/${deleteVillage.id}`,
+      {
+        method: "DELETE",
       }
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert("An error occurred while deleting the village.");
-    } finally {
-      setIsDeleteModalOpen(false);
-      setDeleteVillage(null);
+    );
+
+    if (data?.success) {
+      alert("Village deleted successfully!");
+      fetchVillages();
+    } else {
+      alert(data?.message || "Failed to delete village.");
     }
-  };
+  } catch (err) {
+    console.error("Delete error:", err);
+    alert("An error occurred while deleting the village.");
+  } finally {
+    setIsDeleteModalOpen(false);
+    setDeleteVillage(null);
+  }
+};
+
 
   const filteredVillages = useMemo(() => {
     if (!Array.isArray(villages)) return [];

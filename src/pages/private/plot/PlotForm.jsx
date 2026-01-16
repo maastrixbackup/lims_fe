@@ -669,14 +669,15 @@ import {
 } from "../../../utils/constants";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 const PlotForm = ({ fetchPlots }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { landType } = useParams();
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const token = useSelector((s) => s.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((s) => s.list.projects || []);
@@ -841,19 +842,24 @@ const PlotForm = ({ fetchPlots }) => {
       });
 
       const data = await res.json();
-  console.log("dataaaaa", data)
-    if (data.success) {
-  fetchPlots?.();
-  setShowSuccessModal(true);
-}
+      console.log("dataaaaa", data);
 
+      if (data.success) {
+        showSuccess(data.message || "Data Added Successfully");
+        fetchPlots?.();
+        setTimeout(() => {
+          closeModal();
+
+          navigate(`/${landType}/plots`);
+        }, 800);
+      }
     } catch (err) {
       console.error(err);
+      showError(err.message || "Something went error");
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <main className="overflow-y-auto">
@@ -987,7 +993,7 @@ const PlotForm = ({ fetchPlots }) => {
                         onChange={handleChange}
                         // readOnly={
                         //   field === "la_case_file_no" ||
-                        //   field === "village_code" 
+                        //   field === "village_code"
                         // }
                         type={
                           field.includes("date")
@@ -1027,32 +1033,12 @@ const PlotForm = ({ fetchPlots }) => {
           </div>
         </form>
       </div>
-      {showSuccessModal && (
-  <dialog className="modal modal-open">
-    <div className="modal-box text-center">
-      <h3 className="font-bold text-lg text-green-600">
-        ✅ Plot Added Successfully
-      </h3>
-
-      {/* <p className="py-4 text-sm text-gray-600">
-        The plot details have been saved successfully.
-      </p> */}
-
-      <div className="modal-action justify-center">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setShowSuccessModal(false);
-            navigate(`/${landType}/plots`);
-          }}
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  </dialog>
-)}
-
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </main>
   );
 };

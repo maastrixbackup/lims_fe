@@ -827,49 +827,42 @@ export const RR_FIELDS = [
 ];
 
 export const RR_FIELDS_FORMS = [
-  { label: "RR Employment", field: "rr_employment", type: "text" },
-  { label: "RR Cash in Lieu", field: "rr_cash_in_lieu", type: "text" },
+  { name: "rr_employment", label: "RR Employment", type: "text" },
+  { name: "rr_cash_in_lieu", label: "Cash in Lieu", type: "text" },
   {
-    label: "RR Training / Skill Upgradation",
-    field: "rr_training_skill_upgradation",
+    name: "rr_training_skill_upgradation",
+    label: "Training / Skill Upgradation",
     type: "text",
   },
-  { label: "RR Self Employment", field: "rr_self_employment", type: "text" },
+  { name: "rr_self_employment", label: "Self Employment", type: "text" },
   {
-    label: "RR Special Allowance (ST / NTFP)",
-    field: "rr_special_allowance_st_ntfp",
+    name: "rr_special_allowance_st_ntfp",
+    label: "Special Allowance (ST/NTFP)",
     type: "text",
   },
+  { name: "rr_homestead_allotment", label: "Homestead Allotment", type: "text" },
   {
-    label: "RR Homestead Allotment",
-    field: "rr_homestead_allotment",
+    name: "rr_house_building_assistance",
+    label: "House Building Assistance",
     type: "text",
   },
+  { name: "rr_constructed_by", label: "Constructed By", type: "text" },
+  { name: "rr_transit_shed", label: "Transit Shed", type: "text" },
+  { name: "rr_transport_allowance", label: "Transport Allowance", type: "text" },
   {
-    label: "RR House Building Assistance",
-    field: "rr_house_building_assistance",
-    type: "text",
-  },
-  { label: "RR Constructed By", field: "rr_constructed_by", type: "text" },
-  { label: "RR Transit Shed", field: "rr_transit_shed", type: "text" },
-  {
-    label: "RR Transport Allowance",
-    field: "rr_transport_allowance",
+    name: "rr_maintenance_allowance",
+    label: "Maintenance Allowance",
     type: "text",
   },
   {
-    label: "RR Maintenance Allowance",
-    field: "rr_maintenance_allowance",
+    name: "rr_multiple_displacement_allowance",
+    label: "Multiple Displacement Allowance",
     type: "text",
   },
-  {
-    label: "RR Multiple Displacement Allowance",
-    field: "rr_multiple_displacement_allowance",
-    type: "text",
-  },
-  { label: "RR Ex-gratia", field: "rr_exgratia", type: "text" },
-  { label: "RR Other Benefits", field: "rr_other_benefits", type: "text" },
+  { name: "rr_exgratia", label: "Ex-gratia", type: "text" },
+  { name: "rr_other_benefits", label: "Other Benefits", type: "text" },
 ];
+
 
 export const GOVERNMENT_LAND_COLUMNS = [
   ...COMMON_COLUMNS,

@@ -23,8 +23,7 @@ import {
   RR_COLUMNS,
   RR_FIELDS_FORMS,
   COMMON_COLUMNS,
-
-  } from "../../../utils/constants";
+} from "../../../utils/constants";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import KhataTabs from "./KhataTabs";
 
@@ -55,28 +54,28 @@ const KhataTable = ({
   const userRole = useSelector((state) => state.auth.user?.role_name);
   const isRestricted = userRole === "Data Entry User" || userRole === "Viewer";
 
- const stickyCol1Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";
- const stickyCol1Cell =
-  "p-3 text-left bg-white md:sticky md:left-10 shadow-sm ";
+  const stickyCol1Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";
+  const stickyCol1Cell =
+    "p-3 text-left bg-white md:sticky md:left-10 shadow-sm ";
 
-// export const stickyCol2Header =
-//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
-// export const stickyCol2Cell =
-//   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
- const stickyCol2Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[90px] z-[30] shadow-md";
- const stickyCol2Cell =
-  "p-3 text-left bg-white md:sticky md:left-[90px] shadow-sm";
+  // export const stickyCol2Header =
+  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
+  // export const stickyCol2Cell =
+  //   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
+  const stickyCol2Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[90px] z-[30] shadow-md";
+  const stickyCol2Cell =
+    "p-3 text-left bg-white md:sticky md:left-[90px] shadow-sm";
 
- const stickyCol3Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[180px] z-[30] shadow-md";
- const stickyCol3Cell =
-  "p-3 text-left bg-white md:sticky md:left-[180px] shadow-sm";
-   const stickyCol4Header =
-  "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[320px] z-[30] shadow-md";
- const stickyCol4Cell =
-  "p-3 text-left bg-white md:sticky md:left-[320px] shadow-sm";
+  const stickyCol3Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[180px] z-[30] shadow-md";
+  const stickyCol3Cell =
+    "p-3 text-left bg-white md:sticky md:left-[180px] shadow-sm";
+  const stickyCol4Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[320px] z-[30] shadow-md";
+  const stickyCol4Cell =
+    "p-3 text-left bg-white md:sticky md:left-[320px] shadow-sm";
 
   const stickyActionHeader =
     "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
@@ -254,7 +253,9 @@ const KhataTable = ({
                   <table className="table w-full">
                     <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
                       <tr>
-                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">Sl/No</th>
+                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                          Sl/No
+                        </th>
                         <FilterableHeader
                           label="Khata No."
                           field="khata_no"
@@ -280,7 +281,7 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
-                           <FilterableHeader
+                        <FilterableHeader
                           label="Recorded Tenant"
                           field="name_of_recorded_tenant"
                           className={stickyCol3Header}
@@ -292,7 +293,7 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
-                              <FilterableHeader
+                        <FilterableHeader
                           label="Present Tenant"
                           field="name_of_present_tenant"
                           className={stickyCol4Header}
@@ -340,17 +341,17 @@ const KhataTable = ({
                     <tbody>
                       {filteredKhatas.map((khata, idx) => (
                         <tr key={khata.id}>
-                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">{(page - 1) * limit + idx + 1}</td>
+                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                            {(page - 1) * limit + idx + 1}
+                          </td>
                           <td className={stickyCol1Cell}>{khata.khata_no}</td>
                           <td className={stickyCol2Cell}>
                             {khata.village_name}
                           </td>
-                            <td className={stickyCol3Cell}>
+                          <td className={stickyCol3Cell}>
                             {khata.name_of_recorded_tenant}
                           </td>
-                           <td 
-                           className={stickyCol4Cell}
-                           >
+                          <td className={stickyCol4Cell}>
                             {khata.name_of_present_tenant}
                           </td>
 
@@ -457,8 +458,10 @@ const KhataTable = ({
                   <table className="table w-full ">
                     <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
                       <tr>
-                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">Sl/No</th>
-  <FilterableHeader
+                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                          Sl/No
+                        </th>
+                        <FilterableHeader
                           label="Khata No."
                           field="khata_no"
                           className={stickyCol1Header}
@@ -483,7 +486,7 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
-                           <FilterableHeader
+                        <FilterableHeader
                           label="Recorded Tenant"
                           field="name_of_recorded_tenant"
                           className={stickyCol3Header}
@@ -495,7 +498,7 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
-                              <FilterableHeader
+                        <FilterableHeader
                           label="Present Tenant"
                           field="name_of_present_tenant"
                           className={stickyCol4Header}
@@ -510,7 +513,7 @@ const KhataTable = ({
                         {/* {RR_FIELDS_FORMS.map(({ label }) => (
                           <th key={label}>{label}</th>
                         ))} */}
-   {RR_FIELDS_FORMS.map(({ label, field }) => (
+                        {RR_FIELDS_FORMS.map(({ label, field }) => (
                           <FilterableHeader
                             key={field}
                             label={label}
@@ -531,27 +534,34 @@ const KhataTable = ({
                     <tbody>
                       {filteredKhatas.map((khata, idx) => (
                         <tr key={khata.id}>
-                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">{(page - 1) * limit + idx + 1}</td>
+                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                            {(page - 1) * limit + idx + 1}
+                          </td>
 
-                          <td className={stickyCol1Cell}>{khata.khata_no|| "No Data"}</td>
+                          <td className={stickyCol1Cell}>
+                            {khata.khata_no || "No Data"}
+                          </td>
                           <td className={stickyCol2Cell}>
                             {khata.village_name || "No Data"}
                           </td>
-                            <td className={stickyCol3Cell}>
+                          <td className={stickyCol3Cell}>
                             {khata.name_of_recorded_tenant || "No Data"}
                           </td>
-                           <td 
-                           className={stickyCol4Cell}
-                           >
+                          <td className={stickyCol4Cell}>
                             {khata.name_of_present_tenant || "No Data"}
                           </td>
 
-                          {/* RR values */}
                           {RR_FIELDS_FORMS.map(({ name }) => (
-                            <td key={name}>{khata[name] || "No Data"}</td>
+                            <td key={name}>
+                              {khata[name] !== null &&
+                              khata[name] !== undefined &&
+                              khata[name] !== ""
+                                ? khata[name]
+                                : "No Data"}
+                            </td>
                           ))}
 
-                           <td className={stickyActionCell}>
+                          <td className={stickyActionCell}>
                             <select
                               className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
                               defaultValue=""

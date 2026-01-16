@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import { apiClient } from "../../../utils/apiClient";
@@ -17,112 +17,160 @@ const EMPTY_FORM = {
   present_status: "",
   case_details: "",
 };
+const STATUS_MAP = {
+  1: "Lease Case to Sub-Collector",
+  2: "Lease Case to ADM (Rev Sec)",
+  3: "Demand Raised",
+  4: "Lease Sanctioned by Collector",
+};
 
-const KhataForm = ({ onCancel, editingKhata }) => {
-  const [villages, setVillages] = useState([]);
-  const [formData, setFormData] = useState(EMPTY_FORM);
+const STATUS_REVERSE_MAP = Object.fromEntries(
+  Object.entries(STATUS_MAP).map(([k, v]) => [v, Number(k)])
+);
+
+const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
   const token = useSelector((s) => s.auth.userToken);
-  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
-
   const projects = useSelector((s) => s.list.projects || []);
   const selectedProjectId = useSelector((s) => s.selectedProject.project?.id);
-
+  console.log("selectedProjectId", selectedProjectId);
   const typeParam = useLandTypeParam();
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
-  /* ================= PREFILL PROJECT ID ================= */
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [villages, setVillages] = useState([]);
+  const initializing = useRef(false);
+
   useEffect(() => {
-    if (selectedProjectId) {
-      setFormData((p) => ({
-        ...p,
-        project_id: selectedProjectId,
+    initializing.current = true;
+
+    if (editingKhata) {
+      setFormData({
+        project_id: editingKhata.project_id || "",
+        khata_no: editingKhata.khata_no || "",
+        kissam: editingKhata.kissam_of_land || "",
+        village_id: editingKhata.village_id || "",
+        plot_no: editingKhata.plot_no || "",
+        lease_case_no: editingKhata.lease_case_no || "",
+        present_status: STATUS_REVERSE_MAP[editingKhata.present_status] || 0,
+        case_details: editingKhata.case_details || "",
+        village: editingKhata.village_name || "",
+      });
+    } else {
+      setFormData({
+        ...EMPTY_FORM,
+        project_id: selectedProjectId || "",
+      });
+    }
+
+    setTimeout(() => {
+      initializing.current = false;
+    }, 0);
+  }, [editingKhata, selectedProjectId]);
+
+  useEffect(() => {
+    if (!initializing.current && !editingKhata) {
+      setFormData((prev) => ({
+        ...prev,
+        village_id: "",
       }));
     }
-  }, [selectedProjectId]);
-
+  }, [formData.project_id, editingKhata]);
 
   useEffect(() => {
-    const fetchVillages = async () => {
-      if (!formData.project_id || !typeParam) {
-        setVillages([]);
-        return;
-      }
+    if (!formData.project_id || !typeParam) {
+      setVillages([]);
+      return;
+    }
 
+    const fetchVillages = async () => {
       try {
         const res = await apiClient(
           `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`
         );
-
         if (res?.success) {
           setVillages(res.villages || []);
         }
       } catch (err) {
-        console.error("Village fetch failed:", err);
+        console.error("Village fetch failed", err);
       }
     };
 
     fetchVillages();
   }, [formData.project_id, typeParam]);
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!formData.project_id) {
-    showError("Project ID is required");
-    return;
-  }
+    if (!formData.project_id) {
+      showError("Project is required");
+      return;
+    }
 
-  try {
     const payload = {
       project_id: formData.project_id,
       type: typeParam,
       khata_no: formData.khata_no,
       village_id: formData.village_id,
-      kissam_of_land: formData.kissam,
+      village_name: formData.village_name,
+      kissam_of_land: formData.kissam_of_land,
       plot_no: formData.plot_no,
       lease_case_no: formData.lease_case_no,
       present_status: formData.present_status,
       case_details: formData.case_details,
     };
+    console.log("payload..........", payload);
+    try {
+      const url = editingKhata
+        ? `${API_BASE_URL}/govtkhata/updateGovtKhata/${editingKhata.id}`
+        : `${API_BASE_URL}/govtkhata/addGovtKhata`;
 
-    const response = await fetch(`${API_BASE_URL}/govtkhata/addGovtKhata`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      const method = editingKhata ? "PUT" : "POST";
 
-    const res = await response.json();
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (!response.ok || !res.success) {
-      throw new Error(res.message || "Failed to save khata");
+      const res = await response.json();
+
+      if (!response.ok || !res.success) {
+        throw new Error(res.message || "Operation failed");
+      }
+
+      showSuccess(
+        editingKhata ? "Khata updated successfully" : "Khata added successfully"
+      );
+
+      fetchKhatas();
+
+      setTimeout(() => {
+        onCancel();
+        if (!editingKhata) setFormData(EMPTY_FORM);
+      }, 800);
+    } catch (err) {
+      showError(err.message || "Something went wrong");
     }
-
-
-    showSuccess(res.message || "Document Uploaded Successfully");
-
-
-    setFormData(EMPTY_FORM);
-  } catch (err) {
-    showError(err.message || "Something went wrong");
-  }
-};
-
-
+  };
   return (
     <>
       <dialog open className="modal modal-open">
         <div className="modal-box max-w-2xl">
-           <button className="absolute right-3 top-3" onClick={onCancel}>
-          <X size={20} />
-        </button>
+          <button className="absolute right-3 top-3" onClick={onCancel}>
+            <X size={20} />
+          </button>
           <h3 className="font-bold text-lg mb-4">
             {editingKhata ? "Edit Khata" : "Add Khata"}
           </h3>
@@ -225,20 +273,25 @@ const handleSubmit = async (e) => {
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-base-200 p-3 rounded-lg">
                 {[
-                  "Lease Case to Sub-Collector",
-                  "Lease Case to ADM (Rev Sec)",
-                  "Demand Raised",
-                  "Lease Sanctioned by Collector",
+                  { id: 1, label: "Lease Case to Sub-Collector" },
+                  { id: 2, label: "Lease Case to ADM (Rev Sec)" },
+                  { id: 3, label: "Demand Raised" },
+                  { id: 4, label: "Lease Sanctioned by Collector" },
                 ].map((status) => (
-                  <label key={status} className="flex gap-2 items-center">
+                  <label key={status.id} className="flex gap-2 items-center">
                     <input
                       type="radio"
                       name="present_status"
-                      value={status}
-                      checked={formData.present_status === status}
-                      onChange={handleChange}
+                      value={status.id}
+                      checked={Number(formData.present_status) === status.id}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          present_status: Number(e.target.value),
+                        }))
+                      }
                     />
-                    <span className="text-sm">{status}</span>
+                    <span className="text-sm">{status.label}</span>
                   </label>
                 ))}
               </div>
@@ -267,7 +320,8 @@ const handleSubmit = async (e) => {
                 Cancel
               </button>
               <button type="submit" className="btn btn-primary">
-                Save
+                {" "}
+                {editingKhata ? "Update" : "Save"}{" "}
               </button>
             </div>
           </form>

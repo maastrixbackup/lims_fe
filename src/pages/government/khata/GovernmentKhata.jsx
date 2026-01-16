@@ -14,21 +14,21 @@ const GovernmentKhata = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKhata, setEditingKhata] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  
- const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const token = useSelector((s) => s.auth.userToken);
   const userRole = useSelector((s) => s.auth.user?.role_name);
   const projectId = useSelector((s) => s.selectedProject.project?.id);
 
   const typeParam = useLandTypeParam();
-
   const PRESENT_STATUS_MAP = {
     1: "Lease Case to Sub-Collector",
     2: "Lease Case to ADM (Rev Sec)",
     3: "Demand Raised",
     4: "Lease Sanctioned by Collector",
   };
+
 
   // 🔹 Fetch Khatas (reusable)
   const fetchKhatas = useCallback(async () => {
@@ -52,8 +52,10 @@ const GovernmentKhata = () => {
           id: k.id,
           khata_no: k.khata_no,
           plot_no: k.plot_no || "-",
+          project_id: k.project_id,
+          village_id: k.village_id,
           lease_case_no: k.lease_case_no || "-",
-          present_status: PRESENT_STATUS_MAP[k.present_status] || "",
+          present_status: PRESENT_STATUS_MAP[k.present_status || ""],
           case_details: k.case_details,
           village: k.village_name || k.village || "-",
           plot_count: k.plot_count || 0,
@@ -76,7 +78,6 @@ const GovernmentKhata = () => {
     fetchKhatas();
   }, [fetchKhatas]);
 
-
   const openModal = (khata = null) => {
     setEditingKhata(khata);
     setIsModalOpen(true);
@@ -91,18 +92,17 @@ const GovernmentKhata = () => {
     setDeleteConfirm(khata);
   };
 
-
   const handleDelete = async () => {
     try {
       await apiClient(`/govtkhata/deleteGovtKhata/${deleteConfirm.id}`, {
         method: "DELETE",
       });
-      showSuccess("Data Deleted Successfully")
-        //  closeModal()
+
+      showSuccess("Data Deleted Successfully");
+      //  closeModal()
       fetchKhatas();
-   
     } catch (err) {
-     showError(err.message || "Someting Went Wrong")
+      showError(err.message || "Someting Went Wrong");
     } finally {
       setDeleteConfirm(null);
     }
@@ -123,13 +123,17 @@ const GovernmentKhata = () => {
         <KhataTable
           khatas={khatas}
           onEdit={openModal}
-          onDelete={openDeleteConfirm} 
+          onDelete={openDeleteConfirm}
           userRole={userRole}
         />
       )}
 
       {isModalOpen && (
-        <KhataForm editingKhata={editingKhata} onCancel={onCancel} />
+        <KhataForm
+          editingKhata={editingKhata}
+          onCancel={onCancel}
+          fetchKhatas={fetchKhatas}
+        />
       )}
 
       {deleteConfirm && (
@@ -144,17 +148,14 @@ const GovernmentKhata = () => {
               <button className="btn btn-error" onClick={handleDelete}>
                 Yes, Delete
               </button>
-              <button
-                className="btn"
-                onClick={() => setDeleteConfirm(null)}
-              >
+              <button className="btn" onClick={() => setDeleteConfirm(null)}>
                 Cancel
               </button>
             </div>
           </div>
         </dialog>
       )}
-       <SuccessMessage
+      <SuccessMessage
         open={modal.open}
         type={modal.type}
         message={modal.message}

@@ -8,6 +8,7 @@ import ConfirmDelete from "../shared/ConfirmDelete";
 import { apiClient } from "../utils/apiClient";
 import { useSuccessMessage } from "../hooks/useSuccessMessage";
 import SuccessMessage from "../shared/SuccessMessage";
+import { API_BASE_URL } from "../utils/config";
 
 const UploadPlots = () => {
   const [plots, setPlots] = useState([]);
@@ -24,17 +25,19 @@ const UploadPlots = () => {
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projectId = selectedProject?.id;
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
-
+const token = useSelector((state) => state.auth.userToken);
   const LANDTYPE_API = {
     1: {
       upload: "/plots/upload",
       list: "/plots/plotDocumentList",
       delete: "/plots/plotDocumentDelete",
+      download: "/plots/plotDocumentDownload",
     },
     2: {
       upload: "/govtplots/uploadGovtPlotExcel",
       list: "/govtplots/govtPlotDocumentList",
       delete: "/govtplots/govtPlotDocumentDelete",
+      download: "/govtplots/govtPlotDocumentDownload",
     },
     3: {
       upload: "/forestplots/uploadForestPlotExcel",
@@ -90,13 +93,22 @@ const UploadPlots = () => {
       });
     } else if (["xlsx", "xls"].includes(ext)) {
       const reader = new FileReader();
+
       reader.onload = (e) => {
-        const wb = XLSX.read(new Uint8Array(e.target.result), {
-          type: "array",
-        });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        setPlots(XLSX.utils.sheet_to_json(ws, { defval: "" }));
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: "array" });
+
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+          setPlots(json);
+        } catch (err) {
+          console.error(err);
+          setError("Invalid Excel file. Please upload a valid .xls/.xlsx file");
+        }
       };
+
       reader.readAsArrayBuffer(selectedFile);
     } else {
       setError("Unsupported file type");
@@ -151,6 +163,50 @@ const UploadPlots = () => {
       setDocToDelete(null);
     }
   };
+ const handleDownload = async (docName) => {
+  if (!selectedType) return;
+
+  try {
+    const apiPath = LANDTYPE_API[selectedType].download;
+
+    const response = await fetch(
+      `${API_BASE_URL}${apiPath}/${encodeURIComponent(docName)}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Download failed:", text);
+      throw new Error("Download failed");
+    }
+
+    const contentType = response.headers.get("content-type");
+
+    if (!contentType?.includes("spreadsheet")) {
+      const text = await response.text();
+      console.error("Invalid Excel:", text);
+      throw new Error("Invalid Excel file received");
+    }
+
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = docName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    setError(err.message || "Download failed");
+  }
+};
 
   const isUploadEnabled = selectedProject && selectedType;
   return (
@@ -228,14 +284,13 @@ const UploadPlots = () => {
                     {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
                   </td>
                   <td className="flex gap-3">
-                    <a
-                      href={doc.documentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownload(doc.name)}
                       className="text-blue-600 hover:text-blue-800"
                     >
                       <Download size={18} />
-                    </a>
+                    </button>
+
                     <button
                       onClick={() => {
                         setDocToDelete(doc.name);

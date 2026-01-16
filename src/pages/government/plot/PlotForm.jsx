@@ -145,6 +145,9 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
       if (data.success) {
         await fetchPlots();
         showSuccess(data.message || "Added Successfully");
+        setTimeout(()=>{
+          close()
+        },800)
       } else {
         showError(data.message || "Operation failed");
       }

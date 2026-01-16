@@ -46,33 +46,44 @@ const token = useSelector((state) => state.auth.userToken);
     },
   };
 
-  const fetchPlotDocuments = async () => {
-    if (!selectedType) return;
+const fetchPlotDocuments = async () => {
+  if (!selectedType || !projectId) return;
 
-    try {
-      setLoadingDocs(true);
+  try {
+    setLoadingDocs(true);
 
-      const api = LANDTYPE_API[selectedType];
-      const data = await apiClient(api.list, {
-        params: { project_id: projectId },
-      });
+    const api = LANDTYPE_API[selectedType];
 
-      setPlotDocs(data.files || []);
-    } catch (err) {
-      setError(err.message || "Failed to fetch plot documents");
-    } finally {
-      setLoadingDocs(false);
+    if (!api?.list) {
+      throw new Error("Invalid land type selected");
     }
-  };
+
+    const data = await apiClient(api.list, {
+      params: {
+        project_id: projectId,
+        type: selectedType, // ✅ IMPORTANT
+      },
+    });
+
+    setPlotDocs(data.files || []);
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Failed to fetch plot documents");
+  } finally {
+    setLoadingDocs(false);
+  }
+};
+
 
   // useEffect(() => {
   //   if (selectedProject) fetchPlotDocuments();
   // }, [selectedProject]);
-  useEffect(() => {
-    if (selectedProject && selectedType) {
-      fetchPlotDocuments();
-    }
-  }, [selectedProject, selectedType]);
+useEffect(() => {
+  if (projectId && selectedType) {
+    fetchPlotDocuments();
+  }
+}, [projectId, selectedType]);
+
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];

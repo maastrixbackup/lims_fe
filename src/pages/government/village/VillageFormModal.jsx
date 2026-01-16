@@ -102,7 +102,7 @@ const handleSubmit = async (e) => {
       setTimeout(() => {
         closeModal();   // closes success modal
         onCancel();     // closes form modal
-      }, 1200);
+      }, 800);
     } else {
       showError(data?.message || "Something went wrong.");
     }

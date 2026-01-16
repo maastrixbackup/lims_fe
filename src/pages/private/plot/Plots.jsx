@@ -4,13 +4,14 @@ import { useParams } from "react-router-dom";
 import PlotTable from "../plot/PlotsTable";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
-import Loader from "../../../shared/Loader";
+
 import { useLandTypeParam } from "../../../utils/landtypes";
-import ExportButtons from "../../../shared/ExportButtons";
-import { columns, showToast } from "../../../utils/constants";
+
 import { FolderUp } from "lucide-react";
 import Pagination from "../../../shared/Pagination";
 import { apiClient } from "../../../utils/apiClient";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import SuccessMessage from "../../../shared/SuccessMessage";
 
 const Plots = () => {
   const { landType } = useParams();
@@ -26,7 +27,7 @@ const Plots = () => {
   const token = useSelector((state) => state.auth.userToken);
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
-  
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const projectId = useSelector((state) => state.selectedProject?.project?.id);
   const isRestricted = role === "Viewer";
@@ -43,14 +44,15 @@ const Plots = () => {
     try {
       const endpoint = `/plots/plotList?project_id=${projectId}&page=${page}&limit=${limit}&type=${typeParam}`;
       const data = await apiClient(endpoint);
-      console.log("Fetched Plots Data:", data);
+      // console.log("Fetched Plots Data:", data);
 
       if (data.success) {
         setPlots(data.plots || []);
         setTotalPages(data.totalPages || 1);
       }
     } catch (err) {
-      console.error("Error fetching plots:", err);
+      // console.error("Error fetching plots:", err);
+      showError(data.err || "Someting went wrong");
     } finally {
       setLoading(false);
     }
@@ -79,13 +81,13 @@ const Plots = () => {
       if (data.success) {
         setPlots((prev) => prev.filter((p) => p.id !== deleteConfirm.id));
         setDeleteConfirm(null);
-        showToast("Plot Deeleted SuccessFully","error")
+        showSuccess(data.message || "Plot Deleted SuccessFully", "error");
       } else {
-        alert(data.message || "Failed to delete plot.");
+        showSuccess(data.message || "Failed to delete plot.");
       }
     } catch (err) {
       console.error("Error deleting plot:", err);
-      alert("Something went wrong while deleting the plot.");
+      showError(err.message || "Something went wrong while deleting the plot.");
     }
   };
   const exportPlot = async () => {
@@ -140,7 +142,9 @@ const Plots = () => {
         <h2 className="text-lg font-semibold capitalize">
           {landType?.replace("-", " ") || "Private"} Plots
         </h2>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+
+        {/* Buttons */}
+        <div className="flex flex-row gap-2 sm:gap-3">
           <button
             className="btn bg-green-600 text-white flex items-center justify-center gap-2"
             onClick={exportPlot}
@@ -163,7 +167,12 @@ const Plots = () => {
         </div>
       </div>
 
-      <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} className="overflow-x" style={{ scrollbarWidth: "thin" }}/>
+      <PlotTable
+        plots={plots}
+        setDeleteConfirm={setDeleteConfirm}
+        className="overflow-x"
+        style={{ scrollbarWidth: "thin" }}
+      />
       {/* {!projectId ? (
         <p className="text-center text-gray-600">
           Please select a project to view plots.
@@ -206,6 +215,12 @@ const Plots = () => {
           </div>
         </dialog>
       )}
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </main>
   );
 };

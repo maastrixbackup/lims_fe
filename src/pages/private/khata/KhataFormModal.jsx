@@ -59,8 +59,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   });
 
   const initializing = useRef(false);
-  const userRole = useSelector((s) => s.auth.user?.role_name || "");
-  const isRestricted = userRole === "Data Entry User";
+  // const userRole = useSelector((s) => s.auth.user?.role_name || "");
+  // const isRestricted = userRole === "Data Entry User";
 
   useEffect(() => {
     if (khata) {
@@ -88,21 +88,21 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         present_address: khata.present_address || "",
         displaced_affected_person: khata.displaced_affected_person || "",
         rr_employment: khata.rr_employment || "",
-rr_cash_in_lieu: khata.rr_cash_in_lieu || "",
-rr_training_skill_upgradation: khata.rr_training_skill_upgradation || "",
-rr_self_employment: khata.rr_self_employment || "",
-rr_special_allowance_st_ntfp: khata.rr_special_allowance_st_ntfp || "",
-rr_homestead_allotment: khata.rr_homestead_allotment || "",
-rr_house_building_assistance: khata.rr_house_building_assistance || "",
-rr_constructed_by: khata.rr_constructed_by || "",
-rr_transit_shed: khata.rr_transit_shed || "",
-rr_transport_allowance: khata.rr_transport_allowance || "",
-rr_maintenance_allowance: khata.rr_maintenance_allowance || "",
-rr_multiple_displacement_allowance:
-  khata.rr_multiple_displacement_allowance || "",
-rr_exgratia: khata.rr_exgratia || "",
-rr_other_benefits: khata.rr_other_benefits || "",
-
+        rr_cash_in_lieu: khata.rr_cash_in_lieu || "",
+        rr_training_skill_upgradation:
+          khata.rr_training_skill_upgradation || "",
+        rr_self_employment: khata.rr_self_employment || "",
+        rr_special_allowance_st_ntfp: khata.rr_special_allowance_st_ntfp || "",
+        rr_homestead_allotment: khata.rr_homestead_allotment || "",
+        rr_house_building_assistance: khata.rr_house_building_assistance || "",
+        rr_constructed_by: khata.rr_constructed_by || "",
+        rr_transit_shed: khata.rr_transit_shed || "",
+        rr_transport_allowance: khata.rr_transport_allowance || "",
+        rr_maintenance_allowance: khata.rr_maintenance_allowance || "",
+        rr_multiple_displacement_allowance:
+          khata.rr_multiple_displacement_allowance || "",
+        rr_exgratia: khata.rr_exgratia || "",
+        rr_other_benefits: khata.rr_other_benefits || "",
       });
 
       setTimeout(() => (initializing.current = false), 300);
@@ -496,24 +496,27 @@ rr_other_benefits: khata.rr_other_benefits || "",
               <option value="PDF">PDF</option>
             </select>
           </div>
+          
 
           <hr className="my-4" />
           <div className="grid grid-cols-2 gap-3">
             {RR_FIELDS_FORMS.map((field) => (
               <div key={field.name}>
-                <label className="text-sm font-medium">{field.label}</label>
+                <label className="text-sm font-medium mb-1 block">
+                  {field.label}
+                </label>
+
                 <input
-                  type={field.type}
+                  type={field.type || "text"}
                   name={field.name}
-                  value={formData[field.name] || ""}
+                  value={formData[field.name] ?? ""}
                   onChange={handleChange}
                   className="input input-bordered w-full"
-                  placeholder={""}
+                  // disabled={isRestricted}
                 />
               </div>
             ))}
           </div>
-
           <div className="modal-action">
             <button
               type="button"

@@ -24,9 +24,10 @@ import {
   stickyActionHeader,
   stickyPaymentCell,
   stickyPaymentHeader,
-  showToast,
 } from "../../../utils/constants";
 import ResetFilters from "../../../shared/ResetFilters";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 // import { useLandTypeParam } from "../../../utils/landtypes";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
@@ -54,6 +55,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     field: null,
     direction: "asc",
   });
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const updateFilter = (field, value) => {
     setColumnFilters((prev) => ({
       ...prev,
@@ -114,20 +116,20 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
         const data = await res.json();
 
         if (data.success === true) {
-          showToast("Marked as Ready for Payment", "success");
+        showSuccess(data.message || "Successful");
 
           setPaymentStatusMap((prev) => ({
             ...prev,
             [plot.id]: "RP",
           }));
         } else if (data.success === false) {
-          showToast(data.message || "Failed to update status", "error");
+         showSuccess(data.message || "Failed to update status", "error");
         } else {
           // window.toast?.error(data.message || "Failed to update status");
-          showToast(data.message || "Failed to update status", "error");
+         showSuccess(data.message || "Failed to update status", "error");
         }
       } catch (err) {
-        showToast("Network error", "error");
+       showError("Network error", "error");
       }
 
       setLoadingPlotId(null);
@@ -161,23 +163,26 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
         // ✅ Already processing → treat as success
         if (
-          data.success ||
-          data.message === "Payment already in processing state"
+           showSuccess(data.message || "Successful")
         ) {
           setPaymentStatusMap((prev) => ({
             ...prev,
             [plot.id]: "PP",
           }));
 
-          showToast("Payment is already in processing", "info");
+        //  showSuccess(data.message );
 
-          navigate(`/${landType}/land-cost`, { state: { plot } });
-          return;
+        //   navigate(`/${landType}/land-cost`, { state: { plot } });
+        //   return;
         }
 
-        showToast(data.message || "Failed to update payment", "error");
+        showSuccess(data.message || "Failed to update payment", "error");
+        setTimeout(()=>{
+          closeModal()
+            navigate(`/${landType}/land-cost`, { state: { plot } });
+        },400)
       } catch (err) {
-        showToast("Network error. Please try again", "error");
+       showSuccess(err.message || "Network error. Please try again", "error");
       } finally {
         setLoadingPlotId(null);
       }
@@ -289,92 +294,77 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   return (
     <div className="">
-      <div className="rounded-xl bg-white p-4 mb-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-          {/* Filters */}
-          <div className="flex flex-wrap gap-4 w-full">
-            {/* Village */}
-            <div className="flex flex-col w-full sm:w-48">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Village
-              </label>
-              <select
-                className="select select-sm w-full rounded-lg border-gray-300
-            focus:border-indigo-500 focus:ring-indigo-400 text-gray-700"
-                value={selectedVillage}
-                onChange={(e) => setSelectedVillage(e.target.value)}
-              >
-                <option value="">All Villages</option>
-                {villageOptions.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </div>
+     <div className="rounded-xl bg-white p-4 mb-6 shadow-sm">
+  <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+    {/* Filters */}
+    <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full min-w-0">
+      
+      {/* Village */}
+      <div className="flex flex-col w-full sm:w-48">
+        <label className="text-xs font-medium text-gray-600 mb-1">
+          Village
+        </label>
+        <select
+          className="select select-sm w-full rounded-lg border-gray-300
+          focus:border-indigo-500 focus:ring-indigo-400 text-gray-700"
+          value={selectedVillage}
+          onChange={(e) => setSelectedVillage(e.target.value)}
+        >
+          <option value="">All Villages</option>
+          {villageOptions.map((v) => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))}
+        </select>
+      </div>
 
-            {/* Khata */}
-            {/* <div className="flex flex-col w-full sm:w-48">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Khata No.
-              </label>
-              <select
-                className="select select-sm w-full rounded-lg border-gray-300
-            focus:border-indigo-500 focus:ring-indigo-400 text-gray-700"
-                value={selectedKhata}
-                onChange={(e) => setSelectedKhata(e.target.value)}
-              >
-                <option value="">All Khata Numbers</option>
-                {khataOptions.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
-            </div> */}
+      {/* Search */}
+      <div className="flex flex-col w-full sm:flex-1 min-w-0">
+        <label className="text-xs font-medium text-gray-600 mb-1">
+          Search
+        </label>
 
-            {/* Search */}
-            <div className="flex flex-col w-20 sm:flex-1 min-w-[20px]">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Search
-              </label>
-              <div
-                className="flex items-center rounded-lg border border-gray-300 bg-white
+        <div
+          className="flex items-center w-full rounded-lg border border-gray-300 bg-white
           shadow-sm focus-within:ring-2 focus-within:ring-indigo-400"
-              >
-                <input
-                  type="text"
-                  placeholder="Search tenant, plot, khata..."
-                  className="w-full px-3 py-2 text-sm rounded-l-lg focus:outline-none"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  title="Reset filters"
-                  className="px-2 text-gray-500 hover:text-indigo-600"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
+        >
+          <input
+            type="text"
+            placeholder="Search tenant, plot, khata..."
+            className="w-full px-3 py-2 text-sm rounded-l-lg focus:outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
 
-          {/* Results Count */}
-          <div
-            className="flex items-center gap-2 px-3 py-2 rounded-lg
-      bg-indigo-100 text-sm font-medium text-indigo-700 shadow-inner w-fit"
+          <button
+            type="button"
+            onClick={resetFilters}
+            title="Reset filters"
+            className="px-2 text-gray-500 hover:text-indigo-600"
           >
-            <Filter size={16} />
-            Showing
-            <span className="font-semibold text-indigo-900">
-              {filteredPlots.length}
-            </span>
-            results
-          </div>
+            <X size={18} />
+          </button>
         </div>
       </div>
+    </div>
+
+    {/* Results Count */}
+    <div
+      className="flex items-center gap-2 px-3 py-2 rounded-lg
+      bg-indigo-100 text-sm font-medium text-indigo-700 shadow-inner
+      w-fit self-start lg:self-auto"
+    >
+      <Filter size={16} />
+      Showing
+      <span className="font-semibold text-indigo-900">
+        {filteredPlots.length}
+      </span>
+      results
+    </div>
+  </div>
+</div>
+
 
       {(!selectedProject || filteredPlots.length === 0) && (
         <div className=" card bg-white py-10 text-center text-gray-600">
@@ -613,8 +603,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         const action = e.target.value;
                         e.target.value = "";
 
-                        if (action === "edit") {
-                          navigate(`/${landType}/land-cost?plotId=${plot.id}`, {
+                         if (action === "edit") {
+                          navigate(`/${landType}/plot-form`, {
                             state: { plot },
                           });
                         }
@@ -817,7 +807,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         const action = e.target.value;
                         e.target.value = "";
 
-                        if (action === "edit") {
+                          if (action === "edit") {
                           navigate(`/${landType}/plot-form`, {
                             state: { plot },
                           });
@@ -2036,6 +2026,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </TableWrapper>
         </PlotTabs>
       )}
+        <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </div>
   );
 };

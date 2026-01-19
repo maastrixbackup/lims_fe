@@ -129,7 +129,7 @@ const PlotTabs = ({ children }) => {
           <button
             key={idx}
             onClick={() => setActiveTab(idx)}
-            className={`px-3 py-3 whitespace-nowrap font-medium text-sm 
+            className={`px-4 py-3 whitespace-nowrap font-medium text-sm 
               border-b-2 transition
               ${
                 activeTab === idx

@@ -750,7 +750,7 @@ const Plots = () => {
                       <td>{plot.premium || "no data"}</td>
                       <td>{plot.ground_rate || "no data"}</td>
                       <td>{plot.cess || "no data"}</td>
-                      <td>{plot.admin_cost || "no data"}</td>
+                      <td>{plot.admin_charges || "no data"}</td>
                       <td>{plot.total_cost || "no data"}</td>
                       {/* <td>{plot.basic_land_value || "no data"}</td>
                       <td>{plot.land_value_with_mf || "no data"}</td>

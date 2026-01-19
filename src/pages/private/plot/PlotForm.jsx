@@ -852,7 +852,9 @@ const PlotForm = ({ fetchPlots }) => {
 
           navigate(`/${landType}/plots`);
         }, 800);
-      }
+      }else if(data.success === false){
+ showError(data.message || "Something went error");
+    }
     } catch (err) {
       console.error(err);
       showError(err.message || "Something went error");
@@ -863,7 +865,7 @@ const PlotForm = ({ fetchPlots }) => {
 
   return (
     <main className="overflow-y-auto">
-      <div className="max-w-6xl mx-auto bg-white shadow-xl p-6 rounded-lg">
+      <div className="max-w-6xl mx-auto bg-white shadow-xl p-2 rounded-lg">
         <div className="flex justify-between mb-6">
           <h2 className="text-xl font-semibold">
             {editingPlot ? "Edit Plot" : "Add New Plot"}

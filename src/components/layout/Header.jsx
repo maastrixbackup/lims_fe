@@ -1,17 +1,31 @@
-import {Bell,User,LogOut,LockKeyhole,ChevronDown,Menu,} from "lucide-react";
+import {
+  Bell,
+  User,
+  LogOut,
+  LockKeyhole,
+  ChevronDown,
+  Menu,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../utils/userSlice";
-import {setSelectedProject,clearSelectedProject,} from "../../utils/selectedProjectSlice";
+import { ArrowLeft } from "lucide-react";
+import {
+  setSelectedProject,
+  clearSelectedProject,
+} from "../../utils/selectedProjectSlice";
 
-export default function Header({ setSidebarOpen, isMobile }) {
+export default function Header({ setSidebarOpen, isMobile, sidebarOpen }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const notifRef = useRef(null);
   const profileRef = useRef(null);
@@ -50,19 +64,38 @@ export default function Header({ setSidebarOpen, isMobile }) {
 
   return (
     <header
-      className="
-        fixed top-0 h-16 bg-white shadow-md flex items-center 
-        justify-between px-4 sm:px-6 z-40 transition-all duration-300 w-full
-      "
+      className={`
+    fixed top-0 h-16 bg-white shadow-md flex items-center
+    justify-between px-4 sm:px-6
+    z-50 transition-all duration-300
+    ${
+      isMobile
+        ? "left-0 w-full"
+        : sidebarOpen
+          ? "left-[260px] w-[calc(100%-260px)]"
+          : "left-[80px] w-[calc(100%-80px)]"
+    }
+  `}
     >
-      {isMobile && (
+      <div className="flex items-center gap-2">
+        {isMobile && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-lg hover:bg-gray-100 md:hidden"
+          >
+            <Menu size={24} />
+          </button>
+        )}
+
         <button
-          onClick={() => setSidebarOpen(true)}
-          className="p-2 rounded-lg "
+          onClick={handleBack}
+          className="p-2 rounded-lg hover:bg-gray-100"
+          title="Back"
         >
-          <Menu size={24} className="bg-blue"/>
+          <ArrowLeft size={22} />
         </button>
-      )}
+      </div>
+
       <div className="flex items-center gap-3 md:gap-6 ml-auto">
         <div
           className="relative min-w-[140px] sm:min-w-[180px]"

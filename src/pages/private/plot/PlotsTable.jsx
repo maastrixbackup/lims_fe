@@ -1350,7 +1350,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             </tbody>
           </TableWrapper>
           <TableWrapper title="Land Area Valuation Details">
-            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
               <tr>
                 <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
                   Sl/No
@@ -1402,14 +1402,14 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     
 
                 <th className="p-3 text-left">Bench Market Value</th>
-                {/* <th className="p-3 text-left">Basic Land Value (₹)</th>
+                <th className="p-3 text-left">Basic Land Value (₹)</th>
                 <th className="p-3 text-left">Land Value w/ MF (₹)</th>
                 <th className="p-3 text-left">No. of Trees</th>
                 <th className="p-3 text-left">Value of Trees (₹)</th>
-                <th className="p-3 text-left">No. of Houses</th> */}
+                <th className="p-3 text-left">No. of Houses</th>
         
-                {/* <FilterHeader
-                  label="Value of Houses"
+                <FilterHeader
+                  label="Value of Structure (House)"
                   field="value_of_house"
                   options={getOptions("value_of_house")}
                   columnFilters={columnFilters}
@@ -1419,8 +1419,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   onSort={handleSort}
                   sortConfig={sortConfig}
                 />
-                <th className="p-3 text-left">Other Structures</th>
-                <th className="p-3 text-left">Value of Other Structures (₹)</th>
+                <th className="p-3 text-left">Details of Structure Other Than House</th>
+                <th className="p-3 text-left">Value of Structures Other than house</th>
                 <th className="p-3 text-left">Total Value (₹)</th>
                
                 <FilterHeader
@@ -1434,18 +1434,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   onSort={handleSort}
                   sortConfig={sortConfig}
                 />
-                <th className="p-3 text-left">No. Days of interest</th>
-                <th className="p-3 text-left">Additional 12% (₹)</th>
+                <th className="p-3 text-left">Days of interest</th>
+                <th className="p-3 text-left">12% Additional Compensation</th>
                 <th className="p-3 text-left">Total Compensation (₹)</th>
-             
+              <th className="p-3 text-left">Apportion Amount</th>
                 <th className="p-3 text-left">Priority / Urgency</th>
-              
-                <th className="p-3 text-left">LA21 Remarks</th> */}
-                <th className="p-3 text-left">Premium</th> 
-                <th className="p-3 text-left">Ground Rent</th> 
-                <th className="p-3 text-left">Cess</th>
-                <th className="p-3 text-left">Admin Charges</th>
-                <th className="p-3 text-left">Total Cost</th>
+               <th className="p-3 text-left">Land Use Plan</th>
+                <th className="p-3 text-left">LA21 Remarks</th>
                 <th className={stickyPaymentHeader}>Payment Status</th>
                 <th className={stickyActionHeader}>Actions</th>
               </tr>
@@ -1477,12 +1472,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     {plot.land_area_acquired_hectares || "N/A"}
                   </td>
                   <td className="p-3">{plot.market_value_per_acre || "N/A"}</td>
-                  <td className="p-3">{plot.premium || "N/A"}</td>
-                  <td className="p-3">{plot.ground_rent || "N/A"}</td>
-                  <td className="p-3">{plot.cess|| "N/A"}</td>
-                  <td className="p-3">{plot.admin_charges|| "N/A"}</td>
-                  <td className="p-3">{plot.total_cost || "N/A"}</td>
-                  {/* <td className="p-3">{plot.basic_land_value || "N/A"}</td>
+                  <td className="p-3">{plot.basic_land_value || "N/A"}</td>
                   <td className="p-3">{plot.land_value_with_mf || "N/A"}</td>
                   <td className="p-3">{plot.no_of_trees || "N/A"}</td>
                   <td className="p-3">{plot.total_value_of_trees || "N/A"}</td>
@@ -1490,8 +1480,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.value_of_house || "N/A"}</td>
                   <td className="p-3">
                     {plot.details_of_other_structures || "N/A"}
-                  </td> */}
-                  {/* <td className="p-3">
+                  </td>
+                  <td className="p-3">
                     {plot.value_of_other_structures || "N/A"}
                   </td>
                   <td className="p-3">{plot.total_value || "N/A"}</td>
@@ -1499,9 +1489,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                   <td className="p-3">{plot.no_days_interest || "N/A"}</td>
                   <td className="p-3">{plot.additional_12_percent || "N/A"}</td>
                   <td className="p-3">{plot.total_compensation || "N/A"}</td>
-                  <td className="p-3">{plot.priority_urgency || "N/A"}</td> */}
-                  {/* <td className="p-3">{plot.land_use_plan || "N/A"}</td> */}
-                  {/* <td className="p-3">{plot.la21_remarks || "N/A"}</td> */}
+                   <td className="p-3">{plot.apportionment_amount || "N/A"}</td>
+                  <td className="p-3">{plot.priority_urgency || "N/A"}</td>
+                  <td className="p-3">{plot.land_use_plan || "N/A"}</td>
+                  <td className="p-3">{plot.la21_remarks || "N/A"}</td>
                   <td className={stickyPaymentCell}>
                     <div
                       className={`dropdown dropdown-left ${

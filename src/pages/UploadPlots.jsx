@@ -24,6 +24,7 @@ const UploadPlots = () => {
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projectId = selectedProject?.id;
+  console.log("project id govt", projectId)
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 const token = useSelector((state) => state.auth.userToken);
   const LANDTYPE_API = {
@@ -61,11 +62,12 @@ const fetchPlotDocuments = async () => {
     const data = await apiClient(api.list, {
       params: {
         project_id: projectId,
-        type: selectedType, // ✅ IMPORTANT
+        type: selectedType,
       },
     });
 
     setPlotDocs(data.files || []);
+    console.log("document govt", data)
   } catch (err) {
     console.error(err);
     setError(err.message || "Failed to fetch plot documents");

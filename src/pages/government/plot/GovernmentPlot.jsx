@@ -752,7 +752,7 @@ const Plots = () => {
                       <td>{plot.cess || "no data"}</td>
                       <td>{plot.admin_cost || "no data"}</td>
                       <td>{plot.total_cost || "no data"}</td>
-                      <td>{plot.basic_land_value || "no data"}</td>
+                      {/* <td>{plot.basic_land_value || "no data"}</td>
                       <td>{plot.land_value_with_mf || "no data"}</td>
                       <td>{plot.no_of_trees || "no data"}</td>
                       <td>{plot.total_value_of_trees || "no data"}</td>
@@ -764,7 +764,7 @@ const Plots = () => {
                       <td>{plot.solatium_100 || "no data"}</td>
                       <td>{plot.no_days_interest || "no data"}</td>
                       <td>{plot.additional_12_percent || "no data"}</td>
-                      <td>{plot.total_compensation || "no data"}</td>
+                      <td>{plot.total_compensation || "no data"}</td> */}
                       <td className={stickyActionCell}>
                         <select
                           className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"

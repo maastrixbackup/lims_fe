@@ -124,7 +124,7 @@ const PlotTabs = ({ children }) => {
   return (
     <div className="w-full">
 
-      {/* <div className="flex border-b mb-4 overflow-x-auto scrollbar-hide"> */}
+      <div className="flex mb-4 overflow-x-auto scrollbar-hide">
         {tabs.map((tab, idx) => (
           <button
             key={idx}
@@ -141,7 +141,7 @@ const PlotTabs = ({ children }) => {
             {tab}
           </button>
         ))}
-      {/* </div> */}
+      </div>
 
       <div className="mt-2">{children[activeTab]}</div>
     </div>

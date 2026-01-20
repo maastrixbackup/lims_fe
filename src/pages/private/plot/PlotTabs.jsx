@@ -25,7 +25,7 @@ const PlotTabs = ({ children }) => {
             onClick={() => setActiveTab(idx)}
             className={`
               flex-shrink-0
-              px-2 py-3
+              px-3 py-3
               text-sm font-medium whitespace-nowrap
               border-b-1 transition-colors duration-200
               ${

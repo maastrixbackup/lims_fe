@@ -515,7 +515,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     {plot.name_of_present_tenant || "N/A"}
                   </td>
                   <td className="p-3">
-                    {plot.number_of_present_tenant || "N/A"}
+                    {plot.present_tenant_count || "N/A"}
                   </td>
                   <td className="p-3">{plot.present_address || "N/A"}</td>
                   <td className="p-3">
@@ -1659,10 +1659,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 <th className="p-3 text-left">Tribunal</th>
                 <th className="p-3 text-left">Deposit Date</th>
                 <th className="p-3 text-left">Tribunal Amount (₹)</th>
-                <th className="p-3 text-left">Ground Rent (₹)</th>
-                <th className="p-3 text-left">Cess (₹)</th>
-                <th className="p-3 text-left">Incidental Charges (₹)</th>
-                <th className="p-3 text-left">Total (₹)</th>
+              
                 <th className="p-3 text-left">Abatement</th>
                 <th className={stickyPaymentHeader}>Payment Status</th>
                 <th className={stickyActionHeader}>Actions</th>
@@ -1698,10 +1695,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     {formatDate(plot.tribunal_deposit_date) || "N/A"}
                   </td>
                   <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
-                  <td className="p-3">{plot.ground_rent ?? "N/A"}</td>
-                  <td className="p-3">{plot.cess ?? "N/A"}</td>
-                  <td className="p-3">{plot.incidental_charges ?? "N/A"}</td>
-                  <td className="p-3">{plot.total ?? "N/A"}</td>
+                 
                   <td className="p-3">{plot.abatement || "N/A"}</td>
                   <td className={stickyPaymentCell}>
                     <div

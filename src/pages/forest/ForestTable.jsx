@@ -16,7 +16,7 @@ const forestData = [
     acquiredArea: "1.20",
     remarks: "-",
   },
-    {
+  {
     district: "Dhenkanal",
     riCircle: "Chhendipada",
     division: "Angul Forest Division",
@@ -34,7 +34,10 @@ const forestData = [
 
 const ForestTable = () => {
   return (
-    <div className="overflow-x-auto bg-base-100 shadow" style={{scrollbarWidth:"thin"}}>
+    <div
+      className="overflow-x-auto bg-base-100 shadow"
+      style={{ scrollbarWidth: "thin" }}
+    >
       <table className="table w-full">
         <thead className="font-semibold bg-primary/70 text-white">
           <tr>
@@ -47,8 +50,8 @@ const ForestTable = () => {
             <th>Khata No</th>
             <th>Plot No</th>
             <th>Kisam</th>
-            <th>Forest Category</th>
             <th>Total Area (ha)</th>
+            <th>Forest Category</th>
             <th>Proposed / Acquired Area (ha)</th>
             <th>Remarks</th>
             <th className="text-center">Actions</th>
@@ -68,8 +71,8 @@ const ForestTable = () => {
               <td>{row.khataNo}</td>
               <td>{row.plotNo}</td>
               <td>{row.kisam}</td>
-              <td>{row.category}</td>
               <td>{row.totalArea}</td>
+              <td>{row.category}</td>
               <td>{row.acquiredArea}</td>
               <td>{row.remarks}</td>
 
@@ -83,9 +86,15 @@ const ForestTable = () => {
                     tabIndex={0}
                     className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
                   >
-                    <li><a>View</a></li>
-                    <li><a>Edit</a></li>
-                    <li><a className="text-error">Delete</a></li>
+                    <li>
+                      <a>View</a>
+                    </li>
+                    <li>
+                      <a>Edit</a>
+                    </li>
+                    <li>
+                      <a className="text-error">Delete</a>
+                    </li>
                   </ul>
                 </div>
               </td>
@@ -98,4 +107,3 @@ const ForestTable = () => {
 };
 
 export default ForestTable;
-

@@ -48,8 +48,9 @@ const NonForestTable = () => {
             <th>Plot No</th>
             <th>Kisam</th>
             <th>Ownership</th>
+             <th>Total Area (ha)</th>
             <th>Land Allotted Through FRA</th>
-            <th>Total Area (ha)</th>
+           
             <th>Proposed / Acquired Area (ha)</th>
             <th>Remarks</th>
             <th className="text-center">Actions</th>
@@ -69,8 +70,9 @@ const NonForestTable = () => {
               <td>{row.plotNo}</td>
               <td>{row.kisam}</td>
               <td>{row.ownership}</td>
-              <td>{row.fra}</td>
               <td>{row.totalArea}</td>
+              <td>{row.fra}</td>
+              
               <td>{row.acquiredArea}</td>
               <td>{row.remarks}</td>
 

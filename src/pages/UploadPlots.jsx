@@ -24,9 +24,9 @@ const UploadPlots = () => {
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projectId = selectedProject?.id;
-  console.log("project id govt", projectId)
+  console.log("project id govt", projectId);
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
-const token = useSelector((state) => state.auth.userToken);
+  const token = useSelector((state) => state.auth.userToken);
   const LANDTYPE_API = {
     1: {
       upload: "/plots/upload",
@@ -44,46 +44,39 @@ const token = useSelector((state) => state.auth.userToken);
       upload: "/forestplots/uploadForestPlotExcel",
       list: "/forestplots/plotDocumentList",
       delete: "/forestplots/plotDocumentDelete",
+      download: "",
     },
   };
-
 const fetchPlotDocuments = async () => {
-  if (!selectedType || !projectId) return;
+  if (!projectId || !selectedType) return;
 
   try {
     setLoadingDocs(true);
 
     const api = LANDTYPE_API[selectedType];
+    if (!api?.list) return;
 
-    if (!api?.list) {
-      throw new Error("Invalid land type selected");
-    }
+  const data = await apiClient(
+  `${api.list}?project_id=${projectId}&type=${selectedType}`
+);
 
-    const data = await apiClient(api.list, {
-      params: {
-        project_id: projectId,
-        type: selectedType,
-      },
-    });
 
-    setPlotDocs(data.files || []);
-    console.log("document govt", data)
+    setPlotDocs(Array.isArray(data.files) ? data.files : []);
   } catch (err) {
-    console.error(err);
-    setError(err.message || "Failed to fetch plot documents");
+    setError("Failed to fetch documents");
   } finally {
     setLoadingDocs(false);
   }
 };
 
-
-  // useEffect(() => {
-  //   if (selectedProject) fetchPlotDocuments();
-  // }, [selectedProject]);
-useEffect(() => {
-  if (projectId && selectedType) {
-    fetchPlotDocuments();
+ useEffect(() => {
+  if (!projectId || !selectedType) {
+    setPlotDocs([]);
+    return;
   }
+  setPlotDocs([]);
+
+  fetchPlotDocuments();
 }, [projectId, selectedType]);
 
 
@@ -127,38 +120,35 @@ useEffect(() => {
       setError("Unsupported file type");
     }
   };
-
   const handleUploadToAPI = async () => {
     if (!file) return setError("No file selected");
-    if (!selectedProject || !selectedType)
-      return setError("Select Project and Type");
 
     try {
       setUploading(true);
-      setError(null);
       const api = LANDTYPE_API[selectedType].upload;
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("project_id", projectId);
-      formData.append("type", Number(selectedType));
+      formData.append("type", selectedType);
+
       await apiClient(api, {
         method: "POST",
         body: formData,
       });
 
-      showSuccess("Document Uploaded Successfully");
-      fetchPlotDocuments();
+      showSuccess("Document uploaded successfully");
       setFile(null);
       setPlots([]);
       fetchPlotDocuments();
     } catch (err) {
-      showError(err.message || "Payment completion failed");
+      showError(err.message || "Upload failed");
     } finally {
       setUploading(false);
     }
   };
-  const handleDelete = async () => {
+
+const handleDelete = async () => {
     if (!docToDelete || !selectedType) return;
 
     try {
@@ -176,50 +166,44 @@ useEffect(() => {
       setDocToDelete(null);
     }
   };
- const handleDownload = async (docName) => {
-  if (!selectedType) return;
 
-  try {
-    const apiPath = LANDTYPE_API[selectedType].download;
+  const handleDownload = async (doc) => {
+    if (!selectedType) return;
 
-    const response = await fetch(
-      `${API_BASE_URL}${apiPath}/${encodeURIComponent(docName)}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`, 
-        },
+    try {
+      const apiPath = LANDTYPE_API[selectedType]?.download;
+      if (!apiPath) {
+        return setError("Download not supported for this land type");
       }
-    );
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("Download failed:", text);
-      throw new Error("Download failed");
+      const fileName = doc.download_name; // ✅ IMPORTANT
+
+      const response = await fetch(
+        `${API_BASE_URL}${apiPath}/${encodeURIComponent(fileName)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) throw new Error("Download failed");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err.message || "Download failed");
     }
-
-    const contentType = response.headers.get("content-type");
-
-    if (!contentType?.includes("spreadsheet")) {
-      const text = await response.text();
-      console.error("Invalid Excel:", text);
-      throw new Error("Invalid Excel file received");
-    }
-
-    const blob = await response.blob();
-
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = docName;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    setError(err.message || "Download failed");
-  }
-};
+  };
 
   const isUploadEnabled = selectedProject && selectedType;
   return (
@@ -288,25 +272,22 @@ useEffect(() => {
               </tr>
             </thead>
             <tbody>
-              {plotDocs.map((doc, i) => (
-                <tr key={i}>
-                  <td>{i + 1}</td>
+          {plotDocs.map((doc, id) => (
+  <tr key={doc.id}> 
+                  <td>{id + 1}</td>
                   <td>{doc.name}</td>
                   <td>{doc.size}</td>
                   <td>
                     {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
                   </td>
                   <td className="flex gap-3">
-                    <button
-                      onClick={() => handleDownload(doc.name)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Download size={18} />
+                    <button onClick={() => handleDownload(doc)}>
+                      <Download size={16} />
                     </button>
 
-                    <button
+                   <button
                       onClick={() => {
-                        setDocToDelete(doc.name);
+                        setDocToDelete(doc.download_name);
                         setIsDeleteModalOpen(true);
                       }}
                       className="text-red-500 hover:text-red-700"

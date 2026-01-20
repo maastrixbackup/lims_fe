@@ -15,7 +15,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   console.log("govrt plots selected project:", selectedProject);
   const typeParam = useLandTypeParam();
   const [villages, setVillages] = useState([]);
-const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const [formData, setFormData] = useState(() => ({
     project_id: editingPlot?.project_id || selectedProject?.id || "",
     type: typeParam,
@@ -48,10 +48,33 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
     lease_to_idco: editingPlot?.lease_to_idco || "",
     lease_to_ua: editingPlot?.lease_to_ua || "",
     remarks: editingPlot?.remarks || "",
-    ri_report_attachment: "",
-    tree_enumeration_attachment: "",
-    lease_to_idco_attachment: "",
-    lease_to_ua_attachment: "",
+    // ri_report_attachment: "",
+    // tree_enumeration_attachment: "",
+    lease_to_idco_attachment: editingPlot.lease_to_idco_attachment || "",
+    lease_to_ua_attachment: editingPlot.lease_to_ua_attachment || "",
+    ri_report_attachment: editingPlot?.ri_report_attachment || "",
+    tree_enumeration_attachment: editingPlot?.tree_enumeration_attachment || "",
+    land_area_total_acres: editingPlot?.land_area_total_acres || "",
+    land_area_total_hectares: editingPlot?.land_area_total_hectares || "",
+    land_area_acquired_acres: editingPlot?.land_area_acquired_acres || "",
+    land_area_acquired_hectares: editingPlot?.land_area_acquired_hectares || "",
+
+    market_value_per_acre: editingPlot?.market_value_per_acre || "",
+    bench_market_value: editingPlot?.bench_market_value || "",
+    premium: editingPlot?.premium || "",
+    ground_rent: editingPlot?.ground_rent || "",
+    cess: editingPlot?.cess || "",
+    admin_charges: editingPlot?.admin_charges || "",
+    total_cost: editingPlot?.total_cost || "",
+
+    legal_heir_case_no: editingPlot?.legal_heir_case_no || "",
+    land_case_no: editingPlot?.land_case_no || "",
+    land_case_date: editingPlot?.land_case_date
+      ? editingPlot.land_case_date.split("T")[0]
+      : "",
+    land_case_type: editingPlot?.land_case_type || "",
+    land_case_status: editingPlot?.land_case_status || "",
+    land_case_details: editingPlot?.land_case_details || "",
   }));
 
   const handleChange = (e) => {
@@ -102,6 +125,24 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
         modification_revision: yesNo(formData.modification_revision),
         lease_to_idco: yesNo(formData.lease_to_idco),
         lease_to_ua: yesNo(formData.lease_to_ua),
+
+        land_area_total_acres: formData.land_area_total_acres,
+        land_area_total_hectares: formData.land_area_total_hectares,
+        land_area_acquired_acres: formData.land_area_acquired_acres,
+        land_area_acquired_hectares: formData.land_area_acquired_hectares,
+        market_value_per_acre: formData.market_value_per_acre,
+        bench_market_value: formData.bench_market_value,
+        premium: formData.premium,
+        ground_rent: formData.ground_rent,
+        cess: formData.cess,
+        admin_charges: formData.admin_charges,
+        total_cost: formData.total_cost,
+        legal_heir_case_no: formData.legal_heir_case_no,
+        land_case_no: formData.land_case_no,
+        land_case_date: formData.land_case_date,
+        land_case_type: formData.land_case_type,
+        land_case_status: formData.land_case_status,
+        land_case_details: formData.land_case_details,
         remarks: formData.remarks,
       }).forEach(([k, v]) => fd.append(k, v ?? ""));
 
@@ -112,13 +153,13 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
       if (formData.tree_enumeration_attachment)
         fd.append(
           "tree_enumeration_attachment",
-          formData.tree_enumeration_attachment
+          formData.tree_enumeration_attachment,
         );
 
       if (formData.lease_to_idco_attachment)
         fd.append(
           "lease_to_idco_attachment",
-          formData.lease_to_idco_attachment
+          formData.lease_to_idco_attachment,
         );
 
       if (formData.lease_to_ua_attachment)
@@ -145,9 +186,9 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
       if (data.success) {
         await fetchPlots();
         showSuccess(data.message || "Added Successfully");
-        setTimeout(()=>{
-          close()
-        },800)
+        setTimeout(() => {
+          close();
+        }, 800);
       } else {
         showError(data.message || "Operation failed");
       }
@@ -165,7 +206,7 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
     try {
       const data = await apiClient(
-        `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`
+        `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`,
       );
       console.log("govrt plots villages:", data);
       if (data.success) setVillages(data.villages || []);
@@ -180,7 +221,7 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-2xl max-h-[90vh] overflow-y-auto">
-         <button className="absolute right-3 top-3" onClick={close}>
+        <button className="absolute right-3 top-3" onClick={close}>
           <X size={20} />
         </button>
         <h3 className="font-bold text-lg mb-2">
@@ -542,12 +583,140 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
               onChange={handleChange}
             />
           </div>
+          <div className="card bg-base-100 shadow-md p-2">
+            <h2 className="text-lg font-semibold mb-3">📏 Land Area Details</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                ["land_area_total_acres", "Total Land Area (Acres)"],
+                ["land_area_total_hectares", "Total Land Area (Hectares)"],
+                ["land_area_acquired_acres", "Acquired Land Area (Acres)"],
+                [
+                  "land_area_acquired_hectares",
+                  "Acquired Land Area (Hectares)",
+                ],
+              ].map(([name, label]) => (
+                <div key={name}>
+                  <label className="label">{label}</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card bg-base-100 shadow-md p-2">
+            <h2 className="text-lg font-semibold mb-3">
+              💰 Valuation & Cost Details
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                ["market_value_per_acre", "Market Value per Acre"],
+                ["bench_market_value", "Bench Market Value"],
+                ["premium", "Premium"],
+                ["ground_rent", "Ground Rent"],
+                ["cess", "Cess"],
+                ["admin_charges", "Administrative Charges"],
+                ["total_cost", "Total Cost"],
+              ].map(([name, label]) => (
+                <div key={name}>
+                  <label className="label">{label}</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card bg-base-100 shadow-md p-2">
+            <h2 className="text-lg font-semibold mb-3">⚖️ Land Case Details</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Legal Heir Case No</label>
+                <input
+                  type="text"
+                  name="legal_heir_case_no"
+                  value={formData.legal_heir_case_no}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div>
+                <label className="label">Land Case No</label>
+                <input
+                  type="text"
+                  name="land_case_no"
+                  value={formData.land_case_no}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div>
+                <label className="label">Land Case Date</label>
+                <input
+                  type="date"
+                  name="land_case_date"
+                  value={formData.land_case_date}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div>
+                <label className="label">Land Case Type</label>
+                <input
+                  type="text"
+                  name="land_case_type"
+                  value={formData.land_case_type}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div>
+                <label className="label">Land Case Status</label>
+                <select
+                  name="land_case_status"
+                  value={formData.land_case_status}
+                  onChange={handleChange}
+                  className="select select-bordered w-full"
+                >
+                  <option value="">Select Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Disposed">Disposed</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="label">Land Case Details</label>
+              <textarea
+                name="land_case_details"
+                value={formData.land_case_details}
+                onChange={handleChange}
+                className="textarea textarea-bordered w-full"
+              />
+            </div>
+          </div>
+
           <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={close}
-              className="btn btn-ghost"
-            >
+            <button type="button" onClick={close} className="btn btn-ghost">
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
@@ -556,7 +725,7 @@ const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
           </div>
         </form>
       </div>
-        <SuccessMessage
+      <SuccessMessage
         open={modal.open}
         type={modal.type}
         message={modal.message}

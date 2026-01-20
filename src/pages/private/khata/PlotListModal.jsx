@@ -404,7 +404,7 @@ useEffect(() => {
               </option>
             ))}
           </select>
-
+{/* 
           <select
             className="select select-bordered w-32"
             value={areaUnit}
@@ -415,9 +415,9 @@ useEffect(() => {
           >
             <option value="acres">Acres</option>
             <option value="hectares">Hectares</option>
-          </select>
+          </select> */}
 
-          <select
+          {/* <select
             className="select select-bordered w-40"
             value={areaFilter}
             onChange={(e) => setAreaFilter(e.target.value)}
@@ -428,10 +428,10 @@ useEffect(() => {
                 {v}
               </option>
             ))}
-          </select>
+          </select> */}
 
           <button
-            className="btn btn-outline btn-sm"
+            className="btn btn-md bg-primary text-white"
             onClick={() => {
               setPlotNoFilter("");
               setVillageFilter("");

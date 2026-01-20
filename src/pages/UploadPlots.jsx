@@ -159,6 +159,7 @@ const handleDelete = async () => {
       });
       showSuccess("Data Deleted Successfully");
       setPlotDocs((prev) => prev.filter((doc) => doc.name !== docToDelete));
+      fetchPlotDocuments()
     } catch (err) {
       setError(err.message || "Delete failed");
     } finally {
@@ -176,7 +177,7 @@ const handleDelete = async () => {
         return setError("Download not supported for this land type");
       }
 
-      const fileName = doc.download_name; // ✅ IMPORTANT
+      const fileName = doc.download_name; 
 
       const response = await fetch(
         `${API_BASE_URL}${apiPath}/${encodeURIComponent(fileName)}`,
@@ -266,7 +267,7 @@ const handleDelete = async () => {
               <tr>
                 <th>#</th>
                 <th>File</th>
-                <th>Size</th>
+                {/* <th>Size</th> */}
                 <th>Uploaded</th>
                 <th>Actions</th>
               </tr>
@@ -276,7 +277,7 @@ const handleDelete = async () => {
   <tr key={doc.id}> 
                   <td>{id + 1}</td>
                   <td>{doc.name}</td>
-                  <td>{doc.size}</td>
+                  {/* <td>{doc.size}</td> */}
                   <td>
                     {moment(doc.uploadedAt).format("DD MMM YYYY, hh:mm A")}
                   </td>

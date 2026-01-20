@@ -10,10 +10,15 @@ import "./App.css";
 import { fetchProjects, fetchVillages } from "./utils/listSlice";
 import GovernmentPlot from "./pages/government/plot/GovernmentPlot";
 import GovernmentKhata from "./pages/government/khata/GovernmentKhata";
+import LandSchedule from "./pages/forest/LandSchedule";
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
-const ForgotPassword = lazy(() =>import("./components/features/ForgotPassword"));
-const ResetPassword = lazy(() =>import("./components/features/ResetPassword"));
-const ChangePassword = lazy(() =>import("./components/features/ChangePassword"));
+const ForgotPassword = lazy(
+  () => import("./components/features/ForgotPassword"),
+);
+const ResetPassword = lazy(() => import("./components/features/ResetPassword"));
+const ChangePassword = lazy(
+  () => import("./components/features/ChangePassword"),
+);
 const Unauthorized = lazy(() => import("./pages/Unathorize"));
 const Layout = lazy(() => import("./components/layout/Layout"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -24,7 +29,9 @@ const Khata = lazy(() => import("./pages/private/khata/Khata"));
 const Plots = lazy(() => import("./pages/private/plot/Plots"));
 const PlotForm = lazy(() => import("./pages/private/plot/PlotForm"));
 const UploadPlots = lazy(() => import("./pages/UploadPlots"));
-const Compensation = lazy(() =>import("./pages/private/compensation/Compensation"));
+const Compensation = lazy(
+  () => import("./pages/private/compensation/Compensation"),
+);
 const SocialSurvey = lazy(() => import("./pages/SocialSurvey"));
 const GovtVillages = lazy(() => import("./pages/government/village/Villages"));
 
@@ -32,28 +39,40 @@ const UserManagement = lazy(() => import("./pages/UserManagement"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Logs = lazy(() => import("./pages/Logs"));
 const DeletedRecords = lazy(() => import("./pages/trash/DeletedRecords"));
-const ReadyToPayment = lazy(() =>import("./pages/payment/ReadyToPayment"));
+const ReadyToPayment = lazy(() => import("./pages/payment/ReadyToPayment"));
 
-const KhataSummary = lazy(() =>import("./pages/reports/KhataSummary"));
-const KhataDocumentRegister = lazy(() =>import("./pages/reports/KhataDocumentRegister"));
-const VillageLandRegister = lazy(() =>import("./pages/reports/VillageLandRegister"));
-const VillageDocumentReport = lazy(() =>import("./pages/reports/VillageDocumentReport"));
+const KhataSummary = lazy(() => import("./pages/reports/KhataSummary"));
+const KhataDocumentRegister = lazy(
+  () => import("./pages/reports/KhataDocumentRegister"),
+);
+const VillageLandRegister = lazy(
+  () => import("./pages/reports/VillageLandRegister"),
+);
+const VillageDocumentReport = lazy(
+  () => import("./pages/reports/VillageDocumentReport"),
+);
 
-const PlotDetails = lazy(() =>import("./pages/reports/PlotDetails"));
-const PlotOwnershipHistory = lazy(() =>import("./pages/reports/PlotOwnershipHistory"));
+const PlotDetails = lazy(() => import("./pages/reports/PlotDetails"));
+const PlotOwnershipHistory = lazy(
+  () => import("./pages/reports/PlotOwnershipHistory"),
+);
 
-const ProjectSummary = lazy(() =>import("./pages/reports/ProjectSummary"));
-const ProjectDocumentRegister = lazy(() =>import("./pages/reports/ProjectDocumentRegister"));
-const TotalTentants = lazy(() =>import("./pages/reports/TotalTentants"));
+const ProjectSummary = lazy(() => import("./pages/reports/ProjectSummary"));
+const ProjectDocumentRegister = lazy(
+  () => import("./pages/reports/ProjectDocumentRegister"),
+);
+const TotalTentants = lazy(() => import("./pages/reports/TotalTentants"));
 
-const KMZAvailability = lazy(() =>import("./pages/reports/KMZAvailability"));
-const MapSummaryReport = lazy(() =>import("./pages/reports/MapSummaryReport"));
+const KMZAvailability = lazy(() => import("./pages/reports/KMZAvailability"));
+const MapSummaryReport = lazy(() => import("./pages/reports/MapSummaryReport"));
 
-const UserActivity = lazy(() =>import("./pages/reports/UserActivity"));
-const AuditTrail = lazy(() =>import("./pages/reports/AuditTrail"));
+const UserActivity = lazy(() => import("./pages/reports/UserActivity"));
+const AuditTrail = lazy(() => import("./pages/reports/AuditTrail"));
 
-const DocumentUploadReport = lazy(() =>import("./pages/reports/DocumentUploadReport"));
-const MissingDocument = lazy(() =>import("./pages/reports/MissingDocument"));
+const DocumentUploadReport = lazy(
+  () => import("./pages/reports/DocumentUploadReport"),
+);
+const MissingDocument = lazy(() => import("./pages/reports/MissingDocument"));
 
 export default function App() {
   const dispatch = useDispatch();
@@ -89,16 +108,25 @@ export default function App() {
                 <Route path="/:landType/khatas" element={<Khata />} />
                 <Route path="/:landType/plots" element={<Plots />} />
                 <Route path="/:landType/plot-form" element={<PlotForm />} />
-                <Route path="/:landType/government/villages" element={<GovtVillages />} />
-                <Route path="/:landType/government/plots" element={<GovernmentPlot />} />
-                <Route path="/:landType/government/khatas" element={<GovernmentKhata />} />
-
+                <Route
+                  path="/:landType/government/villages"
+                  element={<GovtVillages />}
+                />
+                <Route
+                  path="/:landType/government/plots"
+                  element={<GovernmentPlot />}
+                />
+                <Route
+                  path="/:landType/government/khatas"
+                  element={<GovernmentKhata />}
+                />
+                <Route
+                  path="/:landType/land-schedule"
+                  element={<LandSchedule />}
+                />
                 <Route path="/import" element={<UploadPlots />} />
 
-                <Route
-                  path="/:landType/land-cost"
-                  element={<Compensation />}
-                />
+                <Route path="/:landType/land-cost" element={<Compensation />} />
                 <Route
                   path="/:landType/social-survey"
                   element={<SocialSurvey />}
@@ -107,7 +135,7 @@ export default function App() {
                 <Route path="/usersmanagement" element={<UserManagement />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/changepassword" element={<ChangePassword />} />
-                 {/*Reports */}
+                {/*Reports */}
                 <Route
                   path="/reports/khata-reports/khata-summary"
                   element={<KhataSummary />}

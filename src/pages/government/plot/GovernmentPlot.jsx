@@ -303,6 +303,39 @@ const Plots = () => {
         </button>
       </div>
       <div className="card bg-white shadow-lg rounded-2xl">
+           {(!selectedProjectId || "") && (
+          <div className="py-10 text-center text-gray-600">
+            {!selectedProjectId ? (
+              <>
+                <p className="text-lg font-medium">
+                  Please{" "}
+                  <span className="text-primary font-semibold">
+                    Select a Project
+                  </span>{" "}
+                  first.
+                </p>
+                <p className="text-lg text-gray-500 mt-1">
+                  A project is required to view Khata list.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-md font-medium text-red-500">
+                  No Khata found for the{" "}
+                  <span className="text-primary font-bold">
+                    Selected Project.
+                  </span>
+                </p>
+                <p className="text-md text-gray-500 mt-1">
+                  Try selecting a different{" "}
+                  <span className="text-gray-700 font-semibold">Project</span>{" "}
+                  or add a new Khata.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+        {selectedProjectId && filteredPlots.length > 0 && (
         <PlotTabs>
           <div
             className="overflow-x-auto max-h-[400px] overflow-y-auto"
@@ -369,6 +402,7 @@ const Plots = () => {
 
               <tbody>
                 {plots.length > 0 ? (
+                  
                   filteredPlots.map((plot, idx) => (
                     <tr
                       key={plot.id}
@@ -822,6 +856,7 @@ const Plots = () => {
             </table>
           </div>
         </PlotTabs>
+        )}
       </div>
 
       {isModalOpen && (

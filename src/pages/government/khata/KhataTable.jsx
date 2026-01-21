@@ -6,6 +6,7 @@ import {
   stickyActionHeader,
 } from "../../../utils/constants";
 import FilterHeader from "../plot/FilterHeader";
+import { useSelector } from "react-redux";
 
 const KhataTable = ({ khatas, onEdit, userRole ,onDelete}) => {
   const canEdit = userRole !== "Viewer";
@@ -16,7 +17,9 @@ const KhataTable = ({ khatas, onEdit, userRole ,onDelete}) => {
     direction: "asc",
   });
   const [activeFilterKey, setActiveFilterKey] = useState(null);
-
+const selectedProjectId = useSelector(
+    (state) => state.selectedProject.project?.id
+  );
 
   const getUniqueValues = (key) => {
     return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
@@ -43,7 +46,40 @@ const KhataTable = ({ khatas, onEdit, userRole ,onDelete}) => {
 console.log("khataa", khatas)
   return (
     <div className="card bg-white shadow-lg">
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+          {(!selectedProjectId || "") && (
+          <div className="py-10 text-center text-gray-600">
+            {!selectedProjectId ? (
+              <>
+                <p className="text-lg font-medium">
+                  Please{" "}
+                  <span className="text-primary font-semibold">
+                    Select a Project
+                  </span>{" "}
+                  first.
+                </p>
+                <p className="text-lg text-gray-500 mt-1">
+                  A project is required to view Khata list.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-md font-medium text-red-500">
+                  No Khata found for the{" "}
+                  <span className="text-primary font-bold">
+                    Selected Project.
+                  </span>
+                </p>
+                <p className="text-md text-gray-500 mt-1">
+                  Try selecting a different{" "}
+                  <span className="text-gray-700 font-semibold">Project</span>{" "}
+                  or add a new Khata.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+         {selectedProjectId && filteredKhatas.length > 0 && (
+      <div className="overflow-x-auto max-h-[400px] overflow-y-auto" style={{scrollbarWidth:"thin"}}>
         <table className="table w-full whitespace-nowrap">
          <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
               <tr>
@@ -70,8 +106,8 @@ console.log("khataa", khatas)
 
 
           <tbody>
-            {khatas.length > 0 ? (
-              filteredKhatas.map((k, idx) => (
+            {/* {khatas.length > 0 ? ( */}
+              {filteredKhatas.map((k, idx) => (
                 <tr key={k.id}>
                   <td>{idx + 1}</td>
                   <td>{k.khata_no || "No Data"}</td>
@@ -111,16 +147,10 @@ console.log("khataa", khatas)
                   </td>
                 </tr>
               ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-center py-6 text-gray-500">
-                  No khata found
-                </td>
-              </tr>
-            )}
+        }
           </tbody>
         </table>
-      </div>
+      </div>)}
     </div>
   );
 };

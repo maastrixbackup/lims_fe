@@ -1,5 +1,4 @@
-
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   GovtKhataColumn,
   stickyActionCell,
@@ -7,18 +6,29 @@ import {
 } from "../../../utils/constants";
 import FilterHeader from "../plot/FilterHeader";
 import { useSelector } from "react-redux";
+import Pagination from "../../../shared/Pagination";
 
-const KhataTable = ({ khatas, onEdit, userRole ,onDelete}) => {
+const KhataTable = ({
+  khatas,
+  onEdit,
+  userRole,
+  onDelete,
+  page,
+  setPage,
+  limit,
+  setLimit,
+  totalPages,
+}) => {
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
-    const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: "asc",
   });
   const [activeFilterKey, setActiveFilterKey] = useState(null);
-const selectedProjectId = useSelector(
-    (state) => state.selectedProject.project?.id
+  const selectedProjectId = useSelector(
+    (state) => state.selectedProject.project?.id,
   );
 
   const getUniqueValues = (key) => {
@@ -30,8 +40,8 @@ const selectedProjectId = useSelector(
       Object.entries(filters).every(([key, value]) =>
         value
           ? String(k[key]).toLowerCase().includes(value.toLowerCase())
-          : true
-      )
+          : true,
+      ),
     )
     .sort((a, b) => {
       if (!sortConfig.key) return 0;
@@ -43,45 +53,48 @@ const selectedProjectId = useSelector(
       if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
-console.log("khataa", khatas)
+  console.log("khataa", khatas);
   return (
     <div className="card bg-white shadow-lg">
-          {(!selectedProjectId || "") && (
-          <div className="py-10 text-center text-gray-600">
-            {!selectedProjectId ? (
-              <>
-                <p className="text-lg font-medium">
-                  Please{" "}
-                  <span className="text-primary font-semibold">
-                    Select a Project
-                  </span>{" "}
-                  first.
-                </p>
-                <p className="text-lg text-gray-500 mt-1">
-                  A project is required to view Khata list.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-md font-medium text-red-500">
-                  No Khata found for the{" "}
-                  <span className="text-primary font-bold">
-                    Selected Project.
-                  </span>
-                </p>
-                <p className="text-md text-gray-500 mt-1">
-                  Try selecting a different{" "}
-                  <span className="text-gray-700 font-semibold">Project</span>{" "}
-                  or add a new Khata.
-                </p>
-              </>
-            )}
-          </div>
-        )}
-         {selectedProjectId && filteredKhatas.length > 0 && (
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto" style={{scrollbarWidth:"thin"}}>
-        <table className="table w-full whitespace-nowrap">
-         <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
+      {(!selectedProjectId || "") && (
+        <div className="py-10 text-center text-gray-600">
+          {!selectedProjectId ? (
+            <>
+              <p className="text-lg font-medium">
+                Please{" "}
+                <span className="text-primary font-semibold">
+                  Select a Project
+                </span>{" "}
+                first.
+              </p>
+              <p className="text-lg text-gray-500 mt-1">
+                A project is required to view Khata list.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-md font-medium text-red-500">
+                No Khata found for the{" "}
+                <span className="text-primary font-bold">
+                  Selected Project.
+                </span>
+              </p>
+              <p className="text-md text-gray-500 mt-1">
+                Try selecting a different{" "}
+                <span className="text-gray-700 font-semibold">Project</span> or
+                add a new Khata.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      {selectedProjectId && filteredKhatas.length > 0 && (
+        <div
+          className="overflow-x-auto max-h-[400px] overflow-y-auto"
+          style={{ scrollbarWidth: "thin" }}
+        >
+          <table className="table w-full whitespace-nowrap">
+            <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
               <tr>
                 <th>Sl/No</th>
 
@@ -104,20 +117,19 @@ console.log("khataa", khatas)
               </tr>
             </thead>
 
-
-          <tbody>
-            {/* {khatas.length > 0 ? ( */}
+            <tbody>
+              {/* {khatas.length > 0 ? ( */}
               {filteredKhatas.map((k, idx) => (
                 <tr key={k.id}>
                   <td>{idx + 1}</td>
                   <td>{k.khata_no || "No Data"}</td>
                   <td>{k.plot_no || "No Data"}</td>
                   <td>{k.village || "No Data"}</td>
-                   <td>{k.kissam_of_land || "No Data"}</td>
+                  <td>{k.kissam_of_land || "No Data"}</td>
                   <td>{k.lease_case_no || "No Data"}</td>
                   <td>{k.present_status || "No Data"}</td>
                   <td>{k.case_details || "No Data"}</td>
-                  
+
                   <td>{k.plot_count || "No Data"}</td>
 
                   <td className={stickyActionCell}>
@@ -146,11 +158,19 @@ console.log("khataa", khatas)
                     </select>
                   </td>
                 </tr>
-              ))
-        }
-          </tbody>
-        </table>
-      </div>)}
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {selectedProjectId&& (
+      <Pagination
+        page={page}
+        setPage={setPage}
+        limit={limit}
+        setLimit={setLimit}
+        totalPages={totalPages}
+      />)}
     </div>
   );
 };

@@ -17,8 +17,6 @@ const FilterHeader = ({
 
   const { key, label, type, options = [] } = column;
   const isOpen = activeFilterKey === key;
-
-  /* CLOSE ON OUTSIDE CLICK */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {

@@ -14,6 +14,9 @@ const GovernmentKhata = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKhata, setEditingKhata] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
@@ -29,7 +32,6 @@ const GovernmentKhata = () => {
     4: "Lease Sanctioned by Collector",
   };
 
-
   // 🔹 Fetch Khatas (reusable)
   const fetchKhatas = useCallback(async () => {
     if (!projectId || !typeParam) return;
@@ -37,12 +39,12 @@ const GovernmentKhata = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=1`,
+        `${API_BASE_URL}/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const res = await response.json();
@@ -61,7 +63,7 @@ const GovernmentKhata = () => {
           plot_count: k.plot_count || 0,
           kissam_of_land: k.kissam_of_land || "",
         }));
-
+  setTotalPages(res.totalPages)
         setKhatas(mapped);
       } else {
         setKhatas([]);
@@ -72,11 +74,11 @@ const GovernmentKhata = () => {
     } finally {
       setLoading(false);
     }
-  }, [projectId, typeParam, token]);
+  }, [projectId, typeParam, token, page, limit]);
 
   useEffect(() => {
     fetchKhatas();
-  }, [fetchKhatas]);
+  }, [fetchKhatas, page, limit]);
 
   const openModal = (khata = null) => {
     setEditingKhata(khata);
@@ -125,6 +127,11 @@ const GovernmentKhata = () => {
           onEdit={openModal}
           onDelete={openDeleteConfirm}
           userRole={userRole}
+          page={page}
+          setPage={setPage}
+          limit={limit}
+          setLimit={setLimit}
+          totalPages={totalPages}
         />
       )}
 

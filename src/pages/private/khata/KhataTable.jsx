@@ -244,7 +244,6 @@ const KhataTable = ({
         {selectedProject && filteredKhatas.length > 0 && (
           <>
             <KhataTabs>
-              {/* ================= TAB 1 : KHATA DETAILS ================= */}
               <div>
                 <div
                   className="max-h-[400px] overflow-x-auto relative"
@@ -344,15 +343,15 @@ const KhataTable = ({
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
                           </td>
-                          <td className={stickyCol1Cell}>{khata.khata_no}</td>
+                          <td className={stickyCol1Cell}>{khata.khata_no || "No Data"}</td>
                           <td className={stickyCol2Cell}>
-                            {khata.village_name}
+                            {khata.village_name || "No Data"}
                           </td>
                           <td className={stickyCol3Cell}>
-                            {khata.name_of_recorded_tenant}
+                            {khata.name_of_recorded_tenant || "No Data"}
                           </td>
                           <td className={stickyCol4Cell}>
-                            {khata.name_of_present_tenant}
+                            {khata.name_of_present_tenant || "No Data"}
                           </td>
 
                           {COMMON_COLUMNS.map(({ field, format }) => (

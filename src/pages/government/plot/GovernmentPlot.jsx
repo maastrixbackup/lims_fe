@@ -16,6 +16,7 @@ import ConfirmDelete from "../../../shared/ConfirmDelete";
 import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import Pagination from "../../../shared/Pagination";
 
 export const PRESENT_STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
@@ -35,7 +36,7 @@ const stickyCol2Cell =
   "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
 const Plots = () => {
   // const [plots, setPlots] = useState(plotData);
-   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const [attachmentModal, setAttachmentModal] = useState({
     open: false,
     files: [],
@@ -50,7 +51,6 @@ const Plots = () => {
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
   const [activeFilterKey, setActiveFilterKey] = useState(null);
   const [plots, setPlots] = useState([]);
-  const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     key: "",
@@ -59,9 +59,12 @@ const Plots = () => {
   const [loading, setLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletePlotList, setDeletePlotList] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
   // selected project id (from redux / props / dropdown)
   const selectedProjectId = useSelector(
-    (state) => state.selectedProject.project?.id
+    (state) => state.selectedProject.project?.id,
   );
 
   const token = useSelector((state) => state.auth.userToken);
@@ -140,25 +143,32 @@ const Plots = () => {
       setLoading(true);
 
       const res = await fetch(
-        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=1`,
+        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const json = await res.json();
+
       const mappedData = json.data.map(mapGovtPlot);
 
       setPlots(mappedData);
+
+      // ✅ FIX HERE
+      setTotalPages(json.totalPages || Math.ceil(json.total / limit));
     } catch (error) {
       console.error("Failed to fetch plots", error);
     } finally {
       setLoading(false);
     }
-  }, [selectedProjectId, page, token]);
+  }, [selectedProjectId, page, limit, token]);
+  useEffect(() => {
+    setPage(1);
+  }, [selectedProjectId]);
 
   useEffect(() => {
     fetchPlots();
@@ -244,18 +254,18 @@ const Plots = () => {
       const data = await apiClient(
         `/govtplots/deleteGovtPlot/${deletePlotList.id}`,
         {
-        method: "DELETE",
-      }
+          method: "DELETE",
+        },
       );
       if (data && data.success) {
-       showSuccess(data.message || "Plot deleted successfully!");
+        showSuccess(data.message || "Plot deleted successfully!");
         fetchPlots();
       } else {
         alert(data?.message || "Failed to delete Plot.");
       }
     } catch (err) {
       console.error("Delete error:", err);
-      showError(err.message || "Plot Deleletd Successfully")
+      showError(err.message || "Plot Deleletd Successfully");
     } finally {
       setIsDeleteModalOpen(false);
       setDeletePlotList(null);
@@ -273,7 +283,7 @@ const Plots = () => {
         data = data.filter((row) =>
           String(row[key] ?? "")
             .toLowerCase()
-            .includes(value.toLowerCase())
+            .includes(value.toLowerCase()),
         );
       }
     });
@@ -302,8 +312,8 @@ const Plots = () => {
           + Add Plot
         </button>
       </div>
-      <div className="card bg-white shadow-lg rounded-2xl">
-           {(!selectedProjectId || "") && (
+      <div>
+        {(!selectedProjectId || "") && (
           <div className="py-10 text-center text-gray-600">
             {!selectedProjectId ? (
               <>
@@ -336,55 +346,23 @@ const Plots = () => {
           </div>
         )}
         {selectedProjectId && filteredPlots.length > 0 && (
-        <PlotTabs>
-          <div
-            className="overflow-x-auto max-h-[400px] overflow-y-auto"
-            style={{ scrollbarWidth: "thin" }}
-          >
-            <table
-              className="table w-full whitespace-nowrap"
-              title="Basic Details"
+          <PlotTabs>
+            <div
+              className="overflow-x-auto max-h-[400px] overflow-y-auto"
+              style={{ scrollbarWidth: "thin" }}
             >
-              <thead className="bg-gray-200 sticky top-0 z-10">
-                <tr>
-                  <th>Sl/No</th>
-                  <th className={stickyCol1Header}>
-                    <FilterHeader
-                      column={GovernmentPlotFields.find(
-                        (c) => c.key === "khataNo"
-                      )}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-
-                  {/* PLOT NO */}
-                  <th className={stickyCol2Header}>
-                    <FilterHeader
-                      column={GovernmentPlotFields.find(
-                        (c) => c.key === "plotNo"
-                      )}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-
-                  {GovernmentPlotFields.filter(
-                    (c) => !["khataNo", "plotNo"].includes(c.key)
-                  ).map((col) => (
-                    <th key={col.key}>
+              <table
+                className="table w-full whitespace-nowrap"
+                title="Basic Details"
+              >
+                <thead className="bg-gray-200 sticky top-0 z-10">
+                  <tr>
+                    <th className="">Sl/No</th>
+                    <th className={stickyCol1Header}>
                       <FilterHeader
-                        column={col}
+                        column={GovernmentPlotFields.find(
+                          (c) => c.key === "khataNo",
+                        )}
                         filters={filters}
                         setFilters={setFilters}
                         sortConfig={sortConfig}
@@ -394,219 +372,26 @@ const Plots = () => {
                         setActiveFilterKey={setActiveFilterKey}
                       />
                     </th>
-                  ))}
 
-                  <th className={stickyActionHeader}>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {plots.length > 0 ? (
-                  
-                  filteredPlots.map((plot, idx) => (
-                    <tr
-                      key={plot.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td>{idx + 1}</td>
-                      <td className={stickyCol1Cell}>
-                        {plot.khata_no || "No Data"}
-                      </td>
-                      <td className={stickyCol2Cell}>
-                        {plot.plot_no || "No Data"}
-                      </td>
-                      <td>{plot.thana_no || "No Data"}</td>
-                      <td>{plot.mouza || "No Data"}</td>
-                      <td>{plot.tahasil || "No Data"}</td>
-                      <td>{plot.ri_circle || "No Data"}</td>
-                      <td>{plot.kissam || "No Data"}</td>
-                      <td>{plot.name_of_ror || "No Data"}</td>
-                      <td>{plot.total_area_acres || "No Data"}</td>
-                      <td>{plot.proposed_area_acres || "No Data"}</td>
-                      <td>{plot.total_area_hectares || "No Data"}</td>
-                      <td>{plot.proposed_area_hectares || "No Data"}</td>
-                      <td>{plot.lease_case_no || "No Data"}</td>
-                      <td>{plot.present_status || "No Data"}</td>
-                      <td>{plot.ua_idco_to_tahasildar || "No Data"}</td>
-                      <td>{plot.case_details || "No Data"}</td>
-                      <td>{plot.action_to_be_taken || "No Data"}</td>
-                      <td>{plot.ri_report || "No Data"}</td>
-                      <td>
-                        {renderAttachments(
-                          plot.ri_report_attachment.file_name,
-                          "RI Report Attachments" || "No Data"
+                    {/* PLOT NO */}
+                    <th className={stickyCol2Header}>
+                      <FilterHeader
+                        column={GovernmentPlotFields.find(
+                          (c) => c.key === "plotNo",
                         )}
-                      </td>
-                      <td>{plot.proclamation || "No Data"}</td>
-                      <td>{plot.objection_received || "No Data"}</td>
-                      <td>{plot.others || "No Data"}</td>
-                      <td>{plot.modification_revision || "No Data"}</td>
-                      <td>{plot.misc_dr_case_prep || "No Data"}</td>
-                      <td>{plot.misc_dr_case_prep_number || "No Data"}</td>
-                      <td>{plot.reason_for_misc_dr_case || "No Data"}</td>
-                      <td>{plot.tree_enumeration || "No Data"}</td>
-                      <td>
-                        {renderAttachments(
-                          plot.tree_enumeration_attachment.file_name,
-                          "Tree Enumeration Attachments" || "No Data"
-                        )}
-                      </td>
-                      <td>{plot.order_sheet_prep || "No Data"}</td>
-                      <td>{plot.lease_to_idco || "No Data"}</td>
-                      <td>
-                        {renderAttachments(
-                          plot.lease_to_idco_attachment.file_name,
-                          "Lease to IDCO Attachments" || "No Data"
-                        )}
-                      </td>
-                      <td>{plot.lease_to_ua || "No Data"}</td>
-                      <td>
-                        {renderAttachments(
-                          plot.lease_to_ua_attachment.file_name,
-                          "Lease to UA Attachments" || "No Data"
-                        )}
-                      </td>
-                      <td>{plot.remarks || "No Data"}</td>
-                      <td className={stickyActionCell}>
-                        <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
-                          defaultValue=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            e.target.value = "";
+                        filters={filters}
+                        setFilters={setFilters}
+                        sortConfig={sortConfig}
+                        setSortConfig={setSortConfig}
+                        getUniqueValues={getUniqueValues}
+                        activeFilterKey={activeFilterKey}
+                        setActiveFilterKey={setActiveFilterKey}
+                      />
+                    </th>
 
-                            if (action === "edit" && canEdit) {
-                              openModal(plot);
-                            }
-
-                            if (action === "delete" && canDelete) {
-                              onDelete(plot);
-                            }
-                          }}
-                          // disabled={!canEdit && !canDelete}
-                        >
-                          <option value="" disabled>
-                            Actions
-                          </option>
-
-                          <option
-                            value="edit"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            ✏️ Edit
-                          </option>
-
-                          <option
-                            value="delete"
-                            disabled={!canDelete}
-                            className={`text-md text-gray-700 font-bold ${
-                              !canDelete ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            🗑 Delete
-                          </option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center py-6 text-gray-500">
-                      No plots found. Click{" "}
-                      <span className="font-semibold">+ Add Plot</span> to
-                      create one.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          {attachmentModal.open && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className="bg-white rounded-xl shadow-xl w-[500px] max-h-[70vh] overflow-hidden">
-                {/* Header */}
-                <div className="flex justify-between items-center px-4 py-3 border-b">
-                  <h3 className="font-bold text-lg">{attachmentModal.title}</h3>
-                  <button
-                    className="text-gray-500 hover:text-red-600 text-xl"
-                    onClick={() =>
-                      setAttachmentModal({
-                        open: false,
-                        files: [],
-                        title: "",
-                      })
-                    }
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                {/* Body */}
-                <div className="p-4 overflow-y-auto space-y-2">
-                  {attachmentModal.files.map((file, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-lg"
-                    >
-                      <span className="truncate max-w-[350px]">{file}</span>
-                      <a
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        View
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          <div
-            className="overflow-x-auto max-h-[400px] overflow-y-auto"
-            style={{ scrollbarWidth: "thin" }}
-          >
-            <table
-              className="table w-full whitespace-nowrap"
-              title="Legal Issues"
-            >
-              <thead className="bg-gray-200 sticky top-0 z-10">
-                <tr>
-                  <th>Sl/No</th>
-                  <th className={stickyCol1Header}>
-                    <FilterHeader
-                      column={legalIssue.find((c) => c.key === "khata_no")}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-
-                  {/* PLOT NO */}
-                  <th className={stickyCol2Header}>
-                    <FilterHeader
-                      column={legalIssue.find((c) => c.key === "plot_no")}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-
-                  {legalIssue
-                    .filter((c) => !["khata_no", "plot_no"].includes(c.key))
-                    .map((col) => (
+                    {GovernmentPlotFields.filter(
+                      (c) => !["khataNo", "plotNo"].includes(c.key),
+                    ).map((col) => (
                       <th key={col.key}>
                         <FilterHeader
                           column={col}
@@ -621,131 +406,194 @@ const Plots = () => {
                       </th>
                     ))}
 
-                  <th className={stickyActionHeader}>Actions</th>
-                </tr>
-              </thead>
+                    <th className={stickyActionHeader}>Actions</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {plots.length > 0 ? (
-                  filteredPlots.map((plot, idx) => (
-                    <tr
-                      key={plot.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td>{idx + 1}</td>
-                      <td className={stickyCol1Cell}>
-                        {plot.khata_no || "No Data"}
-                      </td>
-                      <td className={stickyCol2Cell}>
-                        {plot.plot_no || "No Data"}
-                      </td>
-                      <td>{plot.legal_heir_certificate_no || "no data"}</td>
-                      <td>{plot.land_case_no || "no data"}</td>
-                      <td>{plot.land_case_date || "no data"}</td>
-                      <td>{plot.land_case_type || "no data"}</td>
-                      <td>{plot.land_case_status || "no data"}</td>
-                      <td>{plot.land_case_action || "no data"}</td>
+                <tbody>
+                  {plots.length > 0 ? (
+                    filteredPlots.map((plot, idx) => (
+                      <tr
+                        key={plot.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td>{idx + 1}</td>
+                        <td className={stickyCol1Cell}>
+                          {plot.khata_no || "No Data"}
+                        </td>
+                        <td className={stickyCol2Cell}>
+                          {plot.plot_no || "No Data"}
+                        </td>
+                        <td>{plot.thana_no || "No Data"}</td>
+                        <td>{plot.mouza || "No Data"}</td>
+                        <td>{plot.tahasil || "No Data"}</td>
+                        <td>{plot.ri_circle || "No Data"}</td>
+                        <td>{plot.kissam || "No Data"}</td>
+                        <td>{plot.name_of_ror || "No Data"}</td>
+                        <td>{plot.total_area_acres || "No Data"}</td>
+                        <td>{plot.proposed_area_acres || "No Data"}</td>
+                        <td>{plot.total_area_hectares || "No Data"}</td>
+                        <td>{plot.proposed_area_hectares || "No Data"}</td>
+                        <td>{plot.lease_case_no || "No Data"}</td>
+                        <td>{plot.present_status || "No Data"}</td>
+                        <td>{plot.ua_idco_to_tahasildar || "No Data"}</td>
+                        <td>{plot.case_details || "No Data"}</td>
+                        <td>{plot.action_to_be_taken || "No Data"}</td>
+                        <td>{plot.ri_report || "No Data"}</td>
+                        <td>
+                          {renderAttachments(
+                            plot.ri_report_attachment.file_name,
+                            "RI Report Attachments" || "No Data",
+                          )}
+                        </td>
+                        <td>{plot.proclamation || "No Data"}</td>
+                        <td>{plot.objection_received || "No Data"}</td>
+                        <td>{plot.others || "No Data"}</td>
+                        <td>{plot.modification_revision || "No Data"}</td>
+                        <td>{plot.misc_dr_case_prep || "No Data"}</td>
+                        <td>{plot.misc_dr_case_prep_number || "No Data"}</td>
+                        <td>{plot.reason_for_misc_dr_case || "No Data"}</td>
+                        <td>{plot.tree_enumeration || "No Data"}</td>
+                        <td>
+                          {renderAttachments(
+                            plot.tree_enumeration_attachment.file_name,
+                            "Tree Enumeration Attachments" || "No Data",
+                          )}
+                        </td>
+                        <td>{plot.order_sheet_prep || "No Data"}</td>
+                        <td>{plot.lease_to_idco || "No Data"}</td>
+                        <td>
+                          {renderAttachments(
+                            plot.lease_to_idco_attachment.file_name,
+                            "Lease to IDCO Attachments" || "No Data",
+                          )}
+                        </td>
+                        <td>{plot.lease_to_ua || "No Data"}</td>
+                        <td>
+                          {renderAttachments(
+                            plot.lease_to_ua_attachment.file_name,
+                            "Lease to UA Attachments" || "No Data",
+                          )}
+                        </td>
+                        <td>{plot.remarks || "No Data"}</td>
+                        <td className={stickyActionCell}>
+                          <select
+                            className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                            defaultValue=""
+                            onChange={(e) => {
+                              const action = e.target.value;
+                              e.target.value = "";
 
-                      <td className={stickyActionCell}>
-                        <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                          defaultValue=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            e.target.value = "";
+                              if (action === "edit" && canEdit) {
+                                openModal(plot);
+                              }
 
-                            if (action === "edit" && canEdit) {
-                              openModal(plot);
-                            }
-
-                            if (action === "delete" && canDelete) {
-                              onDelete(plot);
-                            }
-                          }}
-                        >
-                          <option value="" disabled>
-                            Actions
-                          </option>
-
-                          <option
-                            value="edit"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
+                              if (action === "delete" && canDelete) {
+                                onDelete(plot);
+                              }
+                            }}
+                            // disabled={!canEdit && !canDelete}
                           >
-                            ✏️ Edit
-                          </option>
+                            <option value="" disabled>
+                              Actions
+                            </option>
 
-                          <option
-                            value="delete"
-                            disabled={!canDelete}
-                            className={`text-md text-gray-700 font-bold ${
-                              !canDelete ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            🗑 Delete
-                          </option>
-                        </select>
+                            <option
+                              value="edit"
+                              disabled={userRole === "Viewer"}
+                              className={`text-md text-gray-700 font-bold ${
+                                userRole === "Viewer" ? "!text-gray-400" : ""
+                              }`}
+                            >
+                              ✏️ Edit
+                            </option>
+
+                            <option
+                              value="delete"
+                              disabled={!canDelete}
+                              className={`text-md text-gray-700 font-bold ${
+                                !canDelete ? "!text-gray-400" : ""
+                              }`}
+                            >
+                              🗑 Delete
+                            </option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="text-center py-6 text-gray-500"
+                      >
+                        No plots found. Click{" "}
+                        <span className="font-semibold">+ Add Plot</span> to
+                        create one.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center py-6 text-gray-500">
-                      No plots found. Click{" "}
-                      <span className="font-semibold">+ Add Plot</span> to
-                      create one.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div
-            className="overflow-x-auto max-h-[400px] overflow-y-auto"
-            style={{ scrollbarWidth: "thin" }}
-          >
-            <table
-              className="table w-full whitespace-nowrap"
-              title="Land Area Valution"
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {attachmentModal.open && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="bg-white rounded-xl shadow-xl w-[500px] max-h-[70vh] overflow-hidden">
+                  {/* Header */}
+                  <div className="flex justify-between items-center px-4 py-3 border-b">
+                    <h3 className="font-bold text-lg">
+                      {attachmentModal.title}
+                    </h3>
+                    <button
+                      className="text-gray-500 hover:text-red-600 text-xl"
+                      onClick={() =>
+                        setAttachmentModal({
+                          open: false,
+                          files: [],
+                          title: "",
+                        })
+                      }
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-4 overflow-y-auto space-y-2">
+                    {attachmentModal.files.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-lg"
+                      >
+                        <span className="truncate max-w-[350px]">{file}</span>
+                        <a
+                          href={file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          View
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div
+              className="overflow-x-auto max-h-[400px] overflow-y-auto"
+              style={{ scrollbarWidth: "thin" }}
             >
-              <thead className="bg-gray-200 sticky top-0 z-10">
-                <tr>
-                  <th>Sl/No</th>
-                  <th className={stickyCol1Header}>
-                    <FilterHeader
-                      column={legalIssue.find((c) => c.key === "khata_no")}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-
-                  {/* PLOT NO */}
-                  <th className={stickyCol2Header}>
-                    <FilterHeader
-                      column={legalIssue.find((c) => c.key === "plot_no")}
-                      filters={filters}
-                      setFilters={setFilters}
-                      sortConfig={sortConfig}
-                      setSortConfig={setSortConfig}
-                      getUniqueValues={getUniqueValues}
-                      activeFilterKey={activeFilterKey}
-                      setActiveFilterKey={setActiveFilterKey}
-                    />
-                  </th>
-
-                  {LandAreaEvaluationFields.filter(
-                    (c) => !["khata_no", "plot_no"].includes(c.key)
-                  ).map((col) => (
-                    <th key={col.key}>
+              <table
+                className="table w-full whitespace-nowrap"
+                title="Legal Issues"
+              >
+                <thead className="bg-gray-200 sticky top-0 z-10">
+                  <tr>
+                    <th>Sl/No</th>
+                    <th className={stickyCol1Header}>
                       <FilterHeader
-                        column={col}
+                        column={legalIssue.find((c) => c.key === "khata_no")}
                         filters={filters}
                         setFilters={setFilters}
                         sortConfig={sortConfig}
@@ -755,38 +603,208 @@ const Plots = () => {
                         setActiveFilterKey={setActiveFilterKey}
                       />
                     </th>
-                  ))}
 
-                  <th className={stickyActionHeader}>Actions</th>
-                </tr>
-              </thead>
+                    {/* PLOT NO */}
+                    <th className={stickyCol2Header}>
+                      <FilterHeader
+                        column={legalIssue.find((c) => c.key === "plot_no")}
+                        filters={filters}
+                        setFilters={setFilters}
+                        sortConfig={sortConfig}
+                        setSortConfig={setSortConfig}
+                        getUniqueValues={getUniqueValues}
+                        activeFilterKey={activeFilterKey}
+                        setActiveFilterKey={setActiveFilterKey}
+                      />
+                    </th>
 
-              <tbody>
-                {plots.length > 0 ? (
-                  filteredPlots.map((plot, idx) => (
-                    <tr
-                      key={plot.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td>{idx + 1}</td>
-                      <td className={stickyCol1Cell}>
-                        {plot.khata_no || "No Data"}
+                    {legalIssue
+                      .filter((c) => !["khata_no", "plot_no"].includes(c.key))
+                      .map((col) => (
+                        <th key={col.key}>
+                          <FilterHeader
+                            column={col}
+                            filters={filters}
+                            setFilters={setFilters}
+                            sortConfig={sortConfig}
+                            setSortConfig={setSortConfig}
+                            getUniqueValues={getUniqueValues}
+                            activeFilterKey={activeFilterKey}
+                            setActiveFilterKey={setActiveFilterKey}
+                          />
+                        </th>
+                      ))}
+
+                    <th className={stickyActionHeader}>Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {plots.length > 0 ? (
+                    filteredPlots.map((plot, idx) => (
+                      <tr
+                        key={plot.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td>{idx + 1}</td>
+                        <td className={stickyCol1Cell}>
+                          {plot.khata_no || "No Data"}
+                        </td>
+                        <td className={stickyCol2Cell}>
+                          {plot.plot_no || "No Data"}
+                        </td>
+                        <td>{plot.legal_heir_certificate_no || "no data"}</td>
+                        <td>{plot.land_case_no || "no data"}</td>
+                        <td>{plot.land_case_date || "no data"}</td>
+                        <td>{plot.land_case_type || "no data"}</td>
+                        <td>{plot.land_case_status || "no data"}</td>
+                        <td>{plot.land_case_action || "no data"}</td>
+
+                        <td className={stickyActionCell}>
+                          <select
+                            className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                            defaultValue=""
+                            onChange={(e) => {
+                              const action = e.target.value;
+                              e.target.value = "";
+
+                              if (action === "edit" && canEdit) {
+                                openModal(plot);
+                              }
+
+                              if (action === "delete" && canDelete) {
+                                onDelete(plot);
+                              }
+                            }}
+                          >
+                            <option value="" disabled>
+                              Actions
+                            </option>
+
+                            <option
+                              value="edit"
+                              disabled={userRole === "Viewer"}
+                              className={`text-md text-gray-700 font-bold ${
+                                userRole === "Viewer" ? "!text-gray-400" : ""
+                              }`}
+                            >
+                              ✏️ Edit
+                            </option>
+
+                            <option
+                              value="delete"
+                              disabled={!canDelete}
+                              className={`text-md text-gray-700 font-bold ${
+                                !canDelete ? "!text-gray-400" : ""
+                              }`}
+                            >
+                              🗑 Delete
+                            </option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="text-center py-6 text-gray-500"
+                      >
+                        No plots found. Click{" "}
+                        <span className="font-semibold">+ Add Plot</span> to
+                        create one.
                       </td>
-                      <td className={stickyCol2Cell}>
-                        {plot.plot_no || "No Data"}
-                      </td>
-                      <td>{plot.land_area_total_acres || "no data"}</td>
-                      <td>{plot.land_area_total_hectares || "no data"}</td>
-                      <td>{plot.land_area_acquired_acres || "no data"}</td>
-                      <td>{plot.land_area_acquired_hectares || "no data"}</td>
-                      <td>{plot.market_value_per_acre || "no data"}</td>
-                      <td>{plot.bench_market_value || "no data"}</td>
-                      <td>{plot.premium || "no data"}</td>
-                      <td>{plot.ground_rate || "no data"}</td>
-                      <td>{plot.cess || "no data"}</td>
-                      <td>{plot.admin_charges || "no data"}</td>
-                      <td>{plot.total_cost || "no data"}</td>
-                      {/* <td>{plot.basic_land_value || "no data"}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div
+              className="overflow-x-auto max-h-[400px] overflow-y-auto"
+              style={{ scrollbarWidth: "thin" }}
+            >
+              <table
+                className="table w-full whitespace-nowrap"
+                title="Land Area Valution"
+              >
+                <thead className="bg-gray-200 sticky top-0 z-10">
+                  <tr>
+                    <th>Sl/No</th>
+                    <th className={stickyCol1Header}>
+                      <FilterHeader
+                        column={legalIssue.find((c) => c.key === "khata_no")}
+                        filters={filters}
+                        setFilters={setFilters}
+                        sortConfig={sortConfig}
+                        setSortConfig={setSortConfig}
+                        getUniqueValues={getUniqueValues}
+                        activeFilterKey={activeFilterKey}
+                        setActiveFilterKey={setActiveFilterKey}
+                      />
+                    </th>
+
+                    {/* PLOT NO */}
+                    <th className={stickyCol2Header}>
+                      <FilterHeader
+                        column={legalIssue.find((c) => c.key === "plot_no")}
+                        filters={filters}
+                        setFilters={setFilters}
+                        sortConfig={sortConfig}
+                        setSortConfig={setSortConfig}
+                        getUniqueValues={getUniqueValues}
+                        activeFilterKey={activeFilterKey}
+                        setActiveFilterKey={setActiveFilterKey}
+                      />
+                    </th>
+
+                    {LandAreaEvaluationFields.filter(
+                      (c) => !["khata_no", "plot_no"].includes(c.key),
+                    ).map((col) => (
+                      <th key={col.key}>
+                        <FilterHeader
+                          column={col}
+                          filters={filters}
+                          setFilters={setFilters}
+                          sortConfig={sortConfig}
+                          setSortConfig={setSortConfig}
+                          getUniqueValues={getUniqueValues}
+                          activeFilterKey={activeFilterKey}
+                          setActiveFilterKey={setActiveFilterKey}
+                        />
+                      </th>
+                    ))}
+
+                    <th className={stickyActionHeader}>Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {plots.length > 0 ? (
+                    filteredPlots.map((plot, idx) => (
+                      <tr
+                        key={plot.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td>{idx + 1}</td>
+                        <td className={stickyCol1Cell}>
+                          {plot.khata_no || "No Data"}
+                        </td>
+                        <td className={stickyCol2Cell}>
+                          {plot.plot_no || "No Data"}
+                        </td>
+                        <td>{plot.land_area_total_acres || "no data"}</td>
+                        <td>{plot.land_area_total_hectares || "no data"}</td>
+                        <td>{plot.land_area_acquired_acres || "no data"}</td>
+                        <td>{plot.land_area_acquired_hectares || "no data"}</td>
+                        <td>{plot.market_value_per_acre || "no data"}</td>
+                        <td>{plot.bench_market_value || "no data"}</td>
+                        <td>{plot.premium || "no data"}</td>
+                        <td>{plot.ground_rate || "no data"}</td>
+                        <td>{plot.cess || "no data"}</td>
+                        <td>{plot.admin_charges || "no data"}</td>
+                        <td>{plot.total_cost || "no data"}</td>
+                        {/* <td>{plot.basic_land_value || "no data"}</td>
                       <td>{plot.land_value_with_mf || "no data"}</td>
                       <td>{plot.no_of_trees || "no data"}</td>
                       <td>{plot.total_value_of_trees || "no data"}</td>
@@ -799,65 +817,77 @@ const Plots = () => {
                       <td>{plot.no_days_interest || "no data"}</td>
                       <td>{plot.additional_12_percent || "no data"}</td>
                       <td>{plot.total_compensation || "no data"}</td> */}
-                      <td className={stickyActionCell}>
-                        <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                          defaultValue=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            e.target.value = "";
+                        <td className={stickyActionCell}>
+                          <select
+                            className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                            defaultValue=""
+                            onChange={(e) => {
+                              const action = e.target.value;
+                              e.target.value = "";
 
-                            if (action === "edit" && canEdit) {
-                              openModal(plot);
-                            }
+                              if (action === "edit" && canEdit) {
+                                openModal(plot);
+                              }
 
-                            if (action === "delete" && canDelete) {
-                              onDelete(plot);
-                            }
-                          }}
-                        >
-                          <option value="" disabled>
-                            Actions
-                          </option>
-
-                          <option
-                            value="edit"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
+                              if (action === "delete" && canDelete) {
+                                onDelete(plot);
+                              }
+                            }}
                           >
-                            ✏️ Edit
-                          </option>
+                            <option value="" disabled>
+                              Actions
+                            </option>
 
-                          <option
-                            value="delete"
-                            disabled={!canDelete}
-                            className={`text-md text-gray-700 font-bold ${
-                              !canDelete ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            🗑 Delete
-                          </option>
-                        </select>
+                            <option
+                              value="edit"
+                              disabled={userRole === "Viewer"}
+                              className={`text-md text-gray-700 font-bold ${
+                                userRole === "Viewer" ? "!text-gray-400" : ""
+                              }`}
+                            >
+                              ✏️ Edit
+                            </option>
+
+                            <option
+                              value="delete"
+                              disabled={!canDelete}
+                              className={`text-md text-gray-700 font-bold ${
+                                !canDelete ? "!text-gray-400" : ""
+                              }`}
+                            >
+                              🗑 Delete
+                            </option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="text-center py-6 text-gray-500"
+                      >
+                        No plots found. Click{" "}
+                        <span className="font-semibold">+ Add Plot</span> to
+                        create one.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center py-6 text-gray-500">
-                      No plots found. Click{" "}
-                      <span className="font-semibold">+ Add Plot</span> to
-                      create one.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </PlotTabs>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </PlotTabs>
         )}
       </div>
+      {selectedProjectId && (
+        <Pagination
+          page={page}
+          setPage={setPage}
+          limit={limit}
+          setLimit={setLimit}
+          totalPages={totalPages}
+        />
+      )}
 
       {isModalOpen && (
         <PlotForm
@@ -878,7 +908,7 @@ const Plots = () => {
           }}
         />
       )}
-        <SuccessMessage
+      <SuccessMessage
         open={modal.open}
         type={modal.type}
         message={modal.message}

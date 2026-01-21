@@ -42,7 +42,7 @@ const Plots = () => {
     setLoading(true);
 
     try {
-      const endpoint = `/plots/plotList?project_id=${projectId}&page=${page}&limit=${limit}&type=${typeParam}`;
+      const endpoint = `/plots/plotList?project_id=${projectId}&type=${typeParam}&page=${page}&limit=${limit}`;
       const data = await apiClient(endpoint);
       // console.log("Fetched Plots Data:", data);
 

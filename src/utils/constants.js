@@ -64,6 +64,14 @@ export const sections = {
     "present_address",
     "displaced_affected_person",
   ],
+  "Legal Issues": [
+    "legal_heir_certificate_no",
+    "land_case_no",
+    "land_case_date",
+    "land_case_type",
+    "land_case_status",
+    "land_case_action",
+  ],
   "Land Area Valuation Details": [
     "land_area_total_acres",
     "land_area_total_hectares",
@@ -86,22 +94,8 @@ export const sections = {
     "apportionment_amount",
     "Priority / Urgency",
     "Land Use Plan",
-    "Remarks"
+    "Remarks",
   ],
-  // "Compensation Details": [
-  //   "no_of_trees",
-  //   "total_value_of_trees",
-  //   "no_of_house",
-  //   "value_of_house",
-  //   "details_of_other_structures",
-  //   "value_of_other_structures",
-  //   "total_value",
-  //   "solatium_100",
-  //   "Days_of_interest",
-  //   "additional_12_percent",
-  //   "total_compensation",
-  //   "apportionment_amount",
-  // ],
   "Bank & Personal Details": [
     "bank_account_no",
     "bank_name",
@@ -126,35 +120,30 @@ export const sections = {
     "family_minor_transgender",
     "persons_with_disability",
     "family_with_orphan_members",
-   
-  ],
-  "Land Case Details": [
-     "legal_heir_certificate_no",
-    "land_case_no",
-    "land_case_date",
-    "land_case_type",
-    "land_case_status",
-    "land_case_action",
   ],
 
-  "Grievance Details": [
+  "Grievance Details / Tribunal": [
     "grievance_no",
     "grievance_date",
     "grievance_subject",
     "grievance_status",
     "grievance_action",
-  ],
-  "Tribunal & Revenue": [
     "tribunal",
     "tribunal_deposit_date",
     "tribunal_amount",
-    // "premium",
-    // "ground_rent",
-    // "cess",
-    // "incidental_charges",
-    // "total",
     "abatement",
   ],
+  // "Tribunal & Revenue": [
+  //   // "tribunal",
+  //   // "tribunal_deposit_date",
+  //   // "tribunal_amount",
+  //   // "premium",
+  //   // "ground_rent",
+  //   // "cess",
+  //   // "incidental_charges",
+  //   // "total",
+  //   // "abatement",
+  // ],
 };
 export const getTypeName = (type) => {
   switch (Number(type)) {
@@ -843,7 +832,11 @@ export const RR_FIELDS_FORMS = [
     label: "Special Allowance (ST/NTFP)",
     type: "text",
   },
-  { name: "rr_homestead_allotment", label: "Homestead Allotment", type: "text" },
+  {
+    name: "rr_homestead_allotment",
+    label: "Homestead Allotment",
+    type: "text",
+  },
   {
     name: "rr_house_building_assistance",
     label: "House Building Assistance",
@@ -851,7 +844,11 @@ export const RR_FIELDS_FORMS = [
   },
   { name: "rr_constructed_by", label: "Constructed By", type: "text" },
   { name: "rr_transit_shed", label: "Transit Shed", type: "text" },
-  { name: "rr_transport_allowance", label: "Transport Allowance", type: "text" },
+  {
+    name: "rr_transport_allowance",
+    label: "Transport Allowance",
+    type: "text",
+  },
   {
     name: "rr_maintenance_allowance",
     label: "Maintenance Allowance",
@@ -865,7 +862,6 @@ export const RR_FIELDS_FORMS = [
   { name: "rr_exgratia", label: "Ex-gratia", type: "text" },
   { name: "rr_other_benefits", label: "Other Benefits", type: "text" },
 ];
-
 
 export const GOVERNMENT_LAND_COLUMNS = [
   ...COMMON_COLUMNS,
@@ -889,31 +885,6 @@ export const FOREST_LAND_COLUMNS = [
   { label: "Forest Type", field: "forest_type" },
 ];
 
-//    const stickyActionHeader =
-//   "p-3 text-right bg-gray-200 text-gray-700 md:sticky md:right-0 z-[30] shadow-md";
-
-// const stickyActionCell =
-//   "p-3 text-right bg-white md:sticky md:right-0 border-l border-gray-100 shadow-sm";
-// const stickyPaymentHeader =
-//   "p-3 text-left bg-gray-200 md:sticky md:right-34 z-[30] shadow-md";
-// const stickyPaymentCell =
-//   "p-3 bg-white md:sticky md:right-34 border-l border-gray-100 shadow-sm";
-// const stickyCol1Header =
-//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md min-w-[220px]";
-
-// const stickyCol1Cell =
-//   "p-3 text-left bg-white md:sticky md:left-0 shadow-sm min-w-[220px]";
-// const stickyCol2Header =
-//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[220px] z-[30] shadow-md min-w-[130px]";
-
-// const stickyCol2Cell =
-//   "p-3 text-left bg-white md:sticky md:left-[220px] shadow-sm min-w-[130px]";
-
-// const stickyCol3Header =
-//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[350px] z-[30] shadow-md min-w-[140px]";
-
-// const stickyCol3Cell =
-//   "p-3 text-left bg-white md:sticky md:left-[350px] shadow-sm min-w-[140px]";
 export const PAYMENT_STATUSES = {
   READY: {
     label: "Ready for Payment",
@@ -1041,31 +1012,51 @@ export const legalIssue = [
 
 export const LandAreaEvaluationFields = [
   { key: "khata_no", label: "Khata No", type: "text" },
-  { key: "plot_no", label: "Plot No", type: "text" }, 
-   {key:"land_area_total_acres", label: "Land Area Total (Acres)", type: "number"},
-    {key:"land_area_total_hectares", label: "Land Area Total (Hectares)", type: "number"},
-    {key:"land_area_acquired_acres", label: "Land Area Acquired (Acres)", type: "number"},
-    {key:"land_area_acquired_hectares", label: "Land Area Acquired (Hectares)", type: "number"},
-    {key:"market_value_per_acre", label: "Market Value Per Acre", type: "number"},
-    {key:"bench_market_value", label: "Bench Market Value", type: "number"},
-    {key:"premium", label: "Premium", type: "number"},
-    {key:"ground_rate", label: "Ground Rate", type: "number"},
-    {key:"cess", label: "Cess", type: "number"},
-    {key:"admin_cost", label: "Admin Cost", type: "number"},
-    {key:"total_cost", label: "Total Cost", type: "number"},
-    // {key:"basic_land_value", label: "Basic Land Value", type: "number"},
-    // {key:"land_value_with_mf", label: "Land Value With MF", type: "number"},
-    // {key:"no_of_trees", label: "No of Trees", type: "number"},
-    // {key:"total_value_of_trees", label: "Total Value of Trees", type: "number"},
-    // {key:"no_of_house", label: "No of House", type: "number"},
-    // {key:"value_of_house", label: "Value of House", type: "number"},
-    // {key:"details_of_other_structures", label: "Details of Other Structures", type: "text"},
-    // {key:"value_of_other_structures", label: "Value of Other Structures", type: "number"},
-    // {key:"total_value", label: "Total Value", type: "number"},
-    // {key:"solatium_100", label: "Solatium 100%", type: "number"},
-    // {key:"no_days_interest", label: "No of Days Interest", type: "number"},
-    // {key:"additional_12_percent", label: "Additional 12%", type: "number"},
-    // {key:"total_compensation", label: "Total Compensation", type: "number"},
+  { key: "plot_no", label: "Plot No", type: "text" },
+  {
+    key: "land_area_total_acres",
+    label: "Land Area Total (Acres)",
+    type: "number",
+  },
+  {
+    key: "land_area_total_hectares",
+    label: "Land Area Total (Hectares)",
+    type: "number",
+  },
+  {
+    key: "land_area_acquired_acres",
+    label: "Land Area Acquired (Acres)",
+    type: "number",
+  },
+  {
+    key: "land_area_acquired_hectares",
+    label: "Land Area Acquired (Hectares)",
+    type: "number",
+  },
+  {
+    key: "market_value_per_acre",
+    label: "Market Value Per Acre",
+    type: "number",
+  },
+  { key: "bench_market_value", label: "Bench Market Value", type: "number" },
+  { key: "premium", label: "Premium", type: "number" },
+  { key: "ground_rate", label: "Ground Rate", type: "number" },
+  { key: "cess", label: "Cess", type: "number" },
+  { key: "admin_cost", label: "Admin Cost", type: "number" },
+  { key: "total_cost", label: "Total Cost", type: "number" },
+  // {key:"basic_land_value", label: "Basic Land Value", type: "number"},
+  // {key:"land_value_with_mf", label: "Land Value With MF", type: "number"},
+  // {key:"no_of_trees", label: "No of Trees", type: "number"},
+  // {key:"total_value_of_trees", label: "Total Value of Trees", type: "number"},
+  // {key:"no_of_house", label: "No of House", type: "number"},
+  // {key:"value_of_house", label: "Value of House", type: "number"},
+  // {key:"details_of_other_structures", label: "Details of Other Structures", type: "text"},
+  // {key:"value_of_other_structures", label: "Value of Other Structures", type: "number"},
+  // {key:"total_value", label: "Total Value", type: "number"},
+  // {key:"solatium_100", label: "Solatium 100%", type: "number"},
+  // {key:"no_days_interest", label: "No of Days Interest", type: "number"},
+  // {key:"additional_12_percent", label: "Additional 12%", type: "number"},
+  // {key:"total_compensation", label: "Total Compensation", type: "number"},
 ];
 
 // export const GovernmentPlotFields = [
@@ -1171,11 +1162,10 @@ export const LandAreaEvaluationFields = [
 
 export const GovtKhataColumn = [
   { key: "khata_no", label: "Khata No", type: "text" },
-   { key: "plot_no", label: "Plot No", type: "text" },
-    { key: "villae_name", label: "Village", type: "text" },
+  { key: "plot_no", label: "Plot No", type: "text" },
+  { key: "villae_name", label: "Village", type: "text" },
   { key: "kissam", label: "Kissam", type: "text" },
- 
- 
+
   { key: "lease_case_no", label: "Lease Case No", type: "text" },
   {
     key: "present_status",
@@ -1190,4 +1180,387 @@ export const GovtKhataColumn = [
   },
   { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },
+];
+
+export const BasicDetails = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    stickyClass: stickyCol1Header,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    stickyClass: stickyCol2Header,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    stickyClass: stickyCol3Header,
+  },
+  {
+    label: "Full/Part Plot",
+    field: "full_part",
+  },
+  {
+    label: "SES Survey No",
+    field: "ses_survey_no",
+  },
+  {
+    label: "Date of Award",
+    field: "date_of_award",
+  },
+  {
+    label: "Recorded Tenant",
+    field: "name_of_recorded_tenant",
+  },
+  {
+    label: "Present Tenant",
+    field: "name_of_present_tenant",
+  },
+  {
+    label: "No. of Present Tenant",
+    field: "present_tenant_count",
+  },
+  {
+    label: "Present Address",
+    field: "present_address",
+  },
+  {
+    label: "Displaced/Affected",
+    field: "displaced_affected_person",
+  },
+  {
+    label: "Village Name",
+    field: "village_name",
+  },
+  {
+    label: "Tahasil",
+    field: "tahasil_name",
+  },
+  {
+    label: "RI Circle",
+    field: "ri_circle_name",
+  },
+  {
+    label: "Thana No",
+    field: "thana_no",
+  },
+  {
+    label: "Kissam of Land",
+    field: "kissam_of_land",
+  },
+  {
+    label: "Land Category",
+    field: "land_category",
+  },
+];
+export const TenantDetails = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    headerClass: stickyCol1Header,
+    cellClass: stickyCol1Cell,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    headerClass: stickyCol2Header,
+    cellClass: stickyCol2Cell,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    headerClass: stickyCol3Header,
+    cellClass: stickyCol3Cell,
+  },
+  {
+    label: "Recorded Tenant",
+    field: "name_of_recorded_tenant",
+  },
+  {
+    label: "Present Tenant",
+    field: "name_of_present_tenant",
+  },
+  {
+    label: "Number Of Present Tenant",
+    field: "present_tenant_count",
+  },
+  {
+    label: "Present Address",
+    field: "present_address",
+  },
+];
+
+export const BANK_DETAILS_COLUMNS = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    headerClass: stickyCol1Header,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    headerClass: stickyCol2Header,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    headerClass: stickyCol3Header,
+  },
+  {
+    label: "Bank",
+    field: "bank_name",
+  },
+  {
+    label: "Account No",
+  },
+  {
+    label: "IFSC Code",
+    field: "branch_ifsc",
+  },
+  {
+    label: "Aadhar Number",
+    field: "aadhaar_no",
+  },
+  {
+    label: "PAN No",
+    field: "pan_no",
+  },
+  {
+    label: "Age",
+    field: "age",
+  },
+  {
+    label: "Caste",
+    field: "caste",
+  },
+  {
+    label: "Marital Status",
+    field: "marital_status",
+  },
+  {
+    label: "Education",
+    field: "education",
+  },
+  {
+    label: "Occupation",
+    field: "occupation",
+  },
+  {
+    label: "Annual Income (₹)",
+    field: "annual_income",
+  },
+  {
+    label: "Skill Acquired",
+    field: "skill_acquired",
+  },
+  {
+    label: "Affidavit Details",
+    field: "affidavit_details",
+  },
+];
+
+export const LegalIssues = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    headerClass: stickyCol1Header,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    headerClass: stickyCol2Header,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    headerClass: stickyCol3Header,
+  },
+  {
+    label: "Legal Issue No",
+    field: "legal_issue_no",
+  },
+  {
+    label: "Court Name",
+    field: "court_name",
+  },
+  {
+    label: "Case No",
+    field: "case_no",
+  },
+  {
+    label: "Case Status",
+    field: "case_status",
+  },
+  {
+    label: "Case action",
+    field: "case_action",
+  },
+];
+
+export const LAND_AREA_VALUATION_COLUMNS = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    headerClass: stickyCol1Header,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    headerClass: stickyCol2Header,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    headerClass: stickyCol3Header,
+  },
+
+  { label: "Total Area (Acre)", field: "land_area_total_acres" },
+  { label: "Total Area (Hectare)", field: "land_area_total_hectares" },
+  { label: "Acquired Area (Acre)", field: "land_area_acquired_acres" },
+  { label: "Acquired Area (Hectare)", field: "land_area_acquired_hectares" },
+
+  { label: "Market Value Per Acre", field: "market_value_per_acre" },
+  { label: "Basic Land Value (₹)", field: "basic_land_value" },
+  { label: "Land Value w/ MF (₹)", field: "land_value_with_mf" },
+
+  { label: "No. of Trees", field: "no_of_trees" },
+  { label: "Value of Trees (₹)", field: "total_value_of_trees" },
+  { label: "No. of Houses", field: "no_of_house" },
+
+  {
+    label: "Value of Structure (House)",
+    field: "value_of_house",
+  },
+
+  {
+    label: "Details of Structure Other Than House",
+    field: "details_of_other_structures",
+  },
+  {
+    label: "Value of Structures Other than house",
+    field: "value_of_other_structures",
+  },
+
+  { label: "Total Value (₹)", field: "total_value" },
+
+  {
+    label: "Solatium 100% (₹)",
+    field: "solatium_100",
+  },
+
+  { label: "Days of Interest", field: "no_days_interest" },
+  { label: "12% Additional Compensation", field: "additional_12_percent" },
+  { label: "Total Compensation (₹)", field: "total_compensation" },
+  { label: "Apportion Amount", field: "apportionment_amount" },
+  { label: "Priority / Urgency", field: "Priority / Urgency" },
+  { label: "Land Use Plan", field: "Land Use Plan" },
+  { label: "LA21 Remarks", field: "la21_remarks" },
+];
+
+export const TribunalColumns = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    headerClass: stickyCol1Header,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    headerClass: stickyCol2Header,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    headerClass: stickyCol3Header,
+  },
+
+  {
+    label: "Grievance No",
+    field: "grievance_no",
+  },
+  {
+    label: "Grievance Date",
+    field: "grievance_date",
+  },
+  {
+    label: "Subject",
+    field: "subject",
+  },
+  {
+    label: "Status",
+    field: "status",
+  },
+  {
+    label: "Action Taken",
+    field: "action_taken",
+  },
+  {
+    label: "Tribunal",
+    field: "tribunal",
+  },
+  {
+    label: "Deposit Date",
+    field: "deposit_date",
+  },
+  {
+    label: "Tribunal Amount (₹)",
+    field: "tribunal_amount",
+  },
+  {
+    label: "Abatement",
+    field: "abatement",
+  },
+];
+
+export const FamilyDetails = [
+  {
+    label: "LA Case File No",
+    field: "la_case_file_no",
+    headerClass: stickyCol1Header,
+  },
+  {
+    label: "Khata",
+    field: "khata_no",
+    headerClass: stickyCol2Header,
+  },
+  {
+    label: "Plot No",
+    field: "plot_no",
+    headerClass: stickyCol3Header,
+  },
+
+  {
+    label: "Major Male",
+    field: "family_major_male",
+  },
+  {
+    label: "Major Female",
+    field: "family_major_female",
+  },
+  {
+    label: "Minor Male",
+    field: "family_minor_male",
+  },
+  {
+    label: "Minor Female",
+    field: "family_minor_female",
+  },
+  {
+    label: "Major Transgender",
+    field: "family_major_transgender",
+  },
+  {
+    label: "Minor Transgender",
+    field: "family_minor_transgender",
+  },
+  {
+    label: "PwD Members",
+    field: "persons_with_disability",
+  },
+  {
+    label: "Orphan Members",
+    field: "family_with_orphan_members",
+  },
 ];

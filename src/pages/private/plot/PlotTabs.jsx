@@ -17,7 +17,6 @@ const PlotTabs = ({ children }) => {
 
   return (
     <div className="w-full">
-      {/* Tabs header */}
       <div className="flex gap-2 border-b border-gray-100 mb-3 overflow-x-auto scrollbar-hide sm:overflow-visible">
         {tabs.map((tab, idx) => (
           <button
@@ -39,8 +38,6 @@ const PlotTabs = ({ children }) => {
           </button>
         ))}
       </div>
-
-      {/* Active tab content */}
       <div className="mt-2">
         {Array.isArray(children) ? children[activeTab] : children}
       </div>

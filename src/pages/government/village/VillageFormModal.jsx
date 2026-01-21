@@ -118,7 +118,7 @@ const handleSubmit = async (e) => {
 
   return (
     <dialog open className="modal modal-open">
-      <div className="modal-box relative">
+      <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
         <button className="absolute right-3 top-3" onClick={onCancel}>
           <X size={20} />
         </button>

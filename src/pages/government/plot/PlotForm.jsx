@@ -220,12 +220,12 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
 
   return (
     <dialog open className="modal modal-open">
-      <div className="modal-box max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
         <button className="absolute right-3 top-3" onClick={close}>
           <X size={20} />
         </button>
         <h3 className="font-bold text-lg mb-2">
-          {formData.id ? "Edit Plot" : "Add Plot"}
+          {editingPlot ? "Edit Plot" : "Add Plot"}
         </h3>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* SECTION 1 : Location Details */}
@@ -716,9 +716,13 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
           </div>
 
           <div className="flex justify-end gap-4">
-            <button type="button" onClick={close} className="btn btn-ghost">
-              Cancel
-            </button>
+           <button
+                type="button"
+                onClick={close}
+                className="btn btn-error text-white"
+              >
+                Cancel
+              </button>
             <button type="submit" className="btn btn-primary">
               {editingPlot ? "Update" : "Save"}
             </button>

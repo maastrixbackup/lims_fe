@@ -136,40 +136,39 @@ const Plots = () => {
     admin_cost: item.admin_cost || "",
     total_cost: item.total_cost || "",
   });
- const fetchPlots = useCallback(async () => {
-  if (!selectedProjectId || !token) return;
+  const fetchPlots = useCallback(async () => {
+    if (!selectedProjectId || !token) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await fetch(
-      `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=${page}&limit=${limit}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=${page}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      }
-    );
+      );
 
-    const json = await res.json();
+      const json = await res.json();
 
-    const mappedData = json.data.map(mapGovtPlot);
+      const mappedData = json.data.map(mapGovtPlot);
 
-    setPlots(mappedData);
+      setPlots(mappedData);
 
-    // ✅ FIX HERE
-    setTotalPages(json.totalPages || Math.ceil(json.total / limit));
-  } catch (error) {
-    console.error("Failed to fetch plots", error);
-  } finally {
-    setLoading(false);
-  }
-}, [selectedProjectId, page, limit, token]);
-useEffect(() => {
-  setPage(1);
-}, [selectedProjectId]);
-
+      // ✅ FIX HERE
+      setTotalPages(json.totalPages || Math.ceil(json.total / limit));
+    } catch (error) {
+      console.error("Failed to fetch plots", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedProjectId, page, limit, token]);
+  useEffect(() => {
+    setPage(1);
+  }, [selectedProjectId]);
 
   useEffect(() => {
     fetchPlots();
@@ -880,13 +879,15 @@ useEffect(() => {
           </PlotTabs>
         )}
       </div>
-      <Pagination
-        page={page}
-        setPage={setPage}
-        limit={limit}
-        setLimit={setLimit}
-        totalPages={totalPages}
-      />
+      {selectedProjectId && (
+        <Pagination
+          page={page}
+          setPage={setPage}
+          limit={limit}
+          setLimit={setLimit}
+          totalPages={totalPages}
+        />
+      )}
 
       {isModalOpen && (
         <PlotForm

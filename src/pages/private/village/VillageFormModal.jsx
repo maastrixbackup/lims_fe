@@ -23,7 +23,7 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     village_code: "",
-    multiplying_factor: "",  
+    multiplying_factor: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -39,7 +39,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
-        multiplying_factor: editingVillage.multiplying_factor || "", 
+        multiplying_factor: editingVillage.multiplying_factor || "",
       });
     } else {
       setFormData({
@@ -86,10 +86,10 @@ const VillageFormModal = ({
 
     const method = editingVillage ? "PUT" : "POST";
 
-     const data = await apiClient(endpoint, {
-           method,
-           body: formData,
-         });
+    const data = await apiClient(endpoint, {
+      method,
+      body: formData,
+    });
 
     setLoading(false);
 
@@ -97,7 +97,7 @@ const VillageFormModal = ({
       setSuccessMessage(
         editingVillage
           ? "Village updated successfully!"
-          : "Village added successfully!"
+          : "Village added successfully!",
       );
 
       fetchVillages();
@@ -114,8 +114,8 @@ const VillageFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <dialog open className="modal modal-open">
-      <div className="modal-box relative">
+    <dialog open className="modal modal-open" >
+      <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
         <button className="absolute right-3 top-3" onClick={onClose}>
           <X size={20} />
         </button>
@@ -133,7 +133,6 @@ const VillageFormModal = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
-
             {/* Project Name */}
             <div>
               <label className="block text-sm font-medium mb-1">
@@ -224,8 +223,8 @@ const VillageFormModal = ({
                 typeParam === 1
                   ? "Private Land"
                   : typeParam === 2
-                  ? "Government Land"
-                  : "Forest Land"
+                    ? "Government Land"
+                    : "Forest Land"
               }
               className="input input-bordered w-full bg-gray-100"
               readOnly
@@ -271,6 +270,13 @@ const VillageFormModal = ({
 
             <div className="modal-action">
               <button
+                className="btn btn-error text-white"
+                type="button"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
                 className="btn btn-primary"
                 type="submit"
                 disabled={loading}
@@ -280,12 +286,8 @@ const VillageFormModal = ({
                     ? "Updating..."
                     : "Saving..."
                   : editingVillage
-                  ? "Update"
-                  : "Save"}
-              </button>
-
-              <button className="btn btn-error text-white" type="button" onClick={onClose}>
-                Cancel
+                    ? "Update"
+                    : "Save"}
               </button>
             </div>
           </form>

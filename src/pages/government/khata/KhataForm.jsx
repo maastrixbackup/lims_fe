@@ -167,7 +167,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
   return (
     <>
       <dialog open className="modal modal-open">
-        <div className="modal-box max-w-2xl">
+        <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
           <button className="absolute right-3 top-3" onClick={onCancel}>
             <X size={20} />
           </button>
@@ -315,7 +315,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
               <button
                 type="button"
                 onClick={onCancel}
-                className="btn btn-ghost"
+                className="btn btn-error text-white"
               >
                 Cancel
               </button>

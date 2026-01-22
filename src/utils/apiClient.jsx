@@ -34,14 +34,14 @@ export async function apiClient(endpoint, options = {}) {
 
     if (!res.ok) {
       const text = await res.text();
-      showToast(text || `HTTP Error ${res.status}`, "error");
+      // showToast(text || `HTTP Error ${res.status}`, "error");
       throw new Error(text || `HTTP Error ${res.status}`);
     }
 
     return res.json();
   } catch (err) {
     console.error("API Error:", err);
-    showToast(err.message || "Something went wrong!", "error");
+    // showToast(err.message || "Something went wrong!", "error");
     throw err;
   }
 }

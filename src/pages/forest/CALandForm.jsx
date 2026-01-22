@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { submitLandSchedule } from "../../hooks/useLandScheduleSubmit";
 import { useSelector } from "react-redux";
-import SuccessMessage from "../../shared/SuccessMessage";
-import { useSuccessMessage } from "../../hooks/useSuccessMessage";
+import { submitLandSchedule } from "../../hooks/useLandScheduleSubmit";
 
-const ForestLandForm = ({ open, onClose }) => {
+const CALandForm = ({ open, onClose }) => {
   const [formData, setFormData] = useState({});
   const token = useSelector((state) => state.auth.userToken);
-   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -22,21 +19,19 @@ const ForestLandForm = ({ open, onClose }) => {
 
     await submitLandSchedule({
       formData,
-      activeTab: "forest",
+      activeTab: "ca",
       token,
-      onSuccess: (data) => {
-        showSuccess(data.message ||"Forest Land Added");
+      onSuccess: () => {
+        alert("CA Land Added");
         onClose();
       },
-      onError: (err) => showError(err.message || "Error"),
     });
   };
 
   return (
-    <>
-     <dialog className="modal" open={open}>
+    <dialog className="modal" open={open}>
       <div className="modal-box max-w-2xl max-h-130 relative">
-        <h3 className="font-bold text-lg mb-4">Add Forest Land Details</h3>
+        <h3 className="font-bold text-lg mb-4">Add CA Land Details</h3>
 
         {/* Form */}
         <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
@@ -59,18 +54,9 @@ const ForestLandForm = ({ open, onClose }) => {
           </div>
 
           <div>
-            <label className="label">Forest Division</label>
+            <label className="label">Tahashil</label>
             <input
-              name="forest_division"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Range</label>
-            <input
-              name="forest_range"
+              name="tahashil"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
@@ -111,39 +97,47 @@ const ForestLandForm = ({ open, onClose }) => {
               onChange={handleChange}
             />
           </div>
-
           <div>
-            <label className="label">Forest Category</label>
-            <select
-              name="forest_category_id"
-              className="select select-bordered w-full"
-              onChange={handleChange}
-            >
-              <option>Revenue Forest</option>
-              <option>Reserved Forest</option>
-              <option>Proposed Reserved Forest</option>
-              <option>Protected Forest</option>
-              <option>Sabik Forest</option>
-              <option>DLC Forest</option>
-              <option>Others Forest</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="label">Total Area (ha)</label>
+            <label className="label">Wonership</label>
             <input
-              type="number"
-              name="total_area_ha"
+              name="wonership"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className="label">Proposed / Acquired Area (ha)</label>
+            <label className="label">Forest Range/ Divison</label>
+            <input
+              name="forest_range"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label className="label">Patch Name</label>
+            <input
+              name="patch_name"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="label">Total Area (ha)</label>
             <input
               type="number"
-              name="proposed_acquired_area_ha"
+              name="total_area"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="label">CA Area</label>
+            <input
+              type="number"
+              name="ca_area"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
@@ -168,20 +162,9 @@ const ForestLandForm = ({ open, onClose }) => {
           </div>
         </form>
       </div>
-
-      {/* backdrop */}
       <div className="modal-backdrop" onClick={onClose}></div>
-      
     </dialog>
-      <SuccessMessage
-        open={modal.open}
-        type={modal.type}
-        message={modal.message}
-        onClose={closeModal}
-      />
-    </>
-   
   );
 };
 
-export default ForestLandForm;
+export default CALandForm;

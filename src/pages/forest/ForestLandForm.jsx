@@ -1,178 +1,193 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { submitLandSchedule } from "../../hooks/useLandScheduleSubmit";
+import { updateLandSchedule } from "../../hooks/UpdateForestLand";
 import { useSelector } from "react-redux";
 import SuccessMessage from "../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../hooks/useSuccessMessage";
 
-const ForestLandForm = ({ open, onClose }) => {
-  const [formData, setFormData] = useState({});
+const initialState = {
+  district: "",
+  ri_circle: "",
+  forest_division: "",
+  forest_range: "",
+  village: "",
+  khata_no: "",
+  plot_no: "",
+  kisam: "",
+  forest_category_id: "",
+  total_area_ha: "",
+  proposed_acquired_area_ha: "",
+  remarks: "",
+};
+
+const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
+  const [formData, setFormData] = useState(initialState);
   const token = useSelector((state) => state.auth.userToken);
-   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+  const { modal, showSuccess, showError, closeModal } =
+    useSuccessMessage();
+
+  const isEdit = Boolean(editData?.id);
+
+
+  useEffect(() => {
+    if (isEdit) {
+      setFormData({
+        district: editData.district ?? "",
+        ri_circle: editData.ri_circle ?? "",
+        forest_division: editData.forest_division ?? "",
+        forest_range: editData.forest_range ?? "",
+        village: editData.village ?? "",
+        khata_no: editData.khata_no ?? "",
+        plot_no: editData.plot_no ?? "",
+        kisam: editData.kisam ?? "",
+        forest_category_id: editData.forest_category_id ?? "",
+        total_area_ha: editData.total_area_ha ?? "",
+        proposed_acquired_area_ha:
+          editData.proposed_acquired_area_ha ?? "",
+        remarks: editData.remarks ?? "",
+      });
+    } else {
+      setFormData(initialState);
+    }
+  }, [editData, isEdit]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((p) => ({
-      ...p,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await submitLandSchedule({
+    const apiFn = isEdit
+      ? updateLandSchedule
+      : submitLandSchedule;
+
+    await apiFn({
+      id: isEdit ? editData.id : undefined,
       formData,
       activeTab: "forest",
       token,
-      onSuccess: (data) => {
-        showSuccess(data.message ||"Forest Land Added");
+      onSuccess: () => {
+        showSuccess(
+          isEdit
+            ? "Forest Land Updated Successfully"
+            : "Forest Land Added Successfully"
+        );
+        onSuccess?.();
         onClose();
       },
-      onError: (err) => showError(err.message || "Error"),
+      onError: (err) =>
+        showError(err?.message || "Something went wrong"),
     });
   };
 
   return (
     <>
-     <dialog className="modal" open={open}>
-      <div className="modal-box max-w-2xl max-h-130 relative">
-        <h3 className="font-bold text-lg mb-4">Add Forest Land Details</h3>
+      <dialog className="modal" open={open}>
+        <div className="modal-box max-w-2xl">
+          <h3 className="font-semibold text-lg mb-4">
+            {isEdit
+              ? "Edit Forest Land Details"
+              : "Add Forest Land Details"}
+          </h3>
 
-        {/* Form */}
-        <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="label">District</label>
-            <input
-              name="district"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+          <form
+            className="grid grid-cols-2 gap-4"
+            onSubmit={handleSubmit}
+          >
+            {[
+              ["district", "District"],
+              ["ri_circle", "RI Circle"],
+              ["forest_division", "Forest Division"],
+              ["forest_range", "Range"],
+              ["village", "Village"],
+              ["khata_no", "Khata No"],
+              ["plot_no", "Plot No"],
+              ["kisam", "Kisam"],
+            ].map(([name, label]) => (
+              <div key={name}>
+                <label className="label">{label}</label>
+                <input
+                  name={name}
+                  value={formData[name]}
+                  className="input input-bordered w-full"
+                  onChange={handleChange}
+                />
+              </div>
+            ))}
 
-          <div>
-            <label className="label">RI Circle</label>
-            <input
-              name="ri_circle"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div>
+              <label className="label">Forest Category</label>
+              <select
+                name="forest_category_id"
+                value={formData.forest_category_id}
+                className="select select-bordered w-full"
+                onChange={handleChange}
+              >
+                <option value="">Select Category</option>
+                <option value="1">Revenue Forest</option>
+                <option value="2">Reserved Forest</option>
+                <option value="3">Proposed Reserved Forest</option>
+                <option value="4">Protected Forest</option>
+                <option value="5">Sabik Forest</option>
+                <option value="6">DLC Forest</option>
+                <option value="7">Others Forest</option>
+              </select>
+            </div>
 
-          <div>
-            <label className="label">Forest Division</label>
-            <input
-              name="forest_division"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div>
+              <label className="label">Total Area (ha)</label>
+              <input
+                type="number"
+                name="total_area_ha"
+                value={formData.total_area_ha}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Range</label>
-            <input
-              name="forest_range"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div>
+              <label className="label">
+                Proposed / Acquired Area (ha)
+              </label>
+              <input
+                type="number"
+                name="proposed_acquired_area_ha"
+                value={formData.proposed_acquired_area_ha}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Village</label>
-            <input
-              name="village"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div className="col-span-2">
+              <label className="label">Remarks</label>
+              <input
+                name="remarks"
+                value={formData.remarks}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Khata No</label>
-            <input
-              name="khata_no"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div className="modal-action col-span-2">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                {isEdit ? "Update" : "Save"}
+              </button>
+            </div>
+          </form>
+        </div>
 
-          <div>
-            <label className="label">Plot No</label>
-            <input
-              name="plot_no"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+        <div className="modal-backdrop" onClick={onClose} />
+      </dialog>
 
-          <div>
-            <label className="label">Kissam</label>
-            <input
-              name="kisam"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Forest Category</label>
-            <select
-              name="forest_category_id"
-              className="select select-bordered w-full"
-              onChange={handleChange}
-            >
-              <option>Revenue Forest</option>
-              <option>Reserved Forest</option>
-              <option>Proposed Reserved Forest</option>
-              <option>Protected Forest</option>
-              <option>Sabik Forest</option>
-              <option>DLC Forest</option>
-              <option>Others Forest</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="label">Total Area (ha)</label>
-            <input
-              type="number"
-              name="total_area_ha"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Proposed / Acquired Area (ha)</label>
-            <input
-              type="number"
-              name="proposed_acquired_area_ha"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Remarks</label>
-            <input
-              name="remarks"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="modal-action col-span-2 mt-6">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
-              Cancel
-            </button>
-
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* backdrop */}
-      <div className="modal-backdrop" onClick={onClose}></div>
-      
-    </dialog>
       <SuccessMessage
         open={modal.open}
         type={modal.type}
@@ -180,7 +195,6 @@ const ForestLandForm = ({ open, onClose }) => {
         onClose={closeModal}
       />
     </>
-   
   );
 };
 

@@ -479,67 +479,39 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
 
                     <td className={stickyPaymentCell}>
-                      <div
-                        className={"dropdown dropdown-left"}
-                        // isRestricted ? "opacity-60 pointer-events-none" : ""
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
 
                     <td className={stickyActionCell}>
@@ -652,68 +624,39 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       {plot.displaced_affected_person || "N/A"}
                     </td>
                     <td className={stickyPaymentCell}>
-                      <div
-                        className={`dropdown dropdown-left ${
-                          isRestricted ? "opacity-60 pointer-events-none" : ""
-                        }`}
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {!isRestricted && loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
                     <td className={stickyActionCell}>
                       <select
@@ -820,68 +763,39 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.skill_acquired || "N/A"}</td>
                     <td className="p-3">{plot.affidavit_details || "N/A"}</td>
                     <td className={stickyPaymentCell}>
-                      <div
-                        className={`dropdown dropdown-left ${
-                          isRestricted ? "opacity-60 pointer-events-none" : ""
-                        }`}
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {!isRestricted && loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
                     <td className={stickyActionCell}>
                       <select
@@ -989,69 +903,40 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.land_case_status || "N/A"}</td>
                     <td className="p-3">{plot.land_case_action || "N/A"}</td>
 
-                    <td className={stickyPaymentCell}>
-                      <div
-                        className={`dropdown dropdown-left ${
-                          isRestricted ? "opacity-60 pointer-events-none" : ""
-                        }`}
+              <td className={stickyPaymentCell}>
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {!isRestricted && loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
 
                     <td className={stickyActionCell}>
@@ -1187,69 +1072,40 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.priority_urgency || "N/A"}</td>
                     <td className="p-3">{plot.land_use_plan || "N/A"}</td>
                     <td className="p-3">{plot.la21_remarks || "N/A"}</td>
-                    <td className={stickyPaymentCell}>
-                      <div
-                        className={`dropdown dropdown-left ${
-                          isRestricted ? "opacity-60 pointer-events-none" : ""
-                        }`}
+                <td className={stickyPaymentCell}>
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {!isRestricted && loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
                     <td className={stickyActionCell}>
                       <select
@@ -1362,69 +1218,40 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
 
                     <td className="p-3">{plot.abatement || "N/A"}</td>
-                    <td className={stickyPaymentCell}>
-                      <div
-                        className={`dropdown dropdown-left ${
-                          isRestricted ? "opacity-60 pointer-events-none" : ""
-                        }`}
+                   <td className={stickyPaymentCell}>
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {!isRestricted && loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
                     <td className={stickyActionCell}>
                       <select
@@ -1531,71 +1358,44 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       {plot.persons_with_disability ?? "N/A"}
                     </td>
                     <td className="p-3">
-                      {plot.family_with_orphan_members === "Y" ? "Yes" : "No" ?? "N/A"}
+                      {plot.family_with_orphan_members === "Y"
+                        ? "Yes"
+                        : ("No" ?? "N/A")}
                     </td>
-                    <td className={stickyPaymentCell}>
-                      <div
-                        className={`dropdown dropdown-left ${
-                          isRestricted ? "opacity-60 pointer-events-none" : ""
-                        }`}
+                   <td className={stickyPaymentCell}>
+                      <select
+                        value={getPaymentCode(plot) || ""}
+                        disabled={loadingPlotId === plot.id}
+                        onChange={(e) =>
+                          handlePaymentStatusChange(plot, e.target.value)
+                        }
+                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
+      ${
+        getPaymentCode(plot) === "RP"
+          ? "bg-orange-600 text-white"
+          : getPaymentCode(plot) === "PP"
+            ? "bg-green-700 text-white"
+            : getPaymentCode(plot) === "RC"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300"
+      }
+    `}
                       >
-                        {/* Trigger Button */}
-                        <label
-                          tabIndex={0}
-                          className={`btn btn-sm w-[55px] h-[30px] font-semibold flex justify-center items-center rounded cursor-pointer
-    ${
-      getPaymentCode(plot) === "RP"
-        ? "bg-orange-600 text-white"
-        : getPaymentCode(plot) === "PP"
-          ? "bg-green-700 text-white"
-          : getPaymentCode(plot) === "PC"
-            ? "bg-blue-200 text-blue-700"
-            : "bg-white text-gray-600 border border-gray-300"
-    }
-  `}
-                        >
-                          {getPaymentCode(plot)}
-                          <ChevronDown size={12} strokeWidth={5} />
-                        </label>
+                        <option value="" disabled selected></option>
+                        <option value="RP" hidden>
+                          RP
+                        </option>
+                        <option value="PP" hidden>
+                          PP
+                        </option>
+                        <option value="RC" hidden>
+                          RC
+                        </option>
 
-                        {/* Dropdown Menu */}
-                        {!isRestricted && loadingPlotId !== plot.id && (
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[50] menu p-1 shadow-xl bg-green-50 rounded-box w-44 text-sm font-semibold"
-                          >
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RP")
-                                }
-                              >
-                                Ready for Payment
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "PP")
-                                }
-                              >
-                                Payment Processing
-                              </button>
-                            </li>
-
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handlePaymentStatusChange(plot, "RC")
-                                }
-                              >
-                                Payment Complete
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
+                        <option value="RP">Ready for Payment</option>
+                        <option value="PP">Payment Processing</option>
+                        <option value="RC">Payment Complete</option>
+                      </select>
                     </td>
                     {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                     <td className={stickyActionCell}>

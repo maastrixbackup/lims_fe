@@ -111,32 +111,29 @@ import React, { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import FilterSortHeader from "./FilterSortHeader";
 
-const ForestTable = ({ data = [] }) => {
+const ForestTable = ({ data = [], onEdit }) => {
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     field: null,
     direction: null,
   });
+  
 
-  // 🔹 Utility for dropdown options
   const getUniqueOptions = (field) => {
     return [...new Set(data.map((item) => item[field]).filter(Boolean))];
   };
 
-  // 🔹 Filter + Sort
   const filteredAndSortedData = useMemo(() => {
     let result = [...data];
 
-    // Filters
+
     Object.entries(filters).forEach(([field, values]) => {
       if (values?.length) {
-        result = result.filter((row) =>
-          values.includes(row[field])
-        );
+        result = result.filter((row) => values.includes(row[field]));
       }
     });
 
-    // Sorting
+
     if (sortConfig.field) {
       result.sort((a, b) => {
         const aVal = a[sortConfig.field];
@@ -153,11 +150,11 @@ const ForestTable = ({ data = [] }) => {
 
   return (
     <div
-      className="overflow-x-auto bg-base-100 shadow"
+      className="max-h-[400px] overflow-x-auto bg-base-100 shadow whitesapce-noWrap"
       style={{ scrollbarWidth: "thin" }}
     >
       <table className="table w-full">
-        <thead className="bg-primary/70 text-white text-sm">
+       <thead className="bg-gradient-to-r from-[#7A69E1] to-[#4F46E5] text-white text-sm sticky top-0 z-20">
           <tr>
             <th>Sl/No</th>
 
@@ -315,9 +312,15 @@ const ForestTable = ({ data = [] }) => {
                       <ChevronDown size={16} />
                     </label>
                     <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
-                      <li><a>View</a></li>
-                      <li><a>Edit</a></li>
-                      <li><a className="text-error">Delete</a></li>
+                      <li>
+                        <button>View</button>
+                      </li>
+                      <li>
+                        <button onClick={() => onEdit(row)}>Edit</button>
+                      </li>
+                      <li>
+                        <button className="text-error">Delete</button>
+                      </li>
                     </ul>
                   </div>
                 </td>
@@ -331,4 +334,3 @@ const ForestTable = ({ data = [] }) => {
 };
 
 export default ForestTable;
-

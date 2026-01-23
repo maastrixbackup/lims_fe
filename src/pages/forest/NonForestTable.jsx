@@ -1,99 +1,136 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
+import FilterSortHeader from "./FilterSortHeader";
 
-const nonForestData = [
-  {
-    district: "Angul",
-    riCircle: "Chhendipada",
-    tahasil: "Handigoda",
-    village: "Sahalia",
-    khataNo: "15",
-    plotNo: "78",
-    kisam: "Agricultural",
-    ownership: "Private",
-    fra: "No",
-    totalArea: "3.20",
-    acquiredArea: "1.50",
-    remarks: "-",
-  },
-   {
-    district: "Cuttack",
-    riCircle: "Chhendipada",
-    tahasil: "Handigoda",
-    village: "Sahalia",
-    khataNo: "15",
-    plotNo: "78",
-    kisam: "Agricultural",
-    ownership: "Private",
-    fra: "No",
-    totalArea: "3.20",
-    acquiredArea: "1.50",
-    remarks: "-",
-  },
-];
+const NonForestTable = ({ data = [], onEdit }) => {
+  const [filters, setFilters] = useState({});
+  const [sortConfig, setSortConfig] = useState({
+    field: null,
+    direction: null,
+  });
 
-const NonForestTable = () => {
+  // 🔹 Utility for dropdown options
+  const getUniqueOptions = (field) => {
+    return [...new Set(data.map((item) => item[field]).filter(Boolean))];
+  };
+
+  // 🔹 Filter + Sort
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...data];
+
+    // Filters
+    Object.entries(filters).forEach(([field, values]) => {
+      if (values?.length) {
+        result = result.filter((row) => values.includes(row[field]));
+      }
+    });
+
+    // Sorting
+    if (sortConfig.field) {
+      result.sort((a, b) => {
+        const aVal = a[sortConfig.field];
+        const bVal = b[sortConfig.field];
+
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [data, filters, sortConfig]);
+
   return (
-    <div className="overflow-x-auto bg-base-100 shadow" style={{scrollbarWidth:"thin"}}>
+    <div
+      className="max-h-[400px] overflow-x-auto bg-base-100 shadow"
+      style={{ scrollbarWidth: "thin" }}
+    >
       <table className="table w-full">
-        {/* Header */}
-        <thead className="font-semibold bg-primary/70 text-white">
+       <thead className="bg-gradient-to-r from-[#7A69E1] to-[#4F46E5] text-white text-sm sticky top-0 z-20">
           <tr>
             <th>Sl/No</th>
-            <th>District</th>
-            <th>RI Circle</th>
-            <th>Tahasil</th>
-            <th>Village</th>
-            <th>Khata No</th>
-            <th>Plot No</th>
-            <th>Kisam</th>
-            <th>Ownership</th>
-             <th>Total Area (ha)</th>
-            <th>Land Allotted Through FRA</th>
-           
-            <th>Proposed / Acquired Area (ha)</th>
-            <th>Remarks</th>
+
+            {[
+              ["district", "District"],
+              ["ri_circle", "RI Circle"],
+              ["tahasil", "Tahasil"],
+              ["village", "Village"],
+              ["khata_no", "Khata No"],
+              ["plot_no", "Plot No"],
+              ["kisam", "Kisam"],
+              ["ownership", "Ownership"],
+              ["total_area_ha", "Total Area (ha)"],
+              ["fra_allotted", "Land Allotted Through FRA"],
+              ["proposed_acquired_area_ha", "Proposed Area (ha)"],
+              ["remarks", "Remarks"],
+            ].map(([field, label]) => (
+              <FilterSortHeader
+                key={field}
+                label={label}
+                field={field}
+                options={getUniqueOptions(field)}
+                filters={filters}
+                setFilters={setFilters}
+                sortConfig={sortConfig}
+                setSortConfig={setSortConfig}
+              />
+            ))}
+
             <th className="text-center">Actions</th>
           </tr>
         </thead>
 
-        {/* Body */}
         <tbody>
-          {nonForestData.map((row, index) => (
-            <tr key={index} className="hover">
-              <td>{index + 1}</td>
-              <td>{row.district}</td>
-              <td>{row.riCircle}</td>
-              <td>{row.tahasil}</td>
-              <td>{row.village}</td>
-              <td>{row.khataNo}</td>
-              <td>{row.plotNo}</td>
-              <td>{row.kisam}</td>
-              <td>{row.ownership}</td>
-              <td>{row.totalArea}</td>
-              <td>{row.fra}</td>
-              
-              <td>{row.acquiredArea}</td>
-              <td>{row.remarks}</td>
-
-              {/* Actions */}
-              <td className="text-center">
-                <div className="dropdown dropdown-end">
-                  <label tabIndex={0} className="btn btn-sm btn-outline">
-                    <ChevronDown size={16} />
-                  </label>
-                  <ul
-                    tabIndex={0}
-                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
-                  >
-                    <li><a>View</a></li>
-                    <li><a>Edit</a></li>
-                    <li><a className="text-error">Delete</a></li>
-                  </ul>
-                </div>
+          {filteredAndSortedData.length === 0 ? (
+            <tr>
+              <td colSpan={14} className="text-center py-6">
+                No data found
               </td>
             </tr>
-          ))}
+          ) : (
+            filteredAndSortedData.map((row, index) => (
+              <tr key={row.id ?? index} className="hover">
+                <td>{index + 1}</td>
+                <td>{row.district}</td>
+                <td>{row.ri_circle}</td>
+                <td>{row.tahasil}</td>
+                <td>{row.village}</td>
+                <td>{row.khata_no}</td>
+                <td>{row.plot_no}</td>
+                <td>{row.kisam}</td>
+                <td>{row.ownership}</td>
+                <td>{row.total_area_ha}</td>
+                <td>{row.fra_allotted}</td>
+                <td>{row.proposed_acquired_area_ha}</td>
+                <td>{row.remarks}</td>
+                <td className="text-center">
+                  <div className="dropdown dropdown-end">
+                    <label tabIndex={0} className="btn btn-sm btn-outline">
+                      <ChevronDown size={16} />
+                    </label>
+                    <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
+                      <li>
+                        <button type="button">View</button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => onEdit(row)}
+                        >
+                          Edit
+                        </button>
+                      </li>
+                      <li>
+                        <button type="button" className="text-error">
+                          Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

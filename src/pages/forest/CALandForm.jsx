@@ -1,170 +1,198 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 import { submitLandSchedule } from "../../hooks/useLandScheduleSubmit";
+import { updateLandSchedule } from "../../hooks/UpdateForestLand";
+import { useSelector } from "react-redux";
+import { useSuccessMessage } from "../../hooks/useSuccessMessage";
+import SuccessMessage from "../../shared/SuccessMessage";
 
-const CALandForm = ({ open, onClose }) => {
-  const [formData, setFormData] = useState({});
+const initialState = {
+  district: "",
+  ri_circle: "",
+  tahasil: "",
+  village: "",
+  khata_no: "",
+  plot_no: "",
+  kisam: "",
+  ownership: "",
+  patch_name: "",
+  total_area_ha: "",
+  ca_area_ha:"",
+  forest_division: "",
+  remarks: "",
+};
+
+const CATLandForm = ({ open, onClose, onSuccess, editData }) => {
+  const [formData, setFormData] = useState(initialState);
   const token = useSelector((state) => state.auth.userToken);
+  const { modal, showSuccess, showError, closeModal } =
+    useSuccessMessage();
+
+  const isEdit = Boolean(editData?.id);
+
+  useEffect(() => {
+    if (isEdit) {
+      setFormData({
+        district: editData.district ?? "",
+        ri_circle: editData.ri_circle ?? "",
+        tahasil: editData.tahasil ?? "",
+        village: editData.village ?? "",
+        khata_no: editData.khata_no ?? "",
+        plot_no: editData.plot_no ?? "",
+        kisam: editData.kisam ?? "",
+        ownership: editData.ownership ?? "",
+        patch_name: editData.patch_name ?? "",
+        total_area_ha: editData.total_area_ha ?? "",
+        ca_area_ha:editData.ca_area_ha ?? "",
+        forest_division:editData.forest_division ?? "",
+        remarks: editData.remarks ?? "",
+      });
+    } else {
+      setFormData(initialState);
+    }
+  }, [editData, isEdit]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((p) => ({
-      ...p,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await submitLandSchedule({
+    const apiFn = isEdit ? updateLandSchedule : submitLandSchedule;
+
+    await apiFn({
+      id: isEdit ? editData.id : undefined,
       formData,
       activeTab: "ca",
       token,
       onSuccess: () => {
-        alert("CA Land Added");
+        showSuccess(
+          isEdit
+            ? "CA Land Updated Successfully"
+            : "CA Land Added Successfully"
+        );
+        onSuccess?.();
         onClose();
       },
+      onError: (err) => showError(err?.message || "Error"),
     });
   };
 
   return (
-    <dialog className="modal" open={open}>
-      <div className="modal-box max-w-2xl max-h-130 relative">
-        <h3 className="font-bold text-lg mb-4">Add CA Land Details</h3>
+    <>
+      <dialog className="modal" open={open}>
+        <div className="modal-box max-w-2xl max-h-130 relative">
+          <h3 className="font-semibold text-lg mb-4">
+            {isEdit
+              ? "Edit CA-Land Land Details"
+              : "Add CA-Land Land Details"}
+          </h3>
 
-        {/* Form */}
-        <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="label">District</label>
-            <input
-              name="district"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+          <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
+            {[
+              ["district", "District"],
+              ["ri_circle", "RI Circle"],
+              ["tahasil", "Tahasil"],
+              ["village", "Village"],
+              ["khata_no", "Khata No"],
+              ["plot_no", "Plot No"],
+              ["kisam", "Kisam"],
+              ["ownership", "Ownership"],
+            ].map(([name, label]) => (
+              <div key={name}>
+                <label className="label">{label}</label>
+                <input
+                  name={name}
+                  value={formData[name]}
+                  className="input input-bordered w-full"
+                  onChange={handleChange}
+                />
+              </div>
+            ))}
 
-          <div>
-            <label className="label">RI Circle</label>
-            <input
-              name="ri_circle"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div>
+              <label className="label">Patch Name</label>
+              <input
+                type="text"
+                name="patch_name"
+                value={formData.patch_name}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Tahashil</label>
-            <input
-              name="tahashil"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div>
+              <label className="label">Total Area (ha)</label>
+              <input
+                type="text"
+                name="total_area_ha"
+                value={formData.total_area_ha}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
+              <div>
+              <label className="label">CA Area</label>
+              <input
+                type="text"
+                name="ca_area_ha"
+                value={formData.ca_area_ha}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Village</label>
-            <input
-              name="village"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div>
+              <label className="label">Forest Division</label>
+              <input
+                type="text"
+                name="forest_division"
+                value={formData.forest_division}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Khata No</label>
-            <input
-              name="khata_no"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div className="col-span-2">
+              <label className="label">Remarks</label>
+              <input
+                name="remarks"
+                value={formData.remarks}
+                className="input input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label className="label">Plot No</label>
-            <input
-              name="plot_no"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <div className="modal-action col-span-2 mt-6">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                {isEdit ? "Update" : "Save"}
+              </button>
+            </div>
+          </form>
+        </div>
 
-          <div>
-            <label className="label">Kissam</label>
-            <input
-              name="kisam"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label className="label">Wonership</label>
-            <input
-              name="wonership"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+        <div className="modal-backdrop" onClick={onClose} />
+      </dialog>
 
-          <div>
-            <label className="label">Forest Range/ Divison</label>
-            <input
-              name="forest_range"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label className="label">Patch Name</label>
-            <input
-              name="patch_name"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Total Area (ha)</label>
-            <input
-              type="number"
-              name="total_area"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">CA Area</label>
-            <input
-              type="number"
-              name="ca_area"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="label">Remarks</label>
-            <input
-              name="remarks"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="modal-action col-span-2 mt-6">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
-              Cancel
-            </button>
-
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
-      <div className="modal-backdrop" onClick={onClose}></div>
-    </dialog>
+      {/* Success/Error modal */}
+      {modal && (
+        <SuccessMessage
+          open={modal.open}
+          type={modal.type}
+          message={modal.message}
+          onClose={closeModal}
+        />
+      )}
+    </>
   );
 };
 
-export default CALandForm;
+export default CATLandForm;

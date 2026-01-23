@@ -118,7 +118,7 @@ import { getLandScheduleList } from "../../utils/LandAreaSchedule";
 const SCHEDULE_TYPE_MAP = {
   forest: "FOREST_AREA",
   nonForest: "NON_FOREST_AREA",
-  ca: "CA_LAND", 
+  ca: "CA_LAND",
 };
 
 const LandSchedule = () => {
@@ -126,6 +126,7 @@ const LandSchedule = () => {
 
   const [activeTab, setActiveTab] = useState("forest");
   const [openModal, setOpenModal] = useState(false);
+  const [editData, setEditData] = useState(null);
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -136,7 +137,11 @@ const LandSchedule = () => {
     { key: "ca", label: "CA / ACA Land Schedule" },
   ];
 
-  // 🔹 SINGLE FETCH HANDLER
+  const handleEdit = (row) => {
+    setEditData(row);
+    setOpenModal(true);
+  };
+
   const fetchData = useCallback(async () => {
     if (!token) return;
 
@@ -166,11 +171,11 @@ const LandSchedule = () => {
 
     switch (activeTab) {
       case "forest":
-        return <ForestTable data={data} />;
+        return <ForestTable data={data} onEdit={handleEdit} />;
       case "nonForest":
-        return <NonForestTable data={data} />;
+        return <NonForestTable data={data} onEdit={handleEdit} />;
       case "ca":
-        return <CATable data={data} />;
+        return <CATable data={data} onEdit={handleEdit} />;
       default:
         return null;
     }
@@ -190,10 +195,7 @@ const LandSchedule = () => {
           Land Area Schedule / Land Details
         </h2>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setOpenModal(true)}
-        >
+        <button className="btn btn-primary" onClick={() => setOpenModal(true)}>
           {getAddButtonText()}
         </button>
       </div>
@@ -225,27 +227,58 @@ const LandSchedule = () => {
       </div>
 
       {/* Forms */}
-      {activeTab === "forest" && (
+      {/* {activeTab === "forest" && (
         <ForestLandForm
           open={openModal}
           onClose={() => setOpenModal(false)}
           onSuccess={fetchData}
+        />
+      )} */}
+      {activeTab === "forest" && (
+        <ForestLandForm
+          open={openModal}
+          editData={editData}
+          onClose={() => {
+            setOpenModal(false);
+            setEditData(null);
+          }}
+          onSuccess={() => {
+            fetchData();
+            setEditData(null);
+            setOpenModal(false);
+          }}
         />
       )}
 
       {activeTab === "nonForest" && (
         <NonForestLandForm
           open={openModal}
-          onClose={() => setOpenModal(false)}
-          onSuccess={fetchData}
+          editData={editData}
+          onClose={() => {
+            setOpenModal(false);
+            setEditData(null);
+          }}
+          onSuccess={() => {
+            fetchData();
+            setEditData(null);
+            setOpenModal(false);
+          }}
         />
       )}
 
       {activeTab === "ca" && (
         <CALandForm
           open={openModal}
-          onClose={() => setOpenModal(false)}
-          onSuccess={fetchData}
+          editData={editData}
+          onClose={() => {
+            setOpenModal(false);
+            setEditData(null);
+          }}
+          onSuccess={() => {
+            fetchData();
+            setEditData(null);
+            setOpenModal(false);
+          }}
         />
       )}
     </>

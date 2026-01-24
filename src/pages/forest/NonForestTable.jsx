@@ -1,31 +1,36 @@
 import React, { useState, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import FilterSortHeader from "./FilterSortHeader";
+import { useSelector } from "react-redux";
+import ConfirmDelete from "../../shared/ConfirmDelete";
 
-const NonForestTable = ({ data = [], onEdit }) => {
+const NonForestTable = ({ data = [], onEdit, onDelete }) => {
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     field: null,
     direction: null,
   });
+  const stickyActionHeader =
+    "p-3 text-right bg-gradient-to-r from-[#7A69E1] to-[#7A69E1] text-white md:sticky md:right-0 z-[30] shadow-md";
+  const stickyActionCell =
+    "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
+  const userRole = useSelector((s) => s.auth.user?.role_name);
+  const canEdit = userRole !== "Viewer";
+  const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
-  // 🔹 Utility for dropdown options
   const getUniqueOptions = (field) => {
     return [...new Set(data.map((item) => item[field]).filter(Boolean))];
   };
 
-  // 🔹 Filter + Sort
   const filteredAndSortedData = useMemo(() => {
     let result = [...data];
 
-    // Filters
     Object.entries(filters).forEach(([field, values]) => {
       if (values?.length) {
         result = result.filter((row) => values.includes(row[field]));
       }
     });
 
-    // Sorting
     if (sortConfig.field) {
       result.sort((a, b) => {
         const aVal = a[sortConfig.field];
@@ -46,7 +51,7 @@ const NonForestTable = ({ data = [], onEdit }) => {
       style={{ scrollbarWidth: "thin" }}
     >
       <table className="table w-full">
-       <thead className="bg-gradient-to-r from-[#7A69E1] to-[#4F46E5] text-white text-sm sticky top-0 z-20">
+        <thead className="bg-gradient-to-r from-[#7A69E1] to-[#7A69E1] text-white text-sm sticky top-0 z-20">
           <tr>
             <th>Sl/No</th>
 
@@ -76,7 +81,7 @@ const NonForestTable = ({ data = [], onEdit }) => {
               />
             ))}
 
-            <th className="text-center">Actions</th>
+            <th className={stickyActionHeader}>Actions</th>
           </tr>
         </thead>
 
@@ -103,30 +108,47 @@ const NonForestTable = ({ data = [], onEdit }) => {
                 <td>{row.fra_allotted}</td>
                 <td>{row.proposed_acquired_area_ha}</td>
                 <td>{row.remarks}</td>
-                <td className="text-center">
-                  <div className="dropdown dropdown-end">
-                    <label tabIndex={0} className="btn btn-sm btn-outline">
-                      <ChevronDown size={16} />
-                    </label>
-                    <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
-                      <li>
-                        <button type="button">View</button>
-                      </li>
-                      <li>
-                        <button
-                          type="button"
-                          onClick={() => onEdit(row)}
-                        >
-                          Edit
-                        </button>
-                      </li>
-                      <li>
-                        <button type="button" className="text-error">
-                          Delete
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
+                <td className={stickyActionCell}>
+                  <select
+                    className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                    defaultValue=""
+                    onChange={(e) => {
+                      const action = e.target.value;
+                      e.target.value = "";
+
+                      if (action === "edit" && canEdit) {
+                        onEdit(row);
+                      }
+
+                      if (action === "delete" && canDelete) {
+                        onDelete(row);
+                      }
+                    }}
+                  >
+                    <option value="" disabled>
+                      Actions
+                    </option>
+
+                    <option
+                      value="edit"
+                      disabled={userRole === "Viewer"}
+                      className={`text-md text-gray-700 font-bold ${
+                        userRole === "Viewer" ? "!text-gray-400" : ""
+                      }`}
+                    >
+                      ✏️ Edit
+                    </option>
+
+                    <option
+                      value="delete"
+                      disabled={!canDelete}
+                      className={`text-md text-gray-700 font-bold ${
+                        !canDelete ? "!text-gray-400" : ""
+                      }`}
+                    >
+                      🗑 Delete
+                    </option>
+                  </select>
                 </td>
               </tr>
             ))

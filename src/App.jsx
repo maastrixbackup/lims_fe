@@ -11,6 +11,8 @@ import { fetchProjects, fetchVillages } from "./utils/listSlice";
 import GovernmentPlot from "./pages/government/plot/GovernmentPlot";
 import GovernmentKhata from "./pages/government/khata/GovernmentKhata";
 import LandSchedule from "./pages/forest/LandSchedule";
+import ProjectMasterTable from "./pages/forest/projectmasterdata/ProjectMasterTable";
+import ProjectDetails from "./pages/forest/projectmasterdata/ProjectDetails";
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const ForgotPassword = lazy(
   () => import("./components/features/ForgotPassword"),
@@ -123,6 +125,10 @@ export default function App() {
                 <Route
                   path="/:landType/land-schedule"
                   element={<LandSchedule />}
+                />
+                 <Route
+                  path="/:landType/project-master"
+                  element={<ProjectDetails />}
                 />
                 <Route path="/import" element={<UploadPlots />} />
 

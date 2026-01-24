@@ -340,7 +340,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             <h2 className="text-lg font-semibold mb-4">
               📄 Lease Case Details
             </h2>
-            <div>
+            {/* <div>
               <label className="label">Lease Case No</label>
               <input
                 type="number"
@@ -349,7 +349,32 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
-            </div>
+            </div> */}
+            <div>
+  <label className="label">Lease Case No</label>
+  <input
+    type="text"
+    name="lease_case_no"
+    value={formData.lease_case_no}
+    onChange={(e) => {
+      let val = e.target.value.replace(/\D/g, ""); // remove all non-digits
+
+      // auto-insert "/" after first 2 digits
+      if (val.length > 2) {
+        val = val.slice(0, 2) + "/" + val.slice(2, 6); // limit to 4 digits after "/"
+      }
+
+      setFormData((prev) => ({ ...prev, lease_case_no: val }));
+    }}
+    className="input input-bordered w-full"
+    placeholder="lease case number"
+    pattern="\d{2}/\d{4}"
+    title="Lease Case No must be in format XX/XXXX"
+    required
+    maxLength={7} // 2 digits + "/" + 4 digits = 7 chars
+  />
+</div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
               <div className="col-span-2">
                 <label className="label">Present Status</label>

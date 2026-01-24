@@ -583,33 +583,6 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
               onChange={handleChange}
             />
           </div>
-          <div className="card bg-base-100 shadow-md p-2">
-            <h2 className="text-lg font-semibold mb-3">📏 Land Area Details</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                ["land_area_total_acres", "Total Land Area (Acres)"],
-                ["land_area_total_hectares", "Total Land Area (Hectares)"],
-                ["land_area_acquired_acres", "Acquired Land Area (Acres)"],
-                [
-                  "land_area_acquired_hectares",
-                  "Acquired Land Area (Hectares)",
-                ],
-              ].map(([name, label]) => (
-                <div key={name}>
-                  <label className="label">{label}</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
 
           <div className="card bg-base-100 shadow-md p-2">
             <h2 className="text-lg font-semibold mb-3">
@@ -641,7 +614,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             </div>
           </div>
           <div className="card bg-base-100 shadow-md p-2">
-            <h2 className="text-lg font-semibold mb-3">⚖️ Land Case Details</h2>
+            <h2 className="text-lg font-semibold mb-3">⚖️ Legal Case Details</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

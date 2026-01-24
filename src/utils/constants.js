@@ -796,6 +796,7 @@ export const COMMON_COLUMNS = [
   { label: "Thana", field: "thana_no" },
   // { label: "Recorded Tenant", field: "name_of_recorded_tenant" },
   // { label: "Present Tenant", field: "name_of_present_tenant" },
+  { label: "Case Count", field: "unique_id" },
   { label: "Plot Count", field: "plot_count" },
   { label: "Created At", field: "created_at" },
 ];

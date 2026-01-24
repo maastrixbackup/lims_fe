@@ -142,7 +142,7 @@ const fetchPlotDocuments = async () => {
       setPlots([]);
       fetchPlotDocuments();
     } catch (err) {
-      showError(err.message || "Upload failed");
+      showError("Invalid Excel format. Missing columns: mouza, tahasil, plot no");
     } finally {
       setUploading(false);
     }

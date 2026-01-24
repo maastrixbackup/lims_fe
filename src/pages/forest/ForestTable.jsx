@@ -111,61 +111,31 @@ import React, { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import FilterSortHeader from "./FilterSortHeader";
 
-const forestData = [
-  {
-    district: "Angul",
-    riCircle: "Chhendipada",
-    division: "Angul Forest Division",
-    range: "Handigoda",
-    village: "Sahalia",
-    khataNo: "12",
-    plotNo: "45",
-    kisam: "Jungle",
-    category: "Protected Forest",
-    totalArea: "2.50",
-    acquiredArea: "1.20",
-    remarks: "-",
-  },
-  {
-    district: "Dhenkanal",
-    riCircle: "Chhendipada",
-    division: "Angul Forest Division",
-    range: "Handigoda",
-    village: "Sahalia",
-    khataNo: "12",
-    plotNo: "45",
-    kisam: "Jungle",
-    category: "Protected Forest",
-    totalArea: "2.50",
-    acquiredArea: "1.20",
-    remarks: "-",
-  },
-];
-
-const ForestTable = () => {
-  const getUniqueOptions = (data, field) => {
-    return [...new Set(data.map((item) => item[field]).filter(Boolean))];
-  };
-
+const ForestTable = ({ data = [], onEdit }) => {
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({
     field: null,
     direction: null,
   });
+  
+
+  const getUniqueOptions = (field) => {
+    return [...new Set(data.map((item) => item[field]).filter(Boolean))];
+  };
 
   const filteredAndSortedData = useMemo(() => {
-    let data = [...forestData];
+    let result = [...data];
 
-    // Apply dropdown filters
+
     Object.entries(filters).forEach(([field, values]) => {
       if (values?.length) {
-        data = data.filter((row) => values.includes(row[field]));
+        result = result.filter((row) => values.includes(row[field]));
       }
     });
 
-    // Apply sorting
+
     if (sortConfig.field) {
-      data.sort((a, b) => {
+      result.sort((a, b) => {
         const aVal = a[sortConfig.field];
         const bVal = b[sortConfig.field];
 
@@ -175,20 +145,23 @@ const ForestTable = () => {
       });
     }
 
-    return data;
-  }, [filters, sortConfig]);
+    return result;
+  }, [data, filters, sortConfig]);
 
   return (
-    <div className="overflow-x-auto bg-base-100 shadow">
+    <div
+      className="max-h-[400px] overflow-x-auto bg-base-100 shadow whitesapce-noWrap"
+      style={{ scrollbarWidth: "thin" }}
+    >
       <table className="table w-full">
-        <thead className="bg-primary/70 text-white text-sm">
+       <thead className="bg-gradient-to-r from-[#7A69E1] to-[#4F46E5] text-white text-sm sticky top-0 z-20">
           <tr>
             <th>Sl/No</th>
 
             <FilterSortHeader
               label="District"
               field="district"
-              options={getUniqueOptions(forestData, "district")}
+              options={getUniqueOptions("district")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -197,8 +170,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="RI Circle"
-              field="riCircle"
-               options={getUniqueOptions(forestData, "riCircle")}
+              field="ri_circle"
+              options={getUniqueOptions("ri_circle")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -207,8 +180,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Forest Division"
-              field="division"
-               options={getUniqueOptions(forestData, "division")}
+              field="forest_division"
+              options={getUniqueOptions("forest_division")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -217,8 +190,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Range"
-              field="range"
-               options={getUniqueOptions(forestData, "range")}
+              field="forest_range"
+              options={getUniqueOptions("forest_range")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -228,7 +201,7 @@ const ForestTable = () => {
             <FilterSortHeader
               label="Village"
               field="village"
-               options={getUniqueOptions(forestData, "village")}
+              options={getUniqueOptions("village")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -237,8 +210,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Khata No"
-              field="khataNo"
-               options={getUniqueOptions(forestData, "khataNo")}
+              field="khata_no"
+              options={getUniqueOptions("khata_no")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -247,8 +220,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Plot No"
-              field="plotNo"
-               options={getUniqueOptions(forestData, "plotNo")}
+              field="plot_no"
+              options={getUniqueOptions("plot_no")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -258,7 +231,7 @@ const ForestTable = () => {
             <FilterSortHeader
               label="Kisam"
               field="kisam"
-               options={getUniqueOptions(forestData, "kisam")}
+              options={getUniqueOptions("kisam")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -267,8 +240,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Total Area (ha)"
-              field="totalArea"
-               options={getUniqueOptions(forestData, "totalArea")}
+              field="total_area_ha"
+              options={getUniqueOptions("total_area_ha")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -277,8 +250,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Forest Category"
-              field="category"
-              options={getUniqueOptions(forestData, "category")}
+              field="forest_category_id"
+              options={getUniqueOptions("forest_category_id")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -287,8 +260,8 @@ const ForestTable = () => {
 
             <FilterSortHeader
               label="Proposed Area (ha)"
-              field="acquiredArea"
-               options={getUniqueOptions(forestData, "acquiredArea")}
+              field="proposed_acquired_area_ha"
+              options={getUniqueOptions("proposed_acquired_area_ha")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -298,7 +271,7 @@ const ForestTable = () => {
             <FilterSortHeader
               label="Remarks"
               field="remarks"
-              options={getUniqueOptions(forestData, "remarks")}
+              options={getUniqueOptions("remarks")}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -310,42 +283,50 @@ const ForestTable = () => {
         </thead>
 
         <tbody>
-          {filteredAndSortedData.map((row, index) => (
-            <tr key={index} className="hover">
-              <td>{index + 1}</td>
-              <td>{row.district}</td>
-              <td>{row.riCircle}</td>
-              <td>{row.division}</td>
-              <td>{row.range}</td>
-              <td>{row.village}</td>
-              <td>{row.khataNo}</td>
-              <td>{row.plotNo}</td>
-              <td>{row.kisam}</td>
-              <td>{row.totalArea}</td>
-              <td>{row.category}</td>
-              <td>{row.acquiredArea}</td>
-              <td>{row.remarks}</td>
-
-              <td className="text-center">
-                <div className="dropdown dropdown-end">
-                  <label tabIndex={0} className="btn btn-sm btn-outline">
-                    <ChevronDown size={16} />
-                  </label>
-                  <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
-                    <li>
-                      <a>View</a>
-                    </li>
-                    <li>
-                      <a>Edit</a>
-                    </li>
-                    <li>
-                      <a className="text-error">Delete</a>
-                    </li>
-                  </ul>
-                </div>
+          {filteredAndSortedData.length === 0 ? (
+            <tr>
+              <td colSpan="14" className="text-center py-6">
+                No data found
               </td>
             </tr>
-          ))}
+          ) : (
+            filteredAndSortedData.map((row, index) => (
+              <tr key={row.id} className="hover">
+                <td>{index + 1}</td>
+                <td>{row.district}</td>
+                <td>{row.ri_circle}</td>
+                <td>{row.forest_division}</td>
+                <td>{row.forest_range}</td>
+                <td>{row.village}</td>
+                <td>{row.khata_no}</td>
+                <td>{row.plot_no}</td>
+                <td>{row.kisam}</td>
+                <td>{row.total_area_ha}</td>
+                <td>{row.forest_category_id}</td>
+                <td>{row.proposed_acquired_area_ha}</td>
+                <td>{row.remarks || "-"}</td>
+
+                <td className="text-center">
+                  <div className="dropdown dropdown-end">
+                    <label tabIndex={0} className="btn btn-sm btn-outline">
+                      <ChevronDown size={16} />
+                    </label>
+                    <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
+                      <li>
+                        <button>View</button>
+                      </li>
+                      <li>
+                        <button onClick={() => onEdit(row)}>Edit</button>
+                      </li>
+                      <li>
+                        <button className="text-error">Delete</button>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

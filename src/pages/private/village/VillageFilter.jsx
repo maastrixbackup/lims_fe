@@ -56,7 +56,7 @@ const VillageFilter = ({
             onClick={() =>
               setOpen({ district: !open.district, tahasil: false })
             }
-            className="select select-bordered w-full text-left"
+            className="select select w-full text-left"
           >
             {formData.districts?.length
               ? `${formData.districts.length} District(s) Selected`
@@ -64,8 +64,9 @@ const VillageFilter = ({
           </button>
 
           {open.district && (
-            <div className="absolute z-20 bg-white border rounded-lg shadow-lg w-full max-h-60 overflow-y-auto">
-              <label className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b">
+            <div className="absolute z-20 bg-white  rounded-lg shadow-lg w-full max-h-60 overflow-y-auto">
+             <label className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-300">
+
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -110,7 +111,7 @@ const VillageFilter = ({
         <div className="relative">
           <button
             onClick={() => setOpen({ district: false, tahasil: !open.tahasil })}
-            className="select select-bordered w-full text-left"
+            className="select select w-full text-left"
           >
             {formData.tahasils?.length
               ? `${formData.tahasils.length} Tahasil(s) Selected`
@@ -118,8 +119,9 @@ const VillageFilter = ({
           </button>
 
           {open.tahasil && (
-            <div className="absolute z-20 bg-white border rounded-lg shadow-lg w-full max-h-60 overflow-y-auto">
-             <label className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b">
+            <div className="absolute z-20 bg-white rounded-lg shadow-lg w-full max-h-60 overflow-y-auto">
+             <label className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-300">
+
                 <div className="flex items-center gap-2">
                 <input
                   type="checkbox"

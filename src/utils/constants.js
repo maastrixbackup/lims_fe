@@ -1379,24 +1379,28 @@ export const LegalIssues = [
     headerClass: stickyCol3Header,
   },
   {
-    label: "Legal Issue No",
-    field: "legal_issue_no",
+    label: "Legal Heir Cert No",
+    field: "legal_heir_certificate_no",
   },
   {
-    label: "Court Name",
-    field: "court_name",
+    label: "Land Case No",
+    field: "land_case_no",
   },
   {
-    label: "Case No",
-    field: "case_no",
+    label: "Land Case Date",
+    field: "land_case_date",
   },
   {
-    label: "Case Status",
-    field: "case_status",
+    label: "Land Case Type",
+    field: "land_case_type",
   },
   {
-    label: "Case action",
-    field: "case_action",
+    label: "Land Case Status",
+    field: "land_case_status",
+  },
+  {
+    label: "Land Case Action",
+    field: "land_case_action",
   },
 ];
 

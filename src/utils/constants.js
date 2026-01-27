@@ -756,7 +756,7 @@ export const stickyActionCell =
 export const stickyPaymentHeader =
   "p-3 text-right bg-gray-200 md:sticky md:right-14 z-[30] shadow-md";
 export const stickyPaymentCell =
-  "p-3 text-right md:sticky md:right-14  border-gray-100 shadow-sm text-sm";
+  "p-3 text-center bg-white md:sticky md:right-14  border-gray-100 shadow-sm text-sm";
 
 export const stickyCol1Header =
   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";
@@ -1379,24 +1379,28 @@ export const LegalIssues = [
     headerClass: stickyCol3Header,
   },
   {
-    label: "Legal Issue No",
-    field: "legal_issue_no",
+    label: "Legal Heir Cert No",
+    field: "legal_heir_certificate_no",
   },
   {
-    label: "Court Name",
-    field: "court_name",
+    label: "Land Case No",
+    field: "land_case_no",
   },
   {
-    label: "Case No",
-    field: "case_no",
+    label: "Land Case Date",
+    field: "land_case_date",
   },
   {
-    label: "Case Status",
-    field: "case_status",
+    label: "Land Case Type",
+    field: "land_case_type",
   },
   {
-    label: "Case action",
-    field: "case_action",
+    label: "Land Case Status",
+    field: "land_case_status",
+  },
+  {
+    label: "Land Case Action",
+    field: "land_case_action",
   },
 ];
 

@@ -276,21 +276,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     return d.isValid() ? d.format("DD-MM-YYYY") : "N/A";
   };
 
-  const TableWrapper = ({ title, children }) => (
-    <div className="space-y-2">
-      {/* <h2 className="font-semibold text-gray-800 bg-gray-100 px-4 py-2 shadow-sm">
-        {title}
-      </h2> */}
-      <div
-        className="overflow-x-auto max-h-[400px] overflow-y-auto shadow-md bg-white"
-        style={{ scrollbarWidth: "thin" }}
-      >
-        <table className="min-w-full relative table-fixed whitespace-nowrap">
-          {children}
-        </table>
-      </div>
-    </div>
-  );
+
 
   const rowClass = "hover:bg-gray-50 transition-colors";
   if (noData) {
@@ -477,42 +463,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.kissam_of_land || "N/A"}</td>
                     <td className="p-3">{plot.land_category || "N/A"}</td>
                     <td className="p-3">{plot.lo13_remarks || "N/A"}</td>
-
-                    <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+<td className={stickyPaymentCell}>
+  <div className="relative">
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
+
+
+
+
 
                     <td className={stickyActionCell}>
                       <select
@@ -623,41 +622,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">
                       {plot.displaced_affected_person || "N/A"}
                     </td>
-                    <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+ <td className={stickyPaymentCell}>
+  <div className="relative">
+
+    {/* Invisible select */}
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+
+    {/* Visible badge */}
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -762,41 +775,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.annual_income || "N/A"}</td>
                     <td className="p-3">{plot.skill_acquired || "N/A"}</td>
                     <td className="p-3">{plot.affidavit_details || "N/A"}</td>
-                    <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+               <td className={stickyPaymentCell}>
+  <div className="relative">
+
+    {/* Invisible select */}
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+
+    {/* Visible badge */}
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -903,41 +930,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.land_case_status || "N/A"}</td>
                     <td className="p-3">{plot.land_case_action || "N/A"}</td>
 
-              <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+         <td className={stickyPaymentCell}>
+  <div className="relative">
+
+    {/* Invisible select */}
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+
+    {/* Visible badge */}
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
 
                     <td className={stickyActionCell}>
                       <select
@@ -1072,41 +1113,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.priority_urgency || "N/A"}</td>
                     <td className="p-3">{plot.land_use_plan || "N/A"}</td>
                     <td className="p-3">{plot.la21_remarks || "N/A"}</td>
-                <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+              <td className={stickyPaymentCell}>
+  <div className="relative">
+
+    {/* Invisible select */}
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+
+    {/* Visible badge */}
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -1218,41 +1273,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
 
                     <td className="p-3">{plot.abatement || "N/A"}</td>
-                   <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+            <td className={stickyPaymentCell}>
+  <div className="relative">
+
+    {/* Invisible select */}
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+
+    {/* Visible badge */}
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -1362,41 +1431,55 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                         ? "Yes"
                         : ("No" ?? "N/A")}
                     </td>
-                   <td className={stickyPaymentCell}>
-                      <select
-                        value={getPaymentCode(plot) || ""}
-                        disabled={loadingPlotId === plot.id}
-                        onChange={(e) =>
-                          handlePaymentStatusChange(plot, e.target.value)
-                        }
-                        className={`select select-sm bg-gray-100 border border-gray-300 w-[60px]
-      ${
-        getPaymentCode(plot) === "RP"
-          ? "bg-orange-600 text-white"
-          : getPaymentCode(plot) === "PP"
+               <td className={stickyPaymentCell}>
+  <div className="relative">
+
+    {/* Invisible select */}
+    <select
+      value={getPaymentCode(plot) || ""}
+      disabled={loadingPlotId === plot.id}
+      onChange={(e) =>
+        handlePaymentStatusChange(plot, e.target.value)
+      }
+      className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+    >
+      <option value="" disabled></option>
+      <option value="RP">Ready for Payment</option>
+      <option value="PP">Payment Processing</option>
+      <option value="RC">Payment Complete</option>
+    </select>
+
+    {/* Visible badge */}
+    <div
+      className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${
+          getPaymentCode(plot)
+            ? "justify-between"
+            : "justify-center"
+        }
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
             ? "bg-green-700 text-white"
             : getPaymentCode(plot) === "RC"
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-600 border border-gray-300"
-      }
-    `}
-                      >
-                        <option value="" disabled selected></option>
-                        <option value="RP" hidden>
-                          RP
-                        </option>
-                        <option value="PP" hidden>
-                          PP
-                        </option>
-                        <option value="RC" hidden>
-                          RC
-                        </option>
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-600"
+        }
+      `}
+    >
+      {getPaymentCode(plot) ? (
+        <>
+          <span>{getPaymentCode(plot)}</span>
+          <ChevronDown size={12} />
+        </>
+      ) : (
+        <ChevronDown size={14} />
+      )}
+    </div>
 
-                        <option value="RP">Ready for Payment</option>
-                        <option value="PP">Payment Processing</option>
-                        <option value="RC">Payment Complete</option>
-                      </select>
-                    </td>
+  </div>
+</td>
                     {/* <td className={stickyActionCell}>{ActionButtons(plot)}</td> */}
                     <td className={stickyActionCell}>
                       <select

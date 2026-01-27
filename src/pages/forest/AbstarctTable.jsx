@@ -1,59 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { apiClient } from "../../utils/apiClient";
 
 const AbstractTable = () => {
-  const rows = [
-    { label: "Total Forest Land", roR: 0, acquired: 0, digital: 0 },
-    { label: "Total Non-Forest Land", roR: 0, acquired: 0, digital: 0 },
-    {
-      label: "Total Project Area",
-      roR: 0,
-      acquired: 0,
-      digital: 0,
-      isBold: true,
-      bg: "bg-base-200",
-    },
-    { label: "Total CA Land", roR: 0, acquired: 0, digital: 0 },
-    { label: "Total ACA Land", roR: 0, acquired: 0, digital: 0 },
-    { label: "Total Land (Others, If any)", roR: 0, acquired: 0, digital: 0 },
-    {
-      label: "Total Land Under FD Framework",
-      roR: 0,
-      acquired: 0,
-      digital: 0,
-      isBold: true,
-      bg: "bg-lime-400",
-    },
-  ];
+  const token = useSelector((s) => s.auth.userToken);
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedProject?.id || !token) return;
+    fetchAbstract();
+  }, [selectedProject, token]);
+
+  const fetchAbstract = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiClient(
+        `/forestland/forestLandAbstract?project_master_id=${selectedProject.id}`,
+        { method: "GET" },
+      );
+
+      console.log("API RESPONSE:", res);
+
+      const apiRows = res?.data || [];
+
+      setRows(
+        apiRows.map((item) => ({
+          label: item.label,
+          roR: item.total || 0,
+          acquired: item.proposed || 0,
+          digital: item.digital || 0,
+          isBold:
+            item.label === "Total Project Area" ||
+            item.label === "Total Land Under FD Framework",
+
+          bg:
+            item.label === "Total Project Area"
+              ? "bg-base-200"
+              : item.label === "Total Land Under FD Framework"
+                ? "bg-lime-400"
+                : "",
+        })),
+      );
+    } catch (err) {
+      console.error("Abstract API error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="overflow-x-auto bg-base-100 shadow">
-         <h2 className="text-xl font-semibold text-gray-800 mb-4">Abstract</h2>
-      <table className="table w-full">
-        {/* Title */}
-        <thead>
-          <tr className="bg-gray-200 font-semibold">
-            <th>Land Category</th>
-            <th>Total Area - RoR (ha)</th>
-            <th>Proposed / Acquired Area (ha)</th>
-            <th>Digital Area (ha)</th>
-          </tr>
-        </thead>
+    <div className="overflow-x-auto bg-base-100 shadow p-4 rounded-lg">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Abstract</h2>
 
-        {/* Body */}
-        <tbody>
-          {rows.map((row, index) => (
-            <tr
-              key={index}
-              className={`${row.bg || ""} ${row.isBold ? "font-semibold" : ""}`}
-            >
-              <td>{row.label}</td>
-              <td className="text-center">{row.roR}</td>
-              <td className="text-center">{row.acquired}</td>
-              <td className="text-center">{row.digital}</td>
+      {loading ? (
+        <div className="text-center py-6">Loading...</div>
+      ) : (
+        <table className="table w-full">
+          <thead>
+            <tr className="bg-gray-200 font-semibold">
+              <th>Land Category</th>
+              <th className="text-center">Total Area - RoR (ha)</th>
+              <th className="text-center">Proposed / Acquired Area (ha)</th>
+              <th className="text-center">Digital Area (ha)</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center py-4">
+                  No data available
+                </td>
+              </tr>
+            ) : (
+              rows.map((row, index) => (
+                <tr
+                  key={index}
+                  className={`${row.bg} ${row.isBold ? "font-semibold" : ""}`}
+                >
+                  <td>{row.label}</td>
+                  <td className="text-center">{row.roR}</td>
+                  <td className="text-center">{row.acquired}</td>
+                  <td className="text-center">{row.digital}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

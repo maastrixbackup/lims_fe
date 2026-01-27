@@ -22,6 +22,7 @@ const SCHEDULE_TYPE_MAP = {
 
 const LandSchedule = () => {
   const token = useSelector((state) => state.auth.userToken);
+  const selectedProject = useSelector((s) => s.selectedProject.project);
 
   const [activeTab, setActiveTab] = useState("forest");
   const [openModal, setOpenModal] = useState(false);
@@ -44,48 +45,64 @@ const LandSchedule = () => {
     setOpenModal(true);
   };
 
-  const fetchData = useCallback(async () => {
-    if (!token) return;
-
-    setLoading(true);
-    try {
-      const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
-
-      const res = await getLandScheduleList(token, scheduleType);
-
-      setData(res?.data || []);
-    } catch (err) {
-      console.error(err);
-      setData([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, token]);
   const handleDelete = (row) => {
     setDeleteRow(row);
     setShowDeleteModal(true);
   };
 
-const confirmDelete = () => {
-  if (!deleteRow) return;
+  const fetchData = useCallback(async () => {
+    if (!token || !selectedProject?.id) {
+      setData([]);
+      return;
+    }
 
-  deleteForestLand({
-    id: deleteRow.id,
-    activeTab,
-    token,
-    setTableData: setData,
-    onSuccess: () => {
-      setShowDeleteModal(false);
-      setDeleteRow(null);
-    },
-    onError: (err) => {
-      console.error("Delete failed", err);
-    },
-  });
-};
+    setLoading(true);
+    try {
+      const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
+
+      const res = await getLandScheduleList(
+        token,
+        scheduleType,
+        selectedProject
+      );
+
+      setData(res?.data || []);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, token, selectedProject]);
+
+  const confirmDelete = () => {
+    if (!deleteRow) return;
+
+    deleteForestLand({
+      id: deleteRow.id,
+      activeTab,
+      token,
+      selectedProject,
+      setTableData: setData,
+      onSuccess: () => {
+        setShowDeleteModal(false);
+        setDeleteRow(null);
+      },
+      onError: (err) => {
+        console.error("Delete failed", err);
+      },
+    });
+  };
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Reset modal & edit data on tab change
+  useEffect(() => {
+    setOpenModal(false);
+    setEditData(null);
+  }, [activeTab]);
 
   const renderTable = () => {
     if (loading) {
@@ -94,25 +111,11 @@ const confirmDelete = () => {
 
     switch (activeTab) {
       case "forest":
-        return (
-          <ForestTable
-            data={data}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        );
+        return <ForestTable data={data} onEdit={handleEdit} onDelete={handleDelete} />;
       case "nonForest":
-        return (
-          <NonForestTable
-            data={data}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        );
+        return <NonForestTable data={data} onEdit={handleEdit} onDelete={handleDelete} />;
       case "ca":
-        return (
-          <CATable data={data} onEdit={handleEdit} onDelete={handleDelete} />
-        );
+        return <CATable data={data} onEdit={handleEdit} onDelete={handleDelete} />;
       default:
         return null;
     }
@@ -122,6 +125,7 @@ const confirmDelete = () => {
     if (activeTab === "forest") return "Add Forest Land";
     if (activeTab === "nonForest") return "Add Non-Forest Land";
     if (activeTab === "ca") return "Add CA / ACA Land";
+    return "Add Land";
   };
 
   return (
@@ -132,7 +136,11 @@ const confirmDelete = () => {
           Land Area Schedule / Land Details
         </h2>
 
-        <button className="btn btn-primary" onClick={() => setOpenModal(true)}>
+        <button
+          className="btn btn-primary"
+          onClick={() => setOpenModal(true)}
+          disabled={!selectedProject}
+        >
           {getAddButtonText()}
         </button>
       </div>
@@ -162,6 +170,7 @@ const confirmDelete = () => {
         <AbstractTable />
       </div>
 
+      {/* Forms */}
       {activeTab === "forest" && (
         <ForestLandForm
           open={openModal}
@@ -170,11 +179,7 @@ const confirmDelete = () => {
             setOpenModal(false);
             setEditData(null);
           }}
-          onSuccess={() => {
-            fetchData();
-            setEditData(null);
-            setOpenModal(false);
-          }}
+          onSuccess={fetchData}
         />
       )}
 
@@ -186,11 +191,7 @@ const confirmDelete = () => {
             setOpenModal(false);
             setEditData(null);
           }}
-          onSuccess={() => {
-            fetchData();
-            setEditData(null);
-            setOpenModal(false);
-          }}
+          onSuccess={fetchData}
         />
       )}
 
@@ -202,18 +203,15 @@ const confirmDelete = () => {
             setOpenModal(false);
             setEditData(null);
           }}
-          onSuccess={() => {
-            fetchData();
-            setEditData(null);
-            setOpenModal(false);
-          }}
+          onSuccess={fetchData}
         />
       )}
 
+      {/* Delete Confirmation */}
       <ConfirmDelete
         isOpen={showDeleteModal}
         title="Confirm Delete"
-        message={`Are you sure you want to delete "${deleteRow?.id}"?`}
+        message={`Are you sure you want to delete record ID "${deleteRow?.id}"?`}
         onConfirm={confirmDelete}
         onCancel={() => {
           setShowDeleteModal(false);

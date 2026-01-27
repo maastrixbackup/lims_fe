@@ -6,6 +6,7 @@ import SuccessMessage from "../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../hooks/useSuccessMessage";
 
 const initialState = {
+  project_master_id: "",
   district: "",
   ri_circle: "",
   forest_division: "",
@@ -22,16 +23,19 @@ const initialState = {
 
 const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
   const [formData, setFormData] = useState(initialState);
+
   const token = useSelector((state) => state.auth.userToken);
-  const { modal, showSuccess, showError, closeModal } =
-    useSuccessMessage();
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+  const projects = useSelector((s) => s.list.projects || []);
+
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const isEdit = Boolean(editData?.id);
 
-
   useEffect(() => {
-    if (isEdit) {
+    if (isEdit && editData) {
       setFormData({
+        project_master_id: editData.project_master_id || selectedProject?.id || "",
         district: editData.district ?? "",
         ri_circle: editData.ri_circle ?? "",
         forest_division: editData.forest_division ?? "",
@@ -42,14 +46,16 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
         kisam: editData.kisam ?? "",
         forest_category_id: editData.forest_category_id ?? "",
         total_area_ha: editData.total_area_ha ?? "",
-        proposed_acquired_area_ha:
-          editData.proposed_acquired_area_ha ?? "",
+        proposed_acquired_area_ha: editData.proposed_acquired_area_ha ?? "",
         remarks: editData.remarks ?? "",
       });
     } else {
-      setFormData(initialState);
+      setFormData({
+        ...initialState,
+        project_master_id: selectedProject?.id || "",
+      });
     }
-  }, [editData, isEdit]);
+  }, [editData, isEdit, selectedProject]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,26 +65,20 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const apiFn = isEdit
-      ? updateLandSchedule
-      : submitLandSchedule;
+    const apiFn = isEdit ? updateLandSchedule : submitLandSchedule;
 
     await apiFn({
       id: isEdit ? editData.id : undefined,
       formData,
       activeTab: "forest",
       token,
+      selectedProject,
       onSuccess: () => {
-        showSuccess(
-          isEdit
-            ? "Forest Land Updated Successfully"
-            : "Forest Land Added Successfully"
-        );
+        showSuccess(isEdit ? "Forest Land Updated Successfully" : "Forest Land Added Successfully");
         onSuccess?.();
         onClose();
       },
-      onError: (err) =>
-        showError(err?.message || "Something went wrong"),
+      onError: (err) => showError(err?.message || "Something went wrong"),
     });
   };
 
@@ -87,15 +87,27 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
       <dialog className="modal" open={open}>
         <div className="modal-box max-w-2xl">
           <h3 className="font-semibold text-lg mb-4">
-            {isEdit
-              ? "Edit Forest Land Details"
-              : "Add Forest Land Details"}
+            {isEdit ? "Edit Forest Land Details" : "Add Forest Land Details"}
           </h3>
 
-          <form
-            className="grid grid-cols-2 gap-4"
-            onSubmit={handleSubmit}
-          >
+          <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium mb-1">Project Name</label>
+              <select
+                name="project_master_id"
+                value={formData.project_master_id}
+                onChange={handleChange}
+                className="select select-bordered w-full"
+              >
+                <option value="">Select Project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.project_name || p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {[
               ["district", "District"],
               ["ri_circle", "RI Circle"],
@@ -148,9 +160,7 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
             </div>
 
             <div>
-              <label className="label">
-                Proposed / Acquired Area (ha)
-              </label>
+              <label className="label">Proposed / Acquired Area (ha)</label>
               <input
                 type="number"
                 name="proposed_acquired_area_ha"
@@ -171,11 +181,7 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
             </div>
 
             <div className="modal-action col-span-2">
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={onClose}
-              >
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
                 Cancel
               </button>
               <button type="submit" className="btn btn-primary">

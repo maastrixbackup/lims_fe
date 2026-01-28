@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useState , useMemo} from "react";
 import { useSelector } from "react-redux";
+import LevelZeroForm from "./form/LevelZeroForm";
+import Pagination from "../../../shared/Pagination";
+import FilterSortHeader from "../FilterSortHeader";
 
 const Level0PreProposal = () => {
   const rows = [
     {
-        projectId: "fghdfh",
-    stageStatus: "rtyrty",
-    landSchedule: "ryttry",
-    forestLand: "rytrty",
-    gis: "rtyrty",
-    dgps: "rtyrty",
-    verification: "yrrtyt",
-    remarks: "rtytryt",
-    completionDate: "tytyt",
+      projectId: "fghdfh",
+      stageStatus: "rtyrty",
+      landSchedule: "ryttry",
+      forestLand: "rytrty",
+      gis: "rtyrty",
+      dgps: "rtyrty",
+      verification: "yrrtyt",
+      remarks: "rtytryt",
+      completionDate: "tytyt",
     },
   ];
   const [showModal, setShowModal] = useState(false);
@@ -23,31 +26,41 @@ const Level0PreProposal = () => {
   const userRole = useSelector((s) => s.auth.user?.role_name);
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
-  const [form, setForm] = useState({
-    projectId: "",
-    stageStatus: "",
-    landSchedule: "",
-    forestLand: "",
-    gis: "",
-    dgps: "",
-    verification: "",
-    remarks: "",
-    completionDate: "",
-  });
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = () => {
-    setRows([...rows, form]);
-    setForm({});
-    setShowModal(false);
-  };
+  const [filters, setFilters] = useState({});
+    const [sortConfig, setSortConfig] = useState({
+      field: null,
+      direction: null,
+    });
+   const getUniqueOptions = (field) => {
+      return [...new Set(rows.map((item) => item[field]).filter(Boolean))];
+    };
+  
+    const filteredAndSortedData = useMemo(() => {
+      let result = [...rows];
+  
+      Object.entries(filters).forEach(([field, values]) => {
+        if (values?.length) {
+          result = result.filter((row) => values.includes(row[field]));
+        }
+      });
+  
+      if (sortConfig.field) {
+        result.sort((a, b) => {
+          const aVal = a[sortConfig.field];
+          const bVal = b[sortConfig.field];
+  
+          if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+          if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
+  
+      return result;
+    }, [rows,filters, sortConfig]);
+  
 
   return (
-    <div className="p-4">
-      {/* Header + Add Button */}
+    <div>
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-bold">LEVEL - 0 PRE PROPOSAL</h2>
         <button
@@ -57,24 +70,104 @@ const Level0PreProposal = () => {
           + Add Level 0
         </button>
       </div>
-
-      {/* Table */}
       <div className="overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
         <table className="table table-sm w-full">
-          <thead className="bg-gray-500 text-white text-sm sticky top-0 z-20">
-            <tr>
-              <th>Project ID</th>
-              <th>Stage Status</th>
-              <th>Land Schedule</th>
-              <th>Forest Land</th>
-              <th>Preliminary GIS</th>
-              <th>DGPS Planned</th>
-              <th>Internal Verification</th>
-              <th>Remarks</th>
-              <th>Completion Date</th>
-              <th className={stickyActionHeader}>Action</th>
-            </tr>
-          </thead>
+    <thead className="bg-gray-500 text-white text-sm sticky top-0 z-20">
+  <tr>
+    <FilterSortHeader
+      label="Project ID"
+      field="projectId"
+      options={getUniqueOptions("projectId")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Stage Status"
+      field="stageStatus"
+      options={getUniqueOptions("stageStatus")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Land Schedule"
+      field="landSchedule"
+      options={getUniqueOptions("landSchedule")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Forest Land"
+      field="forestLand"
+      options={getUniqueOptions("forestLand")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Preliminary GIS"
+      field="gis"
+      options={getUniqueOptions("gis")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="DGPS Planned"
+      field="dgps"
+      options={getUniqueOptions("dgps")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Internal Verification"
+      field="verification"
+      options={getUniqueOptions("verification")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Remarks"
+      field="remarks"
+      options={getUniqueOptions("remarks")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <FilterSortHeader
+      label="Completion Date"
+      field="completionDate"
+      options={getUniqueOptions("completionDate")}
+      filters={filters}
+      setFilters={setFilters}
+      sortConfig={sortConfig}
+      setSortConfig={setSortConfig}
+    />
+
+    <th className={stickyActionHeader}>Action</th>
+  </tr>
+</thead>
+
 
           <tbody>
             {rows.length === 0 && (
@@ -85,7 +178,7 @@ const Level0PreProposal = () => {
               </tr>
             )}
 
-            {rows.map((r, i) => (
+           {filteredAndSortedData.map((r, i) => (
               <tr key={i}>
                 <td>{r.projectId}</td>
                 <td>{r.stageStatus}</td>
@@ -142,77 +235,11 @@ const Level0PreProposal = () => {
             ))}
           </tbody>
         </table>
+        {/* <Pagination 
+        
+        /> */}
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <dialog className="modal modal-open">
-          <div className="modal-box max-w-2xl">
-            <h3 className="font-bold mb-3">Add Level-0 Details</h3>
-
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                className="input input-bordered"
-                placeholder="Project ID"
-                name="projectId"
-                onChange={handleChange}
-              />
-
-              <input
-                className="input input-bordered"
-                placeholder="Stage Status"
-                name="stageStatus"
-                onChange={handleChange}
-              />
-
-              {[
-                "landSchedule",
-                "forestLand",
-                "gis",
-                "dgps",
-                "verification",
-              ].map((f) => (
-                <select
-                  key={f}
-                  name={f}
-                  className="select select-bordered"
-                  onChange={handleChange}
-                >
-                  <option value="">Select</option>
-                  <option>Yes</option>
-                  <option>No</option>
-                </select>
-              ))}
-
-              <textarea
-                className="textarea textarea-bordered col-span-2"
-                placeholder="Remarks"
-                name="remarks"
-                onChange={handleChange}
-              />
-
-              <input
-                type="date"
-                className="input input-bordered col-span-2"
-                name="completionDate"
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="modal-action">
-              <button className="btn btn-success btn-sm" onClick={handleSubmit}>
-                Save
-              </button>
-              <button
-                className="btn btn-sm"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </dialog>
-      )}
+      {showModal && <LevelZeroForm setShowModal={setShowModal} />}
     </div>
   );
 };

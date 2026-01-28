@@ -1,112 +1,3 @@
-// import React from "react";
-// import { ChevronDown } from "lucide-react";
-
-// const forestData = [
-//   {
-//     district: "Angul",
-//     riCircle: "Chhendipada",
-//     division: "Angul Forest Division",
-//     range: "Handigoda",
-//     village: "Sahalia",
-//     khataNo: "12",
-//     plotNo: "45",
-//     kisam: "Jungle",
-//     category: "Protected Forest",
-//     totalArea: "2.50",
-//     acquiredArea: "1.20",
-//     remarks: "-",
-//   },
-//   {
-//     district: "Dhenkanal",
-//     riCircle: "Chhendipada",
-//     division: "Angul Forest Division",
-//     range: "Handigoda",
-//     village: "Sahalia",
-//     khataNo: "12",
-//     plotNo: "45",
-//     kisam: "Jungle",
-//     category: "Protected Forest",
-//     totalArea: "2.50",
-//     acquiredArea: "1.20",
-//     remarks: "-",
-//   },
-// ];
-
-// const ForestTable = () => {
-//   return (
-//     <div
-//       className="overflow-x-auto bg-base-100 shadow"
-//       style={{ scrollbarWidth: "thin" }}
-//     >
-//       <table className="table w-full">
-//         <thead className="font-semibold bg-primary/70 text-white">
-//           <tr>
-//             <th>Sl/No</th>
-//             <th>District</th>
-//             <th>RI Circle</th>
-//             <th>Forest Division</th>
-//             <th>Range</th>
-//             <th>Village</th>
-//             <th>Khata No</th>
-//             <th>Plot No</th>
-//             <th>Kisam</th>
-//             <th>Total Area (ha)</th>
-//             <th>Forest Category</th>
-//             <th>Proposed / Acquired Area (ha)</th>
-//             <th>Remarks</th>
-//             <th className="text-center">Actions</th>
-//           </tr>
-//         </thead>
-
-//         {/* Body */}
-//         <tbody>
-//           {forestData.map((row, index) => (
-//             <tr key={index} className="hover">
-//               <td>{index + 1}</td>
-//               <td>{row.district}</td>
-//               <td>{row.riCircle}</td>
-//               <td>{row.division}</td>
-//               <td>{row.range}</td>
-//               <td>{row.village}</td>
-//               <td>{row.khataNo}</td>
-//               <td>{row.plotNo}</td>
-//               <td>{row.kisam}</td>
-//               <td>{row.totalArea}</td>
-//               <td>{row.category}</td>
-//               <td>{row.acquiredArea}</td>
-//               <td>{row.remarks}</td>
-
-//               {/* Actions */}
-//               <td className="text-center">
-//                 <div className="dropdown dropdown-end">
-//                   <label tabIndex={0} className="btn btn-sm btn-outline">
-//                     <ChevronDown size={16} />
-//                   </label>
-//                   <ul
-//                     tabIndex={0}
-//                     className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
-//                   >
-//                     <li>
-//                       <a>View</a>
-//                     </li>
-//                     <li>
-//                       <a>Edit</a>
-//                     </li>
-//                     <li>
-//                       <a className="text-error">Delete</a>
-//                     </li>
-//                   </ul>
-//                 </div>
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default ForestTable;
 import React, { useMemo, useState } from "react";
 import FilterSortHeader from "./FilterSortHeader";
 import { useSelector } from "react-redux";
@@ -117,30 +8,64 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
     field: null,
     direction: null,
   });
+
   const stickyActionHeader =
     "p-3 text-right bg-gradient-to-r from-[#7A69E1] to-[#7A69E1] text-white md:sticky md:right-0 z-[30] shadow-md";
   const stickyActionCell =
     "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
+
   const userRole = useSelector((s) => s.auth.user?.role_name);
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
+
+  // Forest Category Mapping
+  const mapForestCategory = {
+    1: "Revenue Forest",
+    2: "Reserved Forest",
+    3: "Proposed Reserved Forest",
+    4: "Protected Forest",
+    5: "Sabik Forest",
+    6: "DLC Forest",
+    7: "Others Forest",
+  };
+
+  // Get unique options for filter dropdowns
   const getUniqueOptions = (field) => {
+    if (field === "forest_category_id") {
+      return [...new Set(data.map((item) => item[field]).filter(Boolean))].map(
+        (id) => ({
+          value: id,
+          label: mapForestCategory[id],
+        })
+      );
+    }
     return [...new Set(data.map((item) => item[field]).filter(Boolean))];
   };
 
+  // Filter and Sort data
   const filteredAndSortedData = useMemo(() => {
     let result = [...data];
 
     Object.entries(filters).forEach(([field, values]) => {
       if (values?.length) {
-        result = result.filter((row) => values.includes(row[field]));
+        result = result.filter((row) =>
+          field === "forest_category_id"
+            ? values.includes(mapForestCategory[row[field]])
+            : values.includes(row[field])
+        );
       }
     });
 
     if (sortConfig.field) {
       result.sort((a, b) => {
-        const aVal = a[sortConfig.field];
-        const bVal = b[sortConfig.field];
+        const aVal =
+          sortConfig.field === "forest_category_id"
+            ? mapForestCategory[a[sortConfig.field]]
+            : a[sortConfig.field];
+        const bVal =
+          sortConfig.field === "forest_category_id"
+            ? mapForestCategory[b[sortConfig.field]]
+            : b[sortConfig.field];
 
         if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
         if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
@@ -153,7 +78,7 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
 
   return (
     <div
-      className="max-h-[400px] overflow-x-auto bg-base-100 shadow whitesapce-noWrap"
+      className="max-h-[400px] overflow-x-auto bg-base-100 shadow whitespace-nowrap"
       style={{ scrollbarWidth: "thin" }}
     >
       <table className="table w-full">
@@ -254,7 +179,9 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
             <FilterSortHeader
               label="Forest Category"
               field="forest_category_id"
-              options={getUniqueOptions("forest_category_id")}
+              options={getUniqueOptions("forest_category_id").map(
+                (opt) => opt.label
+              )}
               filters={filters}
               setFilters={setFilters}
               sortConfig={sortConfig}
@@ -296,18 +223,18 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
             filteredAndSortedData.map((row, index) => (
               <tr key={row.id} className="hover">
                 <td>{index + 1}</td>
-                <td>{row.district}</td>
-                <td>{row.ri_circle}</td>
-                <td>{row.forest_division}</td>
-                <td>{row.forest_range}</td>
-                <td>{row.village}</td>
-                <td>{row.khata_no}</td>
-                <td>{row.plot_no}</td>
-                <td>{row.kisam}</td>
-                <td>{row.total_area_ha}</td>
-                <td>{row.forest_category_id}</td>
+                <td>{row.district || "No Data"}</td>
+                <td>{row.ri_circle || "No Data"}</td>
+                <td>{row.forest_division || "No Data"}</td>
+                <td>{row.forest_range || "No Data"}</td>
+                <td>{row.village || "No Data"}</td>
+                <td>{row.khata_no || "No Data"}</td>
+                <td>{row.plot_no || "No Data"}</td>
+                <td>{row.kisam || "No Data"}</td>
+                <td>{row.total_area_ha || "No Data"}</td>
+                <td>{mapForestCategory[row.forest_category_id] || "No Data"}</td>
                 <td>{row.proposed_acquired_area_ha}</td>
-                <td>{row.remarks || "-"}</td>
+                <td>{row.remarks || "No Data"}</td>
                 <td className={stickyActionCell}>
                   <select
                     className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -316,13 +243,8 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
                       const action = e.target.value;
                       e.target.value = "";
 
-                      if (action === "edit" && canEdit) {
-                        onEdit(row);
-                      }
-
-                      if (action === "delete" && canDelete) {
-                        onDelete(row);
-                      }
+                      if (action === "edit" && canEdit) onEdit(row);
+                      if (action === "delete" && canDelete) onDelete(row);
                     }}
                   >
                     <option value="" disabled>

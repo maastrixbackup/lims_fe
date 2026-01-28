@@ -98,7 +98,6 @@ const LandSchedule = () => {
     fetchData();
   }, [fetchData]);
 
-  // Reset modal & edit data on tab change
   useEffect(() => {
     setOpenModal(false);
     setEditData(null);

@@ -348,11 +348,11 @@ const Plots = () => {
         {selectedProjectId && filteredPlots.length > 0 && (
           <PlotTabs>
             <div
-              className="overflow-x-auto max-h-[400px] overflow-y-auto"
+              className=" max-h-[400px] overflow-y-auto"
               style={{ scrollbarWidth: "thin" }}
             >
               <table
-                className="table w-full whitespace-nowrap"
+                className="table w-full whitespace-nowrap overflow-x-auto"
                 title="Basic Details"
               >
                 <thead className="bg-gray-200 sticky top-0 z-10">
@@ -361,7 +361,7 @@ const Plots = () => {
                     <th className={stickyCol1Header}>
                       <FilterHeader
                         column={GovernmentPlotFields.find(
-                          (c) => c.key === "khataNo",
+                          (c) => c.key === "khata_no",
                         )}
                         filters={filters}
                         setFilters={setFilters}
@@ -377,7 +377,7 @@ const Plots = () => {
                     <th className={stickyCol2Header}>
                       <FilterHeader
                         column={GovernmentPlotFields.find(
-                          (c) => c.key === "plotNo",
+                          (c) => c.key === "plot_no",
                         )}
                         filters={filters}
                         setFilters={setFilters}
@@ -390,7 +390,7 @@ const Plots = () => {
                     </th>
 
                     {GovernmentPlotFields.filter(
-                      (c) => !["khataNo", "plotNo"].includes(c.key),
+                      (c) => !["khata_no", "plot_no"].includes(c.key),
                     ).map((col) => (
                       <th key={col.key}>
                         <FilterHeader

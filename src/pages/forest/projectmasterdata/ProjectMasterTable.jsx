@@ -1,57 +1,21 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import FilterSortHeader from "../FilterSortHeader";
-import { apiClient } from "../../../utils/apiClient";
 
-const ProjectMasterTable = ({ onEdit, onDelete }) => {
-  const selectedProject = useSelector((s) => s.selectedProject.project);
+const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
   const userRole = useSelector((s) => s.auth.user?.role_name);
 
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({});
-  const [sortConfig, setSortConfig] = useState({ field: null, direction: null });
+  const [filters, setFilters] = React.useState({});
+  const [sortConfig, setSortConfig] = React.useState({ field: null, direction: null });
 
   const stickyActionHeader =
     "p-3 text-right bg-[#7A69E1] text-white md:sticky md:right-0 z-[30] shadow-md";
 
   const stickyActionCell =
     "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
-
-  useEffect(() => {
-    if (!selectedProject?.id) return;
-    fetchProjects();
-  }, [selectedProject?.id]);
-
- const fetchProjects = async () => {
-  try {
-    setLoading(true);
-
-    const res = await apiClient(
-      `/forestland/forestProjectList?project_id=${selectedProject.id}`,
-      { method: "GET" }
-    );
-
-    console.log("API RESPONSE:", res);
-
-    const apiData = res?.data?.data?.data || res?.data?.data;
-
-    // backend returns:
-    // { total, totalPages, data: [...] }
-
-    setProjects(Array.isArray(apiData) ? apiData : []);
-
-  } catch (err) {
-    console.error("Failed to load projects", err);
-    setProjects([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
 
   const getUniqueOptions = (field) =>
     [...new Set(projects.map((i) => i?.[field]).filter(Boolean))];
@@ -86,7 +50,7 @@ const ProjectMasterTable = ({ onEdit, onDelete }) => {
   if (loading) return <p className="p-4">Loading...</p>;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
       <table className="table table-sm w-full">
         <thead className="bg-[#7A69E1] text-white sticky top-0 z-20">
           <tr>
@@ -135,21 +99,21 @@ const ProjectMasterTable = ({ onEdit, onDelete }) => {
           {filteredAndSortedData.map((row) => (
             <tr key={row.id}>
               <td>{row.id}</td>
-              <td>{row.proposal_no || "—"}</td>
-              <td>{row.project_name || "—"}</td>
-              <td>{row.user_agency || "—"}</td>
-              <td>{row.sector || "—"}</td>
-              <td>{row.state || "—"}</td>
-              <td>{row.district || "—"}</td>
-              <td>{row.tahasil || "—"}</td>
-              <td>{row.mouza || "—"}</td>
-              <td>{row.range_division || "—"}</td>
-              <td>{row.forest_type || "—"}</td>
-              <td>{row.total_project_area_ha}</td>
-              <td>{row.forest_area_ha}</td>
-              <td>{row.non_forest_area_ha}</td>
-              <td>{row.project_status || "—"}</td>
-              <td>{row.current_stage || "—"}</td>
+              <td>{row.proposal_no || "No Data"}</td>
+              <td>{row.project_name || "No Data"}</td>
+              <td>{row.user_agency || "No Data"}</td>
+              <td>{row.sector || "No Data"}</td>
+              <td>{row.state || "No Data"}</td>
+              <td>{row.district || "No Data"}</td>
+              <td>{row.tahasil || "No Data"}</td>
+              <td>{row.mouza || "No Data"}</td>
+              <td>{row.range_division || "No Data"}</td>
+              <td>{row.forest_type || "No Data"}</td>
+              <td>{row.total_project_area_ha || "No Data"}</td>
+              <td>{row.forest_area_ha || "No Data"}</td>
+              <td>{row.non_forest_area_ha || "No Data"}</td>
+              <td>{row.project_status || "No Data"}</td>
+              <td>{row.current_stage || "No Data"}</td>
               <td>{Number(row.eds_flag) === 1 ? "Yes" : "No"}</td>
 
               <td>
@@ -163,13 +127,13 @@ const ProjectMasterTable = ({ onEdit, onDelete }) => {
                     View
                   </a>
                 ) : (
-                  "—"
+                  "No Data"
                 )}
               </td>
 
               <td className={stickyActionCell}>
                 <select
-                  className="select select-sm bg-gray-100"
+                  className="select select-sm bg-gray-100 w-[42px]"
                   defaultValue=""
                   onChange={(e) => {
                     const action = e.target.value;

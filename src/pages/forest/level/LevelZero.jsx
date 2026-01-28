@@ -46,8 +46,7 @@ const Level0PreProposal = () => {
   };
 
   return (
-    <div className="p-4">
-      {/* Header + Add Button */}
+    <div >
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-bold">LEVEL - 0 PRE PROPOSAL</h2>
         <button
@@ -57,8 +56,6 @@ const Level0PreProposal = () => {
           + Add Level 0
         </button>
       </div>
-
-      {/* Table */}
       <div className="overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
         <table className="table table-sm w-full">
           <thead className="bg-gray-500 text-white text-sm sticky top-0 z-20">
@@ -143,8 +140,6 @@ const Level0PreProposal = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Modal */}
       {showModal && (
         <dialog className="modal modal-open">
           <div className="modal-box max-w-2xl">

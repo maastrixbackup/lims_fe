@@ -40,7 +40,7 @@ const Level3Stage2Compliance = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
 
       <div className="flex justify-between mb-3">
         <h2 className="font-bold text-lg">LEVEL – 3 : STAGE II COMPLIANCE DETAILS</h2>

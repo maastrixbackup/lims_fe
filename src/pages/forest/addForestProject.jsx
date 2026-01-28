@@ -1,13 +1,36 @@
 import { API_BASE_URL } from "../../utils/config";
 
-export const addForestProject = async ({ formData, onSuccess, onError,token,  selectedProject, }) => {
+export const addForestProject = async ({
+  formData,
+  token,
+  selectedProject,
+  onSuccess,
+  onError,
+}) => {
   try {
     const payload = new FormData();
+    const projectId = formData.project_id || selectedProject?.id;
 
-    payload.append("project_id", 1);
+    const projectName =
+      formData.project_name ||
+      selectedProject?.project_name ||   // ✅ FIXED
+      selectedProject?.name ||           // fallback
+      "";
+
+    if (!projectId || !projectName) {
+      throw { message: "Project ID or Project Name missing" };
+    }
+
+    payload.append("project_id", projectId);
+    payload.append("project_name", projectName);
 
     Object.keys(formData).forEach((key) => {
-      if (formData[key] !== null && formData[key] !== "") {
+      if (
+        key !== "project_id" &&
+        key !== "project_name" &&
+        formData[key] !== null &&
+        formData[key] !== ""
+      ) {
         payload.append(key, formData[key]);
       }
     });
@@ -17,8 +40,7 @@ export const addForestProject = async ({ formData, onSuccess, onError,token,  se
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, //
-        
+          Authorization: `Bearer ${token}`,
         },
         body: payload,
       }

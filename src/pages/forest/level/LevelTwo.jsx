@@ -39,7 +39,7 @@ const Level2Stage1Approval = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
 
       {/* Header */}
       <div className="flex justify-between mb-3">

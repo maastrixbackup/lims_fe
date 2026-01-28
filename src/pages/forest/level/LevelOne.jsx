@@ -65,7 +65,7 @@ const Level1FDProposal = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
       <div className="flex justify-between mb-3">
         <h2 className="font-bold text-lg">LEVEL – 1 FD PROPOSAL</h2>
         <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>

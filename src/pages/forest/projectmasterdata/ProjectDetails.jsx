@@ -2,28 +2,34 @@ import React, { useState, useEffect } from "react";
 import ProjectMasterTable from "./ProjectMasterTable";
 import ProjectMasterForm from "./ProjectMasterForm";
 import LevelTab from "../level/LevelTab";
-import { apiClient } from "../../../utils/apiClient"; // make sure path is correct
+import { apiClient } from "../../../utils/apiClient";
 import { useSelector } from "react-redux";
+import Pagination from "../../../shared/Pagination";
 
 const ProjectDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editRow, setEditRow] = useState(null);
+
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
 
-  // Fetch projects function
   const fetchProjects = async () => {
     if (!selectedProject?.id) return;
+
     try {
       setLoading(true);
+
       const res = await apiClient(
-        `/forestland/forestProjectList?project_id=${selectedProject.id}`,
-        { method: "GET" }
+        `/forestland/forestProjectList?project_id=${selectedProject.id}&page=${page}&limit=${limit}`
       );
 
-      const apiData = res?.data?.data || res?.data || [];
-      setProjects(Array.isArray(apiData) ? apiData : []);
+      setProjects(res?.data || []);
+      setTotalPages(res?.totalPages || 1);
     } catch (err) {
       console.error(err);
       setProjects([]);
@@ -33,17 +39,29 @@ const ProjectDetails = () => {
   };
 
   useEffect(() => {
-    fetchProjects();
+    setPage(1);
   }, [selectedProject?.id]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [selectedProject?.id, page]);
+
+  const handleEdit = (row) => {
+    setEditRow(row);     
+    setIsModalOpen(true); 
+  };
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between">
         <h2 className="text-xl font-semibold">Project Master Data Details</h2>
 
         <button
           className="btn btn-primary btn-sm"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditRow(null);  
+            setIsModalOpen(true);
+          }}
         >
           + Add Master Data
         </button>
@@ -52,13 +70,23 @@ const ProjectDetails = () => {
       <ProjectMasterTable
         projects={projects}
         loading={loading}
-        fetchProjects={fetchProjects}
+        onEdit={handleEdit} 
+      />
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
       />
 
       {isModalOpen && (
         <ProjectMasterForm
-          onClose={() => setIsModalOpen(false)}
-          fetchProjects={fetchProjects} // <-- now this works
+          editData={editRow}   
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditRow(null);
+          }}
+          fetchProjects={fetchProjects}
         />
       )}
 

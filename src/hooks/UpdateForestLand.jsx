@@ -11,7 +11,7 @@ export const updateLandSchedule = async ({
   formData,
   activeTab,
   token,
-  selectedProject,   // 👈 receive from caller
+  selectedProject,  
   onSuccess,
   onError,
 }) => {
@@ -42,14 +42,12 @@ export const updateLandSchedule = async ({
       remarks: formData.remarks,
     };
 
-    // 🌲 Forest specific
     if (activeTab === "forest") {
       payload.forest_division = formData.forest_division;
       payload.forest_range = formData.forest_range;
       payload.forest_category_id = formData.forest_category_id;
     }
 
-    // 🌱 CA specific
     if (activeTab === "ca") {
       payload.ca_area_ha = Number(formData.ca_area_ha || 0);
       payload.patch_name = formData.patch_name;

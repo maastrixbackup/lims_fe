@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { addForestProject } from "../addForestProject";
+import { updateForestProject } from "../../../hooks/updateForestProject";
 
-const ProjectMasterForm = ({ onClose, fetchProjects }) => {
+const ProjectMasterForm = ({ onClose, fetchProjects, editData }) => {
   const token = useSelector((state) => state.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((s) => s.list.projects || []);
@@ -27,6 +28,15 @@ const ProjectMasterForm = ({ onClose, fetchProjects }) => {
     eds_flag: 0,
     eds_document: null,
   };
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        ...initialFormData,
+        ...editData,
+        eds_flag: Number(editData.eds_flag || 0),
+      });
+    }
+  }, [editData]);
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -35,7 +45,8 @@ const ProjectMasterForm = ({ onClose, fetchProjects }) => {
       setFormData((prev) => ({
         ...prev,
         project_id: selectedProject.id,
-        project_name: selectedProject.project_name || selectedProject.name || "",
+        project_name:
+          selectedProject.project_name || selectedProject.name || "",
       }));
     }
   }, [selectedProject]);
@@ -61,33 +72,49 @@ const ProjectMasterForm = ({ onClose, fetchProjects }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    await addForestProject({
+  if (editData) {
+    await updateForestProject({
+      id: editData.id,
       formData,
       token,
-      selectedProject,
       onSuccess: () => {
-        alert("Project added successfully!");
+        alert("Project updated successfully!");
         onClose();
-        setFormData({
-          ...initialFormData,
-          project_id: selectedProject?.id || "",
-          project_name: selectedProject?.project_name || selectedProject?.name || "",
-        });
-            fetchProjects()
+        fetchProjects();
       },
       onError: (err) => {
-        alert(err?.message || "Error adding project");
-        console.error(err);
+        alert(err?.message || "Error updating project");
       },
     });
-  };
+
+    return;
+  }
+
+  // CREATE
+  await addForestProject({
+    formData,
+    token,
+    selectedProject,
+    onSuccess: () => {
+      alert("Project added successfully!");
+      onClose();
+      fetchProjects();
+    },
+    onError: (err) => {
+      alert(err?.message || "Error adding project");
+    },
+  });
+};
+
   return (
     <div className="modal modal-open">
       <div className="modal-box w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-bold mb-4">Add Forest Project</h3>
+        <h3 className="text-lg font-bold mb-4">
+          {editData ? "Edit Forest Project" : "Add Forest Project"}
+        </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -109,7 +136,11 @@ const ProjectMasterForm = ({ onClose, fetchProjects }) => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { name: "proposal_no", placeholder: "Proposal No", required: true },
+              {
+                name: "proposal_no",
+                placeholder: "Proposal No",
+                required: true,
+              },
               { name: "user_agency", placeholder: "User Agency" },
               { name: "sector", placeholder: "Sector" },
               { name: "state", placeholder: "State" },
@@ -118,9 +149,21 @@ const ProjectMasterForm = ({ onClose, fetchProjects }) => {
               { name: "mouza", placeholder: "Mouza" },
               { name: "range_division", placeholder: "Range / Division" },
               { name: "forest_type", placeholder: "Forest Type" },
-              { name: "total_project_area_ha", placeholder: "Total Area", type: "number" },
-              { name: "forest_area_ha", placeholder: "Forest Area", type: "number" },
-              { name: "non_forest_area_ha", placeholder: "Non Forest Area", type: "number" },
+              {
+                name: "total_project_area_ha",
+                placeholder: "Total Area",
+                type: "number",
+              },
+              {
+                name: "forest_area_ha",
+                placeholder: "Forest Area",
+                type: "number",
+              },
+              {
+                name: "non_forest_area_ha",
+                placeholder: "Non Forest Area",
+                type: "number",
+              },
               { name: "project_status", placeholder: "Project Status" },
               { name: "current_stage", placeholder: "Current Stage" },
             ].map((field) => (
@@ -170,12 +213,8 @@ const ProjectMasterForm = ({ onClose, fetchProjects }) => {
             <button type="button" onClick={onClose} className="btn">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={!formData.project_id}
-            >
-              Save
+            <button type="submit" className="btn btn-primary">
+              {editData ? "Update" : "Save"}
             </button>
           </div>
         </form>

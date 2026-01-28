@@ -50,7 +50,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
   if (loading) return <p className="p-4">Loading...</p>;
 
   return (
-    <div className="overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
+    <div className="max-h-[400px] overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
       <table className="table table-sm w-full">
         <thead className="bg-[#7A69E1] text-white sticky top-0 z-20">
           <tr>
@@ -117,11 +117,11 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               <td>{Number(row.eds_flag) === 1 ? "Yes" : "No"}</td>
 
               <td>
-                {row.eds_document_path ? (
+                {row.eds_document_url ? (
                   <a
-                    href={row.eds_document_path}
+                    href={row.eds_document_url}
                     target="_blank"
-                    rel="noreferrer"
+                    // rel="noreferrer"
                     className="text-blue-600 underline"
                   >
                     View

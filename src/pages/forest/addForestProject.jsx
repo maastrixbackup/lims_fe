@@ -13,8 +13,8 @@ export const addForestProject = async ({
 
     const projectName =
       formData.project_name ||
-      selectedProject?.project_name ||   // ✅ FIXED
-      selectedProject?.name ||           // fallback
+      selectedProject?.project_name ||   
+      selectedProject?.name ||          
       "";
 
     if (!projectId || !projectName) {

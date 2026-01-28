@@ -7,16 +7,20 @@ const SCHEDULE_TYPE_MAP = {
 };
 
 export const updateLandSchedule = async ({
-  id,            
+  id,
   formData,
   activeTab,
   token,
+  selectedProject,   // 👈 receive from caller
   onSuccess,
   onError,
 }) => {
   try {
+    if (!id) throw new Error("Missing record id");
+    if (!selectedProject?.id) throw new Error("Project not selected");
+
     const payload = {
-      project_master_id: 1,
+      project_master_id: selectedProject.id,
       schedule_type: SCHEDULE_TYPE_MAP[activeTab],
 
       district: formData.district,
@@ -31,27 +35,25 @@ export const updateLandSchedule = async ({
       ownership: formData.ownership,
       fra_allotted: formData.fra_allotted,
 
-      total_area_ha: Number(formData.total_area_ha),
-      proposed_acquired_area_ha: Number(
-        formData.proposed_acquired_area_ha
-      ),
-      digital_area_ha: Number(formData.digital_area_ha),
+      total_area_ha: Number(formData.total_area_ha || 0),
+      proposed_acquired_area_ha: Number(formData.proposed_acquired_area_ha || 0),
+      digital_area_ha: Number(formData.digital_area_ha || 0),
 
       remarks: formData.remarks,
     };
 
-    // 🌲 Forest specific fields
+    // 🌲 Forest specific
     if (activeTab === "forest") {
       payload.forest_division = formData.forest_division;
       payload.forest_range = formData.forest_range;
       payload.forest_category_id = formData.forest_category_id;
     }
 
-    // 🌱 CA specific fields
+    // 🌱 CA specific
     if (activeTab === "ca") {
-      payload.ca_area_ha = Number(formData.ca_area_ha);
+      payload.ca_area_ha = Number(formData.ca_area_ha || 0);
       payload.patch_name = formData.patch_name;
-        payload.forest_division = formData.forest_division;
+      payload.forest_division = formData.forest_division;
       payload.forest_range = formData.forest_range;
     }
 
@@ -60,19 +62,22 @@ export const updateLandSchedule = async ({
       {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       }
     );
 
     const json = await res.json();
-    if (!res.ok) throw json;
+
+    if (!res.ok) {
+      throw new Error(json?.message || "Update failed");
+    }
 
     onSuccess?.(json);
   } catch (err) {
+    console.error("Update error:", err);
     onError?.(err);
   }
 };
-

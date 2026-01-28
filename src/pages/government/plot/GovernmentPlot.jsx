@@ -657,22 +657,22 @@ const Plots = () => {
                         <td>{plot.land_case_no || "no data"}</td>
                         <td>{plot.land_case_date || "no data"}</td>
                         <td>{plot.land_case_type || "no data"}</td>
-                       <td
-  className={`
+                        <td
+                          className={`
  text-gray-700 text-center rounded-full btn btn-xs mt-3
     ${
       plot.land_case_status === "Pending"
         ? "bg-warning/70"
         : plot.land_case_status === "In Progress"
-        ? "bg-blue-200"
-        : plot.land_case_status === "Complete"
-        ? "bg-green-200"
-        : "bg-gray-200"
+          ? "bg-blue-200"
+          : plot.land_case_status === "Complete"
+            ? "bg-green-200"
+            : "bg-gray-200"
     }
   `}
->
-  {plot.land_case_status || "No Data"}
-</td>
+                        >
+                          {plot.land_case_status || "No Data"}
+                        </td>
 
                         <td>{plot.land_case_action || "no data"}</td>
 

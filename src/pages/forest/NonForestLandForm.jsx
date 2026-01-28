@@ -6,6 +6,7 @@ import { useSuccessMessage } from "../../hooks/useSuccessMessage";
 import SuccessMessage from "../../shared/SuccessMessage";
 
 const initialState = {
+   project_master_id: "",
   district: "",
   ri_circle: "",
   tahasil: "",
@@ -23,6 +24,8 @@ const initialState = {
 const NonForestLandForm = ({ open, onClose, onSuccess, editData }) => {
   const [formData, setFormData] = useState(initialState);
   const token = useSelector((state) => state.auth.userToken);
+   const selectedProject = useSelector((s) => s.selectedProject.project);
+    const projects = useSelector((s) => s.list.projects || []);
   const { modal, showSuccess, showError, closeModal } =
     useSuccessMessage();
 
@@ -31,6 +34,7 @@ const NonForestLandForm = ({ open, onClose, onSuccess, editData }) => {
   useEffect(() => {
     if (isEdit) {
       setFormData({
+         project_master_id: editData.project_master_id || selectedProject?.id || "",
         district: editData.district ?? "",
         ri_circle: editData.ri_circle ?? "",
         tahasil: editData.tahasil ?? "",
@@ -45,10 +49,12 @@ const NonForestLandForm = ({ open, onClose, onSuccess, editData }) => {
           editData.proposed_acquired_area_ha ?? "",
         remarks: editData.remarks ?? "",
       });
-    } else {
-      setFormData(initialState);
+    } else {  setFormData({
+        ...initialState,
+        project_master_id: selectedProject?.id || "",
+      });
     }
-  }, [editData, isEdit]);
+  }, [editData, isEdit, selectedProject]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +71,7 @@ const NonForestLandForm = ({ open, onClose, onSuccess, editData }) => {
       formData,
       activeTab: "nonForest",
       token,
+      selectedProject, 
       onSuccess: () => {
         showSuccess(
           isEdit
@@ -89,6 +96,23 @@ const NonForestLandForm = ({ open, onClose, onSuccess, editData }) => {
           </h3>
 
           <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
+            <div>
+             <label className="block text-sm font-medium mb-1">Project Name</label>
+              <select
+                name="project_master_id"
+                value={formData.project_master_id}
+                onChange={handleChange}
+                className="select select-bordered w-full"
+              >
+                <option value="">Select Project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.project_name || p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {[
               ["district", "District"],
               ["ri_circle", "RI Circle"],

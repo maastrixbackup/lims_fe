@@ -10,12 +10,17 @@ export const submitLandSchedule = async ({
   formData,
   activeTab,
   token,
+  selectedProject,  
   onSuccess,
   onError,
 }) => {
   try {
+    if (!selectedProject?.id) {
+      throw new Error("Project not selected");
+    }
+
     const payload = {
-      project_master_id: 1,
+      project_master_id: selectedProject.id,
       schedule_type: SCHEDULE_TYPE_MAP[activeTab],
 
       district: formData.district,
@@ -30,9 +35,9 @@ export const submitLandSchedule = async ({
       ownership: formData.ownership,
       fra_allotted: formData.fra_allotted,
 
-      total_area_ha: Number(formData.total_area_ha),
-      proposed_acquired_area_ha: Number(formData.proposed_acquired_area_ha),
-      digital_area_ha: Number(formData.digital_area_ha),
+      total_area_ha: Number(formData.total_area_ha || 0),
+      proposed_acquired_area_ha: Number(formData.proposed_acquired_area_ha || 0),
+      digital_area_ha: Number(formData.digital_area_ha || 0),
 
       remarks: formData.remarks,
     };
@@ -46,7 +51,7 @@ export const submitLandSchedule = async ({
 
     // CA specific
     if (activeTab === "ca") {
-      payload.ca_area_ha = Number(formData.ca_area_ha);
+      payload.ca_area_ha = Number(formData.ca_area_ha || 0);
       payload.patch_name = formData.patch_name;
     }
 
@@ -65,6 +70,7 @@ export const submitLandSchedule = async ({
 
     onSuccess?.(json);
   } catch (err) {
+    console.error("Submit land schedule error:", err);
     onError?.(err);
   }
 };

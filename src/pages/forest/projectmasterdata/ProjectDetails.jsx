@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ProjectMasterTable from "./ProjectMasterTable";
 import ProjectMasterForm from "./ProjectMasterForm";
+import LevelTab from "../level/LevelTab";
 
 const ProjectDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,14 +19,12 @@ const ProjectDetails = () => {
           + Add Master Data
         </button>
       </div>
-
-      {/* Table */}
       <ProjectMasterTable />
 
-      {/* Modal */}
       {isModalOpen && (
         <ProjectMasterForm onClose={() => setIsModalOpen(false)}/>
       )}
+      <LevelTab />
     </div>
   );
 };

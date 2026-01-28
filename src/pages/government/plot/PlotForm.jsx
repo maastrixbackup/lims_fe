@@ -50,9 +50,9 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
     remarks: editingPlot?.remarks || "",
     // ri_report_attachment: "",
     // tree_enumeration_attachment: "",
-    lease_to_idco_attachment:"",
+    lease_to_idco_attachment: "",
     lease_to_ua_attachment: "",
-    ri_report_attachment:"",
+    ri_report_attachment: "",
     tree_enumeration_attachment: editingPlot?.tree_enumeration_attachment || "",
     land_area_total_acres: editingPlot?.land_area_total_acres || "",
     land_area_total_hectares: editingPlot?.land_area_total_hectares || "",
@@ -220,7 +220,10 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
 
   return (
     <dialog open className="modal modal-open">
-      <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
+      <div
+        className="modal-box max-w-2xl max-h-130 relative"
+        style={{ scrollbarWidth: "thin" }}
+      >
         <button className="absolute right-3 top-3" onClick={close}>
           <X size={20} />
         </button>
@@ -340,40 +343,26 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             <h2 className="text-lg font-semibold mb-4">
               📄 Lease Case Details
             </h2>
-            {/* <div>
+            <div>
               <label className="label">Lease Case No</label>
               <input
-                type="number"
+                type="text"
                 name="lease_case_no"
                 value={formData.lease_case_no}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^A-Za-z0-9/]/g, "");
+                  handleChange({
+                    target: {
+                      name: "lease_case_no",
+                      value,
+                    },
+                  });
+                }}
                 className="input input-bordered w-full"
+                // placeholder="e.g. LC/123/2025"
+                placeholder="e.g. 123/2025"
               />
-            </div> */}
-            <div>
-  <label className="label">Lease Case No</label>
-  <input
-    type="text"
-    name="lease_case_no"
-    value={formData.lease_case_no}
-    onChange={(e) => {
-      let val = e.target.value.replace(/\D/g, ""); // remove all non-digits
-
-      // auto-insert "/" after first 2 digits
-      if (val.length > 2) {
-        val = val.slice(0, 2) + "/" + val.slice(2, 6); // limit to 4 digits after "/"
-      }
-
-      setFormData((prev) => ({ ...prev, lease_case_no: val }));
-    }}
-    className="input input-bordered w-full"
-    placeholder="lease case number"
-    pattern="\d{2}/\d{4}"
-    title="Lease Case No must be in format XX/XXXX"
-    required
-    maxLength={7} // 2 digits + "/" + 4 digits = 7 chars
-  />
-</div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
               <div className="col-span-2">
@@ -639,7 +628,9 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             </div>
           </div>
           <div className="card bg-base-100 shadow-md p-2">
-            <h2 className="text-lg font-semibold mb-3">⚖️ Legal Case Details</h2>
+            <h2 className="text-lg font-semibold mb-3">
+              ⚖️ Legal Case Details
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -714,13 +705,13 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
           </div>
 
           <div className="flex justify-end gap-4">
-           <button
-                type="button"
-                onClick={close}
-                className="btn btn-error text-white"
-              >
-                Cancel
-              </button>
+            <button
+              type="button"
+              onClick={close}
+              className="btn btn-error text-white"
+            >
+              Cancel
+            </button>
             <button type="submit" className="btn btn-primary">
               {editingPlot ? "Update" : "Save"}
             </button>

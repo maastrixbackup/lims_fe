@@ -1,12 +1,17 @@
+
 import { API_BASE_URL } from "./config";
+
+
 
 export const getLandScheduleList = async (
   token,
   scheduleType,
+  selectedProject,
   page = 1,
   limit = 10
 ) => {
-  const url = `${API_BASE_URL}/forestland/forestLandList?project_master_id=1&schedule_type=${scheduleType}&page=${page}&limit=${limit}`;
+  
+  const url = `${API_BASE_URL}/forestland/forestLandList?project_master_id=${selectedProject?.id}&schedule_type=${scheduleType}&page=${page}&limit=${limit}`;
 
   const res = await fetch(url, {
     method: "GET",

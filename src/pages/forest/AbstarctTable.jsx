@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../utils/apiClient";
 
-const AbstractTable = () => {
+const AbstractTable = ({landData}) => {
   const token = useSelector((s) => s.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
 
@@ -12,7 +12,7 @@ const AbstractTable = () => {
   useEffect(() => {
     if (!selectedProject?.id || !token) return;
     fetchAbstract();
-  }, [selectedProject, token]);
+  }, [selectedProject, token,landData ]);
 
   const fetchAbstract = async () => {
     try {

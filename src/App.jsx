@@ -13,6 +13,7 @@ import GovernmentKhata from "./pages/government/khata/GovernmentKhata";
 import LandSchedule from "./pages/forest/LandSchedule";
 import ProjectMasterTable from "./pages/forest/projectmasterdata/ProjectMasterTable";
 import ProjectDetails from "./pages/forest/projectmasterdata/ProjectDetails";
+import LandCost from "./pages/government/landcost/LandCost";
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const ForgotPassword = lazy(
   () => import("./components/features/ForgotPassword"),
@@ -121,6 +122,10 @@ export default function App() {
                 <Route
                   path="/:landType/government/khatas"
                   element={<GovernmentKhata />}
+                />
+                  <Route
+                  path="/:landType/government/land-cost"
+                  element={<LandCost/>}
                 />
                 <Route
                   path="/:landType/land-schedule"

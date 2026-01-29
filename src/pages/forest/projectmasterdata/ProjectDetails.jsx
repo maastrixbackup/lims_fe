@@ -5,18 +5,26 @@ import LevelTab from "../level/LevelTab";
 import { apiClient } from "../../../utils/apiClient";
 import { useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 const ProjectDetails = () => {
+  const token = useSelector((s) => s.auth.userToken);
+  const selectedProject = useSelector((s) => s.selectedProject.project);
+   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editRow, setEditRow] = useState(null);
 
-  const [page, setPage] = useState(1);
+    const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  const selectedProject = useSelector((s) => s.selectedProject.project);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteRow, setDeleteRow] = useState(null);
 
   const fetchProjects = async () => {
     if (!selectedProject?.id) return;
@@ -39,17 +47,45 @@ const ProjectDetails = () => {
   };
 
   useEffect(() => {
-    setPage(1);
-  }, [selectedProject?.id]);
-
-  useEffect(() => {
     fetchProjects();
   }, [selectedProject?.id, page]);
 
   const handleEdit = (row) => {
-    setEditRow(row);     
-    setIsModalOpen(true); 
+    setEditRow(row);
+    setIsModalOpen(true);
   };
+
+  const handleDelete = (row) => {
+    setDeleteRow(row);
+    setShowDeleteModal(true);
+  };
+
+const confirmDelete = async () => {
+  if (!deleteRow?.id) return;
+
+  try {
+    await apiClient(
+      `/forestland/deleteForestProject/${deleteRow.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setShowDeleteModal(false);
+    setDeleteRow(null);
+
+    showSuccess("Project deleted successfully"); 
+
+    fetchProjects();
+  } catch (err) {
+    console.error("Delete failed:", err);
+    showError("Failed to delete project"); 
+  }
+};
+
 
   return (
     <div className="p-4 space-y-4">
@@ -59,7 +95,7 @@ const ProjectDetails = () => {
         <button
           className="btn btn-primary btn-sm"
           onClick={() => {
-            setEditRow(null);  
+            setEditRow(null);
             setIsModalOpen(true);
           }}
         >
@@ -70,18 +106,19 @@ const ProjectDetails = () => {
       <ProjectMasterTable
         projects={projects}
         loading={loading}
-        onEdit={handleEdit} 
+        onEdit={handleEdit}
+        onDelete={handleDelete}  
       />
-
+{selectedProject && (
       <Pagination
         page={page}
         totalPages={totalPages}
-        onPageChange={setPage}
+        setPage={setPage}
       />
-
+)}
       {isModalOpen && (
         <ProjectMasterForm
-          editData={editRow}   
+          editData={editRow}
           onClose={() => {
             setIsModalOpen(false);
             setEditRow(null);
@@ -91,6 +128,24 @@ const ProjectDetails = () => {
       )}
 
       <LevelTab />
+
+      <ConfirmDelete
+        isOpen={showDeleteModal}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete record ID "${deleteRow?.id}"?`}
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteRow(null);
+        }}
+      />
+       <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
+
     </div>
   );
 };

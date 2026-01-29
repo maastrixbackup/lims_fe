@@ -7,8 +7,8 @@ export const getLandScheduleList = async (
   token,
   scheduleType,
   selectedProject,
-  page = 1,
-  limit = 10
+  page,
+  limit 
 ) => {
   
   const url = `${API_BASE_URL}/forestland/forestLandList?project_master_id=${selectedProject?.id}&schedule_type=${scheduleType}&page=${page}&limit=${limit}`;

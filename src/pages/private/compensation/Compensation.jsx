@@ -37,7 +37,6 @@ const Compensation = () => {
   const plotId = location.state?.plot?.id;
   console.log("plotId", plotId);
   const [uploadingId, setUploadingId] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
 
   const fetchData = async () => {
     if (!projectId) return;

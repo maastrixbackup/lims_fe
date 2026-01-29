@@ -17,6 +17,7 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
   const userRole = useSelector((s) => s.auth.user?.role_name);
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const getUniqueOptions = (field) => {
     return [...new Set(data.map((item) => item[field]).filter(Boolean))];
@@ -46,6 +47,40 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
   }, [data, filters, sortConfig]);
 
   return (
+    <>
+      {(!selectedProject || filteredAndSortedData.length === 0) && (
+        <div className="py-10 text-center text-gray-600">
+          {!selectedProject ? (
+            <>
+              <p className="text-lg font-medium">
+                Please{" "}
+                <span className="text-primary font-semibold">
+                  Select a Project
+                </span>{" "}
+                first.
+              </p>
+              <p className="text-lg text-gray-500 mt-1">
+                A project is required to view Forest Land Schedule list.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-md font-medium text-red-500">
+                No Land Schedule found for the{" "}
+                <span className="text-primary font-bold">
+                  Selected Project.
+                </span>
+              </p>
+              <p className="text-md text-gray-500 mt-1">
+                Try selecting a different{" "}
+                <span className="text-gray-700 font-semibold">Project</span> or
+                add a new Forest Land Schedule.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      {selectedProject && filteredAndSortedData.length > 0 && (
     <div
       className="max-h-[400px] overflow-x-auto bg-base-100 shadow"
       style={{ scrollbarWidth: "thin" }}
@@ -86,13 +121,7 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
         </thead>
 
         <tbody>
-          {filteredAndSortedData.length === 0 ? (
-            <tr>
-              <td colSpan={14} className="text-center py-6">
-                No data found
-              </td>
-            </tr>
-          ) : (
+          {
             filteredAndSortedData.map((row, index) => (
               <tr key={row.id ?? index} className="hover">
                 <td>{index + 1}</td>
@@ -152,10 +181,12 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
                 </td>
               </tr>
             ))
-          )}
+          }
         </tbody>
       </table>
     </div>
+      )}
+    </>
   );
 };
 

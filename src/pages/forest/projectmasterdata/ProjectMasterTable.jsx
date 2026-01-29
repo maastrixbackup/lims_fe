@@ -10,6 +10,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
 
   const [filters, setFilters] = React.useState({});
   const [sortConfig, setSortConfig] = React.useState({ field: null, direction: null });
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const stickyActionHeader =
     "p-3 text-right bg-[#7A69E1] text-white md:sticky md:right-0 z-[30] shadow-md";
@@ -50,7 +51,41 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
   if (loading) return <p className="p-4">Loading...</p>;
 
   return (
-    <div className="max-h-[400px] overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
+    <>
+       {(!selectedProject || filteredAndSortedData.length === 0) && (
+        <div className="py-10 text-center text-gray-600">
+          {!selectedProject ? (
+            <>
+              <p className="text-lg font-medium">
+                Please{" "}
+                <span className="text-primary font-semibold">
+                  Select a Project
+                </span>{" "}
+                first.
+              </p>
+              <p className="text-lg text-gray-500 mt-1">
+                A project is required to view Project Master Data list.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-md font-medium text-red-500">
+                No Project Master Data found for the{" "}
+                <span className="text-primary font-bold">
+                  Selected Project.
+                </span>
+              </p>
+              <p className="text-md text-gray-500 mt-1">
+                Try selecting a different{" "}
+                <span className="text-gray-700 font-semibold">Project</span> or
+                add a Project Master Data .
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      {selectedProject && filteredAndSortedData.length > 0 && (
+          <div className="max-h-[400px] overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
       <table className="table table-sm w-full">
         <thead className="bg-[#7A69E1] text-white sticky top-0 z-20">
           <tr>
@@ -160,7 +195,9 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
           ))}
         </tbody>
       </table>
-    </div>
+    </div>)}
+    </>
+  
   );
 };
 

@@ -1009,6 +1009,7 @@ export const legalIssue = [
   { key: "land_case_type", label: "Land Case Type", type: "text" },
   { key: "land_case_status", label: "Land Case Status", type: "text" },
   { key: "land_case_action", label: "Land Case Details", type: "text" },
+  {key:"payment_status", label:"Payment Status" , type: "text"}
 ];
 
 export const LandAreaEvaluationFields = [
@@ -1045,6 +1046,7 @@ export const LandAreaEvaluationFields = [
   { key: "cess", label: "Cess", type: "number" },
   { key: "admin_cost", label: "Admin Cost", type: "number" },
   { key: "total_cost", label: "Total Cost", type: "number" },
+  {key:"payment_status", label:"Payment Status" , type: "text"}
   // {key:"basic_land_value", label: "Basic Land Value", type: "number"},
   // {key:"land_value_with_mf", label: "Land Value With MF", type: "number"},
   // {key:"no_of_trees", label: "No of Trees", type: "number"},
@@ -1159,6 +1161,7 @@ export const GovernmentPlotFields = [
     type: "text",
   },
   { key: "remarks", label: "Remarks", type: "text" },
+  {key:"payment_status", label:"Payment Status" , type: "text"}
 ];
 
 export const GovtKhataColumn = [

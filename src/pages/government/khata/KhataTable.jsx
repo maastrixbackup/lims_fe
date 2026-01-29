@@ -56,7 +56,7 @@ const KhataTable = ({
   console.log("khataa", khatas);
   return (
     <div className="card bg-white shadow-lg">
-      {(!selectedProjectId || "") && (
+      {(!selectedProjectId || filteredKhatas.length === 0) && (
         <div className="py-10 text-center text-gray-600">
           {!selectedProjectId ? (
             <>

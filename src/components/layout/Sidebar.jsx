@@ -66,7 +66,7 @@ export default function Sidebar({ open, setOpen, isMobile }) {
         name: "Govt Land",
         icon: MapPinHouse,
         basePath: "govt-land/government",
-        submenu: ["Villages", "Khatas", "Plots"],
+        submenu: ["Villages", "Khatas", "Plots","Land Cost"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {

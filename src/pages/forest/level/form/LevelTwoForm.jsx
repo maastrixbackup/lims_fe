@@ -1,7 +1,7 @@
-import React, {useState} from 'react'
+import React, { useState } from "react";
 
-const LevelTwoForm = ({setRows, setShowModal }) => {
-     const [form, setForm] = useState({
+const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
+  const [form, setForm] = useState({
     projectId: "",
     stage1ApprovalNo: "",
     approvalDate: "",
@@ -17,81 +17,105 @@ const LevelTwoForm = ({setRows, setShowModal }) => {
   const handleSubmit = () => {
     setRows([...rows, form]);
     setShowModal(false);
-    setForm({});
+
+    setForm({
+      projectId: "",
+      stage1ApprovalNo: "",
+      approvalDate: "",
+      npvAmount: "",
+      caLand: "",
+      acaLand: "",
+      stage2Status: "",
+    });
   };
 
   return (
-    <>
-         <dialog className="modal modal-open">
-          <div className="modal-box max-w-xl">
+    <dialog className="modal modal-open">
+      <div className="modal-box max-w-xl">
 
-            <h3 className="font-bold mb-3">Add Stage I Approval</h3>
+        <h3 className="font-bold mb-4">Add Stage I Approval</h3>
 
-            <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
 
-              <input
-                name="projectId"
-                placeholder="Project ID"
-                className="input input-bordered"
-                onChange={handleChange}
-              />
-
-              <input
-                name="stage1ApprovalNo"
-                placeholder="Stage I Approval No"
-                className="input input-bordered"
-                onChange={handleChange}
-              />
-
-              <input
-                type="date"
-                name="approvalDate"
-                className="input input-bordered"
-                onChange={handleChange}
-              />
-
-              <input
-                name="npvAmount"
-                placeholder="NPV Amount"
-                className="input input-bordered"
-                onChange={handleChange}
-              />
-
-              <input
-                name="caLand"
-                placeholder="CA Land Area (ha)"
-                className="input input-bordered"
-                onChange={handleChange}
-              />
-
-              <input
-                name="acaLand"
-                placeholder="ACA Land Area (ha)"
-                className="input input-bordered"
-                onChange={handleChange}
-              />
-
-              <input
-                name="stage2Status"
-                placeholder="Stage 2 Status"
-                className="input input-bordered col-span-2"
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="modal-action">
-              <button className="btn btn-success btn-sm" onClick={handleSubmit}>
-                Save
-              </button>
-              <button className="btn btn-sm" onClick={() => setShowModal(false)}>
-                Cancel
-              </button>
-            </div>
-
+          <div>
+            <label>Project ID</label>
+            <input
+              name="projectId"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
           </div>
-        </dialog>
-    </>
-  )
-}
 
-export default LevelTwoForm
+          <div>
+            <label>Stage I Approval No</label>
+            <input
+              name="stage1ApprovalNo"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>Approval Date</label>
+            <input
+              type="date"
+              name="approvalDate"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>NPV Amount</label>
+            <input
+              name="npvAmount"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>CA Land Area (ha)</label>
+            <input
+              name="caLand"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>ACA Land Area (ha)</label>
+            <input
+              name="acaLand"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-span-2">
+            <label>Stage II Status</label>
+            <input
+              name="stage2Status"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+
+        </div>
+
+        <div className="modal-action">
+          <button className="btn btn-success btn-sm" onClick={handleSubmit}>
+            Save
+          </button>
+
+          <button className="btn btn-sm" onClick={() => setShowModal(false)}>
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </dialog>
+  );
+};
+
+export default LevelTwoForm;

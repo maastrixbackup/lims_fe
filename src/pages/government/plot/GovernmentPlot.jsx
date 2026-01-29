@@ -135,6 +135,7 @@ const Plots = () => {
     cess: item.cess || "",
     admin_cost: item.admin_cost || "",
     total_cost: item.total_cost || "",
+    payment_status:item.payment_status || ""
   });
   const fetchPlots = useCallback(async () => {
     if (!selectedProjectId || !token) return;
@@ -313,7 +314,7 @@ const Plots = () => {
         </button>
       </div>
       <div>
-        {(!selectedProjectId || "") && (
+        {(!selectedProjectId || filteredPlots.length === 0) && (
           <div className="py-10 text-center text-gray-600">
             {!selectedProjectId ? (
               <>
@@ -476,6 +477,7 @@ const Plots = () => {
                           )}
                         </td>
                         <td>{plot.remarks || "No Data"}</td>
+                        <td>{plot.payment_status || "No Data"}</td>
                         <td className={stickyActionCell}>
                           <select
                             className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
@@ -675,6 +677,7 @@ const Plots = () => {
                         </td>
 
                         <td>{plot.land_case_action || "no data"}</td>
+                        <td>{plot.payment_status || "No Data"}</td>
 
                         <td className={stickyActionCell}>
                           <select
@@ -820,6 +823,7 @@ const Plots = () => {
                         <td>{plot.cess || "no data"}</td>
                         <td>{plot.admin_charges || "no data"}</td>
                         <td>{plot.total_cost || "no data"}</td>
+                        <td>{plot.payment_status || "No Data"}</td>
                         {/* <td>{plot.basic_land_value || "no data"}</td>
                       <td>{plot.land_value_with_mf || "no data"}</td>
                       <td>{plot.no_of_trees || "no data"}</td>

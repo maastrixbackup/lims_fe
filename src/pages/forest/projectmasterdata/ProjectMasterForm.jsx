@@ -2,11 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { addForestProject } from "../addForestProject";
 import { updateForestProject } from "../../../hooks/updateForestProject";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 const ProjectMasterForm = ({ onClose, fetchProjects, editData }) => {
   const token = useSelector((state) => state.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((s) => s.list.projects || []);
+   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const initialFormData = {
     project_id: "",
@@ -71,7 +74,6 @@ const ProjectMasterForm = ({ onClose, fetchProjects, editData }) => {
 
     setFormData({ ...formData, [name]: value });
   };
-
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -81,33 +83,39 @@ const handleSubmit = async (e) => {
       formData,
       token,
       onSuccess: () => {
-        alert("Project updated successfully!");
-        onClose();
+        showSuccess("Project updated successfully!");
         fetchProjects();
+
+        setTimeout(() => {
+          onClose();
+        }, 800);
       },
       onError: (err) => {
-        alert(err?.message || "Error updating project");
+        showError(err?.message || "Error updating project");
       },
     });
 
     return;
   }
 
-  // CREATE
   await addForestProject({
     formData,
     token,
     selectedProject,
     onSuccess: () => {
-      alert("Project added successfully!");
-      onClose();
+      showSuccess("Project added successfully!");
       fetchProjects();
+
+      setTimeout(() => {
+        onClose();
+      }, 800);
     },
     onError: (err) => {
-      alert(err?.message || "Error adding project");
+      showError(err?.message || "Error adding project");
     },
   });
 };
+
 
   return (
     <div className="modal modal-open">
@@ -219,6 +227,12 @@ const handleSubmit = async (e) => {
           </div>
         </form>
       </div>
+         <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </div>
   );
 };

@@ -13,6 +13,7 @@ import CALandForm from "./CALandForm";
 import { getLandScheduleList } from "../../utils/LandAreaSchedule";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import { deleteForestLand } from "../../hooks/deleteForestLand";
+import Pagination from "../../shared/Pagination";
 
 const SCHEDULE_TYPE_MAP = {
   forest: "FOREST_AREA",
@@ -33,6 +34,9 @@ const LandSchedule = () => {
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
 
   const TABS = [
     { key: "forest", label: "Forest Area Land Schedule" },
@@ -50,30 +54,37 @@ const LandSchedule = () => {
     setShowDeleteModal(true);
   };
 
-  const fetchData = useCallback(async () => {
-    if (!token || !selectedProject?.id) {
-      setData([]);
-      return;
-    }
+const fetchData = useCallback(async () => {
+  if (!token || !selectedProject?.id) return;
 
-    setLoading(true);
-    try {
-      const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
+  setLoading(true);
 
-      const res = await getLandScheduleList(
-        token,
-        scheduleType,
-        selectedProject
-      );
+  try {
+    const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
 
-      setData(res?.data || []);
-    } catch (err) {
-      console.error("Fetch failed:", err);
-      setData([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, token, selectedProject]);
+    const res = await getLandScheduleList(
+      token,
+      scheduleType,
+      selectedProject,
+      page,
+      limit
+    );
+
+    setData(res?.data || []);
+    setTotalPages(res?.totalPages || 1);
+
+  } catch (err) {
+    console.error(err);
+    setData([]);
+  } finally {
+    setLoading(false);
+  }
+}, [activeTab, token, selectedProject, page, limit]);
+
+useEffect(() => {
+  setPage(1);
+}, [activeTab]);
+
 
   const confirmDelete = () => {
     if (!deleteRow) return;
@@ -87,6 +98,7 @@ const LandSchedule = () => {
       onSuccess: () => {
         setShowDeleteModal(false);
         setDeleteRow(null);
+        fetchData();
       },
       onError: (err) => {
         console.error("Delete failed", err);
@@ -110,11 +122,47 @@ const LandSchedule = () => {
 
     switch (activeTab) {
       case "forest":
-        return <ForestTable data={data} onEdit={handleEdit} onDelete={handleDelete} />;
+        return (
+          <>
+            <ForestTable
+              data={data}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+            <Pagination 
+            page={page}
+  setPage={setPage}
+  limit={limit}
+  setLimit={setLimit}
+  totalPages={totalPages}/>
+          </>
+        );
       case "nonForest":
-        return <NonForestTable data={data} onEdit={handleEdit} onDelete={handleDelete} />;
+        return (
+          <>
+            <NonForestTable
+              data={data}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+            <Pagination page={page}
+  setPage={setPage}
+  limit={limit}
+  setLimit={setLimit}
+  totalPages={totalPages}/>
+          </>
+        );
       case "ca":
-        return <CATable data={data} onEdit={handleEdit} onDelete={handleDelete} />;
+        return (
+          <>
+            <CATable data={data} onEdit={handleEdit} onDelete={handleDelete} />
+            <Pagination page={page}
+  setPage={setPage}
+  limit={limit}
+  setLimit={setLimit}
+  totalPages={totalPages}/>
+          </>
+        );
       default:
         return null;
     }
@@ -129,7 +177,6 @@ const LandSchedule = () => {
 
   return (
     <>
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">
           Land Area Schedule / Land Details
@@ -138,13 +185,12 @@ const LandSchedule = () => {
         <button
           className="btn btn-primary"
           onClick={() => setOpenModal(true)}
-          disabled={!selectedProject}
+          // disabled={!selectedProject}
         >
           {getAddButtonText()}
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="bg-white p-4 rounded shadow mb-4">
         <div className="flex gap-4 mb-4">
           {TABS.map((tab) => (
@@ -166,10 +212,8 @@ const LandSchedule = () => {
       </div>
 
       <div className="bg-white p-4 rounded shadow">
-        <AbstractTable />
+        <AbstractTable landData={data} />
       </div>
-
-      {/* Forms */}
       {activeTab === "forest" && (
         <ForestLandForm
           open={openModal}
@@ -205,8 +249,6 @@ const LandSchedule = () => {
           onSuccess={fetchData}
         />
       )}
-
-      {/* Delete Confirmation */}
       <ConfirmDelete
         isOpen={showDeleteModal}
         title="Confirm Delete"

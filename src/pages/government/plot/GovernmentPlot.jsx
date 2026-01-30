@@ -7,6 +7,7 @@ import {
   legalIssue,
   stickyActionCell,
   stickyActionHeader,
+  stickyPaymentCell,
 } from "../../../utils/constants";
 import { useSelector } from "react-redux";
 import FilterHeader from "./FilterHeader";
@@ -17,6 +18,8 @@ import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import Pagination from "../../../shared/Pagination";
+import { FolderUp, ChevronDown } from "lucide-react";
+import { useNavigate, useParams } from "react-router";
 
 export const PRESENT_STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
@@ -42,7 +45,7 @@ const Plots = () => {
     files: [],
     title: "",
   });
-
+  const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlot, setEditingPlot] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -62,11 +65,14 @@ const Plots = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const user = useSelector((state) => state.auth.user);
+  const role = user?.role_name;
+  const isRestricted = role === "Viewer";
   // selected project id (from redux / props / dropdown)
   const selectedProjectId = useSelector(
     (state) => state.selectedProject.project?.id,
   );
-
+  const [loadingPlotId, setLoadingPlotId] = useState(null);
   const token = useSelector((state) => state.auth.userToken);
   const mapGovtPlot = (item) => ({
     id: item.id,
@@ -105,12 +111,12 @@ const Plots = () => {
     tree_enumeration_attachment: item.tree_enumeration_attachment || "",
     lease_to_idco_attachment: item.lease_to_idco_attachment || "",
     lease_to_ua_attachment: item.lease_to_ua_attachment || "",
-    legal_heir_certificate_no: item.legal_heir_certificate_no || "",
+    legal_heir_case_no: item.legal_heir_case_no || "",
     land_case_no: item.land_case_no || "",
     land_case_date: item.land_case_date || "",
     land_case_type: item.land_case_type || "",
     land_case_status: item.land_case_status || "",
-    land_case_action: item.land_case_action || "",
+    land_case_details: item.land_case_details || "",
     land_area_total_acres: item.land_area_total_acres || "",
     land_area_total_hectares: item.land_area_total_hectares || "",
     land_area_acquired_acres: item.land_area_acquired_acres || "",
@@ -131,11 +137,11 @@ const Plots = () => {
     total_compensation: item.total_compensation || "",
     bench_market_value: item.bench_market_value || "",
     premium: item.premium || "",
-    ground_rate: item.ground_rate || "",
+    ground_rent: item.ground_rent || "",
     cess: item.cess || "",
-    admin_cost: item.admin_cost || "",
+    admin_charges: item.admin_charges || "",
     total_cost: item.total_cost || "",
-    payment_status:item.payment_status || ""
+    payment_status: item.payment_status || "",
   });
   const fetchPlots = useCallback(async () => {
     if (!selectedProjectId || !token) return;
@@ -304,15 +310,280 @@ const Plots = () => {
 
     return data;
   }, [plots, filters, sortConfig]);
+  const handleExport = () => {
+    if (!filteredPlots.length) return;
+
+    const headers = [
+      "Sl No",
+      "Khata No",
+      "Plot No",
+      "Thana No",
+      "Mouza",
+      "Tahasil",
+      "RI Circle",
+      "Kissam",
+      "Name Of ROR",
+      "Total Area Acres",
+      "Proposed Area Acres",
+      "Total Area Hectars",
+      "Proposed Area Hectars",
+      "Lease Case No",
+      "Present Status",
+      "UA/IDCO to Tahasildar",
+      "Case Details",
+      "Action To be Taken",
+      "Ri Report",
+      "Ri Report Attachment",
+      "Proclamation",
+      "Objection Recevied",
+      "Others",
+      "Modification/ Revesion",
+      "Missing Case Prep/ DR Case",
+      "Missing Case Prep/ DR Case Number",
+      "Reason For Misc/ DR Case",
+      "Tree Enumeration",
+      "Tree Enumeration Attachment",
+      "OrderSheet Prep",
+      "Lease To IDCO",
+      "Lease To IDCO Attachment",
+      "Lease To UA",
+      "Lease To UA Attachment",
+      "Remarks",
+      "Legal Heir Certificate No",
+      "Land Case No",
+      "Land Case Date",
+      "Land Case Type",
+      "Land Case Status",
+      "Land Case Details",
+      "Land Area Total (Acres)",
+      "Land Area Total (Hectares)",
+      "Land Area Accuired (Acres)",
+      "Land Area Accuired (Hectres)",
+      "Market Value Per Acres",
+      "Bench market Value",
+      "Premium",
+      "Ground Rate",
+      "Cess",
+      "Admin Cost",
+      "Total Cost",
+      "Payment Status",
+    ];
+
+    const rows = filteredPlots.map((p) => [
+      p.id,
+      p.khata_no,
+      p.plot_no,
+      p.thana_no,
+      p.mouza,
+      p.tahasil,
+      p.ri_circle,
+      p.kissam,
+      p.name_of_ror,
+      p.total_area_acres,
+      p.proposed_area_acres,
+      p.total_area_hectares,
+      p.proposed_area_hectares,
+      p.lease_case_no,
+      p.present_status,
+      p.ua_idco_to_tahasildar,
+      p.case_details,
+      p.action_to_be_taken,
+      p.ri_report,
+      p.ri_report_attachment,
+      p.proclamation,
+      p.objection_received,
+      p.others,
+      p.modification_revision,
+      p.misc_dr_case_prep,
+      p.misc_dr_case_prep_number,
+      p.reason_for_misc_dr_case,
+      p.tree_enumeration,
+      p.tree_enumeration_attachment,
+      p.order_sheet_prep,
+      p.lease_to_idco,
+      p.lease_to_idco_attachment,
+      p.lease_to_ua,
+      p.lease_to_ua_attachment,
+      p.remarks,
+      p.legal_heir_case_no,
+      p.land_case_no,
+      p.land_case_date,
+      p.land_case_type,
+      p.land_case_status,
+      p.land_case_details,
+      p.land_area_total_acres,
+      p.land_area_total_hectares,
+      p.land_area_acquired_acres,
+      p.land_area_acquired_hectares,
+      p.market_value_per_acre,
+      // p.basic_land_value,
+      // p.land_value_with_mf,
+      // p.no_of_trees,
+      // p.total_value_of_trees,
+      // p.no_of_house,
+      // p.value_of_house,
+      // p.details_of_other_structures,
+      // p.value_of_other_structures,
+      // p.total_value,
+      // p.solatium_100,
+      // p.no_days_interest,
+      // p.additional_12_percent,
+      // p.total_compensation,
+      p.bench_market_value,
+      p.premium,
+      p.ground_rent,
+      p.cess,
+      p.admin_charges,
+      p.total_cost,
+      p.payment_status,
+    ]);
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((v) => `"${v ?? ""}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "government_plots.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+  const { landType } = useParams();
+  const navigate = useNavigate();
+
+  const getPaymentCode = (plot) => {
+    if (paymentStatusMap[plot.id]) {
+      return paymentStatusMap[plot.id];
+    }
+
+    if (plot.payment_status === "processing") return "PP";
+    if (plot.payment_status === "complete") return "PC";
+    if (plot.payment_status === "ready") return "RP";
+
+    return "";
+  };
+
+  const handlePaymentStatusChange = async (plot, code) => {
+    if (isRestricted) return;
+
+    // RP → API call (NO redirect)
+    if (code === "RP") {
+      setLoadingPlotId(plot.id);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            plot_id: plot.id,
+            payment_status: "ready",
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.success === true) {
+          showSuccess(data.message || "Successful");
+
+          setPaymentStatusMap((prev) => ({
+            ...prev,
+            [plot.id]: "RP",
+          }));
+        } else if (data.success === false) {
+          showSuccess(data.message || "Failed to update status", "error");
+        } else {
+          // window.toast?.error(data.message || "Failed to update status");
+          showSuccess(data.message || "Failed to update status", "error");
+        }
+      } catch (err) {
+        showError("Network error", "error");
+      }
+
+      setLoadingPlotId(null);
+      return;
+    }
+
+    // PC → redirect only
+    if (code === "RC") {
+      navigate(`/${landType}/land-cost`, { state: { plot } });
+      return;
+    }
+
+    // PP → API + redirect (already correct)
+    if (code === "PP") {
+      setLoadingPlotId(plot.id);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/govtplots/paymentReady`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            plot_id: plot.id,
+            payment_status: "processing",
+          }),
+        });
+
+        const data = await res.json();
+
+        // ✅ Already processing → treat as success
+        if (showSuccess(data.message || "Successful")) {
+          setPaymentStatusMap((prev) => ({
+            ...prev,
+            [plot.id]: "PP",
+          }));
+
+          //  showSuccess(data.message );
+
+          //   navigate(`/${landType}/land-cost`, { state: { plot } });
+          //   return;
+        }
+
+        showSuccess(data.message || "Failed to update payment", "error");
+        setTimeout(() => {
+          closeModal();
+          navigate(`/${landType}/government/land-cost`, { state: { plot } });
+        }, 400);
+      } catch (err) {
+        showSuccess(err.message || "Network error. Please try again", "error");
+      } finally {
+        setLoadingPlotId(null);
+      }
+    }
+  };
 
   return (
     <main className="flex-1 overflow-y-auto space-y-2">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Government Land Plot</h2>
-        <button className="btn btn-primary" onClick={() => openModal()}>
-          + Add Plot
-        </button>
+
+        <div className="flex gap-2">
+          <button
+            className="btn btn-sm bg-green-600 text-white"
+            onClick={handleExport}
+            disabled={!filteredPlots.length}
+          >
+            <FolderUp size={18} /> Export
+          </button>
+
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => openModal()}
+          >
+            + Add Plot
+          </button>
+        </div>
       </div>
+
       <div>
         {(!selectedProjectId || filteredPlots.length === 0) && (
           <div className="py-10 text-center text-gray-600">
@@ -477,7 +748,46 @@ const Plots = () => {
                           )}
                         </td>
                         <td>{plot.remarks || "No Data"}</td>
-                        <td>{plot.payment_status || "No Data"}</td>
+                        <td>
+                          <div className="relative">
+                            <select
+                              value={getPaymentCode(plot) || ""}
+                              disabled={loadingPlotId === plot.id}
+                              onChange={(e) =>
+                                handlePaymentStatusChange(plot, e.target.value)
+                              }
+                              className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                            >
+                              <option value="" disabled></option>
+                              <option value="RP">Ready for Payment</option>
+                              <option value="PP">Payment Processing</option>
+                              <option value="RC">Payment Complete</option>
+                            </select>
+                            <div
+                              className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
+              ? "bg-green-700 text-white"
+              : getPaymentCode(plot) === "RC"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-600"
+        }
+      `}
+                            >
+                              {getPaymentCode(plot) ? (
+                                <>
+                                  <span>{getPaymentCode(plot)}</span>
+                                  <ChevronDown size={12} />
+                                </>
+                              ) : (
+                                <ChevronDown size={14} />
+                              )}
+                            </div>
+                          </div>
+                        </td>
                         <td className={stickyActionCell}>
                           <select
                             className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
@@ -655,7 +965,7 @@ const Plots = () => {
                         <td className={stickyCol2Cell}>
                           {plot.plot_no || "No Data"}
                         </td>
-                        <td>{plot.legal_heir_certificate_no || "no data"}</td>
+                        <td>{plot.legal_heir_case_no || "no data"}</td>
                         <td>{plot.land_case_no || "no data"}</td>
                         <td>{plot.land_case_date || "no data"}</td>
                         <td>{plot.land_case_type || "no data"}</td>
@@ -676,8 +986,47 @@ const Plots = () => {
                           {plot.land_case_status || "No Data"}
                         </td>
 
-                        <td>{plot.land_case_action || "no data"}</td>
-                        <td>{plot.payment_status || "No Data"}</td>
+                        <td>{plot.land_case_details || "no data"}</td>
+                        <td>
+                          <div className="relative">
+                            <select
+                              value={getPaymentCode(plot) || ""}
+                              disabled={loadingPlotId === plot.id}
+                              onChange={(e) =>
+                                handlePaymentStatusChange(plot, e.target.value)
+                              }
+                              className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                            >
+                              <option value="" disabled></option>
+                              <option value="RP">Ready for Payment</option>
+                              <option value="PP">Payment Processing</option>
+                              <option value="RC">Payment Complete</option>
+                            </select>
+                            <div
+                              className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
+              ? "bg-green-700 text-white"
+              : getPaymentCode(plot) === "RC"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-600"
+        }
+      `}
+                            >
+                              {getPaymentCode(plot) ? (
+                                <>
+                                  <span>{getPaymentCode(plot)}</span>
+                                  <ChevronDown size={12} />
+                                </>
+                              ) : (
+                                <ChevronDown size={14} />
+                              )}
+                            </div>
+                          </div>
+                        </td>
 
                         <td className={stickyActionCell}>
                           <select
@@ -819,11 +1168,50 @@ const Plots = () => {
                         <td>{plot.market_value_per_acre || "no data"}</td>
                         <td>{plot.bench_market_value || "no data"}</td>
                         <td>{plot.premium || "no data"}</td>
-                        <td>{plot.ground_rate || "no data"}</td>
+                        <td>{plot.ground_rent || "no data"}</td>
                         <td>{plot.cess || "no data"}</td>
                         <td>{plot.admin_charges || "no data"}</td>
                         <td>{plot.total_cost || "no data"}</td>
-                        <td>{plot.payment_status || "No Data"}</td>
+                        <td>
+                          <div className="relative">
+                            <select
+                              value={getPaymentCode(plot) || ""}
+                              disabled={loadingPlotId === plot.id}
+                              onChange={(e) =>
+                                handlePaymentStatusChange(plot, e.target.value)
+                              }
+                              className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                            >
+                              <option value="" disabled></option>
+                              <option value="RP">Ready for Payment</option>
+                              <option value="PP">Payment Processing</option>
+                              <option value="RC">Payment Complete</option>
+                            </select>
+                            <div
+                              className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
+              ? "bg-green-700 text-white"
+              : getPaymentCode(plot) === "RC"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-600"
+        }
+      `}
+                            >
+                              {getPaymentCode(plot) ? (
+                                <>
+                                  <span>{getPaymentCode(plot)}</span>
+                                  <ChevronDown size={12} />
+                                </>
+                              ) : (
+                                <ChevronDown size={14} />
+                              )}
+                            </div>
+                          </div>
+                        </td>
                         {/* <td>{plot.basic_land_value || "no data"}</td>
                       <td>{plot.land_value_with_mf || "no data"}</td>
                       <td>{plot.no_of_trees || "no data"}</td>

@@ -612,6 +612,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                 ["cess", "Cess"],
                 ["admin_charges", "Administrative Charges"],
                 ["total_cost", "Total Cost"],
+                // ["Admin_cost", "Admin Cost"],
               ].map(([name, label]) => (
                 <div key={name}>
                   <label className="label">{label}</label>
@@ -672,6 +673,46 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                   type="text"
                   name="land_case_type"
                   value={formData.land_case_type}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="label">Land Area Total(Acres)</label>
+                <input
+                  type="text"
+                  name="land_area_total_acres"
+                  value={formData.land_area_total_acres}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="label"> Land Area Total(Hectares)</label>
+                <input
+                  type="text"
+                  name="land_area_total_hectares"
+                  value={formData.land_area_total_hectares}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="label">Land Area Aquired (Acres)</label>
+                <input
+                  type="text"
+                  name="land_area_acquired_acres"
+                  value={formData.land_area_acquired_acres}
+                  onChange={handleChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="label">Land Area Aquired (Hectres)</label>
+                <input
+                  type="text"
+                  name="land_area_acquired_hectares"
+                  value={formData.land_area_acquired_hectares}
                   onChange={handleChange}
                   className="input input-bordered w-full"
                 />

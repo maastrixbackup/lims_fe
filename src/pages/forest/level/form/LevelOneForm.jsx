@@ -263,6 +263,7 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
             className="input input-bordered"
             onChange={handleChange}
           />
+
           <input
             type="number"
             name="orsacAuthNo"
@@ -272,11 +273,17 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
           />
           <input
             name="stageStatus"
-            placeholder="Stage Status"
+            placeholder="Stage 1 Status"
             className="input input-bordered"
             onChange={handleChange}
           />
-
+          <input
+            type="number"
+            name="parivesh_proposal_no"
+            placeholder="PARIVESH Proposal No"
+            className="input input-bordered"
+            onChange={handleChange}
+          />
           {fields.map((f) => (
             <select
               key={f.name}
@@ -299,32 +306,32 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
             </select>
           ))}
         </div>
-     <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
-  <div className="form-control">
-    <label className="label">
-      <span className="label-text">ORSAC Auth Date</span>
-    </label>
-    <input
-      type="date"
-      name="orsacAuthDate"
-      className="input input-bordered w-full"
-      onChange={handleChange}
-    />
-  </div>
 
-  <div className="form-control">
-    <label className="label">
-      <span className="label-text">Submission Date</span>
-    </label>
-    <input
-      type="date"
-      name="submissionDate"
-      className="input input-bordered w-full"
-      onChange={handleChange}
-    />
-  </div>
-</div>
+        <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">ORSAC Auth Date</span>
+            </label>
+            <input
+              type="date"
+              name="orsacAuthDate"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
 
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Submission Date</span>
+            </label>
+            <input
+              type="date"
+              name="submissionDate"
+              className="input input-bordered w-full"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
 
         <div className="modal-action">
           <button className="btn btn-success btn-sm" onClick={handleSubmit}>

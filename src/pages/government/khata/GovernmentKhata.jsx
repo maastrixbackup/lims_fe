@@ -7,6 +7,7 @@ import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import { FolderUp } from "lucide-react";
 
 const GovernmentKhata = () => {
   const [khatas, setKhatas] = useState([]);
@@ -109,14 +110,66 @@ const GovernmentKhata = () => {
       setDeleteConfirm(null);
     }
   };
+  const handleExport = () => {
+  if (!khatas.length) return;
+
+  const headers = [
+    "Khata No",
+    "Plot No",
+    "Village",
+    "Kissam Of Land",
+    "Lease Case No",
+    "Present Status",
+    "Case Details",
+    "Plot Count",
+  ];
+
+  const rows = khatas.map((k) => [
+    k.khata_no,
+    k.plot_no,
+    k.village,
+    k.kissam_of_land,
+    k.lease_case_no,
+    k.present_status,
+    k.case_details,
+    k.plot_count,
+  ]);
+
+  const csvContent =
+    [headers, ...rows]
+      .map((e) => e.map((x) => `"${x ?? ""}"`).join(","))
+      .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "government_khata.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
 
   return (
     <main className="p-2 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Government Land Khata</h2>
-        <button className="btn btn-primary" onClick={() => openModal()}>
-          + Add Khata
-        </button>
+      <div className="flex gap-2">
+  <button
+    className="btn btn-sm bg-green-600 text-white"
+    onClick={handleExport}
+    disabled={!khatas.length}
+  >
+     <FolderUp size={18} /> Export
+  </button>
+
+  <button className="btn btn-primary btn-sm" onClick={() => openModal()}>
+    + Add Khata
+  </button>
+</div>
+
       </div>
 
       {loading ? (

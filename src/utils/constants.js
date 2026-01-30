@@ -907,99 +907,6 @@ export const PAYMENT_STATUSES = {
   },
 };
 
-// export const GovernmentPlotFields = [
-//   { key: "khata_no", label: "Khata No", type: "text" },
-//   { key: "plot_no", label: "Plot No", type: "text" },
-//   { key: "thana_no", label: "Thana No", type: "text" },
-//   { key: "village", label: "Village", type: "text" },
-//   { key: "tahashil", label: "Tahashil", type: "text" },
-//   { key: "riCircle", label: "RI Circle", type: "text" },
-//   { key: "kissam", label: "Kissam", type: "text" },
-//   { key: "rorName", label: "Name of ROR", type: "text" },
-
-//   { key: "totalAreaAcres", label: "Total Area (Acres)", type: "text" },
-//   { key: "proposedAreaAcres", label: "Proposed Area (Acres)", type: "text" },
-//   {
-//     key: "totalAreaHectares",
-//     label: "Total Area (Hectares)",
-//     type: "text",
-//   },
-//   {
-//     key: "proposedAreaHectares",
-//     label: "Proposed Area (Hectares)",
-//     type: "text",
-//   },
-
-//   { key: "leaseCaseNo", label: "Lease Case No", type: "text" },
-
-//   {
-//     key: "presentStatus",
-//     label: "Present Status",
-//     type: "select",
-//     options: [
-//       "Lease Case to Sub-Collector",
-//       "Lease Case to ADM (Rev Sec)",
-//       "Demand Raised",
-//       "Lease Sanctioned by Collector",
-//     ],
-//   },
-
-//   {
-//     key: "uaIdcoToTahasildar",
-//     label: "UA / IDCO to Tahasildar",
-//     type: "yesno",
-//   },
-
-//   {
-//     key: "caseDetails",
-//     label: "Case Details/Deservation Req.",
-//     type: "text",
-//   },
-//   { key: "actionToBeTaken", label: "Action to be Taken", type: "text" },
-
-//   { key: "riReport", label: "RI Report", type: "status" },
-//   { key: "riReportAttachment", label: "RI Report Attachment", type: "text" },
-//   { key: "proclamation", label: "Proclamation", type: "text" },
-//   { key: "objectionReceived", label: "Objection Received", type: "yesno" },
-//   { key: "others", label: "Others", type: "text" },
-//   {
-//     key: "modificationRevision",
-//     label: "Modification/Revision",
-//     type: "yesno",
-//   },
-//   {
-//     key: "missingCasePrep",
-//     label: "Missing Case Prep./DR Case Prep.",
-//     type: "yesno",
-//   },
-//   {
-//     key: "missingCasePrepNo",
-//     label: "Missing Case Prep./DR Case Number",
-//     type: "text",
-//   },
-//   {
-//     key: "reasonForMiscDrCase",
-//     label: "Reason for Misc/DR Case",
-//     type: "text",
-//   },
-
-//   { key: "treeEnumeration", label: "Tree Enumeration", type: "status" },
-//   {
-//     key: "tree_enumeration_attachment",
-//     label: "Tree Enumeration Attachment",
-//     type: "text",
-//   },
-//   { key: "orderSheet", label: "Order Sheet", type: "status" },
-//   { key: "leaseToIDCO", label: "Lease to IDCO", type: "yesno" },
-//   {
-//     key: "leaseToIDCOAttachment",
-//     label: "Lease to IDCO Attachment",
-//     type: "text",
-//   },
-//   { key: "leaseToUA", label: "Lease to UA", type: "yesno" },
-//   { key: "leaseToUAAttachment", label: "Lease to UA Attachment", type: "text" },
-//   { key: "remarks", label: "Remarks", type: "text" },
-// ];
 export const legalIssue = [
   { key: "khata_no", label: "Khata No", type: "text" },
   { key: "plot_no", label: "Plot No", type: "text" },
@@ -1008,7 +915,7 @@ export const legalIssue = [
   { key: "land_case_date", label: "Land Case Date", type: "text" },
   { key: "land_case_type", label: "Land Case Type", type: "text" },
   { key: "land_case_status", label: "Land Case Status", type: "text" },
-  { key: "land_case_action", label: "Land Case Details", type: "text" },
+  { key: "land_case_details", label: "Land Case Details", type: "text" },
   {key:"payment_status", label:"Payment Status" , type: "text"}
 ];
 
@@ -1047,19 +954,7 @@ export const LandAreaEvaluationFields = [
   { key: "admin_cost", label: "Admin Cost", type: "number" },
   { key: "total_cost", label: "Total Cost", type: "number" },
   {key:"payment_status", label:"Payment Status" , type: "text"}
-  // {key:"basic_land_value", label: "Basic Land Value", type: "number"},
-  // {key:"land_value_with_mf", label: "Land Value With MF", type: "number"},
-  // {key:"no_of_trees", label: "No of Trees", type: "number"},
-  // {key:"total_value_of_trees", label: "Total Value of Trees", type: "number"},
-  // {key:"no_of_house", label: "No of House", type: "number"},
-  // {key:"value_of_house", label: "Value of House", type: "number"},
-  // {key:"details_of_other_structures", label: "Details of Other Structures", type: "text"},
-  // {key:"value_of_other_structures", label: "Value of Other Structures", type: "number"},
-  // {key:"total_value", label: "Total Value", type: "number"},
-  // {key:"solatium_100", label: "Solatium 100%", type: "number"},
-  // {key:"no_days_interest", label: "No of Days Interest", type: "number"},
-  // {key:"additional_12_percent", label: "Additional 12%", type: "number"},
-  // {key:"total_compensation", label: "Total Compensation", type: "number"},
+
 ];
 
 export const GovernmentPlotFields = [
@@ -1572,3 +1467,39 @@ export const FamilyDetails = [
     field: "family_with_orphan_members",
   },
 ];
+export const levelOne=[
+                ["Project ID", "project_id"],
+                ["DGPS Survey Done", "dgps_survey"],
+                ["DGPS Survey Attachment", "dgps_survey_attachment"],
+                ["DGPS Area", "dgps_area"],
+                ["ORSAC Auth No", "orsac_auth_no"],
+                ["ORSAC Auth Date", "orsac_auth_date"],
+                ["Tree Enumeration Done", "tree_enumeration_done"],
+                ["Tree Enumeration Documents", "tree_enumeration_docs"],
+                ["Total Trees", "total_trees"],
+                ["Adminstrative Docs", "admin_docs"],
+                ["Adminstrative Docs Attachment", "admin_docs_attachment"],
+                ["Legal & Lease Docs", "legal_lease_docs"],
+                ["Legal & Lease Attachment", "legal_lease_docs_attachment"],
+                ["Technical Data", "technical_data"],
+                ["Technical Data Docs", "technical_data_attachment"],
+                ["Forest & Land Details", "forest_land_details"],
+                ["Forest & Land Details Docs", "forest_land_details_attachment"],
+                ["CA/ ACA Planning", "ca_aca_planning"],
+                ["CA/ ACA Planning Docs", "ca_aca_planning_attachment"],
+                ["FRA/ Community Records", "fra_community_records"],
+                ["FRA/ Community Records Docs", "fra_community_records_attachment"],
+                ["Environmental And Statutory", "env_statutory"],
+                ["Env And Statutory Docs", "env_statutory_attachment"],
+                ["Wildlife and Safeguards", "wildlife"],
+                ["Wildlife and Safeguards Docs", "wildlife_attachment"],
+                ["Maps and Spatial Evidence", "maps_spatial_evidence"],
+                ["Maps and Spatial Evidence Docs", "maps_spatial_evidence_attachment"],
+                ["Financial Undertaking", "finance_undertaking"],
+                ["Financial Undertaking Docs", "finance_undertaking_attachment"],
+                ["Proposal Submitted", "proposal_submitted"],
+                ["Proposal Submitted Docs", "proposal_submitted_attachment"],
+                ["PARIVESH Proposal", "parivesh_proposal"],
+                ["Submission Date", "submissionDate"],
+                ["Stag 1 Status", "stage1Status"],
+              ]

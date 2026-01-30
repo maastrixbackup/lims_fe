@@ -52,7 +52,7 @@ const LandCost = () => {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/plots/getCompensationDetails?${query.toString()}`,
+        `${API_BASE_URL}/govtplots/getCompensationDetails?${query.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

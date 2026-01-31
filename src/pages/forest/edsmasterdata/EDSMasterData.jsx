@@ -16,7 +16,7 @@ const EDSMasterData = () => {
           className="btn btn-sm btn-primary"
           onClick={() => setShowForm(true)}
         >
-          + Add
+          + Add EDS Master Data
         </button>
       </div>
 

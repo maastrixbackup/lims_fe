@@ -13,8 +13,9 @@ const EDSMasterDataTable = () => {
     edsStatus: "Pending",
   };
 
+  
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" style={{scrollbarWidth:"thin"}}>
 
       <table className="table table-bordered w-full">
         <thead className="bg-gradient-to-r from-[#7A69E1] to-[#7A69E1] text-white text-sm sticky top-0 z-20">

@@ -63,6 +63,7 @@ const GovernmentKhata = () => {
           village: k.village_name || k.village || "-",
           plot_count: k.plot_count || 0,
           kissam_of_land: k.kissam_of_land || "",
+          unique_id:k.unique_id || ""
         }));
   setTotalPages(res.totalPages)
         setKhatas(mapped);
@@ -122,6 +123,7 @@ const GovernmentKhata = () => {
     "Present Status",
     "Case Details",
     "Plot Count",
+    "Case Count"
   ];
 
   const rows = khatas.map((k) => [
@@ -133,6 +135,7 @@ const GovernmentKhata = () => {
     k.present_status,
     k.case_details,
     k.plot_count,
+    k.unique_id
   ]);
 
   const csvContent =

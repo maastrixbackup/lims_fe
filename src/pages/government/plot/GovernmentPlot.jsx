@@ -475,7 +475,7 @@ const Plots = () => {
       setLoadingPlotId(plot.id);
 
       try {
-        const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+        const res = await fetch(`${API_BASE_URL}/govtplots/paymentReady`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

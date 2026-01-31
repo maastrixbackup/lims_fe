@@ -131,6 +131,7 @@ const KhataTable = ({
                   <td>{k.case_details || "No Data"}</td>
 
                   <td>{k.plot_count || "No Data"}</td>
+                   <td>{k.unique_id || "No Data"}</td>
 
                   <td className={stickyActionCell}>
                     <select

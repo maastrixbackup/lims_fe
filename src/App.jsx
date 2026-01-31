@@ -14,6 +14,7 @@ import LandSchedule from "./pages/forest/LandSchedule";
 import ProjectMasterTable from "./pages/forest/projectmasterdata/ProjectMasterTable";
 import ProjectDetails from "./pages/forest/projectmasterdata/ProjectDetails";
 import LandCost from "./pages/government/landcost/LandCost";
+import EDSMasterData from "./pages/forest/edsmasterdata/EDSMasterData";
 const LandingPage = lazy(() => import("./components/features/LoginScreen"));
 const ForgotPassword = lazy(
   () => import("./components/features/ForgotPassword"),
@@ -132,9 +133,14 @@ export default function App() {
                   element={<LandSchedule />}
                 />
                  <Route
+                  path="/:landType/eds-master-data"
+                  element={<EDSMasterData />}
+                />
+                 <Route
                   path="/:landType/project-master"
                   element={<ProjectDetails />}
                 />
+                
                 <Route path="/import" element={<UploadPlots />} />
 
                 <Route path="/:landType/land-cost" element={<Compensation />} />

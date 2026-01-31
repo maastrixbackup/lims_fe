@@ -1,173 +1,83 @@
 import React, { useState } from "react";
 
-const EDSMasterDataForm = () => {
-  const [form, setForm] = useState({
-    projectId: "",
-    edsRefNo: "",
-    issuingAuthority: "",
-    edsIssueDate: "",
-    edsDueDate: "",
-    totalIssues: "",
-    issuesClosed: "",
-    issuesPending: "",
-    edsStatus: "",
-  });
+const emptyForm = {
+  projectId: "",
+  edsRefNo: "",
+  issuingAuthority: "",
+  edsIssueDate: "",
+  edsDueDate: "",
+  totalIssues: "",
+  issuesClosed: "",
+  issuesPending: "",
+  edsStatus: "",
+};
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+const EDSMasterDataForm = ({ setRows, setShowForm }) => {
+  const [form, setForm] = useState(emptyForm);
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Data:", form);
+    setRows((prev) => [...prev, form]);
+    setShowForm(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md">
+    <div className="modal modal-open">
 
-      <table className="table table-bordered w-full">
+      <div className="modal-box max-w-3xl">
 
-        <thead>
-          <tr>
-            <th colSpan={2} className="bg-black text-white text-center">
-              EDS MASTER DATA
-            </th>
-          </tr>
-        </thead>
+        <h3 className="font-bold text-lg mb-4">Add EDS Master Data</h3>
 
-        <tbody>
+        <form onSubmit={handleSubmit}>
 
-          <tr>
-            <td className="font-semibold bg-base-200">Project ID</td>
-            <td>
-              <input
-                name="projectId"
-                value={form.projectId}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+          <div className="grid grid-cols-2 gap-4">
 
-          <tr>
-            <td className="font-semibold bg-base-200">EDS Ref No</td>
-            <td>
-              <input
-                name="edsRefNo"
-                value={form.edsRefNo}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+            <input className="input input-bordered" placeholder="Project ID" name="projectId" onChange={handleChange} />
+            <input className="input input-bordered" placeholder="EDS Ref No" name="edsRefNo" onChange={handleChange} />
 
-          <tr>
-            <td className="font-semibold bg-base-200">Issuing Authority</td>
-            <td>
-              <input
-                name="issuingAuthority"
-                value={form.issuingAuthority}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+            <input className="input input-bordered col-span-2" placeholder="Issuing Authority" name="issuingAuthority" onChange={handleChange} />
 
-          <tr>
-            <td className="font-semibold bg-base-200">EDS Issue Date</td>
-            <td>
-              <input
-                type="date"
-                name="edsIssueDate"
-                value={form.edsIssueDate}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+            <input type="date" className="input input-bordered" name="edsIssueDate" onChange={handleChange} />
+            <input type="date" className="input input-bordered" name="edsDueDate" onChange={handleChange} />
 
-          <tr>
-            <td className="font-semibold bg-base-200">EDS Due Date</td>
-            <td>
-              <input
-                type="date"
-                name="edsDueDate"
-                value={form.edsDueDate}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+            <input type="number" className="input input-bordered" placeholder="Total Issues" name="totalIssues" onChange={handleChange} />
+            <input type="number" className="input input-bordered" placeholder="Issues Closed" name="issuesClosed" onChange={handleChange} />
 
-          <tr>
-            <td className="font-semibold bg-base-200">Total Issues</td>
-            <td>
-              <input
-                type="number"
-                name="totalIssues"
-                value={form.totalIssues}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+            <input type="number" className="input input-bordered" placeholder="Issues Pending" name="issuesPending" onChange={handleChange} />
 
-          <tr>
-            <td className="font-semibold bg-base-200">Issues Closed</td>
-            <td>
-              <input
-                type="number"
-                name="issuesClosed"
-                value={form.issuesClosed}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+            <select name="edsStatus" className="select select-bordered">
+              <option value="">Select Status</option>
+              <option>Open</option>
+              <option>Pending</option>
+              <option>Closed</option>
+            </select>
 
-          <tr>
-            <td className="font-semibold bg-base-200">Issues Pending</td>
-            <td>
-              <input
-                type="number"
-                name="issuesPending"
-                value={form.issuesPending}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-            </td>
-          </tr>
+          </div>
 
-          <tr>
-            <td className="font-semibold bg-base-200">EDS Status</td>
-            <td>
-              <select
-                name="edsStatus"
-                value={form.edsStatus}
-                onChange={handleChange}
-                className="select select-bordered w-full"
-              >
-                <option value="">Select</option>
-                <option value="Open">Open</option>
-                <option value="Pending">Pending</option>
-                <option value="Closed">Closed</option>
-              </select>
-            </td>
-          </tr>
+          <div className="modal-action">
 
-        </tbody>
-      </table>
+            <button
+              type="button"
+              className="btn btn-error btn-sm"
+              onClick={() => setShowForm(false)}
+            >
+              Cancel
+            </button>
 
-      <div className="mt-4 text-right">
-        <button className="btn btn-primary">
-          Save
-        </button>
+            <button className="btn btn-primary btn-sm">
+              Save
+            </button>
+
+          </div>
+
+        </form>
+
       </div>
 
-    </form>
+    </div>
   );
 };
 

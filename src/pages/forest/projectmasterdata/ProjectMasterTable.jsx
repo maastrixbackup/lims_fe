@@ -1,9 +1,14 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import FilterSortHeader from "../FilterSortHeader";
+import { useNavigate, useParams } from "react-router-dom";
+
 
 const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
   const userRole = useSelector((s) => s.auth.user?.role_name);
+const navigate = useNavigate();
+  const { landType } = useParams();
+  // const typeParam = useLandTypeParam();
 
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
@@ -117,7 +122,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               />
             ))}
 
-            <th>EDS Doc</th>
+            {/* <th>EDS Doc</th> */}
             <th className={stickyActionHeader}>Action</th>
           </tr>
         </thead>
@@ -149,8 +154,24 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               <td>{row.non_forest_area_ha || "No Data"}</td>
               <td>{row.project_status || "No Data"}</td>
               <td>{row.current_stage || "No Data"}</td>
-              <td>{Number(row.eds_flag) === 1 ? "Yes" : "No"}</td>
+              <td>
+  {Number(row.eds_flag) === 1 ? (
+    <span
+      className="text-blue-600 underline cursor-pointer font-medium"
+      onClick={() =>
+        navigate(`/${landType}/eds-master-data`, {
+          state: { project: row },
+        })
+      }
+    >
+      Yes
+    </span>
+  ) : (
+    "No"
+  )}
+</td>
 
+{/* 
               <td>
                 {row.eds_document_url ? (
                   <a
@@ -164,7 +185,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
                 ) : (
                   "No Data"
                 )}
-              </td>
+              </td> */}
 
               <td className={stickyActionCell}>
                 <select

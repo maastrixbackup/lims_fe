@@ -8,25 +8,28 @@ const isPositiveSelection = (value) => {
   return !negativeWords.some((w) => value.toLowerCase().includes(w));
 };
 
+const getUploadedCount = (filesObj = {}) =>
+  Object.values(filesObj).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+
+const getAllFiles = (filesObj = {}) => Object.values(filesObj).flat();
+
 /* ================= EMPTY FORM ================= */
 
 const emptyForm = {
   projectId: "",
+  dgpsArea: "",
+  totalTrees: "",
+  orsacAuthNo: "",
+  stageStatus: "",
+  parivesh_proposal_no: "",
+  orsacAuthDate: "",
+  submissionDate: "",
 
   dgpsSurvey: "",
   dgpsSurveyFile: {},
 
-  dgpsArea: "",
-
-  orsacAuthNo: "",
-  orsacAuthNoFile: {},
-
-  orsacAuthDate: "",
-
   treeEnum: "",
   treeEnumFile: {},
-
-  totalTrees: "",
 
   adminDocs: "",
   adminDocsFile: {},
@@ -60,124 +63,69 @@ const emptyForm = {
 
   proposalSubmitted: "",
   proposalSubmittedFile: {},
-
-  submissionDate: "",
-  stageStatus: "",
 };
 
 /* ================= FIELD CONFIG ================= */
 
 const fields = [
-  {
-    name: "dgpsSurvey",
-    label: "DGPS Survey Done",
-    options: ["Yes", "No"],
-    upload: true,
-  },
-  // { name: "orsacAuthNo", label: "ORSAC Auth No", options: ["Entered"], upload: true },
-  {
-    name: "treeEnum",
-    label: "Tree Enumeration",
-    options: ["Yes", "No"],
-    upload: true,
-  },
-
-  {
-    name: "adminDocs",
-    label: "Administrative Docs",
-    options: ["Yes", "No"],
-    upload: true,
-  },
-  {
-    name: "legalDocs",
-    label: "Legal & Lease Docs",
-    options: ["Yes", "No"],
-    upload: true,
-  },
-  {
-    name: "technicalData",
-    label: "Technical Data",
-    options: ["Yes", "No"],
-    upload: true,
-  },
-
+  { name: "dgpsSurvey", label: "DGPS Survey Done", options: ["Yes", "No"] },
+  { name: "treeEnum", label: "Tree Enumeration", options: ["Yes", "No"] },
+  { name: "adminDocs", label: "Administrative Docs", options: ["Yes", "No"] },
+  { name: "legalDocs", label: "Legal & Lease Docs", options: ["Yes", "No"] },
+  { name: "technicalData", label: "Technical Data", options: ["Yes", "No"] },
   {
     name: "forestLand",
     label: "Forest & Land",
     options: ["Uploaded", "Not Uploaded"],
-    upload: true,
   },
-  {
-    name: "caPlanning",
-    label: "CA / ACA Planning",
-    options: ["Yes", "No"],
-    upload: true,
-  },
+  { name: "caPlanning", label: "CA / ACA Planning", options: ["Yes", "No"] },
   {
     name: "fraRecords",
     label: "FRA Records",
     options: ["Complied", "Not Complied"],
-    upload: true,
   },
-
   {
     name: "envStatutory",
     label: "Environmental",
     options: ["Cleared", "Not Cleared"],
-    upload: true,
   },
   {
     name: "wildlife",
     label: "Wildlife",
     options: ["Completed", "Not Completed"],
-    upload: true,
   },
-
   {
     name: "maps",
     label: "Maps Evidence",
     options: ["Authenticated", "Not Authenticated"],
-    upload: true,
   },
-
   {
     name: "finance",
     label: "Financial Undertaking",
     options: ["Submitted", "Not Submitted"],
-    upload: true,
   },
-
   {
     name: "proposalSubmitted",
     label: "Proposal Submitted",
     options: ["Yes", "No"],
-    upload: true,
   },
 ];
 
-/* ================= DOCUMENT REQUIREMENTS ================= */
+/* ================= DOC REQUIREMENTS ================= */
 
 const docRequirements = {
   dgpsSurvey: ["DGPS Survey Report"],
-  // orsacAuthNo: ["ORSAC Authorization Letter"],
   treeEnum: ["Tree Enumeration Report"],
-
   adminDocs: ["Authorization", "Checklist", "Form-A"],
   legalDocs: ["Grant Order", "Lease Deed", "LOI"],
   technicalData: ["DPR", "Mining Plan", "Forest Area Justification"],
-
   forestLand: ["FL Location & Area", "Tree Enumeration", "Land Use"],
   caPlanning: ["CA Land", "Suitability", "DSS", "ACA Scheme"],
-
   fraRecords: ["FRA Correspondence", "Compliance Report"],
   envStatutory: ["EC", "SPCB NOC"],
-
   wildlife: ["SSWLCP", "Wildlife Payment Receipt"],
-
   maps: ["DGPS Map", "Topo Map", "CA/ACA Map", "Wildlife Map"],
-
   finance: ["NPV", "CA", "ACA", "Safety Zone Declarations"],
-
   proposalSubmitted: ["Proposal Document"],
 };
 
@@ -213,19 +161,10 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
     }));
   };
 
-  /* ===== SUBMIT VALIDATION ===== */
-
   const handleSubmit = () => {
     for (let f of fields) {
-      const val = form[f.name];
-
-      if (f.upload && isPositiveSelection(val)) {
-        const filesObj = form[`${f.name}File`];
-        const hasAnyFile = Object.values(filesObj || {}).some(
-          (arr) => arr.length > 0,
-        );
-
-        if (!hasAnyFile) {
+      if (isPositiveSelection(form[f.name])) {
+        if (!getUploadedCount(form[`${f.name}File`])) {
           alert(`Upload required for ${f.label}`);
           return;
         }
@@ -234,103 +173,116 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
 
     setRows((prev) => [...prev, form]);
     setShowModal(false);
-    setForm(emptyForm);
   };
+
+  const totalFiles = fields.reduce(
+    (sum, f) => sum + getUploadedCount(form[`${f.name}File`]),
+    0
+  );
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box max-w-2xl">
-        <h3 className="font-bold mb-4">LEVEL-1 FD PROPOSAL</h3>
+      <div className="modal-box max-w-3xl">
 
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <input
-            name="projectId"
-            placeholder="Project ID"
-            className="input input-bordered"
-            onChange={handleChange}
-          />
-          <input
-            type="number"
-            name="dgpsArea"
-            placeholder="DGPS Area"
-            className="input input-bordered"
-            onChange={handleChange}
-          />
-          <input
-            type="number"
-            name="totalTrees"
-            placeholder="Total Trees"
-            className="input input-bordered"
-            onChange={handleChange}
-          />
+        <h3 className="font-bold text-lg mb-2">LEVEL-1 FD PROPOSAL</h3>
 
-          <input
-            type="number"
-            name="orsacAuthNo"
-            placeholder="ORSAC Auth No"
-            className="input input-bordered"
-            onChange={handleChange}
-          />
-          <input
-            name="stageStatus"
-            placeholder="Stage 1 Status"
-            className="input input-bordered"
-            onChange={handleChange}
-          />
-          <input
-            type="number"
-            name="parivesh_proposal_no"
-            placeholder="PARIVESH Proposal No"
-            className="input input-bordered"
-            onChange={handleChange}
-          />
-          {fields.map((f) => (
-            <select
-              key={f.name}
-              name={f.name}
-              className="select select-bordered"
-              onChange={(e) => {
-                handleChange(e);
-                if (
-                  isPositiveSelection(e.target.value) &&
-                  docRequirements[f.name]
-                ) {
-                  setDocModal({ open: true, field: f.name });
-                }
-              }}
-            >
-              <option value="">{f.label}</option>
-              {f.options.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
+        <div className="alert alert-info py-2 text-sm mb-4">
+          📎 Total Files Uploaded: <b>{totalFiles}</b>
+        </div>
+
+        {/* BASIC INPUTS */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            ["projectId", "Project ID"],
+            ["dgpsArea", "DGPS Area"],
+            ["totalTrees", "Total Trees"],
+            ["orsacAuthNo", "ORSAC Auth No"],
+            ["stageStatus", "Stage 1 Status"],
+            ["parivesh_proposal_no", "PARIVESH Proposal No"],
+          ].map(([name, label]) => (
+            <div key={name} className="form-control">
+              <label className="label">
+                <span className="label-text">{label}</span>
+              </label>
+              <input
+                name={name}
+                type={name.includes("No") || name.includes("Area") ? "number" : "text"}
+                className="input input-bordered"
+                onChange={handleChange}
+              />
+            </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">ORSAC Auth Date</span>
-            </label>
-            <input
-              type="date"
-              name="orsacAuthDate"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+        {/* SELECTS */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          {fields.map((f) => {
+            const uploadedCount = getUploadedCount(form[`${f.name}File`]);
+            const allFiles = getAllFiles(form[`${f.name}File`]);
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Submission Date</span>
-            </label>
-            <input
-              type="date"
-              name="submissionDate"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            return (
+              <div key={f.name} className="form-control relative group">
+                <label className="label flex justify-between">
+                  <span className="label-text">{f.label}</span>
+
+                  {uploadedCount > 0 && (
+                    <span className="badge badge-success badge-sm">
+                      📎 {uploadedCount}
+                    </span>
+                  )}
+                </label>
+
+                <select
+                  name={f.name}
+                  className="select select-bordered"
+                  onChange={(e) => {
+                    handleChange(e);
+                    if (isPositiveSelection(e.target.value))
+                      setDocModal({ open: true, field: f.name });
+                  }}
+                >
+                  <option value="">Select</option>
+                  {f.options.map((o) => (
+                    <option key={o}>{o}</option>
+                  ))}
+                </select>
+
+                {uploadedCount > 0 && (
+                  <p className="text-xs text-success mt-1">✔ Documents attached</p>
+                )}
+
+                {uploadedCount > 0 && (
+                  <div className="hidden group-hover:block absolute z-50 bg-base-200 shadow rounded p-2 text-xs top-full mt-1 w-full">
+                    {allFiles.map((file, i) => (
+                      <div key={i} className="truncate">
+                        • {file.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* DATES */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {[
+            ["orsacAuthDate", "ORSAC Auth Date"],
+            ["submissionDate", "Submission Date"],
+          ].map(([n, l]) => (
+            <div key={n} className="form-control">
+              <label className="label">
+                <span className="label-text">{l}</span>
+              </label>
+              <input
+                type="date"
+                name={n}
+                className="input input-bordered"
+                onChange={handleChange}
+              />
+            </div>
+          ))}
         </div>
 
         <div className="modal-action">
@@ -343,6 +295,7 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
         </div>
       </div>
 
+      {/* DOCUMENT MODAL */}
       {docModal.open && (
         <dialog className="modal modal-open">
           <div className="modal-box max-w-lg">
@@ -380,7 +333,7 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
 
             <div className="modal-action">
               <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-primary btn-sm"
                 onClick={() => setDocModal({ open: false, field: "" })}
               >
                 Done

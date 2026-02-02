@@ -8,10 +8,15 @@ const Level4Stage2Clearance = () => {
     {
       projectId: "fdgfd",
       finalApprovalNo: "dfgfd",
+      finalApprovalDoc: null,
       finalApprovalDate: "fdgfd",
+      finalApprovalDateDoc: null,
       divertedArea: "dfgdf",
+      divertedAreaDoc: null,
       landHandover: "dfgdfg",
-      handoverDate: "dfgfdg",
+      handoverDoc: null,
+      handoverDate: "fdgfdg",
+      handoverDateDoc: null,
       projectClosed: "bvcn",
       closureDate: "cbnfg",
     },
@@ -34,8 +39,9 @@ const Level4Stage2Clearance = () => {
     direction: null,
   });
 
-  const getUniqueOptions = (field) =>
-    [...new Set(rows.map((r) => r[field]).filter(Boolean))];
+  const getUniqueOptions = (field) => [
+    ...new Set(rows.map((r) => r[field]).filter(Boolean)),
+  ];
 
   const filteredAndSortedData = useMemo(() => {
     let result = [...rows];
@@ -60,6 +66,22 @@ const Level4Stage2Clearance = () => {
     return result;
   }, [rows, filters, sortConfig]);
 
+  const tableColumns = [
+    ["Project ID", "projectId"],
+    ["Final Approval No", "finalApprovalNo"],
+    ["Final Approval Doc", "finalApprovalDoc"],
+    ["Final Approval Date", "finalApprovalDate"],
+    ["Final Approval Date Doc", "finalApprovalDateDoc"],
+    ["Diverted Area (ha)", "divertedArea"],
+    ["Diverted Area Doc", "divertedAreaDoc"],
+    ["Land Handover", "landHandover"],
+    ["Handover Doc", "handoverDoc"],
+    ["Handover Date", "handoverDate"],
+    ["Handover Date Doc", "handoverDateDoc"],
+    ["Project Closed", "projectClosed"],
+    ["Closure Date", "closureDate"],
+  ];
+
   return (
     <div>
       <div className="flex justify-between mb-3">
@@ -79,16 +101,7 @@ const Level4Stage2Clearance = () => {
         <table className="table w-full">
           <thead className="bg-gray-500 text-white text-sm sticky top-0 z-20">
             <tr>
-              {[
-                ["Project ID", "projectId"],
-                ["Final Approval No", "finalApprovalNo"],
-                ["Final Approval Date", "finalApprovalDate"],
-                ["Diverted Area (ha)", "divertedArea"],
-                ["Land Handover", "landHandover"],
-                ["Handover Date", "handoverDate"],
-                ["Project Closed", "projectClosed"],
-                ["Closure Date", "closureDate"],
-              ].map(([label, field]) => (
+              {tableColumns.map(([label, field]) => (
                 <FilterSortHeader
                   key={field}
                   label={label}
@@ -100,7 +113,6 @@ const Level4Stage2Clearance = () => {
                   setSortConfig={setSortConfig}
                 />
               ))}
-
               <th className={stickyActionHeader}>Action</th>
             </tr>
           </thead>
@@ -108,7 +120,7 @@ const Level4Stage2Clearance = () => {
           <tbody>
             {filteredAndSortedData.length === 0 && (
               <tr>
-                <td colSpan="8" className="text-center">
+                <td colSpan={tableColumns.length + 1} className="text-center">
                   No Data
                 </td>
               </tr>
@@ -116,14 +128,9 @@ const Level4Stage2Clearance = () => {
 
             {filteredAndSortedData.map((r, i) => (
               <tr key={i}>
-                <td>{r.projectId}</td>
-                <td>{r.finalApprovalNo}</td>
-                <td>{r.finalApprovalDate}</td>
-                <td>{r.divertedArea}</td>
-                <td>{r.landHandover}</td>
-                <td>{r.handoverDate}</td>
-                <td>{r.projectClosed}</td>
-                <td>{r.closureDate}</td>
+                {tableColumns.map(([_, field]) => (
+                  <td key={field}>{r[field]}</td>
+                ))}
 
                 <td className={stickyActionCell}>
                   <select
@@ -157,7 +164,9 @@ const Level4Stage2Clearance = () => {
         </table>
       </div>
 
-      {showModal && <LevelFourForm setRows={setRows} setShowModal={setShowModal} />}
+      {showModal && (
+        <LevelFourForm setRows={setRows} setShowModal={setShowModal} />
+      )}
     </div>
   );
 };

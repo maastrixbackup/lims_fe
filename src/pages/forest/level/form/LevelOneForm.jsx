@@ -160,6 +160,12 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
       },
     }));
   };
+  const resetFilesForField = (field) => {
+    setForm((prev) => ({
+      ...prev,
+      [`${field}File`]: {},
+    }));
+  };
 
   const handleSubmit = () => {
     for (let f of fields) {
@@ -177,13 +183,12 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
 
   const totalFiles = fields.reduce(
     (sum, f) => sum + getUploadedCount(form[`${f.name}File`]),
-    0
+    0,
   );
 
   return (
     <dialog className="modal modal-open">
       <div className="modal-box max-w-3xl">
-
         <h3 className="font-bold text-lg mb-2">LEVEL-1 FD PROPOSAL</h3>
 
         <div className="alert alert-info py-2 text-sm mb-4">
@@ -206,7 +211,11 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
               </label>
               <input
                 name={name}
-                type={name.includes("No") || name.includes("Area") ? "number" : "text"}
+                type={
+                  name.includes("No") || name.includes("Area")
+                    ? "number"
+                    : "text"
+                }
                 className="input input-bordered"
                 onChange={handleChange}
               />
@@ -226,9 +235,13 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
                   <span className="label-text">{f.label}</span>
 
                   {uploadedCount > 0 && (
-                    <span className="badge badge-success badge-sm">
+                    <button
+                      type="button"
+                      className="badge badge-success badge-sm cursor-pointer hover:badge-primary"
+                      onClick={() => setDocModal({ open: true, field: f.name })}
+                    >
                       📎 {uploadedCount}
-                    </span>
+                    </button>
                   )}
                 </label>
 
@@ -236,9 +249,16 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
                   name={f.name}
                   className="select select-bordered"
                   onChange={(e) => {
+                    const value = e.target.value;
+
                     handleChange(e);
-                    if (isPositiveSelection(e.target.value))
+
+                    if (isPositiveSelection(value)) {
                       setDocModal({ open: true, field: f.name });
+                    } else {
+                      // User selected NO / NOT — clear uploaded files
+                      resetFilesForField(f.name);
+                    }
                   }}
                 >
                   <option value="">Select</option>
@@ -248,7 +268,9 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
                 </select>
 
                 {uploadedCount > 0 && (
-                  <p className="text-xs text-success mt-1">✔ Documents attached</p>
+                  <p className="text-xs text-success mt-1">
+                    ✔ Documents attached
+                  </p>
                 )}
 
                 {uploadedCount > 0 && (

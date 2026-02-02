@@ -231,7 +231,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
                 value={formData.project_id || ""}
                 onChange={handleChange}
                 className="select select-bordered w-full"
-                required
+               
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
@@ -288,7 +288,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
                 value={formData.khata_no}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-                required
+               
                 // disabled={isRestricted}
               />
             </div>

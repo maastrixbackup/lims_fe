@@ -2,30 +2,38 @@ import React, { useState } from "react";
 
 const LevelThreeForm = ({ setRows, setShowModal, rows }) => {
   const [form, setForm] = useState({
-    projectId: "",
-    complianceType: "",
-    documentSubmitted: "",
-    submissionDate: "",
-    verifiedBy: "",
-    verificationDate: "",
-    complianceStatus: "",
+    project_id: "",
+    compliance_type: "",
+    document_submitted: "",
+    document_file: null,
+    submission_date: "",
+    verified_by: "",
+    verification_date: "",
+    compliance_status: "",
   });
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+
+    setForm({
+      ...form,
+      [name]: files ? files[0] : value,
+    });
+  };
 
   const handleSubmit = () => {
     setRows([...rows, form]);
     setShowModal(false);
 
     setForm({
-      projectId: "",
-      complianceType: "",
-      documentSubmitted: "",
-      submissionDate: "",
-      verifiedBy: "",
-      verificationDate: "",
-      complianceStatus: "",
+      project_id: "",
+      compliance_type: "",
+      document_submitted: "",
+      document_file: null,
+      submission_date: "",
+      verified_by: "",
+      verification_date: "",
+      compliance_status: "",
     });
   };
 
@@ -40,7 +48,7 @@ const LevelThreeForm = ({ setRows, setShowModal, rows }) => {
           <div>
             <label>Project ID</label>
             <input
-              name="projectId"
+              name="project_id"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
@@ -49,26 +57,59 @@ const LevelThreeForm = ({ setRows, setShowModal, rows }) => {
           <div>
             <label>Compliance Type</label>
             <input
-              name="complianceType"
+              name="compliance_type"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
           </div>
 
+          {/* Document Submitted */}
           <div>
-            <label>Document Submitted</label>
-            <input
-              name="documentSubmitted"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
+            <label className="block mb-1">Document Submitted</label>
+
+            <div className="flex gap-4 mt-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="document_submitted"
+                  value="Yes"
+                 
+                  onChange={handleChange}
+                />
+                Yes
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="document_submitted"
+                  value="No"
+                
+                  onChange={handleChange}
+                />
+                No
+              </label>
+            </div>
           </div>
+
+          {/* Upload file only if Yes */}
+          {form.document_submitted === "Yes" && (
+            <div className="col-span-2">
+              <label>Compliance Document Upload</label>
+              <input
+                type="file"
+                name="document_file"
+                className="file-input file-input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           <div>
             <label>Submission Date</label>
             <input
               type="date"
-              name="submissionDate"
+              name="submission_date"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
@@ -77,7 +118,7 @@ const LevelThreeForm = ({ setRows, setShowModal, rows }) => {
           <div>
             <label>Verified By</label>
             <input
-              name="verifiedBy"
+              name="verified_by"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
@@ -87,7 +128,7 @@ const LevelThreeForm = ({ setRows, setShowModal, rows }) => {
             <label>Verification Date</label>
             <input
               type="date"
-              name="verificationDate"
+              name="verification_date"
               className="input input-bordered w-full"
               onChange={handleChange}
             />
@@ -96,7 +137,7 @@ const LevelThreeForm = ({ setRows, setShowModal, rows }) => {
           <div className="col-span-2">
             <label>Compliance Status</label>
             <input
-              name="complianceStatus"
+              name="compliance_status"
               className="input input-bordered w-full"
               onChange={handleChange}
             />

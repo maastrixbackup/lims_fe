@@ -6,13 +6,14 @@ import FilterSortHeader from "../FilterSortHeader";
 const Level3Stage2Compliance = () => {
   const [rows, setRows] = useState([
     {
-      projectId: "ertret",
-      complianceType: "eter",
-      documentSubmitted: "vb vc",
-      submissionDate: "cvbvc",
-      verifiedBy: "cvbdf",
-      verificationDate: "fdgw",
-      complianceStatus: "sdf",
+      project_id: "ertret",
+      compliance_type: "eter",
+      document_submitted: "vb vc",
+      submission_date: "cvbvc",
+      verified_by: "cvbdf",
+      verification_date: "fdgw",
+      compliance_status: "sdf",
+      document_submitted_attached:"url"
     },
   ]);
 
@@ -79,13 +80,14 @@ const Level3Stage2Compliance = () => {
           <thead className="bg-gray-500 text-white text-sm sticky top-0 z-20">
             <tr>
               {[
-                ["Project ID", "projectId"],
-                ["Compliance Type", "complianceType"],
-                ["Document Submitted", "documentSubmitted"],
-                ["Submission Date", "submissionDate"],
-                ["Verified By", "verifiedBy"],
-                ["Verification Date", "verificationDate"],
-                ["Compliance Status", "complianceStatus"],
+                ["Project ID", "project_id"],
+                ["Compliance Type", "compliance_type"],
+                ["Document Submitted", "document_submitted"],
+                 ["Sumitted Attached Docs", "document_submitted_attached"],
+                ["Submission Date", "submission_date"],
+                ["Verified By", "verified_by"],
+                ["Verification Date", "verification_date"],
+                ["Compliance Status", "compliance_status"],
               ].map(([label, field]) => (
                 <FilterSortHeader
                   key={field}
@@ -114,13 +116,14 @@ const Level3Stage2Compliance = () => {
 
             {filteredAndSortedData.map((r, i) => (
               <tr key={i}>
-                <td>{r.projectId}</td>
-                <td>{r.complianceType}</td>
-                <td>{r.documentSubmitted}</td>
-                <td>{r.submissionDate}</td>
-                <td>{r.verifiedBy}</td>
-                <td>{r.verificationDate}</td>
-                <td>{r.complianceStatus}</td>
+                <td>{r.project_id}</td>
+                <td>{r.compliance_type}</td>
+                <td>{r.document_submitted}</td>
+                 <td>{r.document_submitted_attached}</td>
+                <td>{r.submission_date}</td>
+                <td>{r.verified_by}</td>
+                <td>{r.verification_date}</td>
+                <td>{r.compliance_status}</td>
 
                 <td className={stickyActionCell}>
                   <select

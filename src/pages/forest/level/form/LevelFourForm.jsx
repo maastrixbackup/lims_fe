@@ -1,14 +1,24 @@
 import React, { useState } from "react";
 
-const LevelFourForm = ({ setRows, setShowModal, rows }) => {
-  const [form, setForm] = useState({
+const LevelFourForm = ({ setShowModal,setRows }) => {
+  const [formData,  setFormData] = useState({
     projectId: "",
-    finalApprovalNo: "",
-    finalApprovalDate: "",
-    divertedArea: "",
-    landHandover: "",
-    handoverDate: "",
+
+    finalApprovalNoYes: "",
+    finalApprovalDoc: null,
+
+    finalApprovalDateYes: "",
+    finalApprovalDateDoc: null,
+
+    divertedAreaYes: "",
+    divertedAreaDoc: null,
+
+    landHandover: "", 
     handoverDoc: null,
+
+    handoverDateYes: "",
+    handoverDateDoc: null,
+
     projectClosed: "",
     closureDate: "",
     closureDoc: null,
@@ -16,151 +26,143 @@ const LevelFourForm = ({ setRows, setShowModal, rows }) => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
-    setForm({
-      ...form,
+     setFormData({
+      ...formData,
       [name]: files ? files[0] : value,
     });
   };
 
   const handleSubmit = () => {
-    setRows([...rows, form]);
+    setRows((prevRows) => [...prevRows, formData]);
     setShowModal(false);
-
-    setForm({
-      projectId: "",
-      finalApprovalNo: "",
-      finalApprovalDate: "",
-      divertedArea: "",
-      landHandover: "",
-      handoverDate: "",
-      handoverDoc: null,
-      projectClosed: "",
-      closureDate: "",
-      closureDoc: null,
-    });
   };
+
+
+  const RadioBlock = ({ label, radioName, docName }) => (
+    <div className="col-span-2">
+      <label className="font-medium">{label}</label>
+
+      <div className="flex gap-6 mt-1">
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            name={radioName}
+            value="Yes"
+            checked={formData[radioName] === "Yes"}
+            onChange={handleChange}
+          />
+          Yes
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            name={radioName}
+            value="No"
+            checked={formData[radioName] === "No"}
+            onChange={handleChange}
+          />
+          No
+        </label>
+      </div>
+
+      {formData[radioName] === "Yes" && docName && (
+        <input
+          type="file"
+          name={docName}
+          className="file-input file-input-bordered w-full mt-2"
+          onChange={handleChange}
+        />
+      )}
+    </div>
+  );
 
   return (
     <dialog className="modal modal-open">
       <div className="modal-box max-w-xl">
-        <h3 className="font-bold mb-4">Add Stage II Clearance</h3>
+        <h3 className="font-bold mb-4">Level 4 Clearance</h3>
 
-        <div className="grid grid-cols-2 gap-4">
-
-          <div>
+        <div>
+          <div className="col-span-2 mb-4">
             <label>Project ID</label>
             <input
               name="projectId"
               className="input input-bordered w-full"
               onChange={handleChange}
+              value={formData.projectId}
             />
           </div>
 
-          <div>
-            <label>Final Approval No</label>
-            <input
-              name="finalApprovalNo"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Final Approval Date</label>
-            <input
-              type="date"
-              name="finalApprovalDate"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Diverted Area (ha)</label>
-            <input
-              name="divertedArea"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Land Handover</label>
-            <select
-              name="landHandover"
-              className="select select-bordered w-full"
-              onChange={handleChange}
-            >
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Handover Date</label>
-            <input
-              type="date"
-              name="handoverDate"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
-
-          {form.landHandover === "Yes" && (
-            <div className="col-span-2">
-              <label>Handover Document</label>
-              <input
-                type="file"
-                name="handoverDoc"
-                className="file-input file-input-bordered w-full"
-                onChange={handleChange}
+          <div className="grid grid-cols-2 gap-4 p-2">
+            <div>
+              <RadioBlock
+                label="Final Approval No"
+                radioName="finalApprovalNoYes"
+                docName="finalApprovalDoc"
               />
             </div>
-          )}
-
-          <div>
-            <label>Project Closed</label>
-            <select
-              name="projectClosed"
-              className="select select-bordered w-full"
-              onChange={handleChange}
-            >
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
+            <div>
+              <RadioBlock
+                label="Final Approval Date"
+                radioName="finalApprovalDateYes"
+                docName="finalApprovalDateDoc"
+              />
+            </div>
           </div>
 
-          <div>
-            <label>Closure Date</label>
-            <input
-              type="date"
-              name="closureDate"
-              className="input input-bordered w-full"
-              onChange={handleChange}
+          <div className="grid grid-cols-2 gap-4 p-2">
+            <div>
+              <RadioBlock
+                label="Diverted Area"
+                radioName="divertedAreaYes"
+                docName="divertedAreaDoc"
+              />
+            </div>
+            <div>
+              <RadioBlock
+                label="Land Handover Done"
+                radioName="landHandover"
+                docName="handoverDoc"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 p-2">
+            <RadioBlock
+              label="Handover Date"
+              radioName="handoverDateYes"
+              docName="handoverDateDoc"
             />
           </div>
 
-          {form.projectClosed === "Yes" && (
-            <div className="col-span-2">
-              <label>Closure Document</label>
+          <div className="grid grid-cols-2 gap-4 p-2">
+            <div>
+              <label>Project Closed</label>
               <input
-                type="file"
-                name="closureDoc"
-                className="file-input file-input-bordered w-full"
+                name="projectClosed"
+                className="input input-bordered w-full"
                 onChange={handleChange}
+                value={formData.projectClosed}
               />
             </div>
-          )}
+
+            <div>
+              <label>Closure Date</label>
+              <input
+                type="date"
+                name="closureDate"
+                className="input input-bordered w-full"
+                onChange={handleChange}
+                value={formData.closureDate}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="modal-action">
           <button className="btn btn-success btn-sm" onClick={handleSubmit}>
             Save
           </button>
-
           <button className="btn btn-sm" onClick={() => setShowModal(false)}>
             Cancel
           </button>

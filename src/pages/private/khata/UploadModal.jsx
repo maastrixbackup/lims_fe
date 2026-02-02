@@ -190,8 +190,8 @@ export default function UploadModal({ khata, onClose }) {
                       type="file"
                       accept={
                         isSheetType(docType)
-                          ? ".xls,.xlsx,.csv"
-                          : "application/pdf"
+                          ? ".xls,.xlsx,.csv,.pdf,.jpg,.jpeg,.docx"
+                          : ""
                       }
                       multiple
                       onChange={(e) => handleFileUpload(e, docType)}

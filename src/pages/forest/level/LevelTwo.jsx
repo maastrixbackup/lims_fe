@@ -6,13 +6,15 @@ import FilterSortHeader from "../FilterSortHeader";
 const Level2Stage1Approval = () => {
   const rows = [
     {
-      projectId: "hjku",
-      stage1ApprovalNo: "ghjgh",
-      approvalDate: "ghjgh",
-      npvAmount: "dgdfgd",
-      caLand: "dfgdfg",
-      acaLand: "ddfggdf",
-      stage2Status: "ghh",
+      project_id: "hjku",
+      stage1_approval_no: "ghjgh",
+      approval_date: "ghjgh",
+      npv_amount: "dgdfgd",
+      ca_land: "dfgdfg",
+      aca_land: "ddfggdf",
+      stage2_status: "ghh",
+      npv_attached_doc: "url",
+      stage1_attached_doc: "url",
     },
   ];
 
@@ -33,8 +35,9 @@ const Level2Stage1Approval = () => {
     direction: null,
   });
 
-  const getUniqueOptions = (field) =>
-    [...new Set(rows.map((r) => r[field]).filter(Boolean))];
+  const getUniqueOptions = (field) => [
+    ...new Set(rows.map((r) => r[field]).filter(Boolean)),
+  ];
 
   const filteredAndSortedData = useMemo(() => {
     let result = [...rows];
@@ -78,8 +81,8 @@ const Level2Stage1Approval = () => {
             <tr>
               <FilterSortHeader
                 label="Project ID"
-                field="projectId"
-                options={getUniqueOptions("projectId")}
+                field="project_id"
+                options={getUniqueOptions("project_id")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -88,8 +91,8 @@ const Level2Stage1Approval = () => {
 
               <FilterSortHeader
                 label="Stage I Approval No"
-                field="stage1ApprovalNo"
-                options={getUniqueOptions("stage1ApprovalNo")}
+                field="stage1_approval_no"
+                options={getUniqueOptions("stage1_approval_no")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -97,9 +100,18 @@ const Level2Stage1Approval = () => {
               />
 
               <FilterSortHeader
+                label="Stage I Attached Document"
+                field="stage1_attached_doc"
+                options={getUniqueOptions("stage1_attached_doc")}
+                filters={filters}
+                setFilters={setFilters}
+                sortConfig={sortConfig}
+                setSortConfig={setSortConfig}
+              />
+              <FilterSortHeader
                 label="Approval Date"
-                field="approvalDate"
-                options={getUniqueOptions("approvalDate")}
+                field="approval_date"
+                options={getUniqueOptions("approval_date")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -108,8 +120,17 @@ const Level2Stage1Approval = () => {
 
               <FilterSortHeader
                 label="NPV Amount"
-                field="npvAmount"
-                options={getUniqueOptions("npvAmount")}
+                field="npv_amount"
+                options={getUniqueOptions("npv_amount")}
+                filters={filters}
+                setFilters={setFilters}
+                sortConfig={sortConfig}
+                setSortConfig={setSortConfig}
+              />
+              <FilterSortHeader
+                label="NPV Attached Document"
+                field="npv_attached_doc"
+                options={getUniqueOptions("npv_amount")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -118,8 +139,8 @@ const Level2Stage1Approval = () => {
 
               <FilterSortHeader
                 label="CA Land Area (ha)"
-                field="caLand"
-                options={getUniqueOptions("caLand")}
+                field="ca_land"
+                options={getUniqueOptions("ca_land")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -128,8 +149,8 @@ const Level2Stage1Approval = () => {
 
               <FilterSortHeader
                 label="ACA Land Area (ha)"
-                field="acaLand"
-                options={getUniqueOptions("acaLand")}
+                field="aca_land"
+                options={getUniqueOptions("aca_land")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -138,8 +159,8 @@ const Level2Stage1Approval = () => {
 
               <FilterSortHeader
                 label="Stage 2 Status"
-                field="stage2Status"
-                options={getUniqueOptions("stage2Status")}
+                field="stage2_status"
+                options={getUniqueOptions("stage2_status")}
                 filters={filters}
                 setFilters={setFilters}
                 sortConfig={sortConfig}
@@ -161,14 +182,15 @@ const Level2Stage1Approval = () => {
 
             {filteredAndSortedData.map((r, i) => (
               <tr key={i}>
-                <td>{r.projectId}</td>
-                <td>{r.stage1ApprovalNo}</td>
-                <td>{r.approvalDate}</td>
-                <td>{r.npvAmount}</td>
-                <td>{r.caLand}</td>
-                <td>{r.acaLand}</td>
-                <td>{r.stage2Status}</td>
-
+                <td>{r.project_id}</td>
+                <td>{r.stage1_approval_no}</td>
+                <td>{r.stage1_attached_doc}</td>
+                <td>{r.approval_date}</td>
+                <td>{r.npv_amount}</td>
+                <td>{r.npv_attached_doc}</td>
+                <td>{r.ca_land}</td>
+                <td>{r.aca_land}</td>
+                <td>{r.stage2_status}</td>
                 <td className={stickyActionCell}>
                   <select
                     className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -178,7 +200,8 @@ const Level2Stage1Approval = () => {
                       e.target.value = "";
 
                       if (action === "edit" && canEdit) console.log("edit", r);
-                      if (action === "delete" && canDelete) console.log("delete", r);
+                      if (action === "delete" && canDelete)
+                        console.log("delete", r);
                     }}
                   >
                     <option value="" disabled>

@@ -3,16 +3,24 @@ import React, { useState } from "react";
 const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
   const [form, setForm] = useState({
     projectId: "",
-    stage1ApprovalNo: "",
+    stage1Approval: "",
+    stage1Doc: null,
     approvalDate: "",
-    npvAmount: "",
+    npvStatus: "",
+    npvDoc: null,
     caLand: "",
     acaLand: "",
     stage2Status: "",
   });
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+
+    setForm({
+      ...form,
+      [name]: files ? files[0] : value,
+    });
+  };
 
   const handleSubmit = () => {
     setRows([...rows, form]);
@@ -20,9 +28,11 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
 
     setForm({
       projectId: "",
-      stage1ApprovalNo: "",
+      stage1Approval: "",
+      stage1Doc: null,
       approvalDate: "",
-      npvAmount: "",
+      npvStatus: "",
+      npvDoc: null,
       caLand: "",
       acaLand: "",
       stage2Status: "",
@@ -32,11 +42,9 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
   return (
     <dialog className="modal modal-open">
       <div className="modal-box max-w-xl">
-
         <h3 className="font-bold mb-4">Add Stage I Approval</h3>
 
         <div className="grid grid-cols-2 gap-4">
-
           <div>
             <label>Project ID</label>
             <input
@@ -45,16 +53,43 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               onChange={handleChange}
             />
           </div>
-
           <div>
-            <label>Stage I Approval No</label>
-            <input
-              name="stage1ApprovalNo"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
-          </div>
+            <label className="block mb-1">Stage I Approval</label>
+            <div className="flex gap-4 mt-2">
+              <label className="flex gap-2 items-center">
+                <input
+                  type="radio"
+                  name="stage1Approval"
+                  value="Yes"
+                  // className="radio radio-xs"
+                  onChange={handleChange}
+                />
+                Yes
+              </label>
 
+              <label className="flex gap-2 items-center">
+                <input
+                  type="radio"
+                  name="stage1Approval"
+                  value="No"
+                  // className="radio radio-xs"
+                  onChange={handleChange}
+                />
+                No
+              </label>
+            </div>
+          </div>
+          {form.stage1Approval === "Yes" && (
+            <div className="col-span-2">
+              <label>Stage I Approval Document</label>
+              <input
+                type="file"
+                name="stage1Doc"
+                className="file-input file-input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
+          )}
           <div>
             <label>Approval Date</label>
             <input
@@ -64,15 +99,43 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               onChange={handleChange}
             />
           </div>
-
           <div>
-            <label>NPV Amount</label>
-            <input
-              name="npvAmount"
-              className="input input-bordered w-full"
-              onChange={handleChange}
-            />
+            <label className="block mb-1">NPV</label>
+            <div className="flex gap-4 mt-2">
+              <label className="flex gap-2 items-center">
+                <input
+                  type="radio"
+                  name="npvStatus"
+                  value="Paid"
+                  // className="radio radio-sm"
+                  onChange={handleChange}
+                />
+                Paid
+              </label>
+
+              <label className="flex gap-2 items-center">
+                <input
+                  type="radio"
+                  name="npvStatus"
+                  value="Not Paid"
+                  // className="radio radio-sm"
+                  onChange={handleChange}
+                />
+                Not Paid
+              </label>
+            </div>
           </div>
+          {form.npvStatus === "Paid" && (
+            <div className="col-span-2">
+              <label>NPV Receipt Upload</label>
+              <input
+                type="file"
+                name="npvDoc"
+                className="file-input file-input-bordered w-full"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           <div>
             <label>CA Land Area (ha)</label>
@@ -100,7 +163,6 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               onChange={handleChange}
             />
           </div>
-
         </div>
 
         <div className="modal-action">
@@ -112,7 +174,6 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
             Cancel
           </button>
         </div>
-
       </div>
     </dialog>
   );

@@ -204,7 +204,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
                 value={formData.khata_no}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-                required
+              
               />
             </div>
 
@@ -216,7 +216,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
                 value={formData.kissam}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-                required
+              
               />
             </div>
 

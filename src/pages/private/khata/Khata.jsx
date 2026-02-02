@@ -15,8 +15,12 @@ import { getTypeName, khataColumn } from "../../../utils/constants";
 import { API_BASE_URL } from "../../../utils/config";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
+import SuccessMessage from "../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 export default function Khata() {
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+
   const { landType } = useParams();
   const {
     khatas,
@@ -314,6 +318,12 @@ export default function Khata() {
         <MapModal {...modals.mapProps} onClose={handlers.closeMapModal} />
       )}
     </div>
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </>
   );
 }

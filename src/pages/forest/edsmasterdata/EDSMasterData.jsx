@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import EDSMasterDataTable from "./EDSMasterDataTable";
 import EDSMasterDataForm from "./EDSmasterDataForm";
-
+import { useLocation } from "react-router-dom";
 const EDSMasterData = () => {
   const [rows, setRows] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
+  const { state } = useLocation();
+  const project = state?.project;
+
+  console.log(project);
+  
   return (
     <div className="p-4">
 

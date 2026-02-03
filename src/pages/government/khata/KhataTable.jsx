@@ -89,6 +89,7 @@ const KhataTable = ({
         </div>
       )}
       {selectedProjectId && filteredKhatas.length > 0 && (
+        <>
         <div
           className="overflow-x-auto max-h-[400px] overflow-y-auto"
           style={{ scrollbarWidth: "thin" }}
@@ -162,16 +163,19 @@ const KhataTable = ({
               ))}
             </tbody>
           </table>
+     
         </div>
-      )}
-      {selectedProjectId&& (
-      <Pagination
+              <Pagination
         page={page}
         setPage={setPage}
         limit={limit}
         setLimit={setLimit}
         totalPages={totalPages}
-      />)}
+      />
+      </>
+      )}
+    
+     
     </div>
   );
 };

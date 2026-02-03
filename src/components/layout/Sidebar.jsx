@@ -76,12 +76,12 @@ export default function Sidebar({ open, setOpen, isMobile }) {
         submenu: ["Land Schedule","Project Master"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
-      {
-        name: "CA Land",
-        icon: TreePalm,
-        path: "govt-land",
-        roles: ["Admin", "Data Entry User", "Viewer"],
-      },
+      // {
+      //   name: "CA Land",
+      //   icon: TreePalm,
+      //   path: "govt-land",
+      //   roles: ["Admin", "Data Entry User", "Viewer"],
+      // },
       {
         name: "User Management",
         icon: User2Icon,

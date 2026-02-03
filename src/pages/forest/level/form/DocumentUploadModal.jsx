@@ -15,7 +15,7 @@ const DocumentUploadModal = ({ section, docs, files, onUpload, onClose }) => {
 
             <input
               type="file"
-              className="file-input file-input-bordered file-input-sm"
+               className="file-input file-input-bordered w-full"
               onChange={(e) => onUpload(doc, e.target.files[0])}
             />
 

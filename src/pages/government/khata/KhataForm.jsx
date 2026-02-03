@@ -32,7 +32,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
   const token = useSelector((s) => s.auth.userToken);
   const projects = useSelector((s) => s.list.projects || []);
   const selectedProjectId = useSelector((s) => s.selectedProject.project?.id);
-  console.log("selectedProjectId", selectedProjectId);
+  // console.log("selectedProjectId", selectedProjectId);
   const typeParam = useLandTypeParam();
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 

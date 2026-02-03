@@ -34,9 +34,9 @@ const LandSchedule = () => {
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
-    const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   const TABS = [
     { key: "forest", label: "Forest Area Land Schedule" },
@@ -54,37 +54,35 @@ const LandSchedule = () => {
     setShowDeleteModal(true);
   };
 
-const fetchData = useCallback(async () => {
-  if (!token || !selectedProject?.id) return;
+  const fetchData = useCallback(async () => {
+    if (!token || !selectedProject?.id) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
+    try {
+      const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
 
-    const res = await getLandScheduleList(
-      token,
-      scheduleType,
-      selectedProject,
-      page,
-      limit
-    );
+      const res = await getLandScheduleList(
+        token,
+        scheduleType,
+        selectedProject,
+        page,
+        limit,
+      );
 
-    setData(res?.data || []);
-    setTotalPages(res?.totalPages || 1);
+      setData(res?.data || []);
+      setTotalPages(res?.totalPages || 1);
+    } catch (err) {
+      console.error(err);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, token, selectedProject, page, limit]);
 
-  } catch (err) {
-    console.error(err);
-    setData([]);
-  } finally {
-    setLoading(false);
-  }
-}, [activeTab, token, selectedProject, page, limit]);
-
-useEffect(() => {
-  setPage(1);
-}, [activeTab]);
-
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
 
   const confirmDelete = () => {
     if (!deleteRow) return;
@@ -129,12 +127,13 @@ useEffect(() => {
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
-            <Pagination 
-            page={page}
-  setPage={setPage}
-  limit={limit}
-  setLimit={setLimit}
-  totalPages={totalPages}/>
+            <Pagination
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
+              totalPages={totalPages}
+            />
           </>
         );
       case "nonForest":
@@ -145,22 +144,26 @@ useEffect(() => {
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
-            <Pagination page={page}
-  setPage={setPage}
-  limit={limit}
-  setLimit={setLimit}
-  totalPages={totalPages}/>
+            <Pagination
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
+              totalPages={totalPages}
+            />
           </>
         );
       case "ca":
         return (
           <>
             <CATable data={data} onEdit={handleEdit} onDelete={handleDelete} />
-            <Pagination page={page}
-  setPage={setPage}
-  limit={limit}
-  setLimit={setLimit}
-  totalPages={totalPages}/>
+            <Pagination
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
+              totalPages={totalPages}
+            />
           </>
         );
       default:

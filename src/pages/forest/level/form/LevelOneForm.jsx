@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 
-/* ================= HELPERS ================= */
-
 const isPositiveSelection = (value) => {
   if (!value) return false;
   const negativeWords = ["no", "not"];
@@ -12,8 +10,6 @@ const getUploadedCount = (filesObj = {}) =>
   Object.values(filesObj).reduce((sum, arr) => sum + (arr?.length || 0), 0);
 
 const getAllFiles = (filesObj = {}) => Object.values(filesObj).flat();
-
-/* ================= EMPTY FORM ================= */
 
 const emptyForm = {
   projectId: "",
@@ -65,7 +61,6 @@ const emptyForm = {
   proposalSubmittedFile: {},
 };
 
-/* ================= FIELD CONFIG ================= */
 
 const fields = [
   { name: "dgpsSurvey", label: "DGPS Survey Done", options: ["Yes", "No"] },
@@ -111,8 +106,6 @@ const fields = [
   },
 ];
 
-/* ================= DOC REQUIREMENTS ================= */
-
 const docRequirements = {
   dgpsSurvey: ["DGPS Survey Report"],
   treeEnum: ["Tree Enumeration Report"],
@@ -129,7 +122,6 @@ const docRequirements = {
   proposalSubmitted: ["Proposal Document"],
 };
 
-/* ================= COMPONENT ================= */
 
 const LevelOneForm = ({ setRows, setShowModal }) => {
   const [form, setForm] = useState(emptyForm);
@@ -330,7 +322,7 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
                 <input
                   type="file"
                   multiple
-                  className="input input-bordered w-full mt-1"
+                   className="file-input file-input-bordered w-full"
                   onChange={(e) =>
                     handleFiles(docModal.field, doc, e.target.files)
                   }

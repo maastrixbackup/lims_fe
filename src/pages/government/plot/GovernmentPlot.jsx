@@ -618,55 +618,24 @@ const Plots = () => {
           </div>
         )}
         {selectedProjectId && filteredPlots.length > 0 && (
-          <PlotTabs>
-            <div
-              className=" max-h-[400px] overflow-y-auto"
-              style={{ scrollbarWidth: "thin" }}
-            >
-              <table
-                className="table w-full whitespace-nowrap overflow-x-auto"
-                title="Basic Details"
+          <>
+            <PlotTabs>
+              <div
+                className=" max-h-[400px] overflow-y-auto"
+                style={{ scrollbarWidth: "thin" }}
               >
-                <thead className="bg-gray-200 sticky top-0 z-10">
-                  <tr>
-                    <th className="">Sl/No</th>
-                    <th className={stickyCol1Header}>
-                      <FilterHeader
-                        column={GovernmentPlotFields.find(
-                          (c) => c.key === "khata_no",
-                        )}
-                        filters={filters}
-                        setFilters={setFilters}
-                        sortConfig={sortConfig}
-                        setSortConfig={setSortConfig}
-                        getUniqueValues={getUniqueValues}
-                        activeFilterKey={activeFilterKey}
-                        setActiveFilterKey={setActiveFilterKey}
-                      />
-                    </th>
-
-                    {/* PLOT NO */}
-                    <th className={stickyCol2Header}>
-                      <FilterHeader
-                        column={GovernmentPlotFields.find(
-                          (c) => c.key === "plot_no",
-                        )}
-                        filters={filters}
-                        setFilters={setFilters}
-                        sortConfig={sortConfig}
-                        setSortConfig={setSortConfig}
-                        getUniqueValues={getUniqueValues}
-                        activeFilterKey={activeFilterKey}
-                        setActiveFilterKey={setActiveFilterKey}
-                      />
-                    </th>
-
-                    {GovernmentPlotFields.filter(
-                      (c) => !["khata_no", "plot_no"].includes(c.key),
-                    ).map((col) => (
-                      <th key={col.key}>
+                <table
+                  className="table w-full whitespace-nowrap overflow-x-auto"
+                  title="Basic Details"
+                >
+                  <thead className="bg-gray-200 sticky top-0 z-10">
+                    <tr>
+                      <th className="">Sl/No</th>
+                      <th className={stickyCol1Header}>
                         <FilterHeader
-                          column={col}
+                          column={GovernmentPlotFields.find(
+                            (c) => c.key === "khata_no",
+                          )}
                           filters={filters}
                           setFilters={setFilters}
                           sortConfig={sortConfig}
@@ -676,263 +645,26 @@ const Plots = () => {
                           setActiveFilterKey={setActiveFilterKey}
                         />
                       </th>
-                    ))}
 
-                    <th className={stickyActionHeader}>Actions</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {plots.length > 0 ? (
-                    filteredPlots.map((plot, idx) => (
-                      <tr
-                        key={plot.id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        <td>{idx + 1}</td>
-                        <td className={stickyCol1Cell}>
-                          {plot.khata_no || "No Data"}
-                        </td>
-                        <td className={stickyCol2Cell}>
-                          {plot.plot_no || "No Data"}
-                        </td>
-                        <td>{plot.thana_no || "No Data"}</td>
-                        <td>{plot.mouza || "No Data"}</td>
-                        <td>{plot.tahasil || "No Data"}</td>
-                        <td>{plot.ri_circle || "No Data"}</td>
-                        <td>{plot.kissam || "No Data"}</td>
-                        <td>{plot.name_of_ror || "No Data"}</td>
-                        <td>{plot.total_area_acres || "No Data"}</td>
-                        <td>{plot.proposed_area_acres || "No Data"}</td>
-                        <td>{plot.total_area_hectares || "No Data"}</td>
-                        <td>{plot.proposed_area_hectares || "No Data"}</td>
-                        <td>{plot.lease_case_no || "No Data"}</td>
-                        <td>{plot.present_status || "No Data"}</td>
-                        <td>{plot.ua_idco_to_tahasildar || "No Data"}</td>
-                        <td>{plot.case_details || "No Data"}</td>
-                        <td>{plot.action_to_be_taken || "No Data"}</td>
-                        <td>{plot.ri_report || "No Data"}</td>
-                        <td>
-                          {renderAttachments(
-                            plot.ri_report_attachment.file_name,
-                            "RI Report Attachments" || "No Data",
+                      {/* PLOT NO */}
+                      <th className={stickyCol2Header}>
+                        <FilterHeader
+                          column={GovernmentPlotFields.find(
+                            (c) => c.key === "plot_no",
                           )}
-                        </td>
-                        <td>{plot.proclamation || "No Data"}</td>
-                        <td>{plot.objection_received || "No Data"}</td>
-                        <td>{plot.others || "No Data"}</td>
-                        <td>{plot.modification_revision || "No Data"}</td>
-                        <td>{plot.misc_dr_case_prep || "No Data"}</td>
-                        <td>{plot.misc_dr_case_prep_number || "No Data"}</td>
-                        <td>{plot.reason_for_misc_dr_case || "No Data"}</td>
-                        <td>{plot.tree_enumeration || "No Data"}</td>
-                        <td>
-                          {renderAttachments(
-                            plot.tree_enumeration_attachment.file_name,
-                            "Tree Enumeration Attachments" || "No Data",
-                          )}
-                        </td>
-                        <td>{plot.order_sheet_prep || "No Data"}</td>
-                        <td>{plot.lease_to_idco || "No Data"}</td>
-                        <td>
-                          {renderAttachments(
-                            plot.lease_to_idco_attachment.file_name,
-                            "Lease to IDCO Attachments" || "No Data",
-                          )}
-                        </td>
-                        <td>{plot.lease_to_ua || "No Data"}</td>
-                        <td>
-                          {renderAttachments(
-                            plot.lease_to_ua_attachment.file_name,
-                            "Lease to UA Attachments" || "No Data",
-                          )}
-                        </td>
-                        <td>{plot.remarks || "No Data"}</td>
-                        <td>
-                          <div className="relative">
-                            <select
-                              value={getPaymentCode(plot) || ""}
-                              disabled={loadingPlotId === plot.id}
-                              onChange={(e) =>
-                                handlePaymentStatusChange(plot, e.target.value)
-                              }
-                              className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
-                            >
-                              <option value="" disabled></option>
-                              <option value="RP">Ready for Payment</option>
-                              <option value="PP">Payment Processing</option>
-                              <option value="RC">Payment Complete</option>
-                            </select>
-                            <div
-                              className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
-        ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
-        ${
-          getPaymentCode(plot) === "RP"
-            ? "bg-orange-600 text-white"
-            : getPaymentCode(plot) === "PP"
-              ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-600"
-        }
-      `}
-                            >
-                              {getPaymentCode(plot) ? (
-                                <>
-                                  <span>{getPaymentCode(plot)}</span>
-                                  <ChevronDown size={12} />
-                                </>
-                              ) : (
-                                <ChevronDown size={14} />
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className={stickyActionCell}>
-                          <select
-                            className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
-                            defaultValue=""
-                            onChange={(e) => {
-                              const action = e.target.value;
-                              e.target.value = "";
+                          filters={filters}
+                          setFilters={setFilters}
+                          sortConfig={sortConfig}
+                          setSortConfig={setSortConfig}
+                          getUniqueValues={getUniqueValues}
+                          activeFilterKey={activeFilterKey}
+                          setActiveFilterKey={setActiveFilterKey}
+                        />
+                      </th>
 
-                              if (action === "edit" && canEdit) {
-                                openModal(plot);
-                              }
-
-                              if (action === "delete" && canDelete) {
-                                onDelete(plot);
-                              }
-                            }}
-                            // disabled={!canEdit && !canDelete}
-                          >
-                            <option value="" disabled>
-                              Actions
-                            </option>
-
-                            <option
-                              value="edit"
-                              disabled={userRole === "Viewer"}
-                              className={`text-md text-gray-700 font-bold ${
-                                userRole === "Viewer" ? "!text-gray-400" : ""
-                              }`}
-                            >
-                              ✏️ Edit
-                            </option>
-
-                            <option
-                              value="delete"
-                              disabled={!canDelete}
-                              className={`text-md text-gray-700 font-bold ${
-                                !canDelete ? "!text-gray-400" : ""
-                              }`}
-                            >
-                              🗑 Delete
-                            </option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="8"
-                        className="text-center py-6 text-gray-500"
-                      >
-                        No plots found. Click{" "}
-                        <span className="font-semibold">+ Add Plot</span> to
-                        create one.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {attachmentModal.open && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                <div className="bg-white rounded-xl shadow-xl w-[500px] max-h-[70vh] overflow-hidden">
-                  {/* Header */}
-                  <div className="flex justify-between items-center px-4 py-3 border-b">
-                    <h3 className="font-bold text-lg">
-                      {attachmentModal.title}
-                    </h3>
-                    <button
-                      className="text-gray-500 hover:text-red-600 text-xl"
-                      onClick={() =>
-                        setAttachmentModal({
-                          open: false,
-                          files: [],
-                          title: "",
-                        })
-                      }
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Body */}
-                  <div className="p-4 overflow-y-auto space-y-2">
-                    {attachmentModal.files.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-lg"
-                      >
-                        <span className="truncate max-w-[350px]">{file}</span>
-                        <a
-                          href={file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline text-sm"
-                        >
-                          View
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div
-              className="overflow-x-auto max-h-[400px] overflow-y-auto"
-              style={{ scrollbarWidth: "thin" }}
-            >
-              <table
-                className="table w-full whitespace-nowrap"
-                title="Legal Issues"
-              >
-                <thead className="bg-gray-200 sticky top-0 z-10">
-                  <tr>
-                    <th>Sl/No</th>
-                    <th className={stickyCol1Header}>
-                      <FilterHeader
-                        column={legalIssue.find((c) => c.key === "khata_no")}
-                        filters={filters}
-                        setFilters={setFilters}
-                        sortConfig={sortConfig}
-                        setSortConfig={setSortConfig}
-                        getUniqueValues={getUniqueValues}
-                        activeFilterKey={activeFilterKey}
-                        setActiveFilterKey={setActiveFilterKey}
-                      />
-                    </th>
-
-                    {/* PLOT NO */}
-                    <th className={stickyCol2Header}>
-                      <FilterHeader
-                        column={legalIssue.find((c) => c.key === "plot_no")}
-                        filters={filters}
-                        setFilters={setFilters}
-                        sortConfig={sortConfig}
-                        setSortConfig={setSortConfig}
-                        getUniqueValues={getUniqueValues}
-                        activeFilterKey={activeFilterKey}
-                        setActiveFilterKey={setActiveFilterKey}
-                      />
-                    </th>
-
-                    {legalIssue
-                      .filter((c) => !["khata_no", "plot_no"].includes(c.key))
-                      .map((col) => (
+                      {GovernmentPlotFields.filter(
+                        (c) => !["khata_no", "plot_no"].includes(c.key),
+                      ).map((col) => (
                         <th key={col.key}>
                           <FilterHeader
                             column={col}
@@ -947,30 +679,302 @@ const Plots = () => {
                         </th>
                       ))}
 
-                    <th className={stickyActionHeader}>Actions</th>
-                  </tr>
-                </thead>
+                      <th className={stickyActionHeader}>Actions</th>
+                    </tr>
+                  </thead>
 
-                <tbody>
-                  {plots.length > 0 ? (
-                    filteredPlots.map((plot, idx) => (
-                      <tr
-                        key={plot.id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        <td>{idx + 1}</td>
-                        <td className={stickyCol1Cell}>
-                          {plot.khata_no || "No Data"}
-                        </td>
-                        <td className={stickyCol2Cell}>
-                          {plot.plot_no || "No Data"}
-                        </td>
-                        <td>{plot.legal_heir_case_no || "no data"}</td>
-                        <td>{plot.land_case_no || "no data"}</td>
-                        <td>{plot.land_case_date || "no data"}</td>
-                        <td>{plot.land_case_type || "no data"}</td>
+                  <tbody>
+                    {plots.length > 0 ? (
+                      filteredPlots.map((plot, idx) => (
+                        <tr
+                          key={plot.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td>{idx + 1}</td>
+                          <td className={stickyCol1Cell}>
+                            {plot.khata_no || "No Data"}
+                          </td>
+                          <td className={stickyCol2Cell}>
+                            {plot.plot_no || "No Data"}
+                          </td>
+                          <td>{plot.thana_no || "No Data"}</td>
+                          <td>{plot.mouza || "No Data"}</td>
+                          <td>{plot.tahasil || "No Data"}</td>
+                          <td>{plot.ri_circle || "No Data"}</td>
+                          <td>{plot.kissam || "No Data"}</td>
+                          <td>{plot.name_of_ror || "No Data"}</td>
+                          <td>{plot.total_area_acres || "No Data"}</td>
+                          <td>{plot.proposed_area_acres || "No Data"}</td>
+                          <td>{plot.total_area_hectares || "No Data"}</td>
+                          <td>{plot.proposed_area_hectares || "No Data"}</td>
+                          <td>{plot.lease_case_no || "No Data"}</td>
+                          <td>{plot.present_status || "No Data"}</td>
+                          <td>{plot.ua_idco_to_tahasildar || "No Data"}</td>
+                          <td>{plot.case_details || "No Data"}</td>
+                          <td>{plot.action_to_be_taken || "No Data"}</td>
+                          <td>{plot.ri_report || "No Data"}</td>
+                          <td>
+                            {renderAttachments(
+                              plot.ri_report_attachment.file_name,
+                              "RI Report Attachments" || "No Data",
+                            )}
+                          </td>
+                          <td>{plot.proclamation || "No Data"}</td>
+                          <td>{plot.objection_received || "No Data"}</td>
+                          <td>{plot.others || "No Data"}</td>
+                          <td>{plot.modification_revision || "No Data"}</td>
+                          <td>{plot.misc_dr_case_prep || "No Data"}</td>
+                          <td>{plot.misc_dr_case_prep_number || "No Data"}</td>
+                          <td>{plot.reason_for_misc_dr_case || "No Data"}</td>
+                          <td>{plot.tree_enumeration || "No Data"}</td>
+                          <td>
+                            {renderAttachments(
+                              plot.tree_enumeration_attachment.file_name,
+                              "Tree Enumeration Attachments" || "No Data",
+                            )}
+                          </td>
+                          <td>{plot.order_sheet_prep || "No Data"}</td>
+                          <td>{plot.lease_to_idco || "No Data"}</td>
+                          <td>
+                            {renderAttachments(
+                              plot.lease_to_idco_attachment.file_name,
+                              "Lease to IDCO Attachments" || "No Data",
+                            )}
+                          </td>
+                          <td>{plot.lease_to_ua || "No Data"}</td>
+                          <td>
+                            {renderAttachments(
+                              plot.lease_to_ua_attachment.file_name,
+                              "Lease to UA Attachments" || "No Data",
+                            )}
+                          </td>
+                          <td>{plot.remarks || "No Data"}</td>
+                          <td>
+                            <div className="relative">
+                              <select
+                                value={getPaymentCode(plot) || ""}
+                                disabled={loadingPlotId === plot.id}
+                                onChange={(e) =>
+                                  handlePaymentStatusChange(
+                                    plot,
+                                    e.target.value,
+                                  )
+                                }
+                                className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                              >
+                                <option value="" disabled></option>
+                                <option value="RP">Ready for Payment</option>
+                                <option value="PP">Payment Processing</option>
+                                <option value="RC">Payment Complete</option>
+                              </select>
+                              <div
+                                className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+        ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
+        ${
+          getPaymentCode(plot) === "RP"
+            ? "bg-orange-600 text-white"
+            : getPaymentCode(plot) === "PP"
+              ? "bg-green-700 text-white"
+              : getPaymentCode(plot) === "RC"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-600"
+        }
+      `}
+                              >
+                                {getPaymentCode(plot) ? (
+                                  <>
+                                    <span>{getPaymentCode(plot)}</span>
+                                    <ChevronDown size={12} />
+                                  </>
+                                ) : (
+                                  <ChevronDown size={14} />
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className={stickyActionCell}>
+                            <select
+                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                              defaultValue=""
+                              onChange={(e) => {
+                                const action = e.target.value;
+                                e.target.value = "";
+
+                                if (action === "edit" && canEdit) {
+                                  openModal(plot);
+                                }
+
+                                if (action === "delete" && canDelete) {
+                                  onDelete(plot);
+                                }
+                              }}
+                              // disabled={!canEdit && !canDelete}
+                            >
+                              <option value="" disabled>
+                                Actions
+                              </option>
+
+                              <option
+                                value="edit"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ✏️ Edit
+                              </option>
+
+                              <option
+                                value="delete"
+                                disabled={!canDelete}
+                                className={`text-md text-gray-700 font-bold ${
+                                  !canDelete ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                🗑 Delete
+                              </option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
                         <td
-                          className={`
+                          colSpan="8"
+                          className="text-center py-6 text-gray-500"
+                        >
+                          No plots found. Click{" "}
+                          <span className="font-semibold">+ Add Plot</span> to
+                          create one.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {attachmentModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div className="bg-white rounded-xl shadow-xl w-[500px] max-h-[70vh] overflow-hidden">
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-4 py-3 border-b">
+                      <h3 className="font-bold text-lg">
+                        {attachmentModal.title}
+                      </h3>
+                      <button
+                        className="text-gray-500 hover:text-red-600 text-xl"
+                        onClick={() =>
+                          setAttachmentModal({
+                            open: false,
+                            files: [],
+                            title: "",
+                          })
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-4 overflow-y-auto space-y-2">
+                      {attachmentModal.files.map((file, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-lg"
+                        >
+                          <span className="truncate max-w-[350px]">{file}</span>
+                          <a
+                            href={file}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            View
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div
+                className="overflow-x-auto max-h-[400px] overflow-y-auto"
+                style={{ scrollbarWidth: "thin" }}
+              >
+                <table
+                  className="table w-full whitespace-nowrap"
+                  title="Legal Issues"
+                >
+                  <thead className="bg-gray-200 sticky top-0 z-10">
+                    <tr>
+                      <th>Sl/No</th>
+                      <th className={stickyCol1Header}>
+                        <FilterHeader
+                          column={legalIssue.find((c) => c.key === "khata_no")}
+                          filters={filters}
+                          setFilters={setFilters}
+                          sortConfig={sortConfig}
+                          setSortConfig={setSortConfig}
+                          getUniqueValues={getUniqueValues}
+                          activeFilterKey={activeFilterKey}
+                          setActiveFilterKey={setActiveFilterKey}
+                        />
+                      </th>
+
+                      {/* PLOT NO */}
+                      <th className={stickyCol2Header}>
+                        <FilterHeader
+                          column={legalIssue.find((c) => c.key === "plot_no")}
+                          filters={filters}
+                          setFilters={setFilters}
+                          sortConfig={sortConfig}
+                          setSortConfig={setSortConfig}
+                          getUniqueValues={getUniqueValues}
+                          activeFilterKey={activeFilterKey}
+                          setActiveFilterKey={setActiveFilterKey}
+                        />
+                      </th>
+
+                      {legalIssue
+                        .filter((c) => !["khata_no", "plot_no"].includes(c.key))
+                        .map((col) => (
+                          <th key={col.key}>
+                            <FilterHeader
+                              column={col}
+                              filters={filters}
+                              setFilters={setFilters}
+                              sortConfig={sortConfig}
+                              setSortConfig={setSortConfig}
+                              getUniqueValues={getUniqueValues}
+                              activeFilterKey={activeFilterKey}
+                              setActiveFilterKey={setActiveFilterKey}
+                            />
+                          </th>
+                        ))}
+
+                      <th className={stickyActionHeader}>Actions</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {plots.length > 0 ? (
+                      filteredPlots.map((plot, idx) => (
+                        <tr
+                          key={plot.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td>{idx + 1}</td>
+                          <td className={stickyCol1Cell}>
+                            {plot.khata_no || "No Data"}
+                          </td>
+                          <td className={stickyCol2Cell}>
+                            {plot.plot_no || "No Data"}
+                          </td>
+                          <td>{plot.legal_heir_case_no || "no data"}</td>
+                          <td>{plot.land_case_no || "no data"}</td>
+                          <td>{plot.land_case_date || "no data"}</td>
+                          <td>{plot.land_case_type || "no data"}</td>
+                          <td
+                            className={`
  text-gray-700 text-center rounded-full btn btn-xs mt-3
     ${
       plot.land_case_status === "Pending"
@@ -982,28 +986,31 @@ const Plots = () => {
             : "bg-gray-200"
     }
   `}
-                        >
-                          {plot.land_case_status || "No Data"}
-                        </td>
+                          >
+                            {plot.land_case_status || "No Data"}
+                          </td>
 
-                        <td>{plot.land_case_details || "no data"}</td>
-                        <td>
-                          <div className="relative">
-                            <select
-                              value={getPaymentCode(plot) || ""}
-                              disabled={loadingPlotId === plot.id}
-                              onChange={(e) =>
-                                handlePaymentStatusChange(plot, e.target.value)
-                              }
-                              className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
-                            >
-                              <option value="" disabled></option>
-                              <option value="RP">Ready for Payment</option>
-                              <option value="PP">Payment Processing</option>
-                              <option value="RC">Payment Complete</option>
-                            </select>
-                            <div
-                              className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+                          <td>{plot.land_case_details || "no data"}</td>
+                          <td>
+                            <div className="relative">
+                              <select
+                                value={getPaymentCode(plot) || ""}
+                                disabled={loadingPlotId === plot.id}
+                                onChange={(e) =>
+                                  handlePaymentStatusChange(
+                                    plot,
+                                    e.target.value,
+                                  )
+                                }
+                                className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                              >
+                                <option value="" disabled></option>
+                                <option value="RP">Ready for Payment</option>
+                                <option value="PP">Payment Processing</option>
+                                <option value="RC">Payment Complete</option>
+                              </select>
+                              <div
+                                className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
         ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
         ${
           getPaymentCode(plot) === "RP"
@@ -1015,123 +1022,93 @@ const Plots = () => {
                 : "bg-gray-200 text-gray-600"
         }
       `}
-                            >
-                              {getPaymentCode(plot) ? (
-                                <>
-                                  <span>{getPaymentCode(plot)}</span>
-                                  <ChevronDown size={12} />
-                                </>
-                              ) : (
-                                <ChevronDown size={14} />
-                              )}
+                              >
+                                {getPaymentCode(plot) ? (
+                                  <>
+                                    <span>{getPaymentCode(plot)}</span>
+                                    <ChevronDown size={12} />
+                                  </>
+                                ) : (
+                                  <ChevronDown size={14} />
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        <td className={stickyActionCell}>
-                          <select
-                            className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                            defaultValue=""
-                            onChange={(e) => {
-                              const action = e.target.value;
-                              e.target.value = "";
+                          <td className={stickyActionCell}>
+                            <select
+                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                              defaultValue=""
+                              onChange={(e) => {
+                                const action = e.target.value;
+                                e.target.value = "";
 
-                              if (action === "edit" && canEdit) {
-                                openModal(plot);
-                              }
+                                if (action === "edit" && canEdit) {
+                                  openModal(plot);
+                                }
 
-                              if (action === "delete" && canDelete) {
-                                onDelete(plot);
-                              }
-                            }}
-                          >
-                            <option value="" disabled>
-                              Actions
-                            </option>
-
-                            <option
-                              value="edit"
-                              disabled={userRole === "Viewer"}
-                              className={`text-md text-gray-700 font-bold ${
-                                userRole === "Viewer" ? "!text-gray-400" : ""
-                              }`}
+                                if (action === "delete" && canDelete) {
+                                  onDelete(plot);
+                                }
+                              }}
                             >
-                              ✏️ Edit
-                            </option>
+                              <option value="" disabled>
+                                Actions
+                              </option>
 
-                            <option
-                              value="delete"
-                              disabled={!canDelete}
-                              className={`text-md text-gray-700 font-bold ${
-                                !canDelete ? "!text-gray-400" : ""
-                              }`}
-                            >
-                              🗑 Delete
-                            </option>
-                          </select>
+                              <option
+                                value="edit"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ✏️ Edit
+                              </option>
+
+                              <option
+                                value="delete"
+                                disabled={!canDelete}
+                                className={`text-md text-gray-700 font-bold ${
+                                  !canDelete ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                🗑 Delete
+                              </option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="8"
+                          className="text-center py-6 text-gray-500"
+                        >
+                          No plots found. Click{" "}
+                          <span className="font-semibold">+ Add Plot</span> to
+                          create one.
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="8"
-                        className="text-center py-6 text-gray-500"
-                      >
-                        No plots found. Click{" "}
-                        <span className="font-semibold">+ Add Plot</span> to
-                        create one.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-            <div
-              className="overflow-x-auto max-h-[400px] overflow-y-auto"
-              style={{ scrollbarWidth: "thin" }}
-            >
-              <table
-                className="table w-full whitespace-nowrap"
-                title="Land Area Valution"
+              <div
+                className="overflow-x-auto max-h-[400px] overflow-y-auto"
+                style={{ scrollbarWidth: "thin" }}
               >
-                <thead className="bg-gray-200 sticky top-0 z-10">
-                  <tr>
-                    <th>Sl/No</th>
-                    <th className={stickyCol1Header}>
-                      <FilterHeader
-                        column={legalIssue.find((c) => c.key === "khata_no")}
-                        filters={filters}
-                        setFilters={setFilters}
-                        sortConfig={sortConfig}
-                        setSortConfig={setSortConfig}
-                        getUniqueValues={getUniqueValues}
-                        activeFilterKey={activeFilterKey}
-                        setActiveFilterKey={setActiveFilterKey}
-                      />
-                    </th>
-
-                    {/* PLOT NO */}
-                    <th className={stickyCol2Header}>
-                      <FilterHeader
-                        column={legalIssue.find((c) => c.key === "plot_no")}
-                        filters={filters}
-                        setFilters={setFilters}
-                        sortConfig={sortConfig}
-                        setSortConfig={setSortConfig}
-                        getUniqueValues={getUniqueValues}
-                        activeFilterKey={activeFilterKey}
-                        setActiveFilterKey={setActiveFilterKey}
-                      />
-                    </th>
-
-                    {LandAreaEvaluationFields.filter(
-                      (c) => !["khata_no", "plot_no"].includes(c.key),
-                    ).map((col) => (
-                      <th key={col.key}>
+                <table
+                  className="table w-full whitespace-nowrap"
+                  title="Land Area Valution"
+                >
+                  <thead className="bg-gray-200 sticky top-0 z-10">
+                    <tr>
+                      <th>Sl/No</th>
+                      <th className={stickyCol1Header}>
                         <FilterHeader
-                          column={col}
+                          column={legalIssue.find((c) => c.key === "khata_no")}
                           filters={filters}
                           setFilters={setFilters}
                           sortConfig={sortConfig}
@@ -1141,54 +1118,89 @@ const Plots = () => {
                           setActiveFilterKey={setActiveFilterKey}
                         />
                       </th>
-                    ))}
 
-                    <th className={stickyActionHeader}>Actions</th>
-                  </tr>
-                </thead>
+                      {/* PLOT NO */}
+                      <th className={stickyCol2Header}>
+                        <FilterHeader
+                          column={legalIssue.find((c) => c.key === "plot_no")}
+                          filters={filters}
+                          setFilters={setFilters}
+                          sortConfig={sortConfig}
+                          setSortConfig={setSortConfig}
+                          getUniqueValues={getUniqueValues}
+                          activeFilterKey={activeFilterKey}
+                          setActiveFilterKey={setActiveFilterKey}
+                        />
+                      </th>
 
-                <tbody>
-                  {plots.length > 0 ? (
-                    filteredPlots.map((plot, idx) => (
-                      <tr
-                        key={plot.id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        <td>{idx + 1}</td>
-                        <td className={stickyCol1Cell}>
-                          {plot.khata_no || "No Data"}
-                        </td>
-                        <td className={stickyCol2Cell}>
-                          {plot.plot_no || "No Data"}
-                        </td>
-                        <td>{plot.land_area_total_acres || "no data"}</td>
-                        <td>{plot.land_area_total_hectares || "no data"}</td>
-                        <td>{plot.land_area_acquired_acres || "no data"}</td>
-                        <td>{plot.land_area_acquired_hectares || "no data"}</td>
-                        <td>{plot.market_value_per_acre || "no data"}</td>
-                        <td>{plot.bench_market_value || "no data"}</td>
-                        <td>{plot.premium || "no data"}</td>
-                        <td>{plot.ground_rent || "no data"}</td>
-                        <td>{plot.cess || "no data"}</td>
-                        <td>{plot.admin_charges || "no data"}</td>
-                        <td>{plot.total_cost || "no data"}</td>
-                        <td>
-                          <div className="relative">
-                            <select
-                              value={getPaymentCode(plot) || ""}
-                              disabled={loadingPlotId === plot.id}
-                              onChange={(e) =>
-                                handlePaymentStatusChange(plot, e.target.value)
-                              }
-                              className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
-                            >
-                              <option value="" disabled></option>
-                              <option value="RP">Ready for Payment</option>
-                              <option value="PP">Payment Processing</option>
-                              <option value="RC">Payment Complete</option>
-                            </select>
-                            <div
-                              className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+                      {LandAreaEvaluationFields.filter(
+                        (c) => !["khata_no", "plot_no"].includes(c.key),
+                      ).map((col) => (
+                        <th key={col.key}>
+                          <FilterHeader
+                            column={col}
+                            filters={filters}
+                            setFilters={setFilters}
+                            sortConfig={sortConfig}
+                            setSortConfig={setSortConfig}
+                            getUniqueValues={getUniqueValues}
+                            activeFilterKey={activeFilterKey}
+                            setActiveFilterKey={setActiveFilterKey}
+                          />
+                        </th>
+                      ))}
+
+                      <th className={stickyActionHeader}>Actions</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {plots.length > 0 ? (
+                      filteredPlots.map((plot, idx) => (
+                        <tr
+                          key={plot.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td>{idx + 1}</td>
+                          <td className={stickyCol1Cell}>
+                            {plot.khata_no || "No Data"}
+                          </td>
+                          <td className={stickyCol2Cell}>
+                            {plot.plot_no || "No Data"}
+                          </td>
+                          <td>{plot.land_area_total_acres || "no data"}</td>
+                          <td>{plot.land_area_total_hectares || "no data"}</td>
+                          <td>{plot.land_area_acquired_acres || "no data"}</td>
+                          <td>
+                            {plot.land_area_acquired_hectares || "no data"}
+                          </td>
+                          <td>{plot.market_value_per_acre || "no data"}</td>
+                          <td>{plot.bench_market_value || "no data"}</td>
+                          <td>{plot.premium || "no data"}</td>
+                          <td>{plot.ground_rent || "no data"}</td>
+                          <td>{plot.cess || "no data"}</td>
+                          <td>{plot.admin_charges || "no data"}</td>
+                          <td>{plot.total_cost || "no data"}</td>
+                          <td>
+                            <div className="relative">
+                              <select
+                                value={getPaymentCode(plot) || ""}
+                                disabled={loadingPlotId === plot.id}
+                                onChange={(e) =>
+                                  handlePaymentStatusChange(
+                                    plot,
+                                    e.target.value,
+                                  )
+                                }
+                                className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                              >
+                                <option value="" disabled></option>
+                                <option value="RP">Ready for Payment</option>
+                                <option value="PP">Payment Processing</option>
+                                <option value="RC">Payment Complete</option>
+                              </select>
+                              <div
+                                className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
         ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
         ${
           getPaymentCode(plot) === "RP"
@@ -1200,19 +1212,19 @@ const Plots = () => {
                 : "bg-gray-200 text-gray-600"
         }
       `}
-                            >
-                              {getPaymentCode(plot) ? (
-                                <>
-                                  <span>{getPaymentCode(plot)}</span>
-                                  <ChevronDown size={12} />
-                                </>
-                              ) : (
-                                <ChevronDown size={14} />
-                              )}
+                              >
+                                {getPaymentCode(plot) ? (
+                                  <>
+                                    <span>{getPaymentCode(plot)}</span>
+                                    <ChevronDown size={12} />
+                                  </>
+                                ) : (
+                                  <ChevronDown size={14} />
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        {/* <td>{plot.basic_land_value || "no data"}</td>
+                          </td>
+                          {/* <td>{plot.basic_land_value || "no data"}</td>
                       <td>{plot.land_value_with_mf || "no data"}</td>
                       <td>{plot.no_of_trees || "no data"}</td>
                       <td>{plot.total_value_of_trees || "no data"}</td>
@@ -1225,77 +1237,76 @@ const Plots = () => {
                       <td>{plot.no_days_interest || "no data"}</td>
                       <td>{plot.additional_12_percent || "no data"}</td>
                       <td>{plot.total_compensation || "no data"}</td> */}
-                        <td className={stickyActionCell}>
-                          <select
-                            className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                            defaultValue=""
-                            onChange={(e) => {
-                              const action = e.target.value;
-                              e.target.value = "";
+                          <td className={stickyActionCell}>
+                            <select
+                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                              defaultValue=""
+                              onChange={(e) => {
+                                const action = e.target.value;
+                                e.target.value = "";
 
-                              if (action === "edit" && canEdit) {
-                                openModal(plot);
-                              }
+                                if (action === "edit" && canEdit) {
+                                  openModal(plot);
+                                }
 
-                              if (action === "delete" && canDelete) {
-                                onDelete(plot);
-                              }
-                            }}
-                          >
-                            <option value="" disabled>
-                              Actions
-                            </option>
-
-                            <option
-                              value="edit"
-                              disabled={userRole === "Viewer"}
-                              className={`text-md text-gray-700 font-bold ${
-                                userRole === "Viewer" ? "!text-gray-400" : ""
-                              }`}
+                                if (action === "delete" && canDelete) {
+                                  onDelete(plot);
+                                }
+                              }}
                             >
-                              ✏️ Edit
-                            </option>
+                              <option value="" disabled>
+                                Actions
+                              </option>
 
-                            <option
-                              value="delete"
-                              disabled={!canDelete}
-                              className={`text-md text-gray-700 font-bold ${
-                                !canDelete ? "!text-gray-400" : ""
-                              }`}
-                            >
-                              🗑 Delete
-                            </option>
-                          </select>
+                              <option
+                                value="edit"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                ✏️ Edit
+                              </option>
+
+                              <option
+                                value="delete"
+                                disabled={!canDelete}
+                                className={`text-md text-gray-700 font-bold ${
+                                  !canDelete ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                🗑 Delete
+                              </option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="8"
+                          className="text-center py-6 text-gray-500"
+                        >
+                          No plots found. Click{" "}
+                          <span className="font-semibold">+ Add Plot</span> to
+                          create one.
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="8"
-                        className="text-center py-6 text-gray-500"
-                      >
-                        No plots found. Click{" "}
-                        <span className="font-semibold">+ Add Plot</span> to
-                        create one.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </PlotTabs>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </PlotTabs>
+            <Pagination
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
+              totalPages={totalPages}
+            />
+          </>
         )}
       </div>
-      {selectedProjectId && (
-        <Pagination
-          page={page}
-          setPage={setPage}
-          limit={limit}
-          setLimit={setLimit}
-          totalPages={totalPages}
-        />
-      )}
 
       {isModalOpen && (
         <PlotForm

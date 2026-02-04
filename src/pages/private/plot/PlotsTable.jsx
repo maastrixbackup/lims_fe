@@ -271,7 +271,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   return (
     <>
-      <div className="rounded-xl bg-white p-4 mb-6 shadow-sm">
+      <div className="rounded-xl bg-white p-4 mb-4 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           {/* Filters */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full min-w-0">
@@ -437,9 +437,14 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       {plot.present_tenant_count || "N/A"}
                     </td>
                     <td className="p-3">{plot.present_address || "N/A"}</td>
-                    <td className="p-3">
-                      {plot.displaced_affected_person || "N/A"}
-                    </td>
+                   <td className="p-3">
+  {plot.displaced_affected_person === "PAF"
+    ? "Person Affected Families"
+    : plot.displaced_affected_person === "PDF"
+    ? "Person Displaced Families"
+    : plot.displaced_affected_person || "N/A"}
+</td>
+
                     <td className="p-3 whitespace-nowrap">
                       {plot.village_name || "N/A"}
                     </td>

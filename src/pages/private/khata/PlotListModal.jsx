@@ -263,6 +263,7 @@ useEffect(() => {
       );
 
       setPlots(data?.data?.plots || []);
+      console.log("plot list", data)
     } catch (err) {
       console.error("Error fetching plots:", err);
     } finally {
@@ -285,16 +286,16 @@ useEffect(() => {
     [plots]
   );
 
-  const areaValues = useMemo(() => {
-    const key =
-      areaUnit === "acres"
-        ? "land_area_total_acres"
-        : "land_area_total_hectares";
+  // const areaValues = useMemo(() => {
+  //   const key =
+  //     areaUnit === "acres"
+  //       ? "land_area_total_acres"
+  //       : "land_area_total_hectares";
 
-    return [...new Set(plots.map((p) => p[key]).filter(Boolean))].sort(
-      (a, b) => Number(a) - Number(b)
-    );
-  }, [plots, areaUnit]);
+  //   return [...new Set(plots.map((p) => p[key]).filter(Boolean))].sort(
+  //     (a, b) => Number(a) - Number(b)
+  //   );
+  // }, [plots, areaUnit]);
 
   const ownerNames = useMemo(
     () => [
@@ -541,7 +542,7 @@ useEffect(() => {
                     <tr key={plot.id || i} className="whitespace-nowrap">
                       <td>{i + 1}</td>
                       <td className="font-semibold">{plot.plot_no || "N/A"}</td>
-                      <td>{plot.full_plot || "N/A"}</td>
+                      <td>{plot.full_part || "N/A"}</td>
                       <td>{plot.land_area_total_acres || "N/A"}</td>
                       <td>{plot.land_area_total_hectares || "N/A"}</td>
                       <td>{plot.land_area_acquired_acres || "N/A"}</td>

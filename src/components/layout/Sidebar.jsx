@@ -59,7 +59,8 @@ export default function Sidebar({ open, setOpen, isMobile }) {
         name: "Private Land",
         icon: Map,
         basePath: "private-land",
-        submenu: ["Villages", "Khatas", "Plots", "Land Cost", "Social Survey"],
+        submenu: ["Villages", "Khatas", "Plots", "Land Cost"],
+        // "Social Survey"
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       {

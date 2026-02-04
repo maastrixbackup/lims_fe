@@ -271,7 +271,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   return (
     <>
-      <div className="rounded-xl bg-white p-4 mb-6 shadow-sm">
+      <div className="rounded-xl bg-white p-4 mb-4 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           {/* Filters */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full min-w-0">

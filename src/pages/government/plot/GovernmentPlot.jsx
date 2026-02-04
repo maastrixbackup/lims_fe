@@ -570,16 +570,23 @@ const Plots = () => {
           <button
             className="btn btn-sm bg-green-600 text-white"
             onClick={handleExport}
-            disabled={!filteredPlots.length}
+            // disabled={!filteredPlots.length}
           >
             <FolderUp size={18} /> Export
           </button>
 
           <button
-            className="btn btn-primary btn-sm"
-            onClick={() => openModal()}
+            className={`btn btn-primary btn-sm text-white whitespace-nowrap
+        ${
+          isRestricted
+            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+            : ""
+        }
+      `}
+            onClick={() => isRestricted && openModal()}
+            disabled={isRestricted}
           >
-            + Add Plot
+            Add Plot
           </button>
         </div>
       </div>

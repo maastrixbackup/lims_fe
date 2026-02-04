@@ -437,9 +437,14 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       {plot.present_tenant_count || "N/A"}
                     </td>
                     <td className="p-3">{plot.present_address || "N/A"}</td>
-                    <td className="p-3">
-                      {plot.displaced_affected_person || "N/A"}
-                    </td>
+                   <td className="p-3">
+  {plot.displaced_affected_person === "PAF"
+    ? "Person Affected Families"
+    : plot.displaced_affected_person === "PDF"
+    ? "Person Displaced Families"
+    : plot.displaced_affected_person || "N/A"}
+</td>
+
                     <td className="p-3 whitespace-nowrap">
                       {plot.village_name || "N/A"}
                     </td>

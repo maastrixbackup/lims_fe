@@ -78,8 +78,8 @@ const UserManagement = () => {
           </div>
         </div>
 
-        <div className="card bg-white shadow-lg overflow-hidden">
-          <div className="max-h-[400px] overflow-x-auto">
+        <div className="card bg-white shadow-lg overflow-hidden" >
+          <div className="max-h-[400px] overflow-x-auto" style={{scrollbarWidth:"thin"}}>
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
                 <tr>
@@ -149,7 +149,7 @@ const UserManagement = () => {
       </main>
       {isModalOpen && (
         <dialog open className="modal modal-open">
-          <div className="modal-box w-11/12 max-w-lg bg-white relative">
+          <div className="modal-box max-w-xl max-h-130 bg-white relative" style={{scrollbarWidth:"thin"}}>
             <button
               type="button"
               className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -347,7 +347,7 @@ const UserManagement = () => {
                 )}
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium mb-2">
                   Permissions
                 </label>
@@ -387,7 +387,7 @@ const UserManagement = () => {
                     );
                   })}
                 </div>
-              </div>
+              </div> */}
               <div className="modal-action flex gap-3">
                 <button type="submit" className="btn btn-primary">
                   {editingUser ? "Update" : "Save"}

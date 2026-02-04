@@ -23,7 +23,8 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     village_code: "",
-    multiplying_factor: "",
+    thana_no:""
+    // multiplying_factor: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -39,7 +40,8 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
-        multiplying_factor: editingVillage.multiplying_factor || "",
+        thana_no:editingVillage.thana_no
+        // multiplying_factor: editingVillage.multiplying_factor || "",
       });
     } else {
       setFormData({
@@ -49,7 +51,8 @@ const VillageFormModal = ({
         tahasil: "",
         type: typeParam.toString(),
         village_code: "",
-        multiplying_factor: "",
+        thana_no:""
+        // multiplying_factor: "",
       });
     }
     setErrors({});
@@ -248,8 +251,24 @@ const VillageFormModal = ({
             {errors.village_code && (
               <p className="text-red-500 text-sm">{errors.village_code}</p>
             )}
+             <label>Thana Name/No</label>
+            <input
+              type="text"
+              name="thana_no"
+              value={formData.thana_no}
+              onChange={(e) =>
+                setFormData({ ...formData, thana_no: e.target.value })
+              }
+              className={`input input-bordered w-full ${
+                errors.thana_no ? "border-red-500" : ""
+              }`}
+              placeholder="Enter Thana Name/ No"
+            />
+            {errors.thana_no && (
+              <p className="text-red-500 text-sm">{errors.thana_no}</p>
+            )}
 
-            {editingVillage && (
+            {/* {editingVillage && (
               <>
                 <label>Multiplying Factor</label>
                 <input
@@ -266,7 +285,7 @@ const VillageFormModal = ({
                   placeholder="Enter Multiplying Factor"
                 />
               </>
-            )}
+            )} */}
 
             <div className="modal-action">
               <button

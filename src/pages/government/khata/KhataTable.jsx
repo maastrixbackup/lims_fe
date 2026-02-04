@@ -7,6 +7,7 @@ import {
 import FilterHeader from "../plot/FilterHeader";
 import { useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
+import { LandPlot, MapIcon, Upload } from "lucide-react";
 
 const KhataTable = ({
   khatas,
@@ -133,6 +134,7 @@ const KhataTable = ({
 
                   <td>{k.plot_count || "No Data"}</td>
                    <td>{k.unique_id || "No Data"}</td>
+                   <td>{k.ror_name|| "No Data"}</td>
 
                   <td className={stickyActionCell}>
                     <select
@@ -141,7 +143,13 @@ const KhataTable = ({
                       onChange={(e) => {
                         const action = e.target.value;
                         e.target.value = "";
+     if (action === "viewPlots") {
+                                  dispatch(setSelectedKhataId(k.id));
+                                  setIsPlotModalOpen(true);
+                                }
 
+                                if (action === "upload") onUpload(k);
+                                if (action === "map") onMap(k);
                         if (action === "edit" && canEdit) onEdit(k);
                         if (action === "delete" && canDelete) onDelete(k);
                       }}
@@ -149,7 +157,32 @@ const KhataTable = ({
                       <option value="" disabled>
                         Actions
                       </option>
+   <option
+                                value="viewPlots"
+                                className="text-md text-gray-700 font-bold"
+                              >
+                                <LandPlot size={14} />
+                                View Plots ({k.plot_count || 0})
+                              </option>
 
+                              <option
+                                value="upload"
+                                disabled={userRole === "Viewer"}
+                                className={`text-md text-gray-700 font-bold ${
+                                  userRole === "Viewer" ? "!text-gray-400" : ""
+                                }`}
+                              >
+                                <Upload size={14} />
+                                Upload ({k.khata_document_count || 0})
+                              </option>
+
+                              <option
+                                value="map"
+                                className="text-md text-gray-700 font-bold"
+                              >
+                                <MapIcon size={14} />
+                                Map ({k.khata_map_document_count || 0})
+                              </option>
                       <option value="edit" disabled={!canEdit}>
                         ✏️ Edit
                       </option>

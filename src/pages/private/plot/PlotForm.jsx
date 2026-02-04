@@ -961,8 +961,8 @@ const PlotForm = ({ fetchPlots }) => {
                         className="select select-bordered w-full"
                       >
                         <option value="">Select Type</option>
-                        <option value="PAF">PAF</option>
-                        <option value="PDF">PDF</option>
+                        <option value="PAF">Person Affected Families</option>
+                        <option value="PDF">Person Deffected Families</option>
                       </select>
                     ) : ["family_with_orphan_members", "tribunal"].includes(
                         field

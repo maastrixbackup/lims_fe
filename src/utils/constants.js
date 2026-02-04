@@ -1080,6 +1080,7 @@ export const GovtKhataColumn = [
   { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },
   { key: "unique_id", label: "Case Count", type: "text" },
+  { key: "ror_name", label: "ROR Name", type: "text" },
 ];
 
 export const BasicDetails = [

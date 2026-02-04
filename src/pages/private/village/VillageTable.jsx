@@ -70,6 +70,7 @@ const VillageTable = ({
                   <th>Village</th>
                   <th>District</th>
                   <th>Tahasil</th>
+                   <th>Thana Name/ No</th>
                   <th>Date</th>
                   <th className="text-right pr-6">Actions</th>
                 </tr>
@@ -79,10 +80,11 @@ const VillageTable = ({
                 {filteredVillages.map((v, i) => (
                   <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
                     <td>{i + 1}</td>
-                    <td>{v.village_code}</td>
-                    <td>{v.village_name}</td>
-                    <td>{v.district}</td>
-                    <td>{v.tahasil}</td>
+                    <td>{v.village_code || "No Data"}</td>
+                    <td>{v.village_name || "No Data"}</td>
+                    <td>{v.district || "No Data"}</td>
+                    <td>{v.tahasil || "No Data"}</td>
+                    <td>{v.thana_no || "No Data"}</td>
                     <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
                     {/* 
                   <td className="text-right space-x-2">

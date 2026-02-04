@@ -16,6 +16,7 @@ const EMPTY_FORM = {
   lease_case_no: "",
   present_status: "",
   case_details: "",
+  ror_name: "",
 };
 const STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
@@ -25,7 +26,7 @@ const STATUS_MAP = {
 };
 
 const STATUS_REVERSE_MAP = Object.fromEntries(
-  Object.entries(STATUS_MAP).map(([k, v]) => [v, Number(k)])
+  Object.entries(STATUS_MAP).map(([k, v]) => [v, Number(k)]),
 );
 
 const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
@@ -54,6 +55,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
         present_status: STATUS_REVERSE_MAP[editingKhata.present_status] || 0,
         case_details: editingKhata.case_details || "",
         village: editingKhata.village_name || "",
+        ror_name: editingKhata.ror_name || "",
       });
     } else {
       setFormData({
@@ -85,7 +87,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
     const fetchVillages = async () => {
       try {
         const res = await apiClient(
-          `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`
+          `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`,
         );
         if (res?.success) {
           setVillages(res.villages || []);
@@ -126,6 +128,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
       lease_case_no: formData.lease_case_no,
       present_status: formData.present_status,
       case_details: formData.case_details,
+      ror_name: formData.ror_name,
     };
     console.log("payload..........", payload);
     try {
@@ -151,7 +154,9 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
       }
 
       showSuccess(
-        editingKhata ? "Khata updated successfully" : "Khata added successfully"
+        editingKhata
+          ? "Khata updated successfully"
+          : "Khata added successfully",
       );
 
       fetchKhatas();
@@ -167,7 +172,10 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
   return (
     <>
       <dialog open className="modal modal-open">
-        <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
+        <div
+          className="modal-box max-w-2xl max-h-130 relative"
+          style={{ scrollbarWidth: "thin" }}
+        >
           <button className="absolute right-3 top-3" onClick={onCancel}>
             <X size={20} />
           </button>
@@ -204,7 +212,6 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
                 value={formData.khata_no}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-              
               />
             </div>
 
@@ -216,7 +223,6 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
                 value={formData.kissam}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-              
               />
             </div>
 
@@ -305,6 +311,17 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
               <input
                 name="case_details"
                 value={formData.case_details}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+            <div>
+              <label className="font-semibold text-sm block mb-1">
+                ROR Name
+              </label>
+              <input
+                name="ror_name"
+                value={formData.ror_name}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />

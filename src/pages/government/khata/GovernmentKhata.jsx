@@ -23,6 +23,9 @@ const GovernmentKhata = () => {
 
   const token = useSelector((s) => s.auth.userToken);
   const userRole = useSelector((s) => s.auth.user?.role_name);
+   const { user } = useSelector((s) => s.auth);
+    const role = user?.role_name;
+  const canEdit = role !== "Viewer"; 
   const projectId = useSelector((s) => s.selectedProject.project?.id);
 
   const typeParam = useLandTypeParam();
@@ -168,9 +171,22 @@ const GovernmentKhata = () => {
      <FolderUp size={18} /> Export
   </button>
 
-  <button className="btn btn-primary btn-sm" onClick={() => openModal()}>
+  {/* <button className="btn btn-primary btn-sm" onClick={() => openModal()}>
     + Add Khata
-  </button>
+  </button> */}
+          <button
+            className={`btn btn-primary btn-sm text-white whitespace-nowrap
+        ${
+          !canEdit
+            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+            : ""
+        }
+      `}
+            onClick={() => canEdit && openModal()}
+            disabled={!canEdit}
+          >
+            Add Khata
+          </button>
 </div>
 
       </div>

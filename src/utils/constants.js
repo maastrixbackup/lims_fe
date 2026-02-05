@@ -762,11 +762,6 @@ export const stickyCol1Header =
   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-10 z-[30] shadow-md";
 export const stickyCol1Cell =
   "p-3 text-left bg-white md:sticky md:left-10 shadow-sm ";
-
-// export const stickyCol2Header =
-//   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
-// export const stickyCol2Cell =
-//   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
 export const stickyCol2Header =
   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[170px] z-[30] shadow-md";
 export const stickyCol2Cell =
@@ -916,7 +911,7 @@ export const legalIssue = [
   { key: "land_case_type", label: "Land Case Type", type: "text" },
   { key: "land_case_status", label: "Land Case Status", type: "text" },
   { key: "land_case_details", label: "Land Case Details", type: "text" },
-  {key:"payment_status", label:"Payment Status" , type: "text"}
+  { key: "payment_status", label: "Payment Status", type: "text" },
 ];
 
 export const LandAreaEvaluationFields = [
@@ -953,8 +948,7 @@ export const LandAreaEvaluationFields = [
   { key: "cess", label: "Cess", type: "number" },
   { key: "admin_cost", label: "Admin Cost", type: "number" },
   { key: "total_cost", label: "Total Cost", type: "number" },
-  {key:"payment_status", label:"Payment Status" , type: "text"}
-
+  { key: "payment_status", label: "Payment Status", type: "text" },
 ];
 
 export const GovernmentPlotFields = [
@@ -1056,7 +1050,7 @@ export const GovernmentPlotFields = [
     type: "text",
   },
   { key: "remarks", label: "Remarks", type: "text" },
-  {key:"payment_status", label:"Payment Status" , type: "text"}
+  { key: "payment_status", label: "Payment Status", type: "text" },
 ];
 
 export const GovtKhataColumn = [
@@ -1081,6 +1075,7 @@ export const GovtKhataColumn = [
   { key: "plot_count", label: "Plot Count", type: "text" },
   { key: "unique_id", label: "Case Count", type: "text" },
   { key: "ror_name", label: "ROR Name", type: "text" },
+  { key: "land_category", label: "Land Category", type: "text" },
 ];
 
 export const BasicDetails = [
@@ -1469,39 +1464,41 @@ export const FamilyDetails = [
     field: "family_with_orphan_members",
   },
 ];
-export const levelOne=[
-                ["Project ID", "project_id"],
-                ["DGPS Survey Done", "dgps_survey"],
-                ["DGPS Survey Attachment", "dgps_survey_attachment"],
-                ["DGPS Area", "dgps_area"],
-                ["ORSAC Auth No", "orsac_auth_no"],
-                ["ORSAC Auth Date", "orsac_auth_date"],
-                ["Tree Enumeration Done", "tree_enumeration_done"],
-                ["Tree Enumeration Documents", "tree_enumeration_docs"],
-                ["Total Trees", "total_trees"],
-                ["Adminstrative Docs", "admin_docs"],
-                ["Adminstrative Docs Attachment", "admin_docs_attachment"],
-                ["Legal & Lease Docs", "legal_lease_docs"],
-                ["Legal & Lease Attachment", "legal_lease_docs_attachment"],
-                ["Technical Data", "technical_data"],
-                ["Technical Data Docs", "technical_data_attachment"],
-                ["Forest & Land Details", "forest_land_details"],
-                ["Forest & Land Details Docs", "forest_land_details_attachment"],
-                ["CA/ ACA Planning", "ca_aca_planning"],
-                ["CA/ ACA Planning Docs", "ca_aca_planning_attachment"],
-                ["FRA/ Community Records", "fra_community_records"],
-                ["FRA/ Community Records Docs", "fra_community_records_attachment"],
-                ["Environmental And Statutory", "env_statutory"],
-                ["Env And Statutory Docs", "env_statutory_attachment"],
-                ["Wildlife and Safeguards", "wildlife"],
-                ["Wildlife and Safeguards Docs", "wildlife_attachment"],
-                ["Maps and Spatial Evidence", "maps_spatial_evidence"],
-                ["Maps and Spatial Evidence Docs", "maps_spatial_evidence_attachment"],
-                ["Financial Undertaking", "finance_undertaking"],
-                ["Financial Undertaking Docs", "finance_undertaking_attachment"],
-                ["Proposal Submitted", "proposal_submitted"],
-                ["Proposal Submitted Docs", "proposal_submitted_attachment"],
-                ["PARIVESH Proposal", "parivesh_proposal"],
-                ["Submission Date", "submissionDate"],
-                ["Stag 1 Status", "stage1Status"],
-              ]
+export const levelOne = [
+  ["Project ID", "project_id"],
+  ["DGPS Survey Done", "dgps_survey"],
+  ["DGPS Survey Attachment", "dgps_survey_attachment"],
+  ["DGPS Area", "dgps_area"],
+  ["ORSAC Auth No", "orsac_auth_no"],
+  ["ORSAC Auth Date", "orsac_auth_date"],
+  ["Tree Enumeration Done", "tree_enumeration_done"],
+  ["Tree Enumeration Documents", "tree_enumeration_docs"],
+  ["Total Trees", "total_trees"],
+  ["Adminstrative Docs", "admin_docs"],
+  ["Adminstrative Docs Attachment", "admin_docs_attachment"],
+  ["Legal & Lease Docs", "legal_lease_docs"],
+  ["Legal & Lease Attachment", "legal_lease_docs_attachment"],
+  ["Technical Data", "technical_data"],
+  ["Technical Data Docs", "technical_data_attachment"],
+  ["Forest & Land Details", "forest_land_details"],
+  ["Forest & Land Details Docs", "forest_land_details_attachment"],
+  ["CA/ ACA Planning", "ca_aca_planning"],
+  ["CA/ ACA Planning Docs", "ca_aca_planning_attachment"],
+  ["FRA/ Community Records", "fra_community_records"],
+  ["FRA/ Community Records Docs", "fra_community_records_attachment"],
+  ["Environmental And Statutory", "env_statutory"],
+  ["Env And Statutory Docs", "env_statutory_attachment"],
+  ["Wildlife and Safeguards", "wildlife"],
+  ["Wildlife and Safeguards Docs", "wildlife_attachment"],
+  ["Maps and Spatial Evidence", "maps_spatial_evidence"],
+  ["Maps and Spatial Evidence Docs", "maps_spatial_evidence_attachment"],
+  ["Financial Undertaking", "finance_undertaking"],
+  ["Financial Undertaking Docs", "finance_undertaking_attachment"],
+  ["Proposal Submitted", "proposal_submitted"],
+  ["Proposal Submitted Docs", "proposal_submitted_attachment"],
+  ["PARIVESH Proposal", "parivesh_proposal"],
+  ["Submission Date", "submissionDate"],
+  ["Stag 1 Status", "stage1Status"],
+  ["Others/ miscellaneous","others"],
+  ["Others/ miscellaneous Docs", "others_docs"]
+];

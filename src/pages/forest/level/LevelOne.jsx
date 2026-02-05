@@ -49,6 +49,8 @@ const dummyRows = [
     parivesh_proposal: "PRV-7788",
     submissionDate: "2025-01-20",
     stage1Status: "Pending",
+    others:"yes",
+    others_docs:"url"
   },
   {
     project_id: "PRJ-002",
@@ -85,6 +87,8 @@ const dummyRows = [
     parivesh_proposal: "",
     submissionDate: "",
     stage1Status: "Draft",
+    others:"yes",
+    others_docs:"url"
   },
 ];
 

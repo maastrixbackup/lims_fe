@@ -11,6 +11,8 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
     caLand: "",
     acaLand: "",
     stage2Status: "",
+    others: "",
+    others_docs: null,
   });
 
   const handleChange = (e) => {
@@ -36,6 +38,8 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
       caLand: "",
       acaLand: "",
       stage2Status: "",
+      others: "",
+      others_docs: null,
     });
   };
 
@@ -53,32 +57,24 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               onChange={handleChange}
             />
           </div>
+
           <div>
             <label className="block mb-1">Stage I Approval</label>
             <div className="flex gap-4 mt-2">
-              <label className="flex gap-2 items-center">
-                <input
-                  type="radio"
-                  name="stage1Approval"
-                  value="Yes"
-                  // className="radio radio-xs"
-                  onChange={handleChange}
-                />
-                Yes
-              </label>
-
-              <label className="flex gap-2 items-center">
-                <input
-                  type="radio"
-                  name="stage1Approval"
-                  value="No"
-                  // className="radio radio-xs"
-                  onChange={handleChange}
-                />
-                No
-              </label>
+              {["Yes", "No"].map((v) => (
+                <label key={v} className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="stage1Approval"
+                    value={v}
+                    onChange={handleChange}
+                  />
+                  {v}
+                </label>
+              ))}
             </div>
           </div>
+
           {form.stage1Approval === "Yes" && (
             <div className="col-span-2">
               <label>Stage I Approval Document</label>
@@ -90,6 +86,7 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               />
             </div>
           )}
+
           <div>
             <label>Approval Date</label>
             <input
@@ -99,32 +96,24 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               onChange={handleChange}
             />
           </div>
+
           <div>
             <label className="block mb-1">NPV</label>
             <div className="flex gap-4 mt-2">
-              <label className="flex gap-2 items-center">
-                <input
-                  type="radio"
-                  name="npvStatus"
-                  value="Paid"
-                  // className="radio radio-sm"
-                  onChange={handleChange}
-                />
-                Paid
-              </label>
-
-              <label className="flex gap-2 items-center">
-                <input
-                  type="radio"
-                  name="npvStatus"
-                  value="Not Paid"
-                  // className="radio radio-sm"
-                  onChange={handleChange}
-                />
-                Not Paid
-              </label>
+              {["Paid", "Not Paid"].map((v) => (
+                <label key={v} className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="npvStatus"
+                    value={v}
+                    onChange={handleChange}
+                  />
+                  {v}
+                </label>
+              ))}
             </div>
           </div>
+
           {form.npvStatus === "Paid" && (
             <div className="col-span-2">
               <label>NPV Receipt Upload</label>
@@ -162,6 +151,34 @@ const LevelTwoForm = ({ setRows, setShowModal, rows }) => {
               className="input input-bordered w-full"
               onChange={handleChange}
             />
+          </div>
+          <div className="col-span-2">
+            <label className="block mb-1">Others / Miscellaneous</label>
+
+            <div className="flex gap-4 mt-2">
+              {["Yes", "No"].map((v) => (
+                <label key={v} className="flex gap-2 items-center">
+                  <input
+                    type="radio"
+                    name="others"
+                    value={v}
+                    onChange={handleChange}
+                  />
+                  {v}
+                </label>
+              ))}
+            </div>
+            {form.others === "Yes" && (
+              <div className="mt-3">
+                <label>Others Document</label>
+                <input
+                  type="file"
+                  name="others_docs"
+                  className="file-input file-input-bordered w-full"
+                  onChange={handleChange}
+                />
+              </div>
+            )}
           </div>
         </div>
 

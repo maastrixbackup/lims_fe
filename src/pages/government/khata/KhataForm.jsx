@@ -17,6 +17,7 @@ const EMPTY_FORM = {
   present_status: "",
   case_details: "",
   ror_name: "",
+  land_category:"",
 };
 const STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
@@ -56,6 +57,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
         case_details: editingKhata.case_details || "",
         village: editingKhata.village_name || "",
         ror_name: editingKhata.ror_name || "",
+        land_category:editingKhata.land_category || ""
       });
     } else {
       setFormData({
@@ -129,6 +131,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
       present_status: formData.present_status,
       case_details: formData.case_details,
       ror_name: formData.ror_name,
+      land_category:formData.land_category
     };
     console.log("payload..........", payload);
     try {
@@ -322,6 +325,18 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
               <input
                 name="ror_name"
                 value={formData.ror_name}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
+             <div>
+              <label className="block text-sm font-medium ">
+                Category of Land
+              </label>
+              <input
+                type="text"
+                name="land_category"
+                value={formData.land_category}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />

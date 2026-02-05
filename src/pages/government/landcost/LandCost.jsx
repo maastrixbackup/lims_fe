@@ -284,7 +284,7 @@ const LandCost = () => {
     console.log("data*********", data);
     try {
       const res = await fetch(
-        `${API_BASE_URL}/plots/updatePlotPayment/${data.id}`,
+        `${API_BASE_URL}/govtplots/updatePlotPayment/${data.id}`,
         {
           method: "PUT",
           headers: {
@@ -328,7 +328,7 @@ const LandCost = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/plots/paymentCompleted`, {
+      const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

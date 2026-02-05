@@ -11,6 +11,8 @@ const LevelZeroForm = ({ setRows, rows, setShowModal }) => {
     verification: "",
     remarks: "",
     completionDate: "",
+    others:"",
+    others_docs:""
   });
 
   const [files, setFiles] = useState({});
@@ -34,6 +36,7 @@ const LevelZeroForm = ({ setRows, rows, setShowModal }) => {
     { key: "gis", label: "Preliminary GIS Uploaded" },
     { key: "dgps", label: "DGPS Planned" },
     { key: "verification", label: "Internal Verification" },
+    { key: "others", label: "Others/ Mislaneous" },
   ];
 
   return (

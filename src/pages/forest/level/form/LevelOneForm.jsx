@@ -278,7 +278,6 @@
 
 // export default LevelOneForm;
 
-
 import { X } from "lucide-react";
 import React, { useState } from "react";
 
@@ -341,6 +340,8 @@ const emptyForm = {
 
   proposalSubmitted: "",
   proposalSubmittedFile: {},
+  others: "",
+  othersFile: {},
 };
 
 const fields = [
@@ -385,6 +386,11 @@ const fields = [
     label: "Proposal Submitted",
     options: ["Yes", "No"],
   },
+  {
+    name: "others",
+    label: "Others/ miscellaneous",
+    options: ["Yes", "No"],
+  },
 ];
 
 const docRequirements = {
@@ -401,6 +407,7 @@ const docRequirements = {
   maps: ["DGPS Map", "Topo Map", "CA/ACA Map", "Wildlife Map"],
   finance: ["NPV", "CA", "ACA", "Safety Zone Declarations"],
   proposalSubmitted: ["Proposal Document"],
+  others: [""],
 };
 
 const LevelOneForm = ({ setRows, setShowModal }) => {
@@ -423,37 +430,37 @@ const LevelOneForm = ({ setRows, setShowModal }) => {
     }));
   };
 
-// Add this function to clear the input field
-const clearFileInput = (field, doc) => {
-  const input = document.querySelector(
-    `input[data-field="${field}"][data-doc="${doc}"]`
-  );
-  if (input) {
-    input.value = '';
-  }
-};
-
-// Update your removeFile function
-const removeFile = (field, doc, idx) => {
-  setForm((prev) => {
-    const fieldKey = `${field}File`;
-    const updatedFiles = [...(prev[fieldKey][doc] || [])];
-    updatedFiles.splice(idx, 1);
-    
-    // Clear the input if no files remain
-    if (updatedFiles.length === 0) {
-      clearFileInput(field, doc);
+  // Add this function to clear the input field
+  const clearFileInput = (field, doc) => {
+    const input = document.querySelector(
+      `input[data-field="${field}"][data-doc="${doc}"]`,
+    );
+    if (input) {
+      input.value = "";
     }
-    
-    return {
-      ...prev,
-      [fieldKey]: {
-        ...prev[fieldKey],
-        [doc]: updatedFiles,
-      },
-    };
-  });
-};
+  };
+
+  // Update your removeFile function
+  const removeFile = (field, doc, idx) => {
+    setForm((prev) => {
+      const fieldKey = `${field}File`;
+      const updatedFiles = [...(prev[fieldKey][doc] || [])];
+      updatedFiles.splice(idx, 1);
+
+      // Clear the input if no files remain
+      if (updatedFiles.length === 0) {
+        clearFileInput(field, doc);
+      }
+
+      return {
+        ...prev,
+        [fieldKey]: {
+          ...prev[fieldKey],
+          [doc]: updatedFiles,
+        },
+      };
+    });
+  };
   const resetFilesForField = (field) => {
     setForm((prev) => ({
       ...prev,
@@ -619,14 +626,16 @@ const removeFile = (field, doc, idx) => {
               <div key={doc} className="mb-4">
                 <label className="text-sm">{doc}</label>
 
-              <input
-  type="file"
-  multiple
-  className="file-input file-input-bordered w-full"
-  data-field={docModal.field}
-  data-doc={doc}
-  onChange={(e) => handleFiles(docModal.field, doc, e.target.files)}
-/>
+                <input
+                  type="file"
+                  multiple
+                  className="file-input file-input-bordered w-full"
+                  data-field={docModal.field}
+                  data-doc={doc}
+                  onChange={(e) =>
+                    handleFiles(docModal.field, doc, e.target.files)
+                  }
+                />
                 {(form[`${docModal.field}File`][doc] || []).map((file, idx) => (
                   <div
                     key={idx}
@@ -678,6 +687,3 @@ const removeFile = (field, doc, idx) => {
 };
 
 export default LevelOneForm;
-
-
-

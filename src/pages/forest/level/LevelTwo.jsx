@@ -166,6 +166,24 @@ const Level2Stage1Approval = () => {
                 sortConfig={sortConfig}
                 setSortConfig={setSortConfig}
               />
+               <FilterSortHeader
+                label="Others"
+                field="others"
+                options={getUniqueOptions("others")}
+                filters={filters}
+                setFilters={setFilters}
+                sortConfig={sortConfig}
+                setSortConfig={setSortConfig}
+              />
+                <FilterSortHeader
+                label="Others/ miscellaneous"
+                field="others_docs"
+                options={getUniqueOptions("others_docs")}
+                filters={filters}
+                setFilters={setFilters}
+                sortConfig={sortConfig}
+                setSortConfig={setSortConfig}
+              />
 
               <th className={stickyActionHeader}>Action</th>
             </tr>
@@ -191,6 +209,8 @@ const Level2Stage1Approval = () => {
                 <td>{r.ca_land}</td>
                 <td>{r.aca_land}</td>
                 <td>{r.stage2_status}</td>
+                <td>{r.others}</td>
+                <td>{r.others_docs}</td>
                 <td className={stickyActionCell}>
                   <select
                     className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"

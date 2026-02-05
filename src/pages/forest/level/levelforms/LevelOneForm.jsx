@@ -1,7 +1,7 @@
+
+
 import { X } from "lucide-react";
 import React, { useState } from "react";
-
-/* ---------------- HELPERS ---------------- */
 
 const isPositiveSelection = (value) => {
   if (!value) return false;
@@ -13,8 +13,6 @@ const getUploadedCount = (filesObj = {}) =>
   Object.values(filesObj).reduce((sum, arr) => sum + (arr?.length || 0), 0);
 
 const getAllFiles = (filesObj = {}) => Object.values(filesObj).flat();
-
-/* ---------------- INITIAL STATE ---------------- */
 
 const emptyForm = {
   projectId: "",
@@ -28,35 +26,45 @@ const emptyForm = {
 
   dgpsSurvey: "",
   dgpsSurveyFile: {},
+
   treeEnum: "",
   treeEnumFile: {},
+
   adminDocs: "",
   adminDocsFile: {},
+
   legalDocs: "",
   legalDocsFile: {},
+
   technicalData: "",
   technicalDataFile: {},
+
   forestLand: "",
   forestLandFile: {},
+
   caPlanning: "",
   caPlanningFile: {},
+
   fraRecords: "",
   fraRecordsFile: {},
+
   envStatutory: "",
   envStatutoryFile: {},
+
   wildlife: "",
   wildlifeFile: {},
+
   maps: "",
   mapsFile: {},
+
   finance: "",
   financeFile: {},
+
   proposalSubmitted: "",
   proposalSubmittedFile: {},
   others: "",
   othersFile: {},
 };
-
-/* ---------------- FIELD CONFIG ---------------- */
 
 const fields = [
   { name: "dgpsSurvey", label: "DGPS Survey Done", options: ["Yes", "No"] },
@@ -64,15 +72,47 @@ const fields = [
   { name: "adminDocs", label: "Administrative Docs", options: ["Yes", "No"] },
   { name: "legalDocs", label: "Legal & Lease Docs", options: ["Yes", "No"] },
   { name: "technicalData", label: "Technical Data", options: ["Yes", "No"] },
-  { name: "forestLand", label: "Forest & Land", options: ["Uploaded", "Not Uploaded"] },
+  {
+    name: "forestLand",
+    label: "Forest & Land",
+    options: ["Uploaded", "Not Uploaded"],
+  },
   { name: "caPlanning", label: "CA / ACA Planning", options: ["Yes", "No"] },
-  { name: "fraRecords", label: "FRA Records", options: ["Complied", "Not Complied"] },
-  { name: "envStatutory", label: "Environmental", options: ["Cleared", "Not Cleared"] },
-  { name: "wildlife", label: "Wildlife", options: ["Completed", "Not Completed"] },
-  { name: "maps", label: "Maps Evidence", options: ["Authenticated", "Not Authenticated"] },
-  { name: "finance", label: "Financial Undertaking", options: ["Submitted", "Not Submitted"] },
-  { name: "proposalSubmitted", label: "Proposal Submitted", options: ["Yes", "No"] },
-  { name: "others", label: "Others / Miscellaneous", options: ["Yes", "No"] },
+  {
+    name: "fraRecords",
+    label: "FRA Records",
+    options: ["Complied", "Not Complied"],
+  },
+  {
+    name: "envStatutory",
+    label: "Environmental",
+    options: ["Cleared", "Not Cleared"],
+  },
+  {
+    name: "wildlife",
+    label: "Wildlife",
+    options: ["Completed", "Not Completed"],
+  },
+  {
+    name: "maps",
+    label: "Maps Evidence",
+    options: ["Authenticated", "Not Authenticated"],
+  },
+  {
+    name: "finance",
+    label: "Financial Undertaking",
+    options: ["Submitted", "Not Submitted"],
+  },
+  {
+    name: "proposalSubmitted",
+    label: "Proposal Submitted",
+    options: ["Yes", "No"],
+  },
+  {
+    name: "others",
+    label: "Others/ miscellaneous",
+    options: ["Yes", "No"],
+  },
 ];
 
 const docRequirements = {
@@ -92,9 +132,7 @@ const docRequirements = {
   others: [""],
 };
 
-/* ---------------- COMPONENT ---------------- */
-
-const LevelOneForm = ({ setRows }) => {
+const LevelOneForm = () => {
   const [form, setForm] = useState(emptyForm);
   const [docModal, setDocModal] = useState({ open: false, field: "" });
 
@@ -114,27 +152,45 @@ const LevelOneForm = ({ setRows }) => {
     }));
   };
 
+  // Add this function to clear the input field
+  const clearFileInput = (field, doc) => {
+    const input = document.querySelector(
+      `input[data-field="${field}"][data-doc="${doc}"]`,
+    );
+    if (input) {
+      input.value = "";
+    }
+  };
+
+  // Update your removeFile function
   const removeFile = (field, doc, idx) => {
     setForm((prev) => {
-      const updated = [...(prev[`${field}File`][doc] || [])];
-      updated.splice(idx, 1);
+      const fieldKey = `${field}File`;
+      const updatedFiles = [...(prev[fieldKey][doc] || [])];
+      updatedFiles.splice(idx, 1);
+
+      // Clear the input if no files remain
+      if (updatedFiles.length === 0) {
+        clearFileInput(field, doc);
+      }
 
       return {
         ...prev,
-        [`${field}File`]: {
-          ...prev[`${field}File`],
-          [doc]: updated,
+        [fieldKey]: {
+          ...prev[fieldKey],
+          [doc]: updatedFiles,
         },
       };
     });
   };
+  const resetFilesForField = (field) => {
+    setForm((prev) => ({
+      ...prev,
+      [`${field}File`]: {},
+    }));
+  };
 
-  const resetFilesForField = (field) =>
-    setForm((prev) => ({ ...prev, [`${field}File`]: {} }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
+  const handleSubmit = () => {
     for (let f of fields) {
       if (isPositiveSelection(form[f.name])) {
         if (!getUploadedCount(form[`${f.name}File`])) {
@@ -144,104 +200,192 @@ const LevelOneForm = ({ setRows }) => {
       }
     }
 
-    setRows((prev) => [...prev, form]);
+    // setRows((prev) => [...prev, form]);
+    // setShowModal(false);
   };
 
   const totalFiles = fields.reduce(
     (sum, f) => sum + getUploadedCount(form[`${f.name}File`]),
-    0
+    0,
   );
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto">
+      <div >
+        <h3 className="font-bold text-lg mb-2">LEVEL-1 FD PROPOSAL</h3>
 
-      <h3 className="font-bold text-lg mb-4">LEVEL-1 FD PROPOSAL</h3>
+        <div className="alert alert-info py-2 text-sm mb-4">
+          📎 Total Files Uploaded: <b>{totalFiles}</b>
+        </div>
 
-      <div className="alert alert-info py-2 text-sm mb-4">
-        📎 Total Files Uploaded: <b>{totalFiles}</b>
+        {/* BASIC INPUTS */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            ["projectId", "Project ID"],
+            ["dgpsArea", "DGPS Area"],
+            ["totalTrees", "Total Trees"],
+            ["orsacAuthNo", "ORSAC Auth No"],
+            ["stageStatus", "Stage 1 Status"],
+            ["parivesh_proposal_no", "PARIVESH Proposal No"],
+          ].map(([name, label]) => (
+            <div key={name} className="form-control">
+              <label className="label">
+                <span className="label-text">{label}</span>
+              </label>
+              <input
+                name={name}
+                type={
+                  name.includes("No") || name.includes("Area")
+                    ? "number"
+                    : "text"
+                }
+                className="input input-bordered"
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* SELECTS */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          {fields.map((f) => {
+            const uploadedCount = getUploadedCount(form[`${f.name}File`]);
+            const allFiles = getAllFiles(form[`${f.name}File`]);
+
+            return (
+              <div key={f.name} className="form-control relative group">
+                <label className="label flex justify-between">
+                  <span className="label-text">{f.label}</span>
+
+                  {uploadedCount > 0 && (
+                    <button
+                      type="button"
+                      className="badge badge-success badge-sm cursor-pointer hover:badge-primary"
+                      onClick={() => setDocModal({ open: true, field: f.name })}
+                    >
+                      📎 {uploadedCount}
+                    </button>
+                  )}
+                </label>
+
+                <select
+                  name={f.name}
+                  className="select select-bordered"
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    handleChange(e);
+
+                    if (isPositiveSelection(value)) {
+                      setDocModal({ open: true, field: f.name });
+                    } else {
+                      // User selected NO / NOT — clear uploaded files
+                      resetFilesForField(f.name);
+                    }
+                  }}
+                >
+                  <option value="">Select</option>
+                  {f.options.map((o) => (
+                    <option key={o}>{o}</option>
+                  ))}
+                </select>
+
+                {uploadedCount > 0 && (
+                  <p className="text-xs text-success mt-1">
+                    ✔ Documents attached
+                  </p>
+                )}
+
+                {uploadedCount > 0 && (
+                  <div className="hidden group-hover:block absolute z-50 bg-base-200 shadow rounded p-2 text-xs top-full mt-1 w-full">
+                    {allFiles.map((file, i) => (
+                      <div key={i} className="truncate">
+                        • {file.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* DATES */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {[
+            ["orsacAuthDate", "ORSAC Auth Date"],
+            ["submissionDate", "Submission Date"],
+          ].map(([n, l]) => (
+            <div key={n} className="form-control">
+              <label className="label">
+                <span className="label-text">{l}</span>
+              </label>
+              <input
+                type="date"
+                name={n}
+                className="input input-bordered"
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="modal-action">
+          <button className="btn btn-success btn-sm" onClick={handleSubmit}>
+            Save
+          </button>
+          <button className="btn btn-sm" onClick={() => setShowModal(false)}>
+            Cancel
+          </button>
+        </div>
       </div>
-
-      {/* BASIC INPUTS */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          ["projectId", "Project ID"],
-          ["dgpsArea", "DGPS Area"],
-          ["totalTrees", "Total Trees"],
-          ["orsacAuthNo", "ORSAC Auth No"],
-          ["stageStatus", "Stage 1 Status"],
-          ["parivesh_proposal_no", "PARIVESH Proposal No"],
-        ].map(([n, l]) => (
-          <div key={n}>
-            <label className="label-text font-medium">{l}</label>
-            <input name={n} className="input input-bordered w-full" onChange={handleChange} />
-          </div>
-        ))}
-      </div>
-
-      {/* SELECTS */}
-      <div className="grid grid-cols-3 gap-3 mt-4">
-        {fields.map((f) => (
-          <div key={f.name}>
-            <label className="label-text font-medium">{f.label}</label>
-
-            <select
-              name={f.name}
-              className="select select-bordered w-full"
-              onChange={(e) => {
-                handleChange(e);
-                isPositiveSelection(e.target.value)
-                  ? setDocModal({ open: true, field: f.name })
-                  : resetFilesForField(f.name);
-              }}
-            >
-              <option value="">Select</option>
-              {f.options.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-          </div>
-        ))}
-      </div>
-
-      {/* DATES */}
-      <div className="grid grid-cols-2 gap-4 mt-4">
-        {[
-          ["orsacAuthDate", "ORSAC Auth Date"],
-          ["submissionDate", "Submission Date"],
-        ].map(([n, l]) => (
-          <div key={n}>
-            <label className="label-text font-medium">{l}</label>
-            <input type="date" name={n} className="input input-bordered w-full" onChange={handleChange} />
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-end mt-6">
-        <button type="submit" className="btn btn-success btn-sm">
-          Save Level-1
-        </button>
-      </div>
-
-      {/* DOCUMENT MODAL KEPT */}
-
       {docModal.open && (
         <dialog className="modal modal-open">
-          <div className="modal-box">
+          <div className="modal-box max-w-lg">
             <h3 className="font-bold mb-3">Required Documents</h3>
 
             {docRequirements[docModal.field].map((doc) => (
               <div key={doc} className="mb-4">
+                <label className="text-sm">{doc}</label>
+
                 <input
                   type="file"
                   multiple
                   className="file-input file-input-bordered w-full"
-                  onChange={(e) => handleFiles(docModal.field, doc, e.target.files)}
+                  data-field={docModal.field}
+                  data-doc={doc}
+                  onChange={(e) =>
+                    handleFiles(docModal.field, doc, e.target.files)
+                  }
                 />
-
                 {(form[`${docModal.field}File`][doc] || []).map((file, idx) => (
-                  <div key={idx} className="flex justify-between mt-2">
-                    <span className="text-xs">{file.name}</span>
-                    <button type="button" onClick={() => removeFile(docModal.field, doc, idx)}>
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between border rounded p-2 mt-2 bg-base-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 flex items-center justify-center bg-red-100 rounded">
+                        📄
+                      </div>
+                      <div className="text-xs">
+                        <p className="font-medium truncate max-w-[200px]">
+                          {file.name}
+                        </p>
+
+                        <a
+                          href={URL.createObjectURL(file)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary underline"
+                        >
+                          View
+                        </a>
+                      </div>
+                    </div>
+                    <button
+                      className="btn btn-xs btn-error"
+                      onClick={() => removeFile(docModal.field, doc, idx)}
+                    >
                       <X size={12} />
                     </button>
                   </div>
@@ -249,13 +393,18 @@ const LevelOneForm = ({ setRows }) => {
               </div>
             ))}
 
-            <button className="btn btn-primary btn-sm" onClick={() => setDocModal({ open: false, field: "" })}>
-              Done
-            </button>
+            <div className="modal-action">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => setDocModal({ open: false, field: "" })}
+              >
+                Done
+              </button>
+            </div>
           </div>
         </dialog>
       )}
-    </form>
+    </div>
   );
 };
 

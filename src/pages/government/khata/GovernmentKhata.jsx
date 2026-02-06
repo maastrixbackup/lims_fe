@@ -8,8 +8,15 @@ import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import { FolderUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import UploadModal from "./UploadModal";
+import MapModal from "./MapModal"
+import PlotListModal from "./PlotListModal";
 
 const GovernmentKhata = () => {
+  const [mapKhata, setMapKhata] = useState(null);
+  const [plotKhata, setPlotKhata] = useState(null);
+  const [uploadKhata, setUploadKhata] = useState(null);
   const [khatas, setKhatas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,13 +26,14 @@ const GovernmentKhata = () => {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
+  const navigate = useNavigate();
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const token = useSelector((s) => s.auth.userToken);
   const userRole = useSelector((s) => s.auth.user?.role_name);
-   const { user } = useSelector((s) => s.auth);
-    const role = user?.role_name;
-  const canEdit = role !== "Viewer"; 
+  const { user } = useSelector((s) => s.auth);
+  const role = user?.role_name;
+  const canEdit = role !== "Viewer";
   const projectId = useSelector((s) => s.selectedProject.project?.id);
 
   const typeParam = useLandTypeParam();
@@ -41,20 +49,14 @@ const GovernmentKhata = () => {
     if (!projectId || !typeParam) return;
 
     setLoading(true);
+
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=${page}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const url = `/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=${page}&limit=${limit}`;
 
-      const res = await response.json();
+      const res = await apiClient(url);
 
-      if (res.success) {
-        const mapped = res.data.map((k) => ({
+      if (res?.success) {
+        const mapped = (res.data || []).map((k) => ({
           id: k.id,
           khata_no: k.khata_no,
           plot_no: k.plot_no || "-",
@@ -66,20 +68,27 @@ const GovernmentKhata = () => {
           village: k.village_name || k.village || "-",
           plot_count: k.plot_count || 0,
           kissam_of_land: k.kissam_of_land || "",
-          unique_id:k.unique_id || ""
+          unique_id: k.unique_id || "",
+          ror_name: k.ror_name || "",
+          land_category: k.land_category || "",
         }));
-  setTotalPages(res.totalPages)
+
+        setTotalPages(res.totalPages || 1);
         setKhatas(mapped);
       } else {
         setKhatas([]);
       }
     } catch (err) {
-      console.error("Khata list fetch failed:", err);
+      // TOKEN_EXPIRED already handled by apiClient (logout + redirect)
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
       setKhatas([]);
     } finally {
       setLoading(false);
     }
-  }, [projectId, typeParam, token, page, limit]);
+  }, [projectId, typeParam, page, limit]);
 
   useEffect(() => {
     fetchKhatas();
@@ -99,6 +108,16 @@ const GovernmentKhata = () => {
     setDeleteConfirm(khata);
   };
 
+  const onUpload = (khata) => {
+    setUploadKhata(khata);
+  };
+const onMap = (khata) => {
+  setMapKhata(khata);
+};
+
+const onViewPlots = (khata) => {
+  setPlotKhata(khata);
+};
   const handleDelete = async () => {
     try {
       await apiClient(`/govtkhata/deleteGovtKhata/${deleteConfirm.id}`, {
@@ -115,63 +134,65 @@ const GovernmentKhata = () => {
     }
   };
   const handleExport = () => {
-  if (!khatas.length) return;
+    if (!khatas.length) return;
 
-  const headers = [
-    "Khata No",
-    "Plot No",
-    "Village",
-    "Kissam Of Land",
-    "Lease Case No",
-    "Present Status",
-    "Case Details",
-    "Plot Count",
-    "Case Count"
-  ];
+    const headers = [
+      "Khata No",
+      "Plot No",
+      "Village",
+      "Kissam Of Land",
+      "Lease Case No",
+      "Present Status",
+      "Case Details",
+      "Plot Count",
+      "Case Count",
+      "ROR Name",
+      "Land Category",
+    ];
 
-  const rows = khatas.map((k) => [
-    k.khata_no,
-    k.plot_no,
-    k.village,
-    k.kissam_of_land,
-    k.lease_case_no,
-    k.present_status,
-    k.case_details,
-    k.plot_count,
-    k.unique_id
-  ]);
+    const rows = khatas.map((k) => [
+      k.khata_no,
+      k.plot_no,
+      k.village,
+      k.kissam_of_land,
+      k.lease_case_no,
+      k.present_status,
+      k.case_details,
+      k.plot_count,
+      k.unique_id,
+      k.ror_name,
+      k.land_category,
+    ]);
 
-  const csvContent =
-    [headers, ...rows]
+    const csvContent = [headers, ...rows]
       .map((e) => e.map((x) => `"${x ?? ""}"`).join(","))
       .join("\n");
 
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "government_khata.csv";
-  link.click();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "government_khata.csv";
+    link.click();
 
-  URL.revokeObjectURL(url);
-};
-
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <main className="p-2 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Government Land Khata</h2>
-      <div className="flex gap-2">
-  <button
-    className="btn btn-sm bg-green-600 text-white"
-    onClick={handleExport}
-    disabled={!khatas.length}
-  >
-     <FolderUp size={18} /> Export
-  </button>
+        <div className="flex gap-2">
+          <button
+            className="btn btn-sm bg-green-600 text-white"
+            onClick={handleExport}
+            // disabled={!khatas.length}
+          >
+            <FolderUp size={18} /> Export
+          </button>
 
-  {/* <button className="btn btn-primary btn-sm" onClick={() => openModal()}>
+          {/* <button className="btn btn-primary btn-sm" onClick={() => openModal()}>
     + Add Khata
   </button> */}
           <button
@@ -187,8 +208,7 @@ const GovernmentKhata = () => {
           >
             Add Khata
           </button>
-</div>
-
+        </div>
       </div>
 
       {loading ? (
@@ -204,6 +224,9 @@ const GovernmentKhata = () => {
           limit={limit}
           setLimit={setLimit}
           totalPages={totalPages}
+          onUpload={onUpload}
+          onViewPlots={onViewPlots}
+          onMap={onMap}
         />
       )}
 
@@ -214,7 +237,24 @@ const GovernmentKhata = () => {
           fetchKhatas={fetchKhatas}
         />
       )}
+      {uploadKhata && (
+        <UploadModal khata={uploadKhata} onClose={() => setUploadKhata(null)} />
+      )}
+{/* Map */}
+{mapKhata && (
+  <MapModal
+    khata={mapKhata}
+    onClose={() => setMapKhata(null)}
+  />
+)}
 
+{/* Plot List */}
+{plotKhata && (
+  <PlotListModal
+    khata={plotKhata}
+    onClose={() => setPlotKhata(null)}
+  />
+)}
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box">

@@ -10,7 +10,7 @@ import { X } from "lucide-react";
 const EMPTY_FORM = {
   project_id: "",
   khata_no: "",
-  kissam: "",
+ kissam_of_land:"",
   village_id: "",
   plot_no: "",
   lease_case_no: "",
@@ -48,8 +48,8 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
     if (editingKhata) {
       setFormData({
         project_id: editingKhata.project_id || "",
-        khata_no: editingKhata.khata_no || "",
-        kissam: editingKhata.kissam_of_land || "",
+        khata_no: editingKhata.khata_no || "", 
+        kissam_of_land:editingKhata.kissam_of_land || "",
         village_id: editingKhata.village_id || "",
         plot_no: editingKhata.plot_no || "",
         lease_case_no: editingKhata.lease_case_no || "",
@@ -222,8 +222,8 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
             <div>
               <label className="font-semibold text-sm block mb-1">Kissam</label>
               <input
-                name="kissam"
-                value={formData.kissam}
+                name="kissam_of_land"
+                value={formData.kissam_of_land}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />

@@ -5,7 +5,7 @@ import {
   stickyActionHeader,
 } from "../../../utils/constants";
 import FilterHeader from "../plot/FilterHeader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
 import { LandPlot, MapIcon, Upload } from "lucide-react";
 
@@ -19,6 +19,9 @@ const KhataTable = ({
   limit,
   setLimit,
   totalPages,
+   onUpload,
+  onMap,
+  onViewPlots
 }) => {
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
@@ -31,7 +34,7 @@ const KhataTable = ({
   const selectedProjectId = useSelector(
     (state) => state.selectedProject.project?.id,
   );
-
+ const dispatch = useDispatch();
   const getUniqueValues = (key) => {
     return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
   };
@@ -143,10 +146,7 @@ const KhataTable = ({
                         onChange={(e) => {
                           const action = e.target.value;
                           e.target.value = "";
-                          if (action === "viewPlots") {
-                            dispatch(setSelectedKhataId(k.id));
-                            setIsPlotModalOpen(true);
-                          }
+                          if (action === "viewPlots") onViewPlots(k);
 
                           if (action === "upload") onUpload(k);
                           if (action === "map") onMap(k);

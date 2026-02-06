@@ -26,7 +26,7 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     village_code: "",
-    thana_no: "",
+    thana_name_no: "",
     // multiplying_factor: "",
   });
 
@@ -43,7 +43,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         village_code: editingVillage.village_code,
-        thana_no: editingVillage.thana_no,
+        thana_name_no: editingVillage.thana_name_no,
         // multiplying_factor: editingVillage.multiplying_factor || "",
       });
     } else {
@@ -54,7 +54,7 @@ const VillageFormModal = ({
         tahasil: "",
         type: typeParam.toString(),
         village_code: "",
-        thana_no: "",
+        thana_name_no: "",
         // multiplying_factor: "",
       });
     }
@@ -75,7 +75,7 @@ const VillageFormModal = ({
 
     if (!formData.village_code.trim())
       newErrors.village_code = "Village code is required.";
-    if (!formData.thana_no.trim()) newErrors.thana_no = "Thana No is required.";
+    if (!formData.thana_name_no.trim()) newErrors.thana_name_no = "Thana No is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -251,19 +251,19 @@ const VillageFormModal = ({
           <label>Thana Name & No</label>
           <input
             type="text"
-            name="thana_no"
-            value={formData.thana_no}
+            name="thana_name_no"
+            value={formData.thana_name_no}
             onChange={(e) =>
-              setFormData({ ...formData, thana_no: e.target.value })
+              setFormData({ ...formData, thana_name_no: e.target.value })
             }
             className={`input input-bordered w-full ${
-              errors.thana_no ? "border-red-500" : ""
+              errors.thana_name_no ? "border-red-500" : ""
             }`}
             placeholder="Enter Thana Name and No"
           />
-          {errors.thana_no && (
-            <p className="text-red-500 text-sm">{errors.thana_no}</p>
-          )}
+          {/* {errors.thana_name_no && (
+            <p className="text-red-500 text-sm">{errors.thana_name_no}</p>
+          )} */}
           {/* {editingVillage && (
               <>
                 <label>Multiplying Factor</label>

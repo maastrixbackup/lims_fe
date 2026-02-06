@@ -28,7 +28,7 @@ export async function apiClient(endpoint, options = {}) {
     if (res.status === 401) {
       showToast("Your session has expired. Please log in again.", "error");
       store.dispatch(logout());
-      setTimeout(() => (window.location.href = "/"), 1500);
+      // setTimeout(() => (window.location.href = "/"), 1500);
       return;
     }
 

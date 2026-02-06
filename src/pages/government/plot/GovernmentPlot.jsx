@@ -467,99 +467,93 @@ const Plots = () => {
     return "";
   };
 
-  const handlePaymentStatusChange = async (plot, code) => {
-    if (isRestricted) return;
+const handlePaymentStatusChange = async (plot, code) => {
+  if (isRestricted) return;
 
-    // RP → API call (NO redirect)
-    if (code === "RP") {
-      setLoadingPlotId(plot.id);
+  // RP → API call only
+  if (code === "RP") {
+    setLoadingPlotId(plot.id);
 
-      try {
-        const res = await fetch(`${API_BASE_URL}/govtplots/paymentReady`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            plot_id: plot.id,
-            payment_status: "ready",
-          }),
-        });
+    try {
+      const res = await apiClient("/govtplots/paymentReady", {
+        method: "POST",
+        body: {
+          plot_id: plot.id,
+          payment_status: "ready",
+        },
+      });
 
-        const data = await res.json();
-
-        if (data.success === true) {
-          showSuccess(data.message || "Successful");
-
-          setPaymentStatusMap((prev) => ({
-            ...prev,
-            [plot.id]: "RP",
-          }));
-        } else if (data.success === false) {
-          showSuccess(data.message || "Failed to update status", "error");
-        } else {
-          // window.toast?.error(data.message || "Failed to update status");
-          showSuccess(data.message || "Failed to update status", "error");
-        }
-      } catch (err) {
-        showError("Network error", "error");
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to update status");
       }
 
+      showSuccess(res.message || "Successful");
+
+      setPaymentStatusMap((prev) => ({
+        ...prev,
+        [plot.id]: "RP",
+      }));
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      showError(err.message || "Network error");
+    } finally {
       setLoadingPlotId(null);
-      return;
     }
 
-    // PC → redirect only
-    if (code === "RC") {
-      navigate(`/${landType}/land-cost`, { state: { plot } });
-      return;
-    }
+    return;
+  }
 
-    // PP → API + redirect (already correct)
-    if (code === "PP") {
-      setLoadingPlotId(plot.id);
+  // RC → redirect only
+  if (code === "RC") {
+    navigate(`/${landType}/land-cost`, { state: { plot } });
+    return;
+  }
 
-      try {
-        const res = await fetch(`${API_BASE_URL}/govtplots/paymentReady`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            plot_id: plot.id,
-            payment_status: "processing",
-          }),
-        });
+  // PP → API + redirect
+  if (code === "PP") {
+    setLoadingPlotId(plot.id);
 
-        const data = await res.json();
+    try {
+      const res = await apiClient("/govtplots/paymentReady", {
+        method: "POST",
+        body: {
+          plot_id: plot.id,
+          payment_status: "processing",
+        },
+      });
 
-        // ✅ Already processing → treat as success
-        if (showSuccess(data.message || "Successful")) {
-          setPaymentStatusMap((prev) => ({
-            ...prev,
-            [plot.id]: "PP",
-          }));
-
-          //  showSuccess(data.message );
-
-          //   navigate(`/${landType}/land-cost`, { state: { plot } });
-          //   return;
-        }
-
-        showSuccess(data.message || "Failed to update payment", "error");
-        setTimeout(() => {
-          closeModal();
-          navigate(`/${landType}/government/land-cost`, { state: { plot } });
-        }, 400);
-      } catch (err) {
-        showSuccess(err.message || "Network error. Please try again", "error");
-      } finally {
-        setLoadingPlotId(null);
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to update payment");
       }
+
+      showSuccess(res.message || "Successful");
+
+      setPaymentStatusMap((prev) => ({
+        ...prev,
+        [plot.id]: "PP",
+      }));
+
+      setTimeout(() => {
+        closeModal();
+        navigate(`/${landType}/government/land-cost`, { state: { plot } });
+      }, 400);
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      showError(err.message || "Network error. Please try again");
+    } finally {
+      setLoadingPlotId(null);
     }
-  };
+  }
+};
+
 
   return (
     <main className="flex-1 overflow-y-auto space-y-2">
@@ -583,7 +577,7 @@ const Plots = () => {
             : ""
         }
       `}
-            onClick={() => isRestricted && openModal()}
+            onClick={() =>openModal()}
             disabled={isRestricted}
           >
             Add Plot

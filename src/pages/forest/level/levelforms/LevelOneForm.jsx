@@ -1,5 +1,3 @@
-
-
 import { X } from "lucide-react";
 import React, { useState } from "react";
 
@@ -208,10 +206,28 @@ const LevelOneForm = () => {
     (sum, f) => sum + getUploadedCount(form[`${f.name}File`]),
     0,
   );
+  const closeDocModal = () => {
+    const field = docModal.field;
+
+    if (field) {
+      const uploaded = getUploadedCount(form[`${field}File`]);
+
+      // If user selected YES but uploaded nothing → reset dropdown
+      if (!uploaded) {
+        setForm((prev) => ({
+          ...prev,
+          [field]: "", // reset select
+          [`${field}File`]: {}, // clear files
+        }));
+      }
+    }
+
+    setDocModal({ open: false, field: "" });
+  };
 
   return (
-      <div className="max-w-4xl mx-auto">
-      <div >
+    <div className="max-w-4xl mx-auto">
+      <div>
         <h3 className="font-bold text-lg mb-2">LEVEL-1 FD PROPOSAL</h3>
 
         <div className="alert alert-info py-2 text-sm mb-4">
@@ -270,6 +286,7 @@ const LevelOneForm = () => {
 
                 <select
                   name={f.name}
+                  value={form[f.name]}
                   className="select select-bordered"
                   onChange={(e) => {
                     const value = e.target.value;
@@ -394,9 +411,13 @@ const LevelOneForm = () => {
             ))}
 
             <div className="modal-action">
+              <button className="btn btn-base btn-sm" onClick={closeDocModal}>
+                Cancel
+              </button>
+
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => setDocModal({ open: false, field: "" })}
+                onClick={closeDocModal}
               >
                 Done
               </button>

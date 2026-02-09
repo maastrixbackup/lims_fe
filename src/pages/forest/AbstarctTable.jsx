@@ -53,8 +53,8 @@ const AbstractTable = ({landData}) => {
   };
 
   return (
-    <div className="overflow-x-auto bg-base-100 shadow p-4 rounded-lg">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Abstract</h2>
+    <div className="overflow-x-auto bg-base-100 shadow rounded-lg">
+      
 
       {loading ? (
         <div className="text-center py-6">Loading...</div>

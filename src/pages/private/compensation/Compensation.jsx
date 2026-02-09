@@ -371,6 +371,9 @@ const Compensation = () => {
   if (!projectId) {
     return (
       <main className="p-4">
+           <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
+        Cost Of Land - Payment Ready
+      </h2>
         <div className="py-10 text-center text-gray-600">
           <p className="text-lg font-medium">
             Please{" "}
@@ -390,6 +393,9 @@ const Compensation = () => {
   if (khatas.length === 0) {
     return (
       <main className="p-4">
+           <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
+        Cost Of Land - Payment Ready
+      </h2>
         <div className="py-10 text-center text-gray-600">
           <p className="text-md font-medium text-red-500">
             No Land Cost / Compensation data found for the{" "}

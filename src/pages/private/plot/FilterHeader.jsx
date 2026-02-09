@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Filter } from "lucide-react";
+import { Filter, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
 const FilterHeader = ({
   label,
@@ -19,7 +19,9 @@ const FilterHeader = ({
   const dropdownRef = useRef(null);
   const [style, setStyle] = useState({});
 
-  /* ---------- Dropdown position ---------- */
+  const isSorted = sortConfig?.field === field;
+  const sortDirection = isSorted ? sortConfig.direction : null;
+
   useEffect(() => {
     if (!isOpen || !triggerRef.current) return;
 
@@ -33,7 +35,7 @@ const FilterHeader = ({
         position: "fixed",
         left: rect.left,
         top: openUp ? rect.top - dropdownHeight - 6 : rect.bottom + 6,
-        width: 180,
+        width: 200,
         zIndex: 9999,
       });
     };
@@ -48,7 +50,6 @@ const FilterHeader = ({
     };
   }, [isOpen]);
 
-  /* ---------- Outside click ---------- */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -66,55 +67,58 @@ const FilterHeader = ({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [isOpen, setOpenFilterField]);
 
-  /* ---------- Sort Icon ---------- */
   const renderSortIcon = () => {
-    if (sortConfig?.field !== field) return "↕";
-    return sortConfig.direction === "asc" ? "▲" : "▼";
+    if (!isSorted) return <ArrowUpDown size={14} className="opacity-50" />;
+    return sortDirection === "asc" ? (
+      <ArrowUp size={14} />
+    ) : (
+      <ArrowDown size={14} />
+    );
   };
 
   return (
     <th className={className}>
-      <div ref={triggerRef} className="flex items-center gap-1">
-        {/* SORT BUTTON */}
-        <span className="text-gray-700">{label}</span>
-        
-        {/* FILTER BUTTON */}
-        <button
-          type="button"
-          onClick={() => setOpenFilterField(isOpen ? null : field)}
-          title="Filter"
-          className="rounded hover:bg-gray-300 text-gray-600"
-        >
-          <Filter size={14} />
-        </button>
+      <div ref={triggerRef} className="flex items-center gap-1 select-none">
         <button
           type="button"
           onClick={() => onSort(field)}
           title="Click to sort"
-          className="flex items-center gap-1 px-1 py-0.5 rounded
-                     text-gray-700 font-medium
-                     hover:bg-gray-300 hover:text-indigo-600
-                     cursor-pointer select-none"
+          className={`flex items-center gap-1 px-1 py-0.5 rounded
+            font-medium text-sm
+            hover:bg-gray-200
+            ${isSorted ? "text-indigo-600" : "text-gray-700"}`}
         >
-          <span className="text-xs opacity-70">{renderSortIcon()}</span>
+          {label}
+          {renderSortIcon()}
         </button>
-
-
-        {/* FILTER DROPDOWN */}
+        <button
+          type="button"
+          onClick={() => setOpenFilterField(isOpen ? null : field)}
+          title="Filter"
+          className={`p-1 rounded transition
+            hover:bg-gray-200
+            ${
+              isOpen
+                ? "bg-indigo-100 text-indigo-600"
+                : "text-gray-500"
+            }`}
+        >
+          <Filter size={14} />
+        </button>
         {isOpen &&
           createPortal(
             <div
               ref={dropdownRef}
               style={style}
-              className="bg-white rounded-md shadow-lg"
+              className="bg-white rounded-lg shadow-xl border border-gray-200"
             >
               <ul
-                className="max-h-56 overflow-y-auto text-xs"
+                className="max-h-56 overflow-y-auto text-sm"
                 style={{ scrollbarWidth: "thin" }}
               >
                 <li>
                   <button
-                    className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 font-medium"
                     onClick={() => {
                       updateFilter(field, "");
                       setOpenFilterField(null);

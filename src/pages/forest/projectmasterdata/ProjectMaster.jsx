@@ -117,7 +117,7 @@ const ProjectMaster = () => {
   };
 
   return (
-    <div className="p-6 bg-base-100 rounded-xl shadow">
+    <div className="p-2 bg-base-100 rounded-xl shadow">
 
       <h3 className="text-xl font-bold mb-6">
         {editData ? "Edit Forest Project Master Data" : "Add Forest Project Master Data"}

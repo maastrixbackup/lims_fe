@@ -206,7 +206,7 @@ const LevelTab = () => {
       </div>
 
       {/* Content */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="bg-white p-2 rounded-lg shadow-sm">
         {activeTab === "level0" && <LevelZeroForm />}
         {activeTab === "level1" && <LevelOneForm />}
         {activeTab === "level2" && <LevelTwoForm />}

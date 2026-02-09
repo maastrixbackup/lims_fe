@@ -1,28 +1,30 @@
 import React from "react";
 
-const Pagination = ({ page, totalPages, setPage, limit, setLimit, total }) => {
+const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center p-4 border-t border-gray-200 bg-gray-50">
-      <div className="flex items-center justify-center sm:justify-start space-x-2">
-        <span className="text-sm text-gray-700">Page Size:</span>
-        <select
-          className="select select-bordered select-sm w-24"
-          value={limit}
-          onChange={(e) => {
-            setLimit(Number(e.target.value));
-            setPage(1);
-          }}
-        >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-           {/* <option value={total}>All</option> */}
-        </select>
-      </div>
+    <div className="w-full overflow-x-auto border-t border-gray-200 bg-gray-50">
+      <div className="flex items-center justify-between gap-4 min-w-max px-4 py-3">
+        
+        {/* Page size */}
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span className="text-sm text-gray-700">Page Size:</span>
+          <select
+            className="select select-bordered select-sm w-24"
+            value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1);
+            }}
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
 
-      <div className="w-full sm:w-auto overflow-x-auto">
-        <div className="join justify-center sm:justify-end min-w-max">
+        {/* Pagination buttons */}
+        <div className="join whitespace-nowrap">
           <button
             className="join-item btn btn-sm"
             disabled={page === 1}
@@ -86,6 +88,7 @@ const Pagination = ({ page, totalPages, setPage, limit, setLimit, total }) => {
               </button>
             </>
           )}
+
           <button
             className="join-item btn btn-sm"
             disabled={page === totalPages}

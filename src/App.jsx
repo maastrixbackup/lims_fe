@@ -56,8 +56,6 @@ const AuditTrail = lazy(() => import("./pages/reports/AuditTrail"));
 const DocumentUploadReport = lazy(() => import("./pages/reports/DocumentUploadReport"));
 const MissingDocument = lazy(() => import("./pages/reports/MissingDocument"));
 
-/* ================= APP CONTENT ================= */
-
 function AppContent() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -143,8 +141,6 @@ function AppContent() {
     </AuthProvider>
   );
 }
-
-/* ================= ROOT ================= */
 
 export default function App() {
   return (

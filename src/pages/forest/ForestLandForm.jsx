@@ -85,7 +85,7 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
   return (
     <>
       <dialog className="modal" open={open}>
-        <div className="modal-box max-w-2xl">
+        <div className="modal-box max-w-2xl max-h-130 relative">
           <h3 className="font-semibold text-lg mb-4">
             {isEdit ? "Edit Forest Land Details" : "Add Forest Land Details"}
           </h3>

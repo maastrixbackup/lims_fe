@@ -39,9 +39,6 @@ import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 
 const PlotTable = ({ plots, setDeleteConfirm }) => {
   const { landType } = useParams();
-  // console.log("landType***************", landType);
-  // const typeParam = useLandTypeParam();
-  // Filter States
   const [selectedVillage, setSelectedVillage] = useState("");
   const [selectedKhata, setSelectedKhata] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,7 +49,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
   const canDelete = !(role === "Data Entry User" || role === "Viewer");
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const token = useSelector((state) => state.auth.userToken);
-  // console.log("tokennnn", token);
   const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [loadingPlotId, setLoadingPlotId] = useState(null);
   const [columnFilters, setColumnFilters] = useState({});
@@ -205,12 +201,17 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   const filteredPlots = useMemo(() => {
     let data = projectFilteredPlots.filter((plot) => {
+      const searchText = Object.values(plot)
+        .map((value) => {
+          if (value === null || value === undefined) return "";
+          if (typeof value === "object") return JSON.stringify(value);
+          return String(value);
+        })
+        .join(" ")
+        .toLowerCase();
+
       const searchMatch =
-        !searchQuery ||
-        Object.values(plot)
-          .join(" ")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        !searchQuery || searchText.includes(searchQuery.toLowerCase());
 
       const columnMatch = Object.entries(columnFilters).every(
         ([field, value]) => !value || plot[field] === value,
@@ -271,65 +272,57 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 
   return (
     <>
-      <div className="rounded-xl bg-white p-4 mb-4 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full min-w-0">
-            {/* Village */}
-            <div className="flex flex-col w-full sm:w-48">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Village
-              </label>
-              <select
-                className="select select-sm w-full rounded-lg border-gray-300
+      <div className="rounded-xl bg-white p-4 mb-4 shadow-sm overflow-x-auto">
+        <div className="flex items-end gap-4 min-w-max">
+          <div className="flex flex-col w-48 shrink-0">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              Village
+            </label>
+            <select
+              className="select select-sm w-full rounded-lg border-gray-300
           focus:border-indigo-500 focus:ring-indigo-400 text-gray-700"
-                value={selectedVillage}
-                onChange={(e) => setSelectedVillage(e.target.value)}
-              >
-                <option value="">All Villages</option>
-                {villageOptions.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </div>
+              value={selectedVillage}
+              onChange={(e) => setSelectedVillage(e.target.value)}
+            >
+              <option value="">All Villages</option>
+              {villageOptions.map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col w-64 lg:w-80 shrink-0">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              Search
+            </label>
 
-            {/* Search */}
-            <div className="flex flex-col w-full sm:flex-1 min-w-0">
-              <label className="text-xs font-medium text-gray-600 mb-1">
-                Search
-              </label>
-
-              <div
-                className="flex items-center w-full rounded-lg border border-gray-300 bg-white
+            <div
+              className="flex items-center w-full rounded-lg border border-gray-300 bg-white
           shadow-sm focus-within:ring-2 focus-within:ring-indigo-400"
-              >
-                <input
-                  type="text"
-                  placeholder="Search tenant, plot, khata..."
-                  className="w-full px-3 py-2 text-sm rounded-l-lg focus:outline-none"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+            >
+              <input
+                type="text"
+                placeholder="Search tenant, plot, khata..."
+                className="w-full px-3 py-2 text-sm rounded-l-lg focus:outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
 
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  title="Reset filters"
-                  className="px-2 text-gray-500 hover:text-indigo-600"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={resetFilters}
+                title="Reset filters"
+                className="px-2 text-gray-500 hover:text-indigo-600"
+              >
+                <X size={18} />
+              </button>
             </div>
           </div>
-
-          {/* Results Count */}
           <div
             className="flex items-center gap-2 px-3 py-2 rounded-lg
-      bg-indigo-100 text-sm font-medium text-indigo-700 shadow-inner
-      w-fit self-start lg:self-auto"
+        bg-indigo-100 text-sm font-medium text-indigo-700 shadow-inner
+        shrink-0"
           >
             <Filter size={16} />
             Showing
@@ -373,7 +366,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           )}
         </div>
       )}
-      {/* </div> */}
+
       {selectedProject && filteredPlots.length > 0 && (
         <PlotTabs>
           <div
@@ -462,23 +455,23 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                           onChange={(e) =>
                             handlePaymentStatusChange(plot, e.target.value)
                           }
-                          className="absolute inset-0 opacity-0 cursor-pointer shadow-md"
+                          className="absolute inset-0 opacity-0 cursor-pointer shadow-lg"
                         >
                           <option value="" disabled></option>
-                          <option value="RP">Ready for Payment</option>
-                          <option value="PP">Payment Processing</option>
-                          <option value="RC">Payment Complete</option>
+                          <option value="RP">Ready for Payment (RP) </option>
+                          <option value="PP">Payment Processing (PP) </option>
+                          <option value="PC">Payment Complete (PC)  </option>
                         </select>
                         <div
-                          className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-md
+                          className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-lg
         ${getPaymentCode(plot) ? "justify-between" : "justify-center"}
         ${
           getPaymentCode(plot) === "RP"
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}

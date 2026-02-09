@@ -36,6 +36,18 @@ const KhataTable = ({
     (state) => state.selectedProject.project?.id,
   );
   const dispatch = useDispatch();
+
+  const stickyCol1Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md ";
+
+  const stickyCol1Cell =
+    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
+
+  const stickyCol2Header =
+    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[110px] z-[35] shadow-md ";
+
+  const stickyCol2Cell =
+    "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
   const getUniqueValues = (key) => {
     return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
   };
@@ -100,11 +112,39 @@ const KhataTable = ({
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full whitespace-nowrap">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
+              <thead className="bg-gray-200 sticky top-0 z-10">
                 <tr>
-                  <th>Sl/No</th>
+                  <th className="">Sl/No</th>
+                  <th className={stickyCol1Header}>
+                    <FilterHeader
+                      column={GovtKhataColumn.find((c) => c.key === "khata_no")}
+                      filters={filters}
+                      setFilters={setFilters}
+                      sortConfig={sortConfig}
+                      setSortConfig={setSortConfig}
+                      getUniqueValues={getUniqueValues}
+                      activeFilterKey={activeFilterKey}
+                      setActiveFilterKey={setActiveFilterKey}
+                    />
+                  </th>
 
-                  {GovtKhataColumn.map((col) => (
+                  {/* PLOT NO */}
+                  <th className={stickyCol2Header}>
+                    <FilterHeader
+                      column={GovtKhataColumn.find((c) => c.key === "plot_no")}
+                      filters={filters}
+                      setFilters={setFilters}
+                      sortConfig={sortConfig}
+                      setSortConfig={setSortConfig}
+                      getUniqueValues={getUniqueValues}
+                      activeFilterKey={activeFilterKey}
+                      setActiveFilterKey={setActiveFilterKey}
+                    />
+                  </th>
+
+                  {GovtKhataColumn.filter(
+                    (c) => !["khata_no", "plot_no"].includes(c.key),
+                  ).map((col) => (
                     <th key={col.key}>
                       <FilterHeader
                         column={col}
@@ -128,8 +168,10 @@ const KhataTable = ({
                 {filteredKhatas.map((k, idx) => (
                   <tr key={k.id}>
                     <td>{idx + 1}</td>
-                    <td>{k.khata_no || "No Data"}</td>
-                    <td>{k.plot_no || "No Data"}</td>
+                    <td className={stickyCol1Cell}>
+                      {k.khata_no || "No Data"}
+                    </td>
+                    <td className={stickyCol2Cell}>{k.plot_no || "No Data"}</td>
                     <td>{k.village || "No Data"}</td>
                     <td>{k.kissam_of_land || "No Data"}</td>
                     <td>{k.lease_case_no || "No Data"}</td>
@@ -148,8 +190,8 @@ const KhataTable = ({
                           const action = e.target.value;
                           e.target.value = "";
                           if (action === "viewPlots") {
-                            dispatch(setSelectedKhataId(k.id))
-                           onViewPlots(k)
+                            dispatch(setSelectedKhataId(k.id));
+                            onViewPlots(k);
                           }
 
                           if (action === "upload") onUpload(k);

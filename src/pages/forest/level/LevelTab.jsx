@@ -1,15 +1,15 @@
 // import React, { useState } from "react";
-// import Level0 from "./LevelZero";
+// import stage0 from "./LevelZero";
 // import Level1 from "./LevelOne";
 // import Level2 from "./LevelTwo";
 // import LevelThree from "./LevelThree";
 // import LevelFour from "./LevelFour";
 
 // const LevelTab = () => {
-//   const [activeTab, setActiveTab] = useState("level0");
+//   const [activeTab, setActiveTab] = useState("stage0");
 
 //   const tabs = [
-//     { id: "level0", label: "Level 0" },
+//     { id: "stage0", label: "Level 0" },
 //     { id: "level1", label: "Level 1" },
 //     { id: "level2", label: "Level 2" },
 //     { id: "level3", label: "Level 3" },
@@ -37,7 +37,7 @@
 //       </div>
 
 //       <div className="font-semibold ">
-//         {activeTab === "level0" && <Level0 />}
+//         {activeTab === "stage0" && <stage0 />}
 
 //         {activeTab === "level1" && <Level1 />}
 
@@ -60,7 +60,7 @@
 
 
 // const steps = [
-//   { id: "level0", label: "Level 0" },
+//   { id: "stage0", label: "Level 0" },
 //   { id: "level1", label: "Level 1" },
 //   { id: "level2", label: "Level 2" },
 //   { id: "level3", label: "Level 3" },
@@ -172,17 +172,17 @@ import LevelZeroForm from "./levelforms/LevelZeroForm";
 import LevelOneForm from "./levelforms/LevelOneForm";
 import LevelTwoForm from "./levelforms/LevelTwoForm";
 import LevelThreeForm from "./levelforms/LevelThreeForm";
-import LevelFourForm from "./levelforms/LevelFourForm";
+// import LevelFourForm from "./levelforms/LevelFourForm";
 
 const LevelTab = () => {
-  const [activeTab, setActiveTab] = useState("level0");
+  const [activeTab, setActiveTab] = useState("stage0");
 
   const tabs = [
-    { id: "level0", label: "Level 0" },
-    { id: "level1", label: "Level 1" },
-    { id: "level2", label: "Level 2" },
-    { id: "level3", label: "Level 3" },
-    { id: "level4", label: "Level 4" },
+    { id: "stage0", label: "Stage 0" },
+    { id: "stage1", label: "Stage I" },
+    { id: "stage2", label: "Stage II" },
+    { id: "stage3", label: "Post Clearance" },
+   
   ];
 
   return (
@@ -207,11 +207,12 @@ const LevelTab = () => {
 
       {/* Content */}
       <div className="bg-white p-2 rounded-lg shadow-sm">
-        {activeTab === "level0" && <LevelZeroForm />}
-        {activeTab === "level1" && <LevelOneForm />}
-        {activeTab === "level2" && <LevelTwoForm />}
-        {activeTab === "level3" && <LevelThreeForm />}
-        {activeTab === "level4" && <LevelFourForm />}
+        {activeTab === "stage0" && <LevelZeroForm />}
+        
+        {activeTab === "stage1" &&  <LevelOneForm />}
+        {activeTab === "stage2" && <LevelTwoForm />}
+        {activeTab === "stage3" && <LevelThreeForm />}
+        {/* {activeTab === "stage4" && <LevelFourForm />} */}
       </div>
     </div>
   );

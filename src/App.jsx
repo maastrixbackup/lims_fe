@@ -101,7 +101,7 @@ function AppContent() {
 
               <Route path="/:landType/land-schedule" element={<LandSchedule />} />
               <Route path="/:landType/eds-master-data" element={<EDSMasterData />} />
-              <Route path="/:landType/levels" element={<LevelTab />} />
+              <Route path="/:landType/stage" element={<LevelTab />} />
               <Route path="/:landType/project-master" element={<ProjectMaster />} />
 
               <Route path="/import" element={<UploadPlots />} />

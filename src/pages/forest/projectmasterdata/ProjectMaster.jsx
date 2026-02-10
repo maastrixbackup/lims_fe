@@ -385,25 +385,25 @@ const ProjectMaster = () => {
   };
 
   return (
-    <div>
+    <div className="bg-white p-2 rounded-lg shadow-sm">
       <h3 className="text-xl font-bold mb-2">
         {editData
           ? "Edit Forest Project Master Data"
           : "Add Forest Project Master Data"}
       </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label className="label">Project ID</label>
-                <input
-                  type="text"
-                  name={"project_id"}
-                  value={formData.project_id}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </div>
+          <div>
+            <label className="label">Project ID</label>
+            <input
+              type="text"
+              name={"project_id"}
+              value={formData.project_id}
+              onChange={handleChange}
+              className="input input-bordered w-full"
+            />
+          </div>
           <div>
             <label className="label">Project</label>
             <select
@@ -422,53 +422,51 @@ const ProjectMaster = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-  <label className="label">Project Category</label>
+          <div>
+            <label className="label">Project Category</label>
 
-  <div className="dropdown w-full">
-    <label
-      tabIndex={0}
-      className="input input-bordered w-full flex items-center justify-between cursor-pointer"
-    >
-      <span className="truncate">
-        {formData.project_category || "Select Project Category"}
-      </span>
-      <span className="text-gray-400">▾</span>
-    </label>
+            <div className="dropdown w-full">
+              <label
+                tabIndex={0}
+                className="input input-bordered w-full flex items-center justify-between cursor-pointer"
+              >
+                <span className="truncate">
+                  {formData.project_category || "Select Project Category"}
+                </span>
+                <span className="text-gray-400">▾</span>
+              </label>
 
-    <div
-      tabIndex={0}
-      className="dropdown-content z-[20] mt-1 w-full rounded-box shadow-lg bg-base-100 shadow max-h-60 overflow-y-auto"
-      style={{scrollbarWidth:"thin"}}
-    >
-      <ul className="menu menu-md p-1">
-        {Object.keys(PROJECT_CATEGORY_NATURE_MAP).map((cat) => (
-          <li key={cat}>
-            <button
-              type="button"
-              className={`whitespace-normal ${
-                formData.project_category === cat ? "active" : ""
-              }`}
-              onClick={() =>
-                handleChange({
-                  target: {
-                    name: "project_category",
-                    value: cat,
-                  },
-                })
-              }
-            >
-              {cat}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-</div>
+              <div
+                tabIndex={0}
+                className="dropdown-content z-[20] mt-1 w-full rounded-box shadow-lg bg-base-100 shadow max-h-60 overflow-y-auto"
+                style={{ scrollbarWidth: "thin" }}
+              >
+                <ul className="menu menu-md p-1">
+                  {Object.keys(PROJECT_CATEGORY_NATURE_MAP).map((cat) => (
+                    <li key={cat}>
+                      <button
+                        type="button"
+                        className={`whitespace-normal ${
+                          formData.project_category === cat ? "active" : ""
+                        }`}
+                        onClick={() =>
+                          handleChange({
+                            target: {
+                              name: "project_category",
+                              value: cat,
+                            },
+                          })
+                        }
+                      >
+                        {cat}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
 
-
-        
           <div>
             <label className="label">Project Nature</label>
             <input
@@ -479,7 +477,6 @@ const ProjectMaster = () => {
             />
           </div>
 
-    
           <div>
             <label className="label">Mining Sub-Category</label>
 
@@ -508,17 +505,15 @@ const ProjectMaster = () => {
             )}
           </div>
         </div>
-     
 
         <div className="grid grid-cols-2 gap-3">
           {[
-             { name: "user_agency", label: "User Agency" },
+            { name: "user_agency", label: "User Agency" },
             { name: "state", label: "State" },
             { name: "district", label: "District" },
             { name: "tahasil", label: "Tahasil" },
             { name: "mouza", label: "Mouza" },
             { name: "proposal_no", label: "Proposal No" },
-           
 
             { name: "range_division", label: "Range / Division" },
             { name: "forest_type", label: "Forest Type" },

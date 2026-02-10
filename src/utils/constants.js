@@ -1502,3 +1502,48 @@ export const levelOne = [
   ["Others/ miscellaneous","others"],
   ["Others/ miscellaneous Docs", "others_docs"]
 ];
+
+export const PROJECT_CATEGORY_NATURE_MAP = {
+  // LINEAR
+  "Construction / Widening of Roads including approach roads & bridges": "LINEAR",
+  "Railway": "LINEAR",
+  "Railway Yards, stations + track": "LINEAR",
+  "Power Transmission Line": "LINEAR",
+  "Telecommunication Line": "LINEAR",
+  "Optical Fibre Cable (involving diversion)": "LINEAR",
+  "Pipeline": "LINEAR",
+  "Canal (other than Minor Irrigation Canal)": "LINEAR",
+  "Airport": "LINEAR",
+
+  // NON-LINEAR
+  "Dispensary / Hospital": "NON-LINEAR",
+  "School / Educational Institution": "NON-LINEAR",
+  "Skill Up-gradation / Vocational Training Center": "NON-LINEAR",
+  "Power Sub Station": "NON-LINEAR",
+  "Petrol Pump": "NON-LINEAR",
+  "Government approved Community Toilets": "NON-LINEAR",
+  "Water Mill": "NON-LINEAR",
+  "Drinking Water (Standalone facilities like WTP, OHT, intake only)": "NON-LINEAR",
+  "Industry": "NON-LINEAR",
+  "Thermal Power": "NON-LINEAR",
+  "Non-Conventional Source of Energy (Solar / Wind parks)": "NON-LINEAR",
+  "Communication Post": "NON-LINEAR",
+  "Police Establishments (Police stations / outposts / towers)": "NON-LINEAR",
+  "Mining / Quarrying": "NON-LINEAR",
+
+  // HYBRID
+  "Hydel / Irrigation": "HYBRID",
+  "Canal projects with structures (headworks, regulators, colonies)": "HYBRID",
+  "Water / Rainwater Harvesting Structures": "HYBRID",
+  "Upgradation / Strengthening / Widening of existing bridges": "HYBRID",
+
+  // OTHERS
+  "De-reservation / De-notification": "OTHERS",
+  "Encroachments": "OTHERS",
+  "Forest Village Conversion": "OTHERS",
+  "Rehabilitation from Protected Areas": "OTHERS",
+  "Defence (strategic sensitive projects)": "OTHERS",
+  "ESRD Study": "OTHERS",
+  "Others": "OTHERS",
+};
+

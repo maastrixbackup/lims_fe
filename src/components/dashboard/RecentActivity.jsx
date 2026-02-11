@@ -1,11 +1,11 @@
 import { Clock, CheckCircle, AlertCircle } from "lucide-react";
 import useFetchDashboard from "../../hooks/useFetchDashboard";
 
-export default function RecentActivity() {
-  const { data, loading, error } = useFetchDashboard();
+export default function RecentActivity({ data }) {
+  // const { data, loading, error } = useFetchDashboard();
 
-  if (loading) return <div>Loading recent projects...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  // if (loading) return <div>Loading recent projects...</div>;
+  // if (error) return <div>Error: {error.message}</div>;
 
   const activities = data?.recent_activity || [];
 

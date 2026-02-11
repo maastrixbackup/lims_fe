@@ -1,20 +1,14 @@
 import React from "react";
-// import useFetch from "../../hooks/useFetch";
-import useFetchDashboard from "../../hooks/useFetchDashboard";
 
-export default function RecentProjects() {
-  const { data, loading, error } = useFetchDashboard();
-
-  if (loading) return <div>Loading recent projects...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
+export default function RecentProjects({ data }) {
   const projects = data?.recent_projects || [];
-  // console.log('dataaaaaaaaaaaaaaaaaa', projects)
 
   return (
     <div className="card bg-white shadow-xl rounded-2xl">
       <div className="card-body p-6">
-        <h2 className="card-title text-gray-700 mb-4">Recent Projects</h2>
+        <h2 className="card-title text-gray-700 mb-4">
+          Recent Projects
+        </h2>
 
         {projects.length === 0 ? (
           <div className="text-gray-500 text-center py-4">
@@ -39,11 +33,11 @@ export default function RecentProjects() {
                       <span
                         className={`badge ${
                           project.status_text === "Active"
-                            ? "badge-success text-white"
+                            ? "badge-success"
                             : project.status_text === "Pending"
-                            ? "badge-warning text-white"
-                            : "badge-error text-white"
-                        }`}
+                            ? "badge-warning"
+                            : "badge-error"
+                        } text-white`}
                       >
                         {project.status_text}
                       </span>

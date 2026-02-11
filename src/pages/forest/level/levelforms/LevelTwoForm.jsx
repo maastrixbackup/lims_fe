@@ -1,222 +1,301 @@
-import React, { useState } from "react";
+import { X } from "lucide-react";
+import React, { useState, useMemo } from "react";
 
-const emptyForm = {
-  projectId: "",
-  stage1Approval: "",
-  stage1Doc: null,
-  approvalDate: "",
-  npvStatus: "",
-  npvDoc: null,
-  caLand: "",
-  acaLand: "",
-  stage2Status: "",
-  others: "",
-  others_docs: null,
-};
+const STAGE_II_DATA = [
+  {
+    sl: 1,
+    key: "environmentalClearance",
+    label: "Environmental Clearance",
+    type: "status",
+    options: ["Obtained", "Not Obtained"],
+    remark: "EC letter (if applicable)",
+    allowUpload: true,
+  },
+  {
+    sl: 2,
+    key: "nbwlClearance",
+    label: "NBWL Clearance",
+    type: "status",
+    options: ["Obtained", "Not Obtained"],
+    remark: "NBWL approval (if applicable)",
+    allowUpload: true,
+  },
+  {
+    sl: 3,
+    key: "finalCAExecution",
+    label: "Final CA Execution",
+    type: "status",
+    options: ["Completed", "Pending"],
+    remark: "Execution proof",
+    allowUpload: true,
+  },
+  {
+    sl: 4,
+    key: "finalMapsApproved",
+    label: "Final Maps Approved",
+    type: "yesno",
+    remark: "Approved maps",
+    allowUpload: true,
+  },
+  {
+    sl: 5,
+    key: "finalTechnicalApproval",
+    label: "Final Technical Approval",
+    type: "status",
+    options: ["Completed", "Pending"],
+    remark: "Mining / Linear approval",
+    allowUpload: true,
+  },
+  {
+    sl: 6,
+    key: "stage2ApprovalLetter",
+    label: "Stage-II Approval Letter",
+    type: "yesno",
+    remark: "Final FC Letter Upload",
+    allowUpload: true,
+  },
+  {
+    sl: 7,
+    key: "stage2ApprovalDate",
+    label: "Stage-II Approval Date",
+    type: "date",
+  },
+  {
+    sl: 8,
+    key: "approvedForestArea",
+    label: "Approved Forest Area (Ha)",
+    type: "text",
+  },
+  {
+    sl: 9,
+    key: "approvedNonForestArea",
+    label: "Approved Non-Forest Area (Ha)",
+    type: "text",
+  },
+  {
+    sl: 10,
+    key: "stage2Status",
+    label: "Stage-II Status",
+    type: "chip",
+  },
+  {
+    sl: 11,
+    key: "eligiblePostClearance",
+    label: "Eligible for Post-Clearance?",
+    type: "yesno",
+  },
+];
 
-const LevelTwoForm = ({ setRows, rows }) => {
-  const [form, setForm] = useState(emptyForm);
+const LevelTwoForm = () => {
+  const [form, setForm] = useState({});
+  const [files, setFiles] = useState({});
+  const [inputKeys, setInputKeys] = useState({});
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-
-    setForm({
-      ...form,
-      [name]: files ? files[0] : value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  // 📂 MULTIPLE FILE UPLOAD
+  const handleFileChange = (e, rowKey) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    setFiles((prev) => ({
+      ...prev,
+      [rowKey]: [...(prev[rowKey] || []), ...selectedFiles],
+    }));
+
+    // reset input
+    setInputKeys((prev) => ({
+      ...prev,
+      [rowKey]: Date.now(),
+    }));
+  };
+
+  // ❌ REMOVE FILE
+  const handleRemoveFile = (rowKey, index) => {
+    setFiles((prev) => ({
+      ...prev,
+      [rowKey]: prev[rowKey].filter((_, i) => i !== index),
+    }));
+  };
+
+  // 🔁 AUTO STATUS (DEFAULT = Not Granted)
+  const stage2Status = useMemo(() => {
+    return form.stage2ApprovalLetter === "Yes"
+      ? "Granted"
+      : "Not Granted";
+  }, [form.stage2ApprovalLetter]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    setRows([...rows, form]);
-    setForm(emptyForm);
+    const payload = {
+      ...form,
+      stage2Status,
+      documents: files,
+    };
+
+    console.log("STAGE-II PAYLOAD:", payload);
+    alert("Stage-II Saved Successfully");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="p-4 max-w-6xl mx-auto">
+      <h2 className="text-lg font-bold mb-4">
+        Stage – II : Final Approval
+      </h2>
 
-      <h3 className="font-bold text-lg mb-6">Stage-I Approval / Level-2</h3>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <table className="table table-bordered w-full text-sm">
+        <thead>
+          <tr className="bg-gray-200">
+            <th>Sl</th>
+            <th>Parameter</th>
+            <th>Status</th>
+            <th>Documents / Remarks</th>
+          </tr>
+        </thead>
 
-{/* Project */}
-<div>
-  <label className="label-text font-medium">Project ID</label>
-  <input
-    name="projectId"
-    className="input input-bordered w-full"
-    value={form.projectId}
-    onChange={handleChange}
-  />
-</div>
+        <tbody>
+          {STAGE_II_DATA.map((row) => (
+            <tr key={row.key}>
+              <td>{row.sl}</td>
+              <td>{row.label}</td>
 
+              {/* STATUS COLUMN */}
+              <td>
+                {row.type === "yesno" && (
+                  <div className="flex gap-4">
+                    {["Yes", "No"].map((v) => (
+                      <label key={v} className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          name={row.key}
+                          value={v}
+                          checked={form[row.key] === v}
+                          onChange={handleChange}
+                        />
+                        {v}
+                      </label>
+                    ))}
+                  </div>
+                )}
 
+                {row.type === "status" && (
+                  <select
+                    name={row.key}
+                    className="select select-bordered select-sm"
+                    value={form[row.key] || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select</option>
+                    {row.options.map((o) => (
+                      <option key={o}>{o}</option>
+                    ))}
+                  </select>
+                )}
 
+                {row.type === "date" && (
+                  <input
+                    type="date"
+                    name={row.key}
+                    className="input input-bordered input-sm"
+                    value={form[row.key] || ""}
+                    onChange={handleChange}
+                  />
+                )}
 
-<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-  <label className="label-text font-medium">CA Land Area</label>
-  <input
-    name="caLand"
-    className="input input-bordered w-full"
-    value={form.caLand}
-    onChange={handleChange}
-  />
-</div>
+                {row.type === "text" && (
+                  <input
+                    type="text"
+                    name={row.key}
+                    className="input input-bordered input-sm w-full"
+                    value={form[row.key] || ""}
+                    onChange={handleChange}
+                  />
+                )}
 
-<div>
-  <label className="label-text font-medium">ACA Land Area</label>
-  <input
-    name="acaLand"
-    className="input input-bordered w-full"
-    value={form.acaLand}
-    onChange={handleChange}
-  />
-</div>
-</div>
-{/* Stage II */}
-<div className="md:col-span-2">
-  <label className="label-text font-medium">Stage II Status</label>
-  <input
-    name="stage2Status"
-    className="input input-bordered w-full"
-    value={form.stage2Status}
-    onChange={handleChange}
-  />
-</div>
+                {/* ✅ STAGE-II STATUS CHIP */}
+                {row.type === "chip" && (
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                      ${
+                        stage2Status === "Granted"
+                          ? "bg-green-100 text-green-700 border border-green-300"
+                          : "bg-red-100 text-red-700 border border-red-300"
+                      }
+                    `}
+                  >
+                    {stage2Status}
+                  </span>
+                )}
+              </td>
 
+              {/* DOCUMENT COLUMN */}
+              <td>
+                {row.remark && (
+                  <div className="text-xs mb-1 text-gray-600">
+                    {row.remark}
+                  </div>
+                )}
 
-<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                {row.allowUpload &&
+                  ["Yes", "Obtained", "Completed"].includes(
+                    form[row.key]
+                  ) && (
+                    <div className="space-y-1">
+                      <input
+                        key={inputKeys[row.key] || "default"}
+                        type="file"
+                        multiple
+                        className="file-input file-input-bordered file-input-sm"
+                        onChange={(e) =>
+                          handleFileChange(e, row.key)
+                        }
+                      />
 
-  {/* NPV Amount */}
-  <div>
-    <label className="label-text font-medium">NPV Amount</label>
-    <input
-      type="number"
-      name="npvAmount"
-      className="input input-bordered w-full"
-      value={form.npvAmount}
-      onChange={handleChange}
-    />
-  </div>
+                      {/* 📄 FILE COUNT */}
+                      {files[row.key]?.length > 0 && (
+                        <div className="text-xs text-green-700">
+                          {files[row.key].length} document(s) uploaded
+                        </div>
+                      )}
 
-  {/* NPV Status */}
-  <div>
-    <label className="label-text font-medium block">NPV Status</label>
-    <div className="flex gap-4 mt-2">
-      {["Paid", "Not Paid"].map((v) => (
-        <label key={v} className="flex gap-2 items-center">
-          <input
-            type="radio"
-            name="npvStatus"
-            value={v}
-            checked={form.npvStatus === v}
-            onChange={handleChange}
-          />
-          {v}
-        </label>
-      ))}
-    </div>
-  </div>
+                      {/* 📂 FILE LIST */}
+                      {files[row.key]?.map((file, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
+                        >
+                          <span className="truncate">
+                            • {file.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleRemoveFile(row.key, idx)
+                            }
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-  {/* NPV Upload */}
-  {form.npvStatus === "Paid" ? (
-    <div>
-      <label className="label-text font-medium">NPV Receipt</label>
-      <input
-        type="file"
-        name="npvDoc"
-        className="file-input file-input-bordered w-full"
-        onChange={handleChange}
-      />
-    </div>
-  ) : (
-    <div />  
-  )}
-
-</div>
-<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-<div>
-  <label className="label-text font-medium block">Stage I Approval</label>
-  <div className="flex gap-4 mt-2">
-    {["Yes", "No"].map((v) => (
-      <label key={v} className="flex gap-2 items-center">
-        <input
-          type="radio"
-          name="stage1Approval"
-          value={v}
-          checked={form.stage1Approval === v}
-          onChange={handleChange}
-        />
-        {v}
-      </label>
-    ))}
-  </div>
-</div>
-{form.stage1Approval === "Yes" && (
-  <>
-    <div>
-      <label className="label-text font-medium">Approval Date</label>
-      <input
-        type="date"
-        name="approvalDate"
-        className="input input-bordered w-full"
-        value={form.approvalDate}
-        onChange={handleChange}
-      />
-    </div>
-
-    <div>
-      <label className="label-text font-medium">Stage I Document</label>
-      <input
-        type="file"
-        name="stage1Doc"
-        className="file-input file-input-bordered w-full"
-        onChange={handleChange}
-      />
-    </div>
-  </>
-)}
-</div>
-<div className="md:col-span-2">
-  <label className="label-text font-medium block">Others</label>
-
-  <div className="flex gap-4 mt-2">
-    {["Yes", "No"].map((v) => (
-      <label key={v} className="flex gap-2 items-center">
-        <input
-          type="radio"
-          name="others"
-          value={v}
-          checked={form.others === v}
-          onChange={handleChange}
-        />
-        {v}
-      </label>
-    ))}
-  </div>
-
-  {form.others === "Yes" && (
-    <input
-      type="file"
-      name="others_docs"
-      className="file-input file-input-bordered w-full mt-3"
-      onChange={handleChange}
-    />
-  )}
-</div>
-
-</div>
-
-
-      <div className="flex justify-end mt-6">
-        <button type="submit" className="btn btn-success btn-sm">
-          Save Level-2
+      <div className="flex justify-end mt-4">
+        <button className="btn btn-success btn-sm">
+          Save Stage-II
         </button>
       </div>
-
     </form>
   );
 };
 
 export default LevelTwoForm;
+

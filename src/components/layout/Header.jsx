@@ -39,7 +39,7 @@ export default function Header({ setSidebarOpen, isMobile, sidebarOpen }) {
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
 
   const handleProjectSelect = (project) => {
-    dispatch(setSelectedProject(project));
+    dispatch(setSelectedProject(project || null));
     setProjectDropdownOpen(false);
   };
 
@@ -124,35 +124,49 @@ export default function Header({ setSidebarOpen, isMobile, sidebarOpen }) {
             />
           </button>
 
-          {projectDropdownOpen && (
-            <div
-              className="
-                absolute right-0 mt-2 w-full bg-white shadow-lg 
-                rounded-xl border border-gray-100 p-2 z-50 max-h-64 overflow-y-auto
-              "
-            >
-              <ul className="text-sm text-gray-700">
-                {projects?.length ? (
-                  projects.map((project) => (
-                    <li
-                      key={project.id}
-                      onClick={() => handleProjectSelect(project)}
-                      className="
-                        p-2 bg-gray-50 hover:bg-indigo-500 hover:text-white 
-                        rounded-md cursor-pointer transition-all duration-200 mb-1
-                      "
-                    >
-                      {project.project_name || project.name}
-                    </li>
-                  ))
-                ) : (
-                  <li className="p-2 text-gray-500 italic">
-                    No projects available
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
+    {projectDropdownOpen && (
+  <div
+    className="
+      absolute right-0 mt-2 w-full bg-white shadow-lg 
+      rounded-xl border border-gray-100 p-2 z-50 max-h-64 overflow-y-auto
+    "
+    style={{scrollbarWidth:"thin"}}
+  >
+    <ul className="text-sm text-gray-700">
+
+      {/* 🔹 CLEAR / NONE OPTION */}
+      <li
+        onClick={() => handleProjectSelect(null)}
+       className="
+              p-2 bg-gray-50 hover:bg-indigo-500 hover:text-white 
+              rounded-md cursor-pointer transition-all duration-200 mb-1
+            "
+      >
+        Select Project
+      </li>
+
+      {projects?.length ? (
+        projects.map((project) => (
+          <li
+            key={project.id}
+            onClick={() => handleProjectSelect(project)}
+            className="
+              p-2 bg-gray-50 hover:bg-indigo-500 hover:text-white 
+              rounded-md cursor-pointer transition-all duration-200 mb-1
+            "
+          >
+            {project.project_name || project.name}
+          </li>
+        ))
+      ) : (
+        <li className="p-2 text-gray-500 italic">
+          No projects available
+        </li>
+      )}
+    </ul>
+  </div>
+)}
+
         </div>
         <div className="relative" ref={notifRef}>
           <button

@@ -741,27 +741,27 @@ const ProjectMaster = () => {
               className="overflow-x-auto"
               style={{ scrollbarWidth: "thin", maxHeight: "300px" }}
             >
-               <table className="table table-bordered w-full table-fixed">
-    <thead className="bg-gray-200">
-      <tr>
-        <th className="w-[80px]">EDS Sl No</th>
-        <th className="w-[160px]">EDS Ref No</th>
-        <th className="w-[200px]">Issuing Authority</th>
-        <th className="w-[160px]">EDS Issue Date</th>
-        <th className="w-[160px]">EDS Due Date</th>
-        <th className="w-[130px]">Total Issues</th>
-        <th className="w-[140px]">Issues Closed</th>
-        <th className="w-[150px]">Issues Pending</th>
-        <th className="w-[150px]">EDS Status</th>
-        <th className="w-[300px]">EDS Reply Document</th>
-        <th className="w-[100px]">Action</th>
-      </tr>
-    </thead>
+              <table className="table table-bordered w-full table-fixed">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="w-[80px]">EDS Sl No</th>
+                    <th className="w-[160px]">EDS Ref No</th>
+                    <th className="w-[200px]">Issuing Authority</th>
+                    <th className="w-[160px]">EDS Issue Date</th>
+                    <th className="w-[160px]">EDS Due Date</th>
+                    <th className="w-[130px]">Total Issues</th>
+                    <th className="w-[140px]">Issues Closed</th>
+                    <th className="w-[150px]">Issues Pending</th>
+                    <th className="w-[150px]">EDS Status</th>
+                    <th className="w-[300px]">EDS Reply Document</th>
+                    <th className="w-[100px]">Action</th>
+                  </tr>
+                </thead>
 
                 <tbody>
                   {formData.eds_list.length === 0 && (
                     <tr>
-                      <td colSpan="11" className="text-center text-gray-400">
+                      <td colSpan="7" className="text-center text-gray-400">
                         No EDS added
                       </td>
                     </tr>

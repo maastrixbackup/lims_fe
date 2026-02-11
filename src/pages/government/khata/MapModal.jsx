@@ -29,7 +29,7 @@ const MapModal = ({ khata, onClose, onUpload }) => {
       setLoading(true);
       setSuccessMsg("");
 
-      const res = await fetch(`${API_BASE_URL}/khata/uploadMapDocument`, {
+      const res = await fetch(`${API_BASE_URL}/govtkhata/uploadMapDocument`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

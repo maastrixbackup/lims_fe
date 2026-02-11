@@ -1547,6 +1547,24 @@ export const PROJECT_CATEGORY_NATURE_MAP = {
   "Others": "OTHERS",
 };
 
+export const NON_LINEAR_PROJECTS = [
+  "Dispensary / Hospital",
+  "School / Educational Institution",
+  "Skill Up-gradation / Vocational Training Center",
+  "Power Sub Station",
+  "Petrol Pump",
+  "Government approved Community Toilets",
+  "Water Mill",
+  "Drinking Water (Standalone facilities like WTP, OHT, intake only)",
+  "Industry",
+  "Thermal Power",
+  "Non-Conventional Source of Energy (Solar / Wind parks)",
+  "Communication Post",
+  "Police Establishments (Police stations / outposts / towers)",
+  "Mining / Quarrying",
+];
+
+
 export const STAGE_0_DATA = [
   {
     sl: 1,

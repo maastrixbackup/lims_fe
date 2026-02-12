@@ -62,17 +62,17 @@ const VillageTable = ({
             className="max-h-[400px] overflow-x-auto"
             style={{ scrollbarWidth: "thin" }}
           >
-            <table className="table w-full">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+             <table className="table w-full">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 uppercase text-xs">
                 <tr>
-                  <th className="font-semibold text-sm text-gray-700">Sl/No</th>
-                  <th className="font-semibold text-sm text-gray-700">Village Code</th>
-                  <th className="font-semibold text-sm text-gray-700">Village</th>
-                  <th className="font-semibold text-sm text-gray-700">District</th>
-                  <th className="font-semibold text-sm text-gray-700">Tahasil</th>
-                   <th className="font-semibold text-sm text-gray-700">Thana Name & No</th>
-                  <th className="font-semibold text-sm text-gray-700">Date</th>
-                  <th className="text-right font-semibold text-sm text-gray-700">Actions</th>
+                  <th >Sl/No</th>
+                  <th >Village Code</th>
+                  <th >Village</th>
+                  <th >District</th>
+                  <th >Tahasil</th>
+                   <th >Thana Name & No</th>
+                  <th >Date</th>
+                  <th >Actions</th>
                 </tr>
               </thead>
 

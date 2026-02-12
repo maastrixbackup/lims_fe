@@ -370,16 +370,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       {selectedProject && filteredPlots.length > 0 && (
         <PlotTabs>
           <div
-            className="max-h-[400px] overflow-x-auto relative"
+            className="max-h-[400px] overflow-x-auto relative "
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
+              <thead className="bg-gray-200 sticky top-0 z-10 text-sm ">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
-
+             
                   {BasicDetails.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -392,13 +389,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.stickyClass}
+                      className={`${col.stickyClass} uppercase text-sm font-medium text-gray-700`}
                     />
                   ))}
 
-                  <th className="p-3 text-left">LO13 Remarks</th>
-                  <th className={stickyPaymentHeader}>Payment Status</th>
-                  <th className={stickyActionHeader}>Actions</th>
+                  {/* <th className="p-3 text-left">LO13 Remarks</th> */}
+                  {/* <th className={stickyPaymentHeader}>Payment Status</th> */}
+                <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
 
@@ -545,9 +542,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
+              
                   {TenantDetails.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -560,11 +555,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.headerClass}
+                      className={col.stickyClass}
                     />
                   ))}
-                  <th className="p-3 text-left">Displaced/Affected</th>
-                  <th className={stickyPaymentHeader}>Payment Status</th>
+              
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -698,9 +692,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
+             
                   {BANK_DETAILS_COLUMNS.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -713,10 +705,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.headerClass}
+                      className={col.stickyClass}
                     />
                   ))}
-                  <th className={stickyPaymentHeader}>Payment Status</th>
+                 
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -844,9 +836,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
+  
                   {LegalIssues.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -859,11 +849,11 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.headerClass}
+                      className={col.stickyClass}
                     />
                   ))}
 
-                  <th className={stickyPaymentHeader}>Payment Status</th>
+          
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -993,9 +983,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
+            
                   {LAND_AREA_VALUATION_COLUMNS.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -1008,10 +996,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.headerClass}
+                      className={col.stickyClass}
                     />
                   ))}
-                  <th className={stickyPaymentHeader}>Payment Status</th>
+                  
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -1170,9 +1158,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
+              
                   {TribunalColumns.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -1185,10 +1171,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.headerClass}
+                      className={col.stickyClass}
                     />
                   ))}
-                  <th className={stickyPaymentHeader}>Payment Status</th>
+                
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -1324,9 +1310,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-                  <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
-                    Sl/No
-                  </th>
+              
                   {FamilyDetails.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -1339,10 +1323,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={col.headerClass}
+                      className={col.stickyClass}
                     />
                   ))}
-                  <th className={stickyPaymentHeader}>Payment Status</th>
+                
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>

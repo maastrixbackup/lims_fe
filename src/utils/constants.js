@@ -749,14 +749,14 @@ export const REQUIRED_FIELDS = [
 export const LA_CASE_REGEX = /^.+\/.+\/.+$/;
 
 export const stickyActionHeader =
-  "p-3 text-right bg-gray-200 md:sticky md:right-0 z-[30] shadow-md";
+     "p-3 text-right bg-gray-200 text-sm sticky right-0 z-[30] shadow-md";
 
 export const stickyActionCell =
   "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
 export const stickyPaymentHeader =
-  "p-3  bg-gray-200 md:sticky md:right-14 z-[30] shadow-md";
+  "p-3  bg-gray-200 md:sticky md:right-10 z-[30] shadow-md";
 export const stickyPaymentCell =
-  "p-3 text-center bg-white md:sticky md:right-14  border-gray-100 shadow-sm text-sm";
+  "p-3 text-center bg-white md:sticky md:right-10  border-gray-100 shadow-sm text-sm";
 
 export const stickyCol1Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-10 z-[30] shadow-md";
@@ -1054,6 +1054,7 @@ export const GovernmentPlotFields = [
 ];
 
 export const GovtKhataColumn = [
+  {key:"sl_no", label:"Sl/No", type:"text"},
   { key: "khata_no", label: "Khata No", type: "text" },
   { key: "plot_no", label: "Plot No", type: "text" },
   { key: "villae_name", label: "Village", type: "text" },
@@ -1079,6 +1080,7 @@ export const GovtKhataColumn = [
 ];
 
 export const BasicDetails = [
+  { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
@@ -1150,24 +1152,35 @@ export const BasicDetails = [
     label: "Land Category",
     field: "land_category",
   },
+  {
+    label: "L013 Remarks",
+    field: "l013_remarks",
+  },
+  {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
+  },
+  // { label:"Actions", field:"actions", stickyClass: stickyActionHeader, },
 ];
 export const TenantDetails = [
+   { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
-    headerClass: stickyCol1Header,
+    stickyClass: stickyCol1Header,
     cellClass: stickyCol1Cell,
   },
   {
     label: "Khata",
     field: "khata_no",
-    headerClass: stickyCol2Header,
+    stickyClass: stickyCol2Header,
     cellClass: stickyCol2Cell,
   },
   {
     label: "Plot No",
     field: "plot_no",
-    headerClass: stickyCol3Header,
+    stickyClass: stickyCol3Header,
     cellClass: stickyCol3Cell,
   },
   {
@@ -1186,23 +1199,32 @@ export const TenantDetails = [
     label: "Present Address",
     field: "present_address",
   },
+  {    label: "Displaced/Affected Person",
+    field: "displaced_affected_person",
+  },
+    {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
+  },
 ];
 
 export const BANK_DETAILS_COLUMNS = [
+   { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
-    headerClass: stickyCol1Header,
+    stickyClass: stickyCol1Header,
   },
   {
     label: "Khata",
     field: "khata_no",
-    headerClass: stickyCol2Header,
+    stickyClass: stickyCol2Header,
   },
   {
     label: "Plot No",
     field: "plot_no",
-    headerClass: stickyCol3Header,
+    stickyClass: stickyCol3Header,
   },
   {
     label: "Bank",
@@ -1255,23 +1277,29 @@ export const BANK_DETAILS_COLUMNS = [
     label: "Affidavit Details",
     field: "affidavit_details",
   },
+    {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
+  },
 ];
 
 export const LegalIssues = [
+   { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
-    headerClass: stickyCol1Header,
+    stickyClass: stickyCol1Header,
   },
   {
     label: "Khata",
     field: "khata_no",
-    headerClass: stickyCol2Header,
+    stickyClass: stickyCol2Header,
   },
   {
     label: "Plot No",
     field: "plot_no",
-    headerClass: stickyCol3Header,
+    stickyClass: stickyCol3Header,
   },
   {
     label: "Legal Heir Cert No",
@@ -1297,23 +1325,29 @@ export const LegalIssues = [
     label: "Land Case Action",
     field: "land_case_action",
   },
+    {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
+  },
 ];
 
 export const LAND_AREA_VALUATION_COLUMNS = [
+   { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
-    headerClass: stickyCol1Header,
+    stickyClass: stickyCol1Header,
   },
   {
     label: "Khata",
     field: "khata_no",
-    headerClass: stickyCol2Header,
+    stickyClass: stickyCol2Header,
   },
   {
     label: "Plot No",
     field: "plot_no",
-    headerClass: stickyCol3Header,
+    stickyClass: stickyCol3Header,
   },
 
   { label: "Total Area (Acre)", field: "land_area_total_acres" },
@@ -1357,23 +1391,29 @@ export const LAND_AREA_VALUATION_COLUMNS = [
   { label: "Priority / Urgency", field: "Priority / Urgency" },
   { label: "Land Use Plan", field: "Land Use Plan" },
   { label: "LA21 Remarks", field: "la21_remarks" },
+    {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
+  },
 ];
 
 export const TribunalColumns = [
+   { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
-    headerClass: stickyCol1Header,
+    stickyClass: stickyCol1Header,
   },
   {
     label: "Khata",
     field: "khata_no",
-    headerClass: stickyCol2Header,
+    stickyClass: stickyCol2Header,
   },
   {
     label: "Plot No",
     field: "plot_no",
-    headerClass: stickyCol3Header,
+    stickyClass: stickyCol3Header,
   },
 
   {
@@ -1412,23 +1452,29 @@ export const TribunalColumns = [
     label: "Abatement",
     field: "abatement",
   },
+    {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
+  },
 ];
 
 export const FamilyDetails = [
+   { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
-    headerClass: stickyCol1Header,
+    stickyClass: stickyCol1Header,
   },
   {
     label: "Khata",
     field: "khata_no",
-    headerClass: stickyCol2Header,
+    stickyClass: stickyCol2Header,
   },
   {
     label: "Plot No",
     field: "plot_no",
-    headerClass: stickyCol3Header,
+    stickyClass: stickyCol3Header,
   },
 
   {
@@ -1462,6 +1508,11 @@ export const FamilyDetails = [
   {
     label: "Orphan Members",
     field: "family_with_orphan_members",
+  },
+    {
+    label:"Payment Status",
+    field:"payment_status",
+     stickyClass: stickyPaymentHeader,
   },
 ];
 export const levelOne = [

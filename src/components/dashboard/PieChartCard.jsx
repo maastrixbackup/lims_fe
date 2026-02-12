@@ -3,11 +3,7 @@ import useFetchDashboard from "../../hooks/useFetchDashboard";
 
 const COLORS = ["#6366F1", "#EC4899", "#F59E0B"];
 
-export default function PieChartCard() {
-  const { data, loading, error } = useFetchDashboard();
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading dashboard</p>;
+export default function PieChartCard({ data }) {
 
   const landObj = data?.land_distribution || {};
 

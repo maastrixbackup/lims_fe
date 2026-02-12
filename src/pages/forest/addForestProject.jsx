@@ -47,7 +47,7 @@ export const addForestProject = async ({
     );
 
     const result = await response.json();
-
+ console.log("Add Forest Project Response:", result);
     if (!response.ok) throw result;
 
     onSuccess(result);

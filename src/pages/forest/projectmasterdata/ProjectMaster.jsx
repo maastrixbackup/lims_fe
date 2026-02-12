@@ -4,12 +4,13 @@
 // import { updateForestProject } from "../../../hooks/updateForestProject";
 // import SuccessMessage from "../../../shared/SuccessMessage";
 // import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+// import { NON_LINEAR_PROJECTS, PROJECT_CATEGORY_NATURE_MAP } from "../../../utils/constants";
 
 // const ProjectMaster = () => {
 //   const token = useSelector((state) => state.auth.userToken);
 //   const selectedProject = useSelector((s) => s.selectedProject.project);
 //   const projects = useSelector((s) => s.list.projects || []);
-//   const [editData, setEditData]=useState()
+//   const [editData, setEditData] = useState();
 
 //   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
@@ -40,6 +41,9 @@
 //     issuesPending: "",
 //     edsStatus: "",
 //     eds_document: null,
+//     project_category: "",
+//     project_nature: "", // auto-filled
+//     project_sub_category: "", // only for Mining
 //   };
 
 //   const [formData, setFormData] = useState(initialFormData);
@@ -66,20 +70,25 @@
 //   }, [selectedProject]);
 
 //   const handleChange = (e) => {
-//     const { name, value, files, type } = e.target;
-//  if (type === "file") {
+//     const { name, value, type, files } = e.target;
+
+//     if (type === "file") {
 //       setFormData({ ...formData, [name]: files[0] });
 //       return;
 //     }
 
-//     if (name === "project_id") {
-//       const selected = projects.find((p) => String(p.id) === value);
+//     if (name === "project_category") {
+//       const nature = PROJECT_CATEGORY_NATURE_MAP[value] || "";
 
 //       setFormData({
 //         ...formData,
-//         project_id: value,
-//         project_name: selected?.project_name || selected?.name || "",
+
+//         project_category: value,
+//         project_nature: nature,
+//         project_sub_category:
+//           value === "Mining / Quarrying" ? formData.project_sub_category : "",
 //       });
+
 //       return;
 //     }
 
@@ -96,7 +105,7 @@
 //         token,
 //         onSuccess: () => {
 //           showSuccess("Project updated successfully!");
-//         //   fetchProjects();
+//           //   fetchProjects();
 //         },
 //         onError: (err) => showError(err?.message || "Error updating project"),
 //       });
@@ -117,48 +126,143 @@
 //   };
 
 //   return (
-//     <div className="p-2 bg-base-100 rounded-xl shadow">
-
-//       <h3 className="text-xl font-bold mb-6">
-//         {editData ? "Edit Forest Project Master Data" : "Add Forest Project Master Data"}
+//     <div className="bg-white p-2 rounded-lg shadow-sm">
+//       <h3 className="text-xl font-bold mb-2">
+//         {editData
+//           ? "Edit Forest Project Master Data"
+//           : "Add Forest Project Master Data"}
 //       </h3>
 
-//       <form onSubmit={handleSubmit} className="space-y-4">
+//       <form onSubmit={handleSubmit} className="space-y-4 p-4">
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//           <div>
+//             <label className="label">Project ID</label>
+//             <input
+//               type="text"
+//               name={"project_id"}
+//               value={formData.project_id}
+//               onChange={handleChange}
+//               className="input input-bordered w-full"
+//             />
+//           </div>
+//           <div>
+//             <label className="label">Project</label>
+//             <select
+//               name="project_id"
+//               value={formData.project_id}
+//               onChange={handleChange}
+//               className="select select-bordered w-full"
+//             >
+//               <option value="">Select Project</option>
+//               {projects.map((p) => (
+//                 <option key={p.id} value={p.id}>
+//                   {p.project_name || p.name}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+//         </div>
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//           <div>
+//             <label className="label">Project Category</label>
 
-//         {/* Project */}
-//         <div>
-//           <label className="label">Project</label>
-//           <select
-//             name="project_id"
-//             value={formData.project_id}
-//             onChange={handleChange}
-//             className="select select-bordered w-full"
+//             <div className="dropdown w-full">
+//               <label
+//                 tabIndex={0}
+//                 className="input input-bordered w-full flex items-center justify-between cursor-pointer"
+//               >
+//                 <span className="truncate">
+//                   {formData.project_category || "Select Project Category"}
+//                 </span>
+//                 <span className="text-gray-400">▾</span>
+//               </label>
 
-//           >
-//             <option value="">Select Project</option>
-//             {projects.map((p) => (
-//               <option key={p.id} value={p.id}>
-//                 {p.project_name || p.name}
-//               </option>
-//             ))}
-//           </select>
+//               <div
+//                 tabIndex={0}
+//                 className="dropdown-content z-[20] mt-1 w-full rounded-box shadow-lg bg-base-100 shadow max-h-60 overflow-y-auto"
+//                 style={{ scrollbarWidth: "thin" }}
+//               >
+//                 <ul className="menu menu-md p-1">
+//                   {Object.keys(PROJECT_CATEGORY_NATURE_MAP).map((cat) => (
+//                     <li key={cat}>
+//                       <button
+//                         type="button"
+//                         className={`whitespace-normal ${
+//                           formData.project_category === cat ? "active" : ""
+//                         }`}
+//                         onClick={() =>
+//                           handleChange({
+//                             target: {
+//                               name: "project_category",
+//                               value: cat,
+//                             },
+//                           })
+//                         }
+//                       >
+//                         {cat}
+//                       </button>
+//                     </li>
+//                   ))}
+//                 </ul>
+//               </div>
+//             </div>
+//           </div>
+
+//           <div>
+//             <label className="label">Project Nature</label>
+//             <input
+//               value={formData.project_nature || ""}
+//               readOnly
+//               placeholder="Auto-filled"
+//               className="input input-bordered w-full bg-gray-50 text-gray-700"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="label">Mining Sub-Category</label>
+
+//             {NON_LINEAR_PROJECTS.includes(formData.project_category) ? (
+//               <select
+//                 name="project_sub_category"
+//                 value={formData.project_sub_category}
+//                 onChange={handleChange}
+//                 className="select select-bordered w-full"
+//               >
+//                 <option value="">Select Mining Type</option>
+//                 <option value="Coal">Coal</option>
+//                 <option value="Non-Coal">Non-Coal</option>
+//                 <option value="Critical Minerals">Critical Minerals</option>
+//               </select>
+//             ) : (
+//               <p className="text-sm text-gray-400 mt-3">
+//                 Applicable only for NON-LINEAR projects
+//               </p>
+//             )}
+//           </div>
 //         </div>
 
-//         {/* Main Inputs */}
 //         <div className="grid grid-cols-2 gap-3">
 //           {[
-//             { name: "proposal_no", label: "Proposal No", },
 //             { name: "user_agency", label: "User Agency" },
-
 //             { name: "state", label: "State" },
 //             { name: "district", label: "District" },
 //             { name: "tahasil", label: "Tahasil" },
 //             { name: "mouza", label: "Mouza" },
+//             { name: "proposal_no", label: "Proposal No" },
+
 //             { name: "range_division", label: "Range / Division" },
 //             { name: "forest_type", label: "Forest Type" },
-//             { name: "total_project_area_ha", label: "Total Area", type: "number" },
+//             {
+//               name: "total_project_area_ha",
+//               label: "Total Area",
+//               type: "number",
+//             },
 //             { name: "forest_area_ha", label: "Forest Area", type: "number" },
-//             { name: "non_forest_area_ha", label: "Non Forest Area", type: "number" },
+//             {
+//               name: "non_forest_area_ha",
+//               label: "Non Forest Area",
+//               type: "number",
+//             },
 //             { name: "project_status", label: "Project Status" },
 //             { name: "current_stage", label: "Current Stage" },
 //           ].map((f) => (
@@ -203,7 +307,6 @@
 //         {/* 🔹 EDS Section (Only when Yes) */}
 //         {formData.eds_flag === 1 && (
 //           <div className="grid grid-cols-2 gap-3">
-
 //             {[
 //               { name: "edsRefNo", label: "EDS Ref No" },
 //               { name: "issuingAuthority", label: "Issuing Authority" },
@@ -243,7 +346,6 @@
 //             {editData ? "Update" : "Save"}
 //           </button>
 //         </div>
-
 //       </form>
 
 //       <SuccessMessage
@@ -264,7 +366,10 @@ import { addForestProject } from "../addForestProject";
 import { updateForestProject } from "../../../hooks/updateForestProject";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
-import { PROJECT_CATEGORY_NATURE_MAP } from "../../../utils/constants";
+import {
+  NON_LINEAR_PROJECTS,
+  PROJECT_CATEGORY_NATURE_MAP,
+} from "../../../utils/constants";
 
 const ProjectMaster = () => {
   const token = useSelector((state) => state.auth.userToken);
@@ -292,18 +397,13 @@ const ProjectMaster = () => {
     project_status: "",
     current_stage: "",
     eds_flag: 0,
-    edsRefNo: "",
-    issuingAuthority: "",
-    edsIssueDate: "",
-    edsDueDate: "",
-    totalIssues: "",
-    issuesClosed: "",
-    issuesPending: "",
-    edsStatus: "",
-    eds_document: null,
+
+    // 🔹 MULTIPLE EDS
+    eds_list: [],
+
     project_category: "",
-    project_nature: "", // auto-filled
-    project_sub_category: "", // only for Mining
+    project_nature: "",
+    project_sub_category: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -352,6 +452,40 @@ const ProjectMaster = () => {
     }
 
     setFormData({ ...formData, [name]: value });
+  };
+  const addEDSRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      eds_list: [
+        ...prev.eds_list,
+        {
+          project_id: prev.project_id,
+          eds_sl_no: prev.eds_list.length + 1,
+          edsRefNo: "",
+          issuingAuthority: "",
+          edsIssueDate: "",
+          edsDueDate: "",
+          totalIssues: "",
+          issuesClosed: "",
+          issuesPending: "",
+          eds_reply_documents: null,
+          edsStatus: "",
+        },
+      ],
+    }));
+  };
+
+  const removeEDSRow = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      eds_list: prev.eds_list.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleEDSChange = (index, field, value) => {
+    const updated = [...formData.eds_list];
+    updated[index][field] = value;
+    setFormData({ ...formData, eds_list: updated });
   };
 
   const handleSubmit = async (e) => {
@@ -480,13 +614,7 @@ const ProjectMaster = () => {
           <div>
             <label className="label">Mining Sub-Category</label>
 
-            {formData.project_category === "Hydel / Irrigation" ||
-            formData.project_category ===
-              "Canal projects with structures (headworks, regulators, colonies)" ||
-            formData.project_category ===
-              "Water / Rainwater Harvesting Structures" ||
-            formData.project_category ===
-              "Upgradation / Strengthening / Widening of existing bridges" ? (
+            {NON_LINEAR_PROJECTS.includes(formData.project_category) ? (
               <select
                 name="project_sub_category"
                 value={formData.project_sub_category}
@@ -500,7 +628,7 @@ const ProjectMaster = () => {
               </select>
             ) : (
               <p className="text-sm text-gray-400 mt-3">
-                Applicable only for Mining projects
+                Applicable only for NON-LINEAR projects
               </p>
             )}
           </div>
@@ -514,22 +642,23 @@ const ProjectMaster = () => {
             { name: "tahasil", label: "Tahasil" },
             { name: "mouza", label: "Mouza" },
             { name: "proposal_no", label: "Proposal No" },
-
             { name: "range_division", label: "Range / Division" },
             { name: "forest_type", label: "Forest Type" },
             {
               name: "total_project_area_ha",
-              label: "Total Area",
+              label: "Total Area (Ha)",
               type: "number",
             },
-            { name: "forest_area_ha", label: "Forest Area", type: "number" },
+            {
+              name: "forest_area_ha",
+              label: "Forest Area (Ha)",
+              type: "number",
+            },
             {
               name: "non_forest_area_ha",
-              label: "Non Forest Area",
+              label: "Non Forest Area (Ha)",
               type: "number",
             },
-            { name: "project_status", label: "Project Status" },
-            { name: "current_stage", label: "Current Stage" },
           ].map((f) => (
             <div key={f.name}>
               <label className="label">{f.label}</label>
@@ -539,13 +668,39 @@ const ProjectMaster = () => {
                 value={formData[f.name]}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-                // required={f.required}
               />
             </div>
           ))}
-        </div>
 
-        {/* EDS Flag */}
+          <div>
+            <label className="label">Project Status</label>
+            <select
+              name="project_status"
+              value={formData.project_status}
+              onChange={handleChange}
+              className="select select-bordered w-full"
+            >
+              <option value="">Select Status</option>
+              <option value="Active">Active</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="label">Current Stage</label>
+            <select
+              name="current_stage"
+              value={formData.current_stage}
+              onChange={handleChange}
+              className="select select-bordered w-full"
+            >
+              <option value="">Select Stage</option>
+              <option value="Stage-0">Stage-0</option>
+              <option value="Stage-I">Stage-I</option>
+              <option value="Stage-II">Stage-II</option>
+            </select>
+          </div>
+        </div>
         <div>
           <label className="label font-medium">EDS Flag</label>
           <div className="flex gap-6">
@@ -569,39 +724,198 @@ const ProjectMaster = () => {
           </div>
         </div>
 
-        {/* 🔹 EDS Section (Only when Yes) */}
         {formData.eds_flag === 1 && (
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { name: "edsRefNo", label: "EDS Ref No" },
-              { name: "issuingAuthority", label: "Issuing Authority" },
-              { name: "edsIssueDate", label: "EDS Issue Date", type: "date" },
-              { name: "edsDueDate", label: "EDS Due Date", type: "date" },
-              { name: "totalIssues", label: "Total Issues" },
-              { name: "issuesClosed", label: "Issues Closed" },
-              { name: "issuesPending", label: "Issues Pending" },
-              { name: "edsStatus", label: "EDS Status" },
-            ].map((f) => (
-              <div key={f.name}>
-                <label className="label">{f.label}</label>
-                <input
-                  type={f.type || "text"}
-                  name={f.name}
-                  value={formData[f.name]}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </div>
-            ))}
+          <div className="mt-4 bg-base-200 rounded-lg ">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-semibold text-lg">EDS Details</h4>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary"
+                onClick={addEDSRow}
+              >
+                + Add EDS
+              </button>
+            </div>
 
-            <div className="col-span-2">
-              <label className="label">EDS Document</label>
-              <input
-                type="file"
-                name="eds_document"
-                onChange={handleChange}
-                className="file-input file-input-bordered w-full"
-              />
+            <div
+              className="overflow-x-auto"
+              style={{ scrollbarWidth: "thin", maxHeight: "300px" }}
+            >
+              <table className="table table-bordered w-full table-fixed">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="w-[80px]">EDS Sl No</th>
+                    <th className="w-[160px]">EDS Ref No</th>
+                    <th className="w-[200px]">Issuing Authority</th>
+                    <th className="w-[160px]">EDS Issue Date</th>
+                    <th className="w-[160px]">EDS Due Date</th>
+                    <th className="w-[130px]">Total Issues</th>
+                    <th className="w-[140px]">Issues Closed</th>
+                    <th className="w-[150px]">Issues Pending</th>
+                    <th className="w-[150px]">EDS Status</th>
+                    <th className="w-[300px]">EDS Reply Document</th>
+                    <th className="w-[100px]">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {formData.eds_list.length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="text-center text-gray-400">
+                        No EDS added
+                      </td>
+                    </tr>
+                  )}
+
+                  {formData.eds_list.map((eds, index) => (
+                    <tr key={index}>
+                      {/* <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.project_id}
+                          onChange={(e) =>
+                            handleEDSChange(index, "project_id", e.target.value)
+                          }
+                        />
+                      </td> */}
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.eds_sl_no}
+                          onChange={(e) =>
+                            handleEDSChange(index, "eds_sl_no", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.edsRefNo}
+                          onChange={(e) =>
+                            handleEDSChange(index, "edsRefNo", e.target.value)
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.issuingAuthority}
+                          onChange={(e) =>
+                            handleEDSChange(
+                              index,
+                              "issuingAuthority",
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          type="date"
+                          className="input input-sm input-bordered"
+                          value={eds.edsIssueDate}
+                          onChange={(e) =>
+                            handleEDSChange(
+                              index,
+                              "edsIssueDate",
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          type="date"
+                          className="input input-sm input-bordered"
+                          value={eds.edsDueDate}
+                          onChange={(e) =>
+                            handleEDSChange(index, "edsDueDate", e.target.value)
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.totalIssues}
+                          onChange={(e) =>
+                            handleEDSChange(
+                              index,
+                              "totalIssues",
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.issuesClosed}
+                          onChange={(e) =>
+                            handleEDSChange(
+                              index,
+                              "issuesClosed",
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.issuesPending}
+                          onChange={(e) =>
+                            handleEDSChange(
+                              index,
+                              "issuesPending",
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.edsStatus}
+                          onChange={(e) =>
+                            handleEDSChange(index, "edsStatus", e.target.value)
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          type="file"
+                          className="file-input file-input-sm w-full file-input-bordered"
+                          onChange={(e) =>
+                            handleEDSChange(
+                              index,
+                              "eds_document",
+                              e.target.files[0],
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-error"
+                          onClick={() => removeEDSRow(index)}
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

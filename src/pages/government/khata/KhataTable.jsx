@@ -112,7 +112,7 @@ const KhataTable = ({
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full whitespace-nowrap">
-              <thead className="bg-gray-200 sticky top-0 z-10">
+              <thead className="bg-gray-200 sticky top-0 z-10 ">
                 <tr>
                   <th className="">Sl/No</th>
                   <th className={stickyCol1Header}>

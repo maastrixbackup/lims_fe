@@ -250,7 +250,7 @@ const KhataTable = ({
                   style={{ scrollbarWidth: "thin" }}
                 >
                   <table className="table w-full">
-                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
+                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 uppercase text-xs">
                       <tr>
                         <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
                           Sl/No
@@ -455,7 +455,7 @@ const KhataTable = ({
                   style={{ scrollbarWidth: "thin" }}
                 >
                   <table className="table w-full ">
-                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700">
+                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 uppercase text-xs">
                       <tr>
                         <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
                           Sl/No

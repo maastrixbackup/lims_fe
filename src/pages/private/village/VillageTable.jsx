@@ -63,7 +63,7 @@ const VillageTable = ({
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 uppercase text-xs">
                 <tr>
                   <th>Sl/No</th>
                   <th>Village Code</th>

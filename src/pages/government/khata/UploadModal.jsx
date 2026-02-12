@@ -92,7 +92,7 @@ const handleFileUpload = async (e, docType) => {
       formData.append("khata_id", khata.id);
       formData.append("file", file);
 
-      await apiClient("/khata/uploadKhata", {
+      await apiClient("/govtkhata/uploadGovtKhata", {
         method: "POST",
         body: formData,
       });

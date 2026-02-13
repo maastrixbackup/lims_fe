@@ -111,10 +111,21 @@ const KhataTable = ({
             className="overflow-x-auto max-h-[400px] overflow-y-auto"
             style={{ scrollbarWidth: "thin" }}
           >
-            <table className="table w-full whitespace-nowrap">
-              <thead className="bg-gray-200 sticky top-0 z-10 ">
+                <table className="table w-full">
+                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 ">
                 <tr>
-                  <th className="">Sl/No</th>
+                     <th >
+                    <FilterHeader
+                      column={GovtKhataColumn.find((c) => c.key === "sl_no")}
+                      filters={filters}
+                      setFilters={setFilters}
+                      sortConfig={sortConfig}
+                      setSortConfig={setSortConfig}
+                      getUniqueValues={getUniqueValues}
+                      activeFilterKey={activeFilterKey}
+                      setActiveFilterKey={setActiveFilterKey}
+                    />
+                  </th>
                   <th className={stickyCol1Header}>
                     <FilterHeader
                       column={GovtKhataColumn.find((c) => c.key === "khata_no")}
@@ -143,7 +154,7 @@ const KhataTable = ({
                   </th>
 
                   {GovtKhataColumn.filter(
-                    (c) => !["khata_no", "plot_no"].includes(c.key),
+                    (c) => !["khata_no", "plot_no", "sl_no"].includes(c.key),
                   ).map((col) => (
                     <th key={col.key}>
                       <FilterHeader

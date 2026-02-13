@@ -979,11 +979,11 @@ const handlePaymentStatusChange = async (plot, code) => {
  text-gray-700 text-center rounded-full btn btn-xs mt-3
     ${
       plot.land_case_status === "Pending"
-        ? "bg-warning/70"
+        ? "bg-red-100 text-red-700 border border-red-300 text-xs"
         : plot.land_case_status === "In Progress"
-          ? "bg-blue-200"
-          : plot.land_case_status === "Complete"
-            ? "bg-green-200"
+          ? "bg-yellow-100 text-yellow-700 border border-yellow-300 text-xs"
+          : plot.land_case_status === "Disposed"
+            ? "bg-green-100 text-green-700 border border-green-300 text-xs"
             : "bg-gray-200"
     }
   `}

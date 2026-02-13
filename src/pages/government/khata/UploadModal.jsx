@@ -29,7 +29,7 @@ const fetchDocuments = async () => {
   try {
     setLoading(true);
 
-    const data = await apiClient(`/khata/getKhataFiles/${khata.id}`);
+    const data = await apiClient(`/govtkhata/getGovtKhataFiles/${khata.id}`);
 
     if (data?.success && Array.isArray(data.documentsWithUrl)) {
       const groupedDocs = data.documentsWithUrl.reduce((acc, doc) => {

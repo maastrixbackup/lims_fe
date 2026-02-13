@@ -125,7 +125,7 @@ const handleDelete = async (docType, id) => {
     setErrorMsg("");
     setSuccessMsg("");
 
-    await apiClient(`/khata/deleteKhataFile/${id}`, {
+    await apiClient(`/govtkhata/deleteGovtKhataFile/${id}`, {
       method: "DELETE",
     });
 

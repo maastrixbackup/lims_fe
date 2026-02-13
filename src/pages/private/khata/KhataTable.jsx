@@ -16,11 +16,6 @@ import { setSelectedKhataId } from "../../../utils/khataSlice";
 import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "./FilterableHeader";
 import {
-  RR_FIELDS,
-  FOREST_LAND_COLUMNS,
-  GOVERNMENT_LAND_COLUMNS,
-  PRIVATE_LAND_COLUMNS,
-  RR_COLUMNS,
   RR_FIELDS_FORMS,
   COMMON_COLUMNS,
 } from "../../../utils/constants";
@@ -59,10 +54,6 @@ const KhataTable = ({
   const stickyCol1Cell =
     "p-3 text-left bg-white md:sticky md:left-10 shadow-sm ";
 
-  // export const stickyCol2Header =
-  //   "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[130px] z-[30] shadow-md";
-  // export const stickyCol2Cell =
-  //   "p-3 text-left bg-white md:sticky md:left-[130px] shadow-sm";
   const stickyCol2Header =
     "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[90px] z-[30] shadow-md";
   const stickyCol2Cell =
@@ -81,22 +72,6 @@ const KhataTable = ({
     "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
   const stickyActionCell =
     "p-3 text-right sticky right-0 border-l border-gray-100 shadow-sm bg-white";
-
-  const typeParam = useLandTypeParam();
-
-  const landType =
-    typeParam === 2
-      ? "Government Land"
-      : typeParam === 3
-      ? "Forest Land"
-      : "Private Land";
-
-  const tableColumns =
-    landType === "Government Land"
-      ? GOVERNMENT_LAND_COLUMNS
-      : landType === "Forest Land"
-      ? FOREST_LAND_COLUMNS
-      : PRIVATE_LAND_COLUMNS;
 
   const formatThreeItems = (value) => {
     if (!value) return "No data";

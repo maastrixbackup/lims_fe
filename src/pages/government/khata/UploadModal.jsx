@@ -143,6 +143,7 @@ const handleDelete = async (docType, id) => {
   }
 };
 
+
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-3xl relative">

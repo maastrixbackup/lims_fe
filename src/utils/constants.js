@@ -754,9 +754,9 @@ export const stickyActionHeader =
 export const stickyActionCell =
   "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
 export const stickyPaymentHeader =
-  "p-3  bg-gray-200 md:sticky md:right-10 z-[30] shadow-md";
+  "p-3  bg-gray-200 md:sticky md:right-2 z-[30] shadow-md";
 export const stickyPaymentCell =
-  "p-3 text-center bg-white md:sticky md:right-10  border-gray-100 shadow-sm text-sm";
+  "p-3 text-center bg-white md:sticky md:right-2  border-gray-100 shadow-sm text-sm";
 
 export const stickyCol1Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-10 z-[30] shadow-md";
@@ -1080,7 +1080,7 @@ export const GovtKhataColumn = [
 ];
 
 export const BasicDetails = [
-  { label: "Sl No", field: "sl_no", stickyClass:"text-left bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
+  { label: "Sl No", field: "sl_no", stickyClass:"text-center bg-gray-200 md:sticky md:left-0 z-[30] shadow-md" },
   {
     label: "LA Case File No",
     field: "la_case_file_no",
@@ -1192,7 +1192,7 @@ export const TenantDetails = [
     field: "name_of_present_tenant",
   },
   {
-    label: "Number Of Present Tenant",
+    label: "No. Of Present Tenant",
     field: "present_tenant_count",
   },
   {

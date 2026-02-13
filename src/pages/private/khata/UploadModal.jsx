@@ -1,61 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { X, CheckCircle, Trash2 } from "lucide-react";
 // import { API_BASE_URL } from "../../../utils/config";
 import { DOCUMENT_TYPES, showToast } from "../../../utils/constants";
 import { useSelector } from "react-redux";
-  import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../../utils/apiClient";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
 
 export default function UploadModal({ khata, onClose }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [uploading, setUploading] = useState(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const { userToken: token } = useSelector((s) => s.auth);
-
-
-const navigate = useNavigate();
-
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteDoc, setDeleteDoc] = useState(null);
+  const navigate = useNavigate();
 
   const isSheetType = (type) => {
     const sheetKeywords = ["Sheet", "Calculation"];
     return sheetKeywords.some((keyword) => type.includes(keyword));
   };
 
-const fetchDocuments = async () => {
-  if (!khata?.id) return;
+  const fetchDocuments = async () => {
+    if (!khata?.id) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const data = await apiClient(`/khata/getKhataFiles/${khata.id}`);
+      const data = await apiClient(`/khata/getKhataFiles/${khata.id}`);
 
-    if (data?.success && Array.isArray(data.documentsWithUrl)) {
-      const groupedDocs = data.documentsWithUrl.reduce((acc, doc) => {
-        if (!acc[doc.document_type]) acc[doc.document_type] = [];
-        acc[doc.document_type].push({
-          id: doc.id,
-          name: doc.file_name,
-          url: doc.url,
-        });
-        return acc;
-      }, {});
+      if (data?.success && Array.isArray(data.documentsWithUrl)) {
+        const groupedDocs = data.documentsWithUrl.reduce((acc, doc) => {
+          if (!acc[doc.document_type]) acc[doc.document_type] = [];
+          acc[doc.document_type].push({
+            id: doc.id,
+            name: doc.file_name,
+            url: doc.url,
+          });
+          return acc;
+        }, {});
 
-      setUploadedDocs(groupedDocs);
+        setUploadedDocs(groupedDocs);
+      }
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      console.error("Error fetching documents:", err);
+      setErrorMsg("Failed to fetch documents.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    if (err.message === "Invalid or expired token") {
-      navigate("/");
-      return;
-    }
-
-    console.error("Error fetching documents:", err);
-    setErrorMsg("Failed to fetch documents.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchDocuments();
@@ -71,77 +71,100 @@ const fetchDocuments = async () => {
     }
   }, [successMsg, errorMsg]);
 
-const handleFileUpload = async (e, docType) => {
-  const files = Array.from(e.target.files);
-  if (!files.length) return;
+  const handleFileUpload = async (e, docType) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-  if ((uploadedDocs[docType]?.length || 0) + files.length > 3) {
-    showToast(`You can upload a maximum of 3 files for "${docType}".`);
-    e.target.value = "";
-    return;
-  }
-
-  setUploading(docType);
-  setErrorMsg("");
-  setSuccessMsg("");
-
-  try {
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("document_type", docType);
-      formData.append("khata_id", khata.id);
-      formData.append("file", file);
-
-      await apiClient("/khata/uploadKhata", {
-        method: "POST",
-        body: formData,
-      });
-    }
-
-    setSuccessMsg(
-      `${files.length} file(s) uploaded successfully to "${docType}".`
-    );
-
-    await fetchDocuments();
-  } catch (err) {
-    if (err.message === "Invalid or expired token") {
-      navigate("/");
+    if ((uploadedDocs[docType]?.length || 0) + files.length > 3) {
+      showToast(`You can upload a maximum of 3 files for "${docType}".`);
+      e.target.value = "";
       return;
     }
 
-    console.error(err);
-    setErrorMsg(err.message || "File upload failed.");
-  } finally {
-    setUploading(null);
-    e.target.value = "";
-  }
-};
-
-
-const handleDelete = async (docType, id) => {
-  if (!window.confirm("Are you sure you want to delete this file?")) return;
-
-  try {
+    setUploading(docType);
     setErrorMsg("");
     setSuccessMsg("");
 
-    await apiClient(`/khata/deleteKhataFile/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("document_type", docType);
+        formData.append("khata_id", khata.id);
+        formData.append("file", file);
 
-    setSuccessMsg("File deleted successfully!");
-    await fetchDocuments();
-  } catch (err) {
-   
-    if (err.message === "Invalid or expired token") {
-      navigate("/");
-      return;
+        await apiClient("/khata/uploadKhata", {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      setSuccessMsg(
+        `${files.length} file(s) uploaded successfully to "${docType}".`,
+      );
+
+      // await fetchDocuments();
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      console.error(err);
+      setErrorMsg(err.message || "File upload failed.");
+    } finally {
+      setUploading(null);
+      e.target.value = "";
     }
+  };
 
-    console.error("Delete error:", err);
-    setErrorMsg(err.message || "Error deleting file.");
+  useEffect(() => {
+    if (uploading === null) {
+      fetchDocuments();
+    }
+  }, [uploading]);
+
+  const openDeleteModal = (file) => {
+    setDeleteDoc(file);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteDoc) return;
+
+    try {
+      await apiClient(`/khata/deleteKhataFile/${deleteDoc.id}`, {
+        method: "DELETE",
+      });
+
+      setSuccessMsg("File deleted successfully!");
+      await fetchDocuments();
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+      setErrorMsg(err.message || "Error deleting file.");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteDoc(null);
+    }
+  };
+  const handleView = (file) => {
+  const ext = file.name.split(".").pop().toLowerCase();
+
+  if (["pdf", "jpg", "jpeg", "png"].includes(ext)) {
+    window.open(file.url, "_blank"); // viewable
+  } else {
+    // force download
+    const link = document.createElement("a");
+    link.href = file.url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 };
+
 
   return (
     <dialog open className="modal modal-open">
@@ -216,15 +239,15 @@ const handleDelete = async (docType, id) => {
                         >
                           <span className="truncate w-52">{file.name}</span>
                           <div className="flex gap-2">
+                                               <button
+  className="btn btn-xs btn-outline btn-success"
+  onClick={() => handleView(file)}
+>
+  View
+</button>
                             <button
-                              className="btn btn-xs btn-outline btn-success"
-                              onClick={() => window.open(file.url, "_blank")}
-                            >
-                              View
-                            </button>
-                            <button
-                              onClick={() => handleDelete(docType, file.id)}
-                              className="btn btn-xs btn-outline btn-error"
+                              className="btn btn-xs btn-error btn-outline"
+                              onClick={() => openDeleteModal(file)}
                             >
                               <Trash2 size={12} />
                             </button>
@@ -242,7 +265,18 @@ const handleDelete = async (docType, id) => {
             ))}
           </div>
         )}
-
+        {isDeleteModalOpen && (
+          <ConfirmDelete
+            isOpen
+            title="Confirm Delete"
+            message={`Are you sure you want to delete "${deleteDoc?.name}"?`}
+            onConfirm={confirmDelete}
+            onCancel={() => {
+              setIsDeleteModalOpen(false);
+              setDeleteDoc(null);
+            }}
+          />
+        )}
         <div className="modal-action">
           <button className="btn" onClick={onClose}>
             Close

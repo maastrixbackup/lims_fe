@@ -54,7 +54,7 @@ const MapModal = ({ khata, onClose, onUpload }) => {
 
   const fetchMapData = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/khata/getMapFiles/${khata_id}`, {
+      const res = await fetch(`${API_BASE_URL}/govtkhata/getGovtMapFiles/${khata_id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

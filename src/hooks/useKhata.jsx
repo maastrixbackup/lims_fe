@@ -155,5 +155,6 @@ export const useKhata = () => {
     handlers,
     loading,
     villageQueryString,
+    fetchKhatas
   };
 };

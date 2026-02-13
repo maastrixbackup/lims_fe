@@ -407,6 +407,23 @@ const ProjectMaster = () => {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  useEffect(() => {
+  let status = "";
+
+  if (formData.current_stage === "0" ) {
+    status = "Ongoing";
+  } else if (formData.current_stage === "I") {
+    status = "Completed";
+  } else if (formData.current_stage === "II") {
+    status = "Granted";
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    project_status: status,
+  }));
+}, [formData.current_stage]);
+
 
   useEffect(() => {
     if (editData) {
@@ -686,20 +703,45 @@ const ProjectMaster = () => {
             </select>
           </div>
 
-          <div>
-            <label className="label">Current Stage</label>
-            <select
-              name="current_stage"
-              value={formData.current_stage}
-              onChange={handleChange}
-              className="select select-bordered w-full"
-            >
-              <option value="">Select Stage</option>
-              <option value="Stage-0">Stage-0</option>
-              <option value="Stage-I">Stage-I</option>
-              <option value="Stage-II">Stage-II</option>
-            </select>
-          </div>
+        <div>
+  <label className="block text-sm font-medium mb-1">Current Stage</label>
+  <select
+    name="current_stage"
+    value={formData.current_stage}
+    onChange={handleChange}
+    className="select select-bordered w-full"
+    required
+  >
+    <option value="">Select Stage</option>
+    <option value="0">Stage 0</option>
+    <option value="I">Stage I</option>
+    <option value="II">Stage II</option>
+  </select>
+</div>
+<div>
+  <label className="block text-sm font-medium mb-1">Current Stage Status</label>
+
+  {formData.project_status && (
+  <div
+    className={`inline-block px-5 py-1 rounded-full text-sm font-semibold border mt-2 ml-3
+      ${
+        {
+          Completed: "bg-green-100 text-green-700 border-green-300",
+          Ongoing: "bg-yellow-100 text-yellow-700 border-yellow-300",
+          Granted: "bg-blue-100 text-blue-700 border-blue-300",
+          Pending: "bg-gray-100 text-gray-700 border-gray-300",
+        }[formData.project_status] ||
+        "bg-gray-100 text-gray-700 border-gray-300"
+      }
+    `}
+  >
+    {formData.project_status}
+  </div>
+)}
+
+</div>
+
+
         </div>
         <div>
           <label className="label font-medium">EDS Flag</label>

@@ -671,6 +671,7 @@ import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import { acreToHectare, hectareToAcre } from "../../../utils/formula";
 
 const PlotForm = ({ fetchPlots }) => {
   const navigate = useNavigate();
@@ -696,7 +697,7 @@ const PlotForm = ({ fetchPlots }) => {
     ...Object.fromEntries(
       Object.values(sections)
         .flat()
-        .map((f) => [f, ""])
+        .map((f) => [f, ""]),
     ),
     project_id: "",
   }));
@@ -705,7 +706,7 @@ const PlotForm = ({ fetchPlots }) => {
 
   const projectCode = useMemo(() => {
     const project = projects.find(
-      (p) => String(p.id) === String(formData.project_id)
+      (p) => String(p.id) === String(formData.project_id),
     );
 
     return project
@@ -723,7 +724,7 @@ const PlotForm = ({ fetchPlots }) => {
 
     try {
       const data = await apiClient(
-        `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`
+        `/village/villageList?project_id=${formData.project_id}&type=${typeParam}`,
       );
 
       if (data.success) setVillages(data.villages || []);
@@ -819,6 +820,39 @@ const PlotForm = ({ fetchPlots }) => {
           village_code: found?.village_code || "",
         };
       }
+   // TOTAL AREA
+if (name === "land_area_total_hectares") {
+  return {
+    ...prev,
+    land_area_total_hectares: value,
+    land_area_total_acres: hectareToAcre(value), // ✅ FIXED
+  };
+}
+
+if (name === "land_area_total_acres") {
+  return {
+    ...prev,
+    land_area_total_acres: value,
+    land_area_total_hectares: acreToHectare(value), 
+  };
+}
+
+ if (name === "land_area_acquired_hectares") {
+  return {
+    ...prev,
+    land_area_acquired_hectares: value,
+    land_area_acquired_acres: hectareToAcre(value),
+  };
+}
+
+if (name === "land_area_acquired_acres") {
+  return {
+    ...prev,
+    land_area_acquired_acres: value,
+    land_area_acquired_hectares: acreToHectare(value),
+  };
+}
+
 
       return { ...prev, [name]: value };
     });
@@ -852,9 +886,9 @@ const PlotForm = ({ fetchPlots }) => {
 
           navigate(`/${landType}/plots`);
         }, 800);
-      }else if(data.success === false){
- showError(data.message || "Something went error");
-    }
+      } else if (data.success === false) {
+        showError(data.message || "Something went error");
+      }
     } catch (err) {
       console.error(err);
       showError(err.message || "Something went error");
@@ -908,8 +942,8 @@ const PlotForm = ({ fetchPlots }) => {
                 typeParam === 1
                   ? "Private Land"
                   : typeParam === 2
-                  ? "Government Land"
-                  : "Forest Land"
+                    ? "Government Land"
+                    : "Forest Land"
               }
             />
           </div>
@@ -965,7 +999,7 @@ const PlotForm = ({ fetchPlots }) => {
                         <option value="PDF">Person Deffected Families</option>
                       </select>
                     ) : ["family_with_orphan_members", "tribunal"].includes(
-                        field
+                        field,
                       ) ? (
                       <select
                         name={field}
@@ -1001,10 +1035,10 @@ const PlotForm = ({ fetchPlots }) => {
                           field.includes("date")
                             ? "date"
                             : field.includes("area") ||
-                              field.includes("acres") ||
-                              field.includes("hectares")
-                            ? "number"
-                            : "text"
+                                field.includes("acres") ||
+                                field.includes("hectares")
+                              ? "number"
+                              : "text"
                         }
                         className="input input-bordered w-full"
                       />

@@ -376,7 +376,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 sticky top-0 z-10 text-sm ">
                 <tr>
-             
                   {BasicDetails.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -389,13 +388,14 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       setOpenFilterField={setOpenFilterField}
                       onSort={handleSort}
                       sortConfig={sortConfig}
-                      className={`${col.stickyClass} uppercase text-sm font-medium text-gray-700`}
+                      className={col.stickyClass}
+                      // className={`${col.stickyClass} uppercase text-sm font-medium text-gray-700`}
                     />
                   ))}
 
                   {/* <th className="p-3 text-left">LO13 Remarks</th> */}
                   {/* <th className={stickyPaymentHeader}>Payment Status</th> */}
-                <th className={stickyActionHeader}>Actions</th>
+                  <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
 
@@ -457,7 +457,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                           <option value="" disabled></option>
                           <option value="RP">Ready for Payment (RP) </option>
                           <option value="PP">Payment Processing (PP) </option>
-                          <option value="PC">Payment Complete (PC)  </option>
+                          <option value="PC">Payment Complete (PC) </option>
                         </select>
                         <div
                           className={`w-[42px] h-[28px] px-1 flex items-center rounded text-xs font-semibold cursor-pointer shadow-lg
@@ -542,7 +542,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
                 <tr>
-              
                   {TenantDetails.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -558,12 +557,12 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       className={col.stickyClass}
                     />
                   ))}
-              
+
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100 text-xs whitespace-nowrap">
+              <tbody className="divide-y divide-gray-100 text-xs ">
                 {filteredPlots.map((plot, idx) => (
                   <tr
                     key={plot.id || idx}
@@ -617,8 +616,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}
@@ -692,7 +691,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-             
                   {BANK_DETAILS_COLUMNS.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -708,7 +706,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       className={col.stickyClass}
                     />
                   ))}
-                 
+
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -762,8 +760,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}
@@ -836,7 +834,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-  
                   {LegalIssues.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -853,7 +850,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                     />
                   ))}
 
-          
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -909,8 +905,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}
@@ -983,7 +979,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 text-sm">
                 <tr>
-            
                   {LAND_AREA_VALUATION_COLUMNS.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -999,7 +994,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       className={col.stickyClass}
                     />
                   ))}
-                  
+
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -1084,8 +1079,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}
@@ -1158,7 +1153,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-              
                   {TribunalColumns.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -1174,7 +1168,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       className={col.stickyClass}
                     />
                   ))}
-                
+
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -1236,8 +1230,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}
@@ -1310,7 +1304,6 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
                 <tr>
-              
                   {FamilyDetails.map((col) => (
                     <FilterHeader
                       key={col.field}
@@ -1326,7 +1319,7 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                       className={col.stickyClass}
                     />
                   ))}
-                
+
                   <th className={stickyActionHeader}>Actions</th>
                 </tr>
               </thead>
@@ -1386,8 +1379,8 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
             ? "bg-orange-600 text-white"
             : getPaymentCode(plot) === "PP"
               ? "bg-green-700 text-white"
-              : getPaymentCode(plot) === "RC"
-                ? "bg-blue-600 text-white"
+              : getPaymentCode(plot) === "PC"
+                ? "bg-blue-400 text-white"
                 : "bg-gray-200 text-gray-600"
         }
       `}

@@ -222,6 +222,7 @@ export default function ForestMasterDashboard() {
   const totalPages = Math.ceil(dashboardData.length / rowsPerPage);
   const start = (page - 1) * rowsPerPage;
   const currentRows = dashboardData.slice(start, start + rowsPerPage);
+  //no changes are done in this file. This is just a placeholder for the master dashboard which will be developed in future. The data is hardcoded for now and will be replaced with API data in future.
 
   return (
     <div className="p-2 space-y-6">

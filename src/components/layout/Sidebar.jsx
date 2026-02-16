@@ -74,7 +74,7 @@ export default function Sidebar({ open, setOpen, isMobile }) {
         name: "Forest Land",
         icon: TreeDeciduous,
         basePath: "forest-land",
-        submenu: ["Project Master","Stages","Land Schedule"],
+        submenu: ["Project Master","Stages","Land Schedule","Master Dashboard"],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },
       // {

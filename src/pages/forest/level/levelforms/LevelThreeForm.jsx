@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { X } from "lucide-react";
 
 const POST_CLEARANCE_DATA = [
   { sl: 1, key: "caPlantationStarted", label: "CA Plantation Started", type: "yesno", remark: "Plantation report", allowUpload: true },
@@ -14,13 +15,42 @@ const POST_CLEARANCE_DATA = [
 const LevelThreeForm = () => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const fileRefs = useRef({});
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setFiles({ ...files, [e.target.name]: e.target.files[0] });
+  /* 📂 SINGLE FILE UPLOAD */
+  const handleFileChange = (e, key) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setFiles((prev) => ({
+      ...prev,
+      [key]: file,
+    }));
+
+    e.target.value = "";
+  };
+
+  /* 👁 VIEW FILE */
+  const handleViewFile = (file) => {
+    const url = URL.createObjectURL(file);
+    window.open(url, "_blank");
+  };
+
+  /* ❌ REMOVE FILE */
+  const handleRemoveFile = (key) => {
+    setFiles((prev) => {
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
+
+    if (fileRefs.current[key]) {
+      fileRefs.current[key].value = "";
+    }
   };
 
   const handleSubmit = (e) => {
@@ -55,6 +85,8 @@ const LevelThreeForm = () => {
             <tr key={row.key}>
               <td>{row.sl}</td>
               <td>{row.label}</td>
+
+              {/* STATUS */}
               <td>
                 {row.type === "yesno" && (
                   <div className="flex gap-3">
@@ -72,6 +104,7 @@ const LevelThreeForm = () => {
                     ))}
                   </div>
                 )}
+
                 {row.type === "status" && (
                   <select
                     name={row.key}
@@ -85,6 +118,7 @@ const LevelThreeForm = () => {
                     ))}
                   </select>
                 )}
+
                 {row.sl === 8 && (
                   <select
                     name="postClearanceStatus"
@@ -99,15 +133,40 @@ const LevelThreeForm = () => {
                   </select>
                 )}
               </td>
+
+              {/* DOCUMENTS */}
               <td>
                 <div className="text-xs mb-1">{row.remark}</div>
+
                 {row.allowUpload && form[row.key] === "Yes" && (
-                  <input
-                    type="file"
-                    name={`${row.key}Doc`}
-                    className="file-input file-input-bordered file-input-sm"
-                    onChange={handleFileChange}
-                  />
+                  <>
+                    <input
+                      type="file"
+                      ref={(el) => (fileRefs.current[row.key] = el)}
+                      className="file-input file-input-bordered file-input-sm w-full"
+                      onChange={(e) => handleFileChange(e, row.key)}
+                    />
+
+                    {files[row.key] && (
+                      <div className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded mt-1">
+                        <span
+                          className="truncate cursor-pointer text-gray-600"
+                          onClick={() => handleViewFile(files[row.key])}
+                          title="Click to view"
+                        >
+                          • {files[row.key].name}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(row.key)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {row.sl === 6 && form.periodicCompliance === "Yes" && (
@@ -121,15 +180,15 @@ const LevelThreeForm = () => {
                     <option value="Annual">Annual</option>
                   </select>
                 )}
-                {row.sl === 7 &&
-                  form.inspectionObservations === "Open" && (
-                    <textarea
-                      name="inspectionRemarks"
-                      className="textarea textarea-bordered textarea-sm mt-1 w-full"
-                      placeholder="Enter inspection observations"
-                      onChange={handleChange}
-                    />
-                  )}
+
+                {row.sl === 7 && form.inspectionObservations === "Open" && (
+                  <textarea
+                    name="inspectionRemarks"
+                    className="textarea textarea-bordered textarea-sm mt-1 w-full"
+                    placeholder="Enter inspection observations"
+                    onChange={handleChange}
+                  />
+                )}
               </td>
             </tr>
           ))}

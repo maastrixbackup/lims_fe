@@ -580,6 +580,8 @@ const StageZeroForm = () => {
                   "Completed",
                   "Submitted",
                   "Authenticated",
+                  "Cleared",
+                  "Complied",
                 ].includes(form[row.key]) && (
                   <div className="space-y-1">
                     <input

@@ -1,68 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const reverseStatusMap = { 0: "Pending", 1: "Active", 2: "Closed" };
+const reverseStatusMap = {
+  0: "Pending",
+  1: "Active",
+  2: "Closed",
+};
 
-//retive project data from useProjects hook
+// backend number → UI value
+const landTypeMap = {
+  1: "private",
+  2: "government",
+  3: "forest",
+};
+
+// UI value → backend number
+const landTypeReverseMap = {
+  private: 1,
+  government: 2,
+  forest: 3,
+};
+
 const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
     name: "",
     client_code: "",
-    status: "",
-    project_location :""
+    status: "Active",
+    project_location: "",
+    type: "private",
   });
 
   const [errors, setErrors] = useState({});
-  const [clientCodeWarning, setClientCodeWarning] = useState(false);
 
   useEffect(() => {
     if (project) {
       setFormData({
-        name: project.name || "",
+        name: project.project_name || "",
         client_code: project.client_code || "",
         status: reverseStatusMap[project.status] || "Active",
-        project_location : project.project_location || ""
-      });
-    } else {
-      setFormData({
-        name: "",
-        client_code: "",
-        status: "Active",
-        project_location :""
+        project_location: project.project_location || "",
+        type: landTypeMap[project.type] || "private",
       });
     }
-    setErrors({});
   }, [project]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Project name is required.";
-    } else if (formData.name.length < 3) {
-      newErrors.name = "Project name must be at least 3 characters long.";
-    }
-
-    if (!formData.client_code.trim()) {
-      newErrors.client_code = "Client code is required.";
-    }
-
-    if (!["Active", "Pending", "Closed"].includes(formData.status)) {
-      newErrors.status = "Invalid status selected.";
-    }
+    if (!formData.name.trim()) newErrors.name = "Project name is required";
+    if (!formData.client_code.trim())
+      newErrors.client_code = "Client code is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -71,16 +69,21 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    await onSave(formData, project);
+
+    await onSave(
+      {
+        ...formData,
+        type: landTypeReverseMap[formData.type], // ✅ convert ONCE
+      },
+      project
+    );
   };
 
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box relative">
-        
         <button
-          type="button"
-          className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+          className="absolute right-3 top-3"
           onClick={onClose}
         >
           <X size={20} />
@@ -91,93 +94,60 @@ const ProjectFormModal = ({ project, onClose, onSave, loading }) => {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Project Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className={`input input-bordered w-full ${
-                errors.name ? "input-error" : ""
-              }`}
-            />
-            {errors.name && (
-              <p className="text-error text-sm mt-1">{errors.name}</p>
-            )}
-          </div>    
-            <div>
-            <label className="block text-sm font-medium mb-1">Project Location</label>
-            <input
-              type="text"
-              name="project_location"
-              value={formData.project_location}
-              onChange={handleChange}
-              className={`input input-bordered w-full ${
-                errors.project_location ? "input-error" : ""
-              }`}
-            />
-            {errors.project_location  && (
-              <p className="text-error text-sm mt-1">{errors.project_location }</p>
-            )}
-          </div>  
-          <div>
-            <label className="block text-sm font-medium mb-1">Client Code</label>
+          <input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Project Name"
+            className="input input-bordered w-full"
+          />
 
-            <input
-              type="text"
-              name="client_code"
-              value={formData.client_code}
-              onChange={handleChange}
-              // readOnly={!!project}
-              // onClick={() => {
-              //   if (project) setClientCodeWarning(true);
-              // }}
-              className={`input input-bordered w-full ${
-                errors.client_code ? "input-error" : ""
-              } `}
-              // ${project ? "bg-gray-100 cursor-not-allowed" : ""}`}
-            />
+          <input
+            name="project_location"
+            value={formData.project_location}
+            onChange={handleChange}
+            placeholder="Project Location"
+            className="input input-bordered w-full"
+          />
 
-            {/* {errors.client_code && (
-              <p className="text-error text-sm mt-1">{errors.client_code}</p>
-            )} */}
+          <input
+            name="client_code"
+            value={formData.client_code}
+            onChange={handleChange}
+            placeholder="Client Code"
+            className="input input-bordered w-full"
+          />
 
-            {/* {clientCodeWarning && project && (
-              <p className="text-error text-sm mt-1 font-small">
-                Client code cannot be changed.
-              </p>
-            )} */}
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className={`select select-bordered w-full ${
-                errors.status ? "select-error" : ""
-              }`}
-            >
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Closed">Closed</option>
-            </select>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="select select-bordered w-full"
+          >
+            <option>Active</option>
+            <option>Pending</option>
+            <option>Closed</option>
+          </select>
 
-            {errors.status && (
-              <p className="text-error text-sm mt-1">{errors.status}</p>
-            )}
-          </div>     
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="select select-bordered w-full"
+          >
+            <option value="private">Private Land</option>
+            <option value="government">Government Land</option>
+            <option value="forest">Forest Land</option>
+          </select>
+
           <div className="modal-action">
-             <button type="button" className="btn" onClick={onClose}>
+            <button type="button" className="btn" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button className="btn btn-primary" disabled={loading}>
               {loading ? "Saving..." : "Save"}
             </button>
-           
           </div>
-
         </form>
       </div>
     </dialog>

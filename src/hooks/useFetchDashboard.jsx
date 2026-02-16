@@ -43,32 +43,37 @@ export default function useFetchDashboard(landType) {
   );
 
   useEffect(() => {
-    if (!landType) return;
-
     setLoading(true);
     setError(null);
 
     let endpoint = "";
 
-    switch (landType) {
-      case "private":
-        endpoint = "/getDashboardData";
-        break;
-      case "govt":
-        endpoint = "/govtDashboardData";
-        break;
-      case "forest":
-        endpoint = "/forestDashboardData";
-        break;
-      default:
-        return;
+    // ✅ CASE 1: No project selected → fetch ALL data
+    if (!projectId) {
+      endpoint = "/getDashboardData"; // 👈 your ALL data API
+    } 
+    // ✅ CASE 2: Project selected → land-specific data
+    else {
+      switch (landType) {
+        case "private":
+          endpoint = "/getDashboardData";
+          break;
+        case "govt":
+          endpoint = "/govtDashboardData";
+          break;
+        case "forest":
+          endpoint = "/forestDashboardData";
+          break;
+        default:
+          endpoint = "/getDashboardData";
+      }
     }
 
     const url = projectId
       ? `${endpoint}?project_id=${projectId}`
       : endpoint;
 
-    apiClient(url) // token already handled inside apiClient
+    apiClient(url)
       .then((res) => setData(res.data))
       .catch((err) => setError(err))
       .finally(() => setLoading(false));
@@ -77,3 +82,4 @@ export default function useFetchDashboard(landType) {
 
   return { data, loading, error };
 }
+

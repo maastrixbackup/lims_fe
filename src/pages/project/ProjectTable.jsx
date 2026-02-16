@@ -2,101 +2,94 @@ import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
+import { stickyActionCell, stickyActionHeader } from "../../utils/constants";
+
+const projectTypeMap = {
+  1: { label: "Private Land", badge: "badge-warning" },
+  2: { label: "Government Land", badge: "badge-info" },
+  3: { label: "Forest Land", badge: "badge-success" },
+};
 
 const ProjectTable = ({ projects = [], onEdit, onDelete, loading }) => {
   const user = useSelector((state) => state.auth.user);
-  const userRole = user?.role_name || "";
+  const role = user?.role_name;
 
-  const canEdit = !(userRole === "Data Entry User" || userRole === "Viewer");
-  const canDelete = canEdit;
+  const canEdit = !(role === "Data Entry User" || role === "Viewer");
 
-  if (loading) {
-    return <p className="text-center py-6">Loading...</p>;
-  }
+  if (loading) return <p className="text-center py-6">Loading...</p>;
 
   return (
-    <div className="card bg-white shadow-lg overflow-hidden">
-      <div className="max-h-[400px] overflow-x-auto" style={{scrollbarWidth:"thin"}}>
-       <table className="table w-full">
-                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 uppercase text-xs">
-            <tr>
-              <th>Sl/No</th>
-              <th>Project Name</th>
-              <th>Project Location</th>
-              <th>Status</th>
-              <th>Client Code</th>
-              <th>Created</th>
-              <th className="text-right pr-6">Actions</th>
-            </tr>
-          </thead>
+    <div
+      className="overflow-x-auto max-h-[400px] overflow-y-auto card bg-white shadow-lg"
+      style={{ scrollbarWidth: "thin" }}
+    >
+      <table className="table w-full">
+        <thead className="bg-gray-200 text-xs uppercase ">
+          <tr>
+            <th>SL/NO</th>
+            <th>Project Name</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Client Code</th>
+            <th>Project Type</th>
+            <th>Created</th>
+            <th className={stickyActionHeader}>Actions</th>
+          </tr>
+        </thead>
 
-          <tbody>
-            {projects.length > 0 ? (
-              projects.map((p, idx) => (
-                <tr
-                  key={p.id}
-                  className="hover:bg-gray-50 transition-colors whitespace-nowrap"
+        <tbody>
+          {projects.map((p, i) => (
+            <tr key={p.id} className="whitespace-nowrap">
+              <td>{i + 1}</td>
+              <td>{p.project_name}</td>
+              <td>{p.project_location}</td>
+
+              <td>
+                <span
+                  className={`badge ${p.status === 1 ? "badge-success" : "badge-warning"} text-white`}
                 >
-                  <td>{idx + 1}</td>
-                  <td>{p.name}</td>
-                  <td>{p.project_location || "No Data"}</td>
+                  {p.status === 1 ? "Active" : "Pending"}
+                </span>
+              </td>
 
-                  <td>
-                    <span
-                      className={`badge w-24 justify-center ${
-                        p.status === 1
-                          ? "badge-success text-white"
-                          : p.status === 0
-                          ? "badge-warning text-white"
-                          : "badge-error text-white"
-                      }`}
-                    >
-                      {p.status === 1
-                        ? "Active"
-                        : p.status === 0
-                        ? "Pending"
-                        : "Closed"}
-                    </span>
-                  </td>
+              <td>{p.client_code}</td>
 
-                  <td>{p.client_code}</td>
-                  <td>{moment(p.created).format("DD-MM-YYYY")}</td>
+              <td>
+                {/* {projectTypeMap[p.type] ? (
+                  <span className={`badge ${projectTypeMap[p.type].badge} text-white`}>
+                  
+                  </span>
+                ) : (
+                  <span className="badge badge-ghost">Unknown</span>
+                )} */}
+                {projectTypeMap[p.type].label}
+              </td>
 
-                  <td className="text-right space-x-2">
-                    <button
-                      className={`btn btn-xs btn-warning text-white ${
-                        !canEdit &&
-                        "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
-                      }`}
-                      onClick={() => canEdit && onEdit(p)}
-                      disabled={!canEdit}
-                    >
-                      <Pencil size={14} /> Edit
-                    </button>
+              <td>{moment(p.created_at).format("DD-MM-YYYY")}</td>
 
-                    <button
-                      className={`btn btn-xs btn-error text-white ${
-                        !canDelete &&
-                        "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
-                      }`}
-                      onClick={() => canDelete && onDelete(p)}
-                      disabled={!canDelete}
-                    >
-                      <Trash2 size={14} /> Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center py-6 text-gray-500">
-                  No projects found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              <td className={stickyActionCell}>
+               <div className="gap-2 flex">
+                 <button
+                  className="btn btn-xs btn-warning text-white"
+                  onClick={() => canEdit && onEdit(p)}
+                  disabled={!canEdit}
+                >
+                  <Pencil size={14} /> Edit
+                </button>
+
+                <button
+                  className="btn btn-xs btn-error text-white"
+                  onClick={() => onDelete(p)}
+                  disabled={!canEdit}
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+               </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import StatsCard from "../components/dashboard/StatsCard";
 import PieChartCard from "../components/dashboard/PieChartCard";
@@ -8,6 +8,7 @@ import RecentActivity from "../components/dashboard/RecentActivity";
 import ProgressOverview from "../components/dashboard/ProgressOverview";
 import Loader from "../shared/Loader";
 import useFetchDashboard from "../hooks/useFetchDashboard";
+import { useSelector } from "react-redux";
 
 const LAND_TYPES = [
   { key: "private", label: "Private Land" },
@@ -15,9 +16,24 @@ const LAND_TYPES = [
   // { key: "forest", label: "Forest Land" },
 ];
 
+// ✅ ADD THIS
+const PROJECT_TYPE_MAP = {
+  1: "private",
+  2: "govt",
+  // 3: "forest",
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [landType, setLandType] = useState("private");
+
+  const selectedProject = useSelector(
+    (state) => state.selectedProject.project
+  );
+
+  // ✅ SAFE mapping
+  const landType = selectedProject
+    ? PROJECT_TYPE_MAP[selectedProject.type]
+    : null;
 
   const { data, loading, error } = useFetchDashboard(landType);
 
@@ -35,60 +51,76 @@ export default function Dashboard() {
 
   return (
     <main className="flex-1 overflow-y-auto space-y-6">
-
       {/* 🔹 Land Type Toggle */}
-      <div className="flex gap-3">
-        {LAND_TYPES.map((type) => (
-          <button
-            key={type.key}
-            onClick={() => setLandType(type.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition
-              ${
-                landType === type.key
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200"
-              }`}
-          >
-            {type.label}
-          </button>
-        ))}
+      <div className="flex gap-3 flex-wrap">
+        {LAND_TYPES.map((type) => {
+          const isActive = landType === type.key;
+
+          return (
+            <button
+              key={type.key}
+              disabled
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition
+                ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed opacity-60"
+                }`}
+            >
+              {type.label}
+            </button>
+          );
+        })}
       </div>
+{/* 🔹 Stats Layout */}
+<div className="space-y-6">
 
-      {/* 🔹 Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard title="Projects" value={landData.projects ?? 0}
-          gradient="bg-gradient-to-r from-indigo-500 to-purple-600"
-          onClick={() => navigate("/projects")}
-        />
+  {/* Row 1 – Primary Stats */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <StatsCard
+      title="Projects"
+      value={landData.projects ?? 0}
+       gradient="bg-gradient-to-r from-indigo-500 to-purple-600"
+      onClick={() => navigate("/projects")}
+    />
+    <StatsCard
+      title="Villages"
+      value={landData.villages ?? 0}
+      gradient="bg-gradient-to-r from-green-400 to-emerald-600"
+    />
+    <StatsCard
+      title="Khata"
+      value={landData.khata ?? 0}
+      gradient="bg-gradient-to-r from-teal-400 to-cyan-500"
+    />
+    <StatsCard
+      title="Plots"
+      value={landData.plots ?? 0}
+      gradient="bg-gradient-to-r from-orange-400 to-red-500"
+    />
+  </div>
 
-        <StatsCard title="Villages" value={landData.villages ?? 0}
-          gradient="bg-gradient-to-r from-green-400 to-emerald-600"
-        />
+  {/* Row 2 – Secondary Stats (Wider Cards) */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <StatsCard
+      title="Payment Status"
+      value={landData.payment_status ?? 0}
+      gradient="bg-gradient-to-r from-yellow-400 to-amber-500"
+    />
+    <StatsCard
+      title="LA Status"
+      value={landData.la_status ?? 0}
+      gradient="bg-gradient-to-r from-lime-400 to-green-600"
+    />
+    <StatsCard
+      title="RR Status"
+      value={landData.rr_status ?? 0}
+      gradient="bg-gradient-to-r from-sky-400 to-blue-600"
+    />
+  </div>
 
-        <StatsCard title="Khata" value={landData.khata ?? 0}
-          gradient="bg-gradient-to-r from-teal-400 to-cyan-500"
-        />
+</div>
 
-        <StatsCard title="Plots" value={landData.plots ?? 0}
-          gradient="bg-gradient-to-r from-orange-400 to-red-500"
-        />
-
-        <StatsCard title="Survey Status" value={landData.survey_status ?? 0}
-          gradient="bg-gradient-to-r from-pink-500 to-fuchsia-600"
-        />
-
-        <StatsCard title="Payment Status" value={landData.payment_status ?? 0}
-          gradient="bg-gradient-to-r from-yellow-400 to-amber-500"
-        />
-
-        <StatsCard title="LA Status" value={landData.la_status ?? 0}
-          gradient="bg-gradient-to-r from-lime-400 to-green-600"
-        />
-
-        <StatsCard title="RR Status" value={landData.rr_status ?? 0}
-          gradient="bg-gradient-to-r from-sky-400 to-blue-600"
-        />
-      </div>
 
       {/* 🔹 Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -106,3 +138,35 @@ export default function Dashboard() {
     </main>
   );
 }
+
+
+
+
+
+      // <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      //   <StatsCard title="Projects" value={landData.projects ?? 0}
+      //     gradient="bg-gradient-to-r from-indigo-500 to-purple-600"
+      //     onClick={() => navigate("/projects")}
+      //   />
+      //   <StatsCard title="Villages" value={landData.villages ?? 0}
+      //     gradient="bg-gradient-to-r from-green-400 to-emerald-600"
+      //   />
+      //   <StatsCard title="Khata" value={landData.khata ?? 0}
+      //     gradient="bg-gradient-to-r from-teal-400 to-cyan-500"
+      //   />
+      //   <StatsCard title="Plots" value={landData.plots ?? 0}
+      //     gradient="bg-gradient-to-r from-orange-400 to-red-500"
+      //   />
+      //   {/* <StatsCard title="Survey Status" value={landData.survey_status ?? 0}
+      //     gradient="bg-gradient-to-r from-pink-500 to-fuchsia-600"
+      //   /> */}
+      //   <StatsCard title="Payment Status" value={landData.payment_status ?? 0}
+      //     gradient="bg-gradient-to-r from-yellow-400 to-amber-500"
+      //   />
+      //   <StatsCard title="LA Status" value={landData.la_status ?? 0}
+      //     gradient="bg-gradient-to-r from-lime-400 to-green-600"
+      //   />
+      //   <StatsCard title="RR Status" value={landData.rr_status ?? 0}
+      //     gradient="bg-gradient-to-r from-sky-400 to-blue-600"
+      //   />
+      // </div>

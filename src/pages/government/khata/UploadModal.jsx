@@ -1,61 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { X, CheckCircle, Trash2 } from "lucide-react";
 // import { API_BASE_URL } from "../../../utils/config";
-import { DOCUMENT_TYPES, showToast } from "../../../utils/constants";
+import {
+  DOCUMENT_TYPES,
+  GOVT_DOCUMENT_TYPES,
+  showToast,
+} from "../../../utils/constants";
 import { useSelector } from "react-redux";
-  import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../../utils/apiClient";
 
 export default function UploadModal({ khata, onClose }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [uploading, setUploading] = useState(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const { userToken: token } = useSelector((s) => s.auth);
 
-
-const navigate = useNavigate();
-
+  const navigate = useNavigate();
 
   const isSheetType = (type) => {
     const sheetKeywords = ["Sheet", "Calculation"];
     return sheetKeywords.some((keyword) => type.includes(keyword));
   };
 
-const fetchDocuments = async () => {
-  if (!khata?.id) return;
+  const fetchDocuments = async () => {
+    if (!khata?.id) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const data = await apiClient(`/govtkhata/getGovtKhataFiles/${khata.id}`);
+      const data = await apiClient(`/govtkhata/getGovtKhataFiles/${khata.id}`);
 
-    if (data?.success && Array.isArray(data.documentsWithUrl)) {
-      const groupedDocs = data.documentsWithUrl.reduce((acc, doc) => {
-        if (!acc[doc.document_type]) acc[doc.document_type] = [];
-        acc[doc.document_type].push({
-          id: doc.id,
-          name: doc.file_name,
-          url: doc.url,
-        });
-        return acc;
-      }, {});
+      if (data?.success && Array.isArray(data.documentsWithUrl)) {
+        const groupedDocs = data.documentsWithUrl.reduce((acc, doc) => {
+          if (!acc[doc.document_type]) acc[doc.document_type] = [];
+          acc[doc.document_type].push({
+            id: doc.id,
+            name: doc.file_name,
+            url: doc.url,
+          });
+          return acc;
+        }, {});
 
-      setUploadedDocs(groupedDocs);
+        setUploadedDocs(groupedDocs);
+      }
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      console.error("Error fetching documents:", err);
+      setErrorMsg("Failed to fetch documents.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    if (err.message === "Invalid or expired token") {
-      navigate("/");
-      return;
-    }
-
-    console.error("Error fetching documents:", err);
-    setErrorMsg("Failed to fetch documents.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchDocuments();
@@ -71,78 +73,114 @@ const fetchDocuments = async () => {
     }
   }, [successMsg, errorMsg]);
 
-const handleFileUpload = async (e, docType) => {
-  const files = Array.from(e.target.files);
-  if (!files.length) return;
+  const handleFileUpload = async (e, docType) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-  if ((uploadedDocs[docType]?.length || 0) + files.length > 3) {
-    showToast(`You can upload a maximum of 3 files for "${docType}".`);
-    e.target.value = "";
-    return;
-  }
-
-  setUploading(docType);
-  setErrorMsg("");
-  setSuccessMsg("");
-
-  try {
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("document_type", docType);
-      formData.append("khata_id", khata.id);
-      formData.append("file", file);
-
-      await apiClient("/govtkhata/uploadGovtKhata", {
-        method: "POST",
-        body: formData,
-      });
-    }
-
-    setSuccessMsg(
-      `${files.length} file(s) uploaded successfully to "${docType}".`
-    );
-
-    await fetchDocuments();
-  } catch (err) {
-    if (err.message === "Invalid or expired token") {
-      navigate("/");
+    if ((uploadedDocs[docType]?.length || 0) + files.length > 3) {
+      showToast(`You can upload a maximum of 3 files for "${docType}".`);
+      e.target.value = "";
       return;
     }
 
-    console.error(err);
-    setErrorMsg(err.message || "File upload failed.");
-  } finally {
-    setUploading(null);
-    e.target.value = "";
-  }
-};
-
-
-const handleDelete = async (docType, id) => {
-  if (!window.confirm("Are you sure you want to delete this file?")) return;
-
-  try {
+    setUploading(docType);
     setErrorMsg("");
     setSuccessMsg("");
 
-    await apiClient(`/govtkhata/deleteGovtKhataFile/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("document_type", docType);
+        formData.append("khata_id", khata.id);
+        formData.append("file", file);
 
-    setSuccessMsg("File deleted successfully!");
-    await fetchDocuments();
-  } catch (err) {
-   
-    if (err.message === "Invalid or expired token") {
-      navigate("/");
-      return;
+        await apiClient("/govtkhata/uploadGovtKhata", {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      setSuccessMsg(
+        `${files.length} file(s) uploaded successfully to "${docType}".`,
+      );
+
+      await fetchDocuments();
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      console.error(err);
+      setErrorMsg(err.message || "File upload failed.");
+    } finally {
+      setUploading(null);
+      e.target.value = "";
     }
+  };
 
-    console.error("Delete error:", err);
-    setErrorMsg(err.message || "Error deleting file.");
-  }
-};
+  const handleDelete = async (docType, id) => {
+    if (!window.confirm("Are you sure you want to delete this file?")) return;
 
+    try {
+      setErrorMsg("");
+      setSuccessMsg("");
+
+      await apiClient(`/govtkhata/deleteGovtKhataFile/${id}`, {
+        method: "DELETE",
+      });
+
+      setSuccessMsg("File deleted successfully!");
+      await fetchDocuments();
+    } catch (err) {
+      if (err.message === "Invalid or expired token") {
+        navigate("/");
+        return;
+      }
+
+      console.error("Delete error:", err);
+      setErrorMsg(err.message || "Error deleting file.");
+    }
+  };
+
+  // const handleDownload = async (file) => {
+  //   try {
+  //     const response = await fetch(file.url, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to download file");
+  //     }
+
+  //     const blob = await response.blob();
+
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+
+  //     link.href = url;
+  //     link.download = file.name; // ✅ USE DB FILE NAME
+  //     document.body.appendChild(link);
+  //     link.click();
+
+  //     document.body.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
+  //   } catch (err) {
+  //     console.error("Download error:", err);
+  //     setErrorMsg("File download failed.");
+  //   }
+  // };
+
+  const viewInGoogle = (file) => {
+    const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(
+      file.url,
+    )}&embedded=true`;
+
+    window.open(viewerUrl, "_blank");
+  };
 
   return (
     <dialog open className="modal modal-open">
@@ -177,7 +215,7 @@ const handleDelete = async (docType, id) => {
           </p>
         ) : (
           <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500">
-            {DOCUMENT_TYPES.map((docType, index) => (
+            {GOVT_DOCUMENT_TYPES.map((docType, index) => (
               <div
                 key={index}
                 className="card bg-base-200 border border-primary/10 shadow-lg hover:shadow-2xl hover:border-primary transition-all duration-300"
@@ -219,10 +257,11 @@ const handleDelete = async (docType, id) => {
                           <div className="flex gap-2">
                             <button
                               className="btn btn-xs btn-outline btn-success"
-                              onClick={() => window.open(file.url, "_blank")}
+                              onClick={() => viewInGoogle(file)}
                             >
                               View
                             </button>
+
                             <button
                               onClick={() => handleDelete(docType, file.id)}
                               className="btn btn-xs btn-outline btn-error"

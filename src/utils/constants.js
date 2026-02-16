@@ -216,6 +216,40 @@ export const DOCUMENT_TYPES = [
   "Affidavit for Legal Issues (if any)",
 ];
 
+export const GOVT_DOCUMENT_TYPES = [
+  "Certified Copy",
+  "Hal/Sabik Reference",
+  "Miscellaneous Document",
+  "Attendance Sheet",
+  "Consent Form",
+  "Genealogy Sheet",
+  "Legal Heir Certificate",
+  "Yadast Register Copy",
+  "Self-Attested RoR",
+  "Certified Copy of RoR",
+  "Patta Original",
+  "Encumbrance Certificate",
+  "Rent Receipt",
+  "Trace Map",
+  "Application to Claim for Land Compensation",
+  "Calculation of Compensation",
+  "Land Acquisition Award",
+  "Indemnity Bond",
+  "Aadhaar / Voter Card Copy",
+  "PAN Proof",
+  "Bank Passbook / Cancelled Cheque Copy",
+  "Electronic Fund Transfer Form",
+  "Receipt of Compensation",
+  "Photo of Physical Possession",
+  "Grievance doc(if any)",
+  "Form 9A + Sample Photo (if any)",
+  "Form 9B + Sample Photo (if any)",
+  "Form 9C + Sample Photo (if any)",
+  "Physical Possession Certificate (Bond Paper)",
+  "Apportionment Affidavit (if applicable)",
+  "Affidavit for Legal Issues (if any)",
+];
+
 // export const plotData = [
 //   {
 //     id: 1,

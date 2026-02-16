@@ -71,6 +71,8 @@ const GovernmentKhata = () => {
           unique_id: k.unique_id || "",
           ror_name: k.ror_name || "",
           land_category: k.land_category || "",
+          khata_document_count: k.khata_document_count || 0,
+          khata_map_document_count: k.khata_map_document_count || 0,
         }));
 
         setTotalPages(res.totalPages || 1);

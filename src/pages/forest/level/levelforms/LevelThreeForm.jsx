@@ -2,14 +2,14 @@ import React, { useState, useRef } from "react";
 import { X } from "lucide-react";
 
 const POST_CLEARANCE_DATA = [
-  { sl: 1, key: "caPlantationStarted", label: "CA Plantation Started", type: "yesno", remark: "Plantation report", allowUpload: true },
-  { sl: 2, key: "caPlantationCompleted", label: "CA Plantation Completed", type: "yesno", remark: "Completion report", allowUpload: true },
-  { sl: 3, key: "survivalReportSubmitted", label: "Survival Report Submitted", type: "yesno", remark: "Annual survival report", allowUpload: true },
-  { sl: 4, key: "wildlifeMitigation", label: "Wildlife Mitigation Implemented", type: "yesno", remark: "If applicable", allowUpload: true },
-  { sl: 5, key: "safetyZoneMaintained", label: "Safety Zone Maintained", type: "yesno", remark: "Inspection report", allowUpload: true },
-  { sl: 6, key: "periodicCompliance", label: "Periodic Compliance Submitted", type: "yesno", remark: "Half-yearly / Annual", allowUpload: false },
-  { sl: 7, key: "inspectionObservations", label: "Inspection Observations", type: "status", options: ["Open", "Closed"], remark: "Remarks ", allowUpload: false },
-  { sl: 8, key: "postClearanceStatus", label: "Post-Clearance Status", type: "dropdown", options: ["Ongoing", "Completed"], remark: "", allowUpload: false },
+  { sl: 1, key: "ca_plantation_started", label: "CA Plantation Started", type: "yesno", remark: "Plantation report", allowUpload: true },
+  { sl: 2, key: "ca_plantation_completed", label: "CA Plantation Completed", type: "yesno", remark: "Completion report", allowUpload: true },
+  { sl: 3, key: "survival_report_submitted", label: "Survival Report Submitted", type: "yesno", remark: "Annual survival report", allowUpload: true },
+  { sl: 4, key: "wildlife_mitigation", label: "Wildlife Mitigation Implemented", type: "yesno", remark: "If applicable", allowUpload: true },
+  { sl: 5, key: "safety_zone_maintained", label: "Safety Zone Maintained", type: "yesno", remark: "Inspection report", allowUpload: true },
+  { sl: 6, key: "periodic_compliance", label: "Periodic Compliance Submitted", type: "yesno", remark: "Half-yearly / Annual", allowUpload: false },
+  { sl: 7, key: "inspection_observations", label: "Inspection Observations", type: "status", options: ["Open", "Closed"], remark: "Remarks", allowUpload: false },
+  { sl: 8, key: "post_clearance_status", label: "Post-Clearance Status", type: "dropdown", options: ["Ongoing", "Completed"], remark: "", allowUpload: false },
 ];
 
 const LevelThreeForm = () => {
@@ -119,11 +119,11 @@ const LevelThreeForm = () => {
                   </select>
                 )}
 
-                {row.sl === 8 && (
+                {row.key === "post_clearance_status" && (
                   <select
-                    name="postClearanceStatus"
+                    name="post_clearance_status"
                     className="select select-bordered select-sm w-full"
-                    value={form.postClearanceStatus || ""}
+                    value={form.post_clearance_status || ""}
                     onChange={handleChange}
                   >
                     <option value="">Select</option>
@@ -169,9 +169,9 @@ const LevelThreeForm = () => {
                   </>
                 )}
 
-                {row.sl === 6 && form.periodicCompliance === "Yes" && (
+                {row.key === "periodic_compliance" && form.periodic_compliance === "Yes" && (
                   <select
-                    name="compliancePeriod"
+                    name="compliance_period"
                     className="select select-bordered select-sm mt-1 w-full"
                     onChange={handleChange}
                   >
@@ -181,9 +181,9 @@ const LevelThreeForm = () => {
                   </select>
                 )}
 
-                {row.sl === 7 && form.inspectionObservations === "Open" && (
+                {row.key === "inspection_observations" && form.inspection_observations === "Open" && (
                   <textarea
-                    name="inspectionRemarks"
+                    name="inspection_remarks"
                     className="textarea textarea-bordered textarea-sm mt-1 w-full"
                     placeholder="Enter inspection observations"
                     onChange={handleChange}

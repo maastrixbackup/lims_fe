@@ -218,6 +218,8 @@ const dashboardData = [
 export default function ForestMasterDashboard() {
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
+
+  const totalPages = Math.ceil(dashboardData.length / rowsPerPage);
   const start = (page - 1) * rowsPerPage;
   const currentRows = dashboardData.slice(start, start + rowsPerPage);
 
@@ -275,7 +277,29 @@ export default function ForestMasterDashboard() {
             </tbody>
           </table>
         </div>
+        <div className="flex items-center justify-between p-3 bg-gray-50">
+          <span className="text-sm">
+            Showing {start + 1}–{Math.min(start + rowsPerPage, dashboardData.length)} of{" "}
+            {dashboardData.length}
+          </span>
 
+          <div className="space-x-2">
+            <button
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}
+              className="border rounded disabled:opacity-50 btn-sm text-sm px-3"
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+              className="border rounded disabled:opacity-50 btn-sm text-sm px-3"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

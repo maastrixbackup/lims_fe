@@ -5,6 +5,7 @@ import { DOCUMENT_TYPES, GOVT_DOCUMENT_TYPES, showToast } from "../../../utils/c
 import { useSelector } from "react-redux";
   import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../../utils/apiClient";
+import { API_BASE_URL } from "../../../utils/config";
 
 export default function UploadModal({ khata, onClose }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
@@ -143,33 +144,42 @@ const handleDelete = async (docType, id) => {
   }
 };
 
+
+
 const handleDownload = async (file) => {
   try {
-    const response = await apiClient(
-      `/govtkhata/downloadGovtKhataFile/${encodeURIComponent(file.name)}`,
+    const response = await fetch(
+      `${API_BASE_URL}/govtkhata/downloadKhataDocument/${encodeURIComponent(file.name)}`,
       {
         method: "GET",
-        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
       }
     );
 
-    const blob = response instanceof Blob ? response : await response.blob();
+    if (!response.ok) {
+      throw new Error("Failed to download file");
+    }
+
+    const blob = await response.blob();
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = file.name; 
+    link.download = file.name; // exact filename from DB
     document.body.appendChild(link);
     link.click();
 
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Download error:", err);
+  } catch (error) {
+    console.error("Download error:", error);
     setErrorMsg("File download failed.");
   }
 };
+
 
   return (
     <dialog open className="modal modal-open">

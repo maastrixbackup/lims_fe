@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Upload,
   CheckCircle,
@@ -6,15 +6,15 @@ import {
   ChevronDown,
   ChevronUp,
   Pencil,
+  Eye,
+  Trash2,
 } from "lucide-react";
 import { API_BASE_URL } from "../../../utils/config";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useLandTypeParam } from "../../../utils/landtypes";
-// import { useSearchParams } from "react-router";
 import { useLocation } from "react-router";
-import { showToast } from "../../../utils/constants";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../shared/SuccessMessage";
 
@@ -25,18 +25,17 @@ const LandCost = () => {
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [editIndex, setEditIndex] = useState({ kIndex: null, rIndex: null });
+  const [uploadingKey, setUploadingKey] = useState(null);
 
   const token = useSelector((state) => state.auth.userToken);
   const selectedProject = useSelector((state) => state.selectedProject);
   const projectId = selectedProject?.project?.id;
   const typeParam = useLandTypeParam();
-  console.log("typeParam", typeParam);
   const location = useLocation();
   const plotId = location.state?.plot?.id;
-  console.log("plotId", plotId);
-  const [uploadingId, setUploadingId] = useState(null);
 
   const fetchData = async () => {
     if (!projectId) return;
@@ -66,33 +65,31 @@ const LandCost = () => {
         const mapped = data.data.map((item) => ({
           uniqueId: item.unique_id,
           khataNo: item.khata_no,
-          totalArea: Number(item.total_area),
-          totalComp: Number(item.total_compensation),
+          totalComp: Number(item.total_compensation ?? 0),
           records: item.tenants.map((t) => ({
             id: t.id,
-            plotNo: t.plot_no,
-            tenant: t.present_tenant,
-            paymentArea: Number(t.payment_area),
-            compPayment: Number(t.compensation_payment),
-            apportionment: Number(t.apportionment_percent),
-            bankAcc: t.bank_ac,
-            bankName: t.bank_name,
-            ifsc: t.ifsc,
-            status: t.status,
-            txnNumber: t.transaction_no,
-            file: null,
+            leaseCaseNo: item.lease_case_no ?? t.lease_case_no ?? "No Data",
+            plotNos: t.plot_nos ?? t.plot_no ?? "No Data",
+            totalArea: Number(t.total_area ?? item.total_area ?? 0),
+            landCostAmount: Number(
+              t.land_cost_amount ?? t.compensation_payment ?? item.total_compensation ?? 0
+            ),
+            demandNoteFile: null,
+            receiptFile: null,
+            demandNoteUrl: t.demand_note_doc ?? t.demand_note ?? null,
+            receiptUrl: t.receipt_doc ?? t.receipt ?? null,
           })),
         }));
-        console.log("mapped data", mapped);
+
         setKhatas(mapped);
       } else {
         setKhatas([]);
       }
     } catch (err) {
-      showError(err.message || "Failed to fetch compensation data");
+      showError(err.message || "Failed to fetch land cost data");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -101,109 +98,42 @@ const LandCost = () => {
   }, [projectId, typeParam, plotId]);
 
   const validateTotals = (khata) => {
-    const compSum = khata.records.reduce(
-      (sum, r) => sum + Number(r.compPayment || 0),
+    const landCostSum = khata.records.reduce(
+      (sum, r) => sum + Number(r.landCostAmount || 0),
       0
     );
 
     return {
-      valid: Math.round(compSum) === Math.round(khata.totalComp),
+      valid: Math.round(landCostSum) === Math.round(Number(khata.totalComp || 0)),
     };
   };
 
-  const handleApportionChange = (kIndex, rIndex, value) => {
-    let num = value;
-    if (num < 0) num = 0;
-    if (num > 100) num = 100;
+  const handleLandCostChange = (kIndex, rIndex, value) => {
+    const amount = Math.max(0, Number(value) || 0);
 
     setKhatas((prev) => {
-      const newData = [...prev];
-      const khata = newData[kIndex];
-      const records = khata.records;
-
-      // Update current record
-      records[rIndex].apportionment = num;
-
-      // Calculate used percentage (except last)
-      let usedPercent = 0;
-      records.forEach((r, i) => {
-        if (i !== records.length - 1) {
-          usedPercent += Number(r.apportionment || 0);
-        }
-      });
-
-      const lastIndex = records.length - 1;
-      const remaining = Math.max(0, 100 - usedPercent);
-
-      // Auto-adjust last row
-      records[lastIndex].apportionment = rIndex === lastIndex ? num : remaining;
-
-      // 🔥 RECALCULATE paymentArea + compPayment
-      records.forEach((r) => {
-        r.compPayment = (
-          (Number(r.apportionment) / 100) *
-          khata.totalComp
-        ).toFixed(2);
-
-        r.paymentArea = (
-          (Number(r.apportionment) / 100) *
-          khata.totalArea
-        ).toFixed(2);
-      });
-
-      return newData;
+      const updated = [...prev];
+      updated[kIndex].records[rIndex] = {
+        ...updated[kIndex].records[rIndex],
+        landCostAmount: amount,
+      };
+      return updated;
     });
   };
 
-  const handlePaymentChange = (kIndex, rIndex, value) => {
-    let amount = value;
-
-    if (amount < 0) amount = 0;
-
-    setKhatas((prev) => {
-      const newData = [...prev];
-      const khata = newData[kIndex];
-      const records = khata.records;
-      const lastIndex = records.length - 1;
-
-      records[rIndex].compPayment = amount;
-      let usedAmount = 0;
-      records.forEach((r, i) => {
-        if (i !== lastIndex) {
-          usedAmount += Number(r.compPayment || 0);
-        }
-      });
-
-      if (usedAmount > khata.totalComp) {
-        records[rIndex].compPayment -= usedAmount - khata.totalComp;
-        usedAmount = khata.totalComp;
-      }
-      if (rIndex !== lastIndex) {
-        records[lastIndex].compPayment = Number(
-          Math.max(0, khata.totalComp - usedAmount).toFixed(2)
-        );
-      }
-      records.forEach((r) => {
-        r.apportionment = Number(
-          ((Number(r.compPayment) / khata.totalComp) * 100).toFixed(2)
-        );
-      });
-
-      return newData;
-    });
-  };
-
-  const handleFileChange = async (kIndex, rIndex, file) => {
+  const handleFileChange = async (kIndex, rIndex, file, fieldType) => {
     if (!file) return;
 
     const record = khatas[kIndex].records[rIndex];
+    const uploadKey = `${record.id}-${fieldType}`;
 
-    setUploadingId(record.id);
+    setUploadingKey(uploadKey);
 
     try {
       const formData = new FormData();
       formData.append("land_cost_id", record.id);
       formData.append("payment_proof", file);
+      formData.append("attachment_type", fieldType);
 
       const res = await fetch(`${API_BASE_URL}/plots/landCostPaymentUpload`, {
         method: "POST",
@@ -215,73 +145,41 @@ const LandCost = () => {
 
       const data = await res.json();
 
-      if (data.success) {
-        showSuccess(data.message || "File uploaded successfully");
-        setKhatas((prev) => {
-          const updated = [...prev];
-          updated[kIndex].records[rIndex] = {
-            ...updated[kIndex].records[rIndex],
-            file: null,
-            status: "processing",
-          };
-          return updated;
-        });
-      } else {
-        showError(err.message || "File upload failed");
+      if (!data.success) {
+        throw new Error(data.message || "File upload failed");
       }
+
+      showSuccess(data.message || "File uploaded successfully");
+      setKhatas((prev) => {
+        const updated = [...prev];
+        updated[kIndex].records[rIndex] = {
+          ...updated[kIndex].records[rIndex],
+          [fieldType === "demand_note" ? "demandNoteFile" : "receiptFile"]: file,
+          [fieldType === "demand_note" ? "demandNoteUrl" : "receiptUrl"]:
+            data?.data?.url || null,
+        };
+        return updated;
+      });
     } catch (err) {
       showError(err.message || "Network error during file upload");
+    } finally {
+      setUploadingKey(null);
     }
-
-    setUploadingId(null);
   };
 
-  const handleExportExcel = () => {
-    const exportRows = [];
-
-    khatas.forEach((khata) => {
-      khata.records.forEach((r) => {
-        exportRows.push({
-          "Unique ID": khata.uniqueId,
-          "Khata No": khata.khataNo,
-          "Total Area": khata.totalArea,
-          "Total Compensation": khata.totalComp,
-          "Plot No": r.plotNo,
-          Tenant: r.tenant,
-          "Payment Area": r.paymentArea,
-          "Compensation Payment": r.compPayment,
-          "Apportionment (%)": r.apportionment,
-          "Bank A/C": r.bankAcc ?? "-",
-          "Bank Name": r.bankName ?? "-",
-          IFSC: r.ifsc ?? "-",
-          Status: r.status,
-          "Txn No": r.txnNumber,
-        });
-      });
+  const handleDeleteRecord = (kIndex, rIndex) => {
+    setKhatas((prev) => {
+      const updated = [...prev];
+      updated[kIndex] = {
+        ...updated[kIndex],
+        records: updated[kIndex].records.filter((_, idx) => idx !== rIndex),
+      };
+      return updated;
     });
-
-    const worksheet = XLSX.utils.json_to_sheet(exportRows);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Compensation Data");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    saveAs(blob, "Compensation_Payments.xlsx");
+    showSuccess("Row removed");
   };
 
-  const toggleAccordion = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
-  const handleUpdatePayment = async (kIndex, rIndex, data) => {
-    console.log("data*********", data);
+  const handleUpdateRecord = async (kIndex, rIndex, data) => {
     try {
       const res = await fetch(
         `${API_BASE_URL}/govtplots/updatePlotPayment/${data.id}`,
@@ -292,96 +190,83 @@ const LandCost = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            payment_area: data.paymentArea,
-            total_compensation: data.totalComp,
-            compensation_payment: data.compPayment,
-            apportionment_percent: data.apportionment,
-            bank_ac: data.bankAcc,
-            bank_name: data.bankName,
-            ifsc: data.ifsc,
-            transaction_no: data.txnNumber,
+            lease_case_no: data.leaseCaseNo,
+            plot_nos: data.plotNos,
+            total_area: data.totalArea,
+            land_cost_amount: data.landCostAmount,
+            compensation_payment: data.landCostAmount,
           }),
         }
       );
 
       const result = await res.json();
-      if (!result.success) throw new Error("Update failed");
-      showSuccess(result.message || "Payment details updated successfully");
+      if (!result.success) throw new Error(result.message || "Update failed");
+
+      showSuccess(result.message || "Land cost details updated successfully");
       setKhatas((prev) => {
         const updated = [...prev];
         updated[kIndex].records[rIndex] = {
           ...updated[kIndex].records[rIndex],
           ...data,
-          status: "Paid",
         };
         return updated;
       });
     } catch (err) {
-      showError(err.message || "Payment completion failed");
+      showError(err.message || "Update failed");
     }
   };
-  const handlePaymentCompleted = async (khata) => {
-    const { valid } = validateTotals(khata);
-    if (!valid) {
-      window.toast?.error("Totals do not match");
-      return;
-    }
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          unique_id: khata.uniqueId,
-          project_id: projectId,
-          type: typeParam,
-        }),
+  const handleExportExcel = () => {
+    const exportRows = [];
+
+    khatas.forEach((khata) => {
+      khata.records.forEach((r) => {
+        exportRows.push({
+          "Unique ID": khata.uniqueId,
+          "Khata No": khata.khataNo,
+          "Khata Total Compensation": khata.totalComp,
+          "Lease Case No": r.leaseCaseNo ?? "-",
+          "Plot Nos": r.plotNos ?? "-",
+          "Total Area": r.totalArea ?? 0,
+          "Land Cost (Amount)": r.landCostAmount ?? 0,
+          "Demand Note URL": r.demandNoteUrl ?? "-",
+          "Receipt URL": r.receiptUrl ?? "-",
+        });
       });
+    });
 
-      const result = await res.json();
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Land Cost Data");
 
-      if (!result.success) {
-        throw new Error(result.message || "Payment completion failed");
-      }
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
 
-      showSuccess(result.message ||"Payment completed successfully..");
-      setLoading(true);
-      await fetchData();
-      setKhatas((prev) =>
-        prev.map((k) =>
-          k.uniqueId === khata.uniqueId
-            ? {
-                ...k,
-                records: k.records.map((r) => ({
-                  ...r,
-                  status: "completed",
-                })),
-              }
-            : k
-        )
-      );
-    } catch (err) {
-      showError(err.message || "Payment completion failed");
-    }
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "Land_Cost_Data.xlsx");
+  };
+
+  const toggleAccordion = (index) => {
+    setOpenIndex((prev) => (prev === index ? null : index));
   };
 
   if (!projectId) {
     return (
       <main className="p-4">
-           <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
-        Cost Of Land - Payment Ready
-      </h2>
+        <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
+          Cost Of Land - Payment Ready
+        </h2>
         <div className="py-10 text-center text-gray-600">
           <p className="text-lg font-medium">
-            Please{" "}
-            <span className="text-primary font-semibold">Select a Project</span>{" "}
-            first.
+            Please <span className="text-primary font-semibold">Select a Project</span> first.
           </p>
           <p className="text-md text-gray-500 mt-1">
-            A project is required to view Land Compensation details.
+            A project is required to view land cost details.
           </p>
         </div>
       </main>
@@ -393,16 +278,12 @@ const LandCost = () => {
   if (khatas.length === 0) {
     return (
       <main className="p-4">
-           <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
-        Cost Of Land - Payment Ready
-      </h2>
+        <h2 className="text-lg md:text-xl font-semibold capitalize mb-4">
+          Cost Of Land - Payment Ready
+        </h2>
         <div className="py-10 text-center text-gray-600">
           <p className="text-md font-medium text-red-500">
-            No Land Cost / Compensation data found for the{" "}
-            <span className="text-primary font-bold">selected project.</span>
-          </p>
-          <p className="text-md text-gray-500 mt-1">
-            Try selecting a different project or add compensation records.
+            No land cost data found for the <span className="text-primary font-bold">selected project.</span>
           </p>
         </div>
       </main>
@@ -422,18 +303,14 @@ const LandCost = () => {
           <div key={kIndex} className="shadow-md mb-4 bg-white rounded-md">
             <div
               onClick={() => toggleAccordion(kIndex)}
-              className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center
-             gap-4 p-4 shadow-lg hover:bg-gray-50 cursor-pointer"
+              className="w-full flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 p-4 shadow hover:bg-gray-50 cursor-pointer"
             >
-              <div className="flex flex-col sm:flex-row sm:gap-8 w-full lg:w-auto">
                 <div className="text-left space-y-1">
                   <p className="font-semibold text-sm md:text-base">
-                    Unique ID:{" "}
-                    <span className="text-primary">{khata.uniqueId}</span>
+                    Unique ID: <span className="text-primary">{khata.uniqueId}</span>
                   </p>
                   <p className="font-semibold text-sm md:text-base">
-                    Khata No:{" "}
-                    <span className="text-primary">{khata.khataNo}</span>
+                    Khata No: <span className="text-primary">{khata.khataNo}</span>
                   </p>
                 </div>
 
@@ -442,22 +319,17 @@ const LandCost = () => {
                     <strong>Total Area:</strong> {khata.totalArea}
                   </p>
                   <p className="text-sm md:text-base">
-                    <strong>Total Compensation:</strong> ₹
-                    {khata.totalComp.toLocaleString()}
+                    <strong>Total Compensation:</strong> Rs {khata.totalComp.toLocaleString()}
                   </p>
                 </div>
-              </div>
-
-              {/* Right: Status + Actions */}
-              <div className="flex flex-wrap items-center gap-3 justify-between lg:justify-end w-full lg:w-auto">
+              <div className="flex flex-wrap items-center gap-3">
                 {valid ? (
                   <span className="flex items-center text-green-600 text-sm whitespace-nowrap">
                     <CheckCircle size={18} className="mr-1" /> Totals Matched
                   </span>
                 ) : (
                   <span className="flex items-center text-orange-600 text-sm whitespace-nowrap">
-                    <AlertTriangle size={18} className="mr-1" /> Values do not
-                    match
+                    <AlertTriangle size={18} className="mr-1" /> Values do not match
                   </span>
                 )}
 
@@ -466,329 +338,261 @@ const LandCost = () => {
                     e.stopPropagation();
                     handleExportExcel();
                   }}
-                  className="btn bg-green-600 text-white flex items-center gap-2 text-sm"
+                  className="btn bg-green-600 text-white text-sm"
                 >
                   Export Excel
                 </button>
 
-                <span className="ml-auto lg:ml-0">
-                  {openIndex === kIndex ? <ChevronUp /> : <ChevronDown />}
-                </span>
+                <span>{openIndex === kIndex ? <ChevronUp /> : <ChevronDown />}</span>
               </div>
             </div>
 
             {openIndex === kIndex && (
               <div className="p-4">
-                <div
-                  className="overflow-x-auto mt-4"
-                  style={{ scrollbarWidth: "thin" }}
-                >
+                <div className="overflow-x-auto mt-2" style={{ scrollbarWidth: "thin" }}>
                   <table className="table table-zebra w-full text-xs sm:text-sm">
                     <thead className="bg-gray-200 text-gray-700">
                       <tr className="whitespace-nowrap">
-                        <th>Plot No.</th>
-                        <th>Present Tenant</th>
-                        <th>Payment Area</th>
-                        <th>Compensation Payment</th>
-                        <th>Apportionment (%)</th>
-                        <th>Days Of Interest</th>
-                        <th>Bank A/C</th>
-                        <th>Bank</th>
-                        <th>IFSC</th>
-                        <th>Status</th>
-                        <th>Txn No.</th>
-                        <th>Upload</th>
-                        <th>Action</th>
+                        <th>Lease Case No.</th>
+                        <th>Plot Nos.</th>
+                        <th>Total Area</th>
+                        <th>Total Amount</th>
+                        <th>Demand Note Attachment</th>
+                        <th>Receipt Attachment</th>
+                        <th>Edit / Delete / View</th>
                       </tr>
                     </thead>
 
                     <tbody>
                       {khata.records.map((r, rIndex) => (
-                        <tr key={rIndex} className="whitespace-nowrap">
-                          <td>{r.plotNo}</td>
-                          <td>{r.tenant}</td>
-                          <td>{r.paymentArea}</td>
+                        <tr key={r.id ?? rIndex} className="whitespace-nowrap">
+                          <td>{r.leaseCaseNo || "No Data"}</td>
+                          <td>{r.plotNos || "No Data"}</td>
+                          <td>{r.totalArea || 0}</td>
 
                           <td>
                             <input
                               type="number"
-                              value={r.compPayment}
-                              className="input input-bordered input-xs sm:input-sm w-24"
-                              onChange={(e) =>
-                                handlePaymentChange(
-                                  kIndex,
-                                  rIndex,
-                                  e.target.value
-                                )
-                              }
+                              value={r.landCostAmount}
+                              className="input input-bordered input-xs sm:input-sm w-28"
+                              onChange={(e) => handleLandCostChange(kIndex, rIndex, e.target.value)}
                             />
                           </td>
-
-                          <td>
-                            <input
-                              type="number"
-                              value={r.apportionment}
-                              className="input input-bordered input-xs sm:input-sm w-20"
-                              onChange={(e) =>
-                                handleApportionChange(
-                                  kIndex,
-                                  rIndex,
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </td>
-                          <td>{r.days_of_interest ?? "No Data"}</td>
-                          <td>{r.bankAcc ?? "No Data"}</td>
-                          <td>{r.bankName ?? "No Data"}</td>
-                          <td>{r.ifsc ?? "No Data"}</td>
-
-                          <td>
-                            <span
-                              className={`badge text-xs ${
-                                r.status === "Paid"
-                                  ? "badge-success"
-                                  : "badge-warning"
-                              }`}
-                            >
-                              {r.status}
-                            </span>
-                          </td>
-
-                          <td>{r.txnNumber ?? "No Data"}</td>
 
                           <td>
                             <label className="cursor-pointer flex items-center gap-2">
                               <Upload size={16} />
-
                               <input
                                 type="file"
                                 className="hidden"
                                 onChange={(e) =>
-                                  handleFileChange(
-                                    kIndex,
-                                    rIndex,
-                                    e.target.files[0]
-                                  )
+                                  handleFileChange(kIndex, rIndex, e.target.files?.[0], "demand_note")
                                 }
                               />
 
-                              {uploadingId === r.id ? (
-                                <span className="loading loading-spinner loading-xs"></span>
-                              ) : r.file ? (
+                              {uploadingKey === `${r.id}-demand_note` ? (
+                                <span className="loading loading-spinner loading-xs" />
+                              ) : r.demandNoteFile ? (
                                 <span
                                   className="text-green-600 text-xs max-w-[120px] truncate"
-                                  title={r.file.name}
+                                  title={r.demandNoteFile.name}
                                 >
-                                  {r.file.name}
+                                  {r.demandNoteFile.name}
                                 </span>
+                              ) : r.demandNoteUrl ? (
+                                <a
+                                  href={r.demandNoteUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-blue-600 text-xs underline"
+                                >
+                                  View
+                                </a>
                               ) : (
-                                <span className="text-gray-400 text-xs">
-                                  Choose
-                                </span>
+                                <span className="text-gray-400 text-xs">Choose</span>
                               )}
                             </label>
                           </td>
 
                           <td>
-                            <button
-                              className="btn btn-xs btn-warning text-white"
-                              onClick={() => {
-                                setEditData({
-                                  ...r,
-                                  totalComp: khata.totalComp,
-                                });
-                                setEditIndex({ kIndex, rIndex });
-                                setIsEditOpen(true);
-                              }}
-                            >
-                              <Pencil size={14} /> Edit
-                            </button>
+                            <label className="cursor-pointer flex items-center gap-2">
+                              <Upload size={16} />
+                              <input
+                                type="file"
+                                className="hidden"
+                                onChange={(e) =>
+                                  handleFileChange(kIndex, rIndex, e.target.files?.[0], "receipt")
+                                }
+                              />
+
+                              {uploadingKey === `${r.id}-receipt` ? (
+                                <span className="loading loading-spinner loading-xs" />
+                              ) : r.receiptFile ? (
+                                <span
+                                  className="text-green-600 text-xs max-w-[120px] truncate"
+                                  title={r.receiptFile.name}
+                                >
+                                  {r.receiptFile.name}
+                                </span>
+                              ) : r.receiptUrl ? (
+                                <a
+                                  href={r.receiptUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-blue-600 text-xs underline"
+                                >
+                                  View
+                                </a>
+                              ) : (
+                                <span className="text-gray-400 text-xs">Choose</span>
+                              )}
+                            </label>
+                          </td>
+
+                          <td>
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="btn btn-xs btn-warning text-white"
+                                onClick={() => {
+                                  setEditData({ ...r });
+                                  setEditIndex({ kIndex, rIndex });
+                                  setIsEditOpen(true);
+                                }}
+                              >
+                                <Pencil size={14} />
+                              </button>
+
+                              <button
+                                className="btn btn-xs btn-error text-white"
+                                onClick={() => handleDeleteRecord(kIndex, rIndex)}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+
+                              <button
+                                className="btn btn-xs btn-info text-white"
+                                onClick={() => {
+                                  setEditData({ ...r });
+                                  setIsViewOpen(true);
+                                }}
+                              >
+                                <Eye size={14} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                {isEditOpen && editData && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-5">
-                      <h3 className="text-lg font-semibold mb-4">
-                        Edit Compensation
-                      </h3>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-xs font-medium">
-                            Payment Area
-                          </label>
-                          <input
-                            type="number"
-                            className="input input-bordered w-full"
-                            value={editData.paymentArea}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                paymentArea: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium">
-                            Total Compensation
-                          </label>
-                          <input
-                            type="number"
-                            className="input input-bordered w-full"
-                            value={editData.totalComp}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                totalComp: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium">
-                            Compensation Payment
-                          </label>
-                          <input
-                            type="number"
-                            className="input input-bordered w-full"
-                            value={editData.compPayment}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                compPayment: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium">
-                            Apportionment (%)
-                          </label>
-                          <input
-                            type="number"
-                            className="input input-bordered w-full"
-                            value={editData.apportionment}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                apportionment: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium">
-                            Transaction No
-                          </label>
-                          <input
-                            type="text"
-                            className="input input-bordered w-full"
-                            value={editData.txnNumber}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                txnNumber: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium">
-                            Bank A/C
-                          </label>
-                          <input
-                            type="text"
-                            className="input input-bordered w-full"
-                            value={editData.bankAcc}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                bankAcc: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-medium">
-                            Bank Name
-                          </label>
-                          <input
-                            type="text"
-                            className="input input-bordered w-full"
-                            value={editData.bankName}
-                            onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                bankName: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-
-                        <div className="col-span-2">
-                          <label className="text-xs font-medium">IFSC</label>
-                          <input
-                            type="text"
-                            className="input input-bordered w-full"
-                            value={editData.ifsc}
-                            onChange={(e) =>
-                              setEditData({ ...editData, ifsc: e.target.value })
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-3 mt-5">
-                        <button
-                          className="btn btn-ghost"
-                          onClick={() => setIsEditOpen(false)}
-                        >
-                          Cancel
-                        </button>
-
-                        <button
-                          className="btn btn-primary"
-                          onClick={async () => {
-                            await handleUpdatePayment(
-                              editIndex.kIndex,
-                              editIndex.rIndex,
-                              editData
-                            );
-                            setIsEditOpen(false);
-                          }}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex justify-end mt-4 md:mt-6">
-                  <button
-                    className="btn btn-primary w-full md:w-auto"
-                    disabled={!valid}
-                    title={!valid ? "Totals do not match!" : ""}
-                    onClick={() => handlePaymentCompleted(khata)}
-                  >
-                    Payment Completed
-                  </button>
-                </div>
               </div>
             )}
           </div>
         );
       })}
+
+      {isEditOpen && editData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-5">
+            <h3 className="text-lg font-semibold mb-4">Edit Land Cost</h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium">Lease Case No.</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={editData.leaseCaseNo || ""}
+                  onChange={(e) =>
+                    setEditData((prev) => ({ ...prev, leaseCaseNo: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium">Plot Nos.</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={editData.plotNos || ""}
+                  onChange={(e) => setEditData((prev) => ({ ...prev, plotNos: e.target.value }))}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium">Total Area</label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={editData.totalArea}
+                  onChange={(e) =>
+                    setEditData((prev) => ({ ...prev, totalArea: Number(e.target.value) || 0 }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium">Total Amount</label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={editData.landCostAmount}
+                  onChange={(e) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      landCostAmount: Math.max(0, Number(e.target.value) || 0),
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-5">
+              <button className="btn btn-ghost" onClick={() => setIsEditOpen(false)}>
+                Cancel
+              </button>
+
+              <button
+                className="btn btn-primary"
+                onClick={async () => {
+                  await handleUpdateRecord(editIndex.kIndex, editIndex.rIndex, editData);
+                  setIsEditOpen(false);
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isViewOpen && editData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-5">
+            <h3 className="text-lg font-semibold mb-4">View Land Cost</h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <p>
+                <strong>Lease Case No:</strong> {editData.leaseCaseNo || "No Data"}
+              </p>
+              <p>
+                <strong>Plot Nos:</strong> {editData.plotNos || "No Data"}
+              </p>
+              <p>
+                <strong>Total Area:</strong> {editData.totalArea || 0}
+              </p>
+              <p>
+                <strong>Land Cost:</strong> {editData.landCostAmount || 0}
+              </p>
+            </div>
+            <div className="flex justify-end mt-5">
+              <button className="btn btn-ghost" onClick={() => setIsViewOpen(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <SuccessMessage
         open={modal.open}
         type={modal.type}

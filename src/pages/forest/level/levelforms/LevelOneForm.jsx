@@ -2,19 +2,103 @@ import React, { useState, useMemo } from "react";
 import { X } from "lucide-react";
 
 const STAGE_I_IMAGE_DATA = [
-  { sl: 1, key: "stage1ApprovalLetter", label: "Stage-I Approval Letter", type: "upload", options: ["Uploaded", "Not Uploaded"], remark: "Stage-I FC letter", allowUpload: true },
-  { sl: 2, key: "stage1Conditions", label: "Stage-I Conditions", type: "yesno", remark: "Condition sheet", allowUpload: true },
-  { sl: 3, key: "caLandHandedOver", label: "CA Land Handed Over", type: "yesno", remark: "Handover docs", allowUpload: true },
-  { sl: 4, key: "fraCompliance", label: "FRA Compliance", type: "status", options: ["Complied", "Pending"], remark: "Final FRA certificate", allowUpload: true },
-  { sl: 5, key: "npvPayment", label: "NPV Payment", type: "paid", remark: "NPV Payment Receipt", allowUpload: true },
-  { sl: 6, key: "caPayment", label: "CA Payment", type: "paid", remark: "CA Payment Receipt", allowUpload: true },
-  { sl: 7, key: "acaPayment", label: "ACA / Additional Payments", type: "paid", remark: "ACA Receipt", allowUpload: true },
-  { sl: 8, key: "wildlifePayment", label: "Wildlife Payments", type: "paid", remark: "If wildlife applicable", allowUpload: true },
-  { sl: 9, key: "technicalCompliance", label: "Technical Compliance", type: "status", options: ["Completed", "Pending"], remark: "Mining / Linear approval", allowUpload: true },
-  { sl: 10, key: "stage1Compliance", label: "Stage-I Compliance Accepted", type: "yesno", remark: "Authority confirmation", allowUpload: true },
-  { sl: 11, key: "eligibleStage2", label: "Eligible for Stage-II", type: "chip" },
-  { sl: 12, key: "stage1Status", label: "Stage-I Status", type: "chip" },
-];
+  {
+    "sl": 1,
+    "key": "stage_1_approval_letter",
+    "label": "Stage-I Approval Letter",
+    "type": "upload",
+    "options": ["Uploaded", "Not Uploaded"],
+    "remark": "Stage-I FC letter",
+    "allowUpload": true
+  },
+  {
+    "sl": 2,
+    "key": "stage_1_conditions",
+    "label": "Stage-I Conditions",
+    "type": "yesno",
+    "remark": "Condition sheet",
+    "allowUpload": true
+  },
+  {
+    "sl": 3,
+    "key": "ca_land_handed_over",
+    "label": "CA Land Handed Over",
+    "type": "yesno",
+    "remark": "Handover docs",
+    "allowUpload": true
+  },
+  {
+    "sl": 4,
+    "key": "fra_compliance",
+    "label": "FRA Compliance",
+    "type": "status",
+    "options": ["Complied", "Pending"],
+    "remark": "Final FRA certificate",
+    "allowUpload": true
+  },
+  {
+    "sl": 5,
+    "key": "npv_payment",
+    "label": "NPV Payment",
+    "type": "paid",
+    "remark": "NPV Payment Receipt",
+    "allowUpload": true
+  },
+  {
+    "sl": 6,
+    "key": "ca_payment",
+    "label": "CA Payment",
+    "type": "paid",
+    "remark": "CA Payment Receipt",
+    "allowUpload": true
+  },
+  {
+    "sl": 7,
+    "key": "aca_payment",
+    "label": "ACA / Additional Payments",
+    "type": "paid",
+    "remark": "ACA Receipt",
+    "allowUpload": true
+  },
+  {
+    "sl": 8,
+    "key": "wildlife_payment",
+    "label": "Wildlife Payments",
+    "type": "paid",
+    "remark": "If wildlife applicable",
+    "allowUpload": true
+  },
+  {
+    "sl": 9,
+    "key": "technical_compliance",
+    "label": "Technical Compliance",
+    "type": "status",
+    "options": ["Completed", "Pending"],
+    "remark": "Mining / Linear approval",
+    "allowUpload": true
+  },
+  {
+    "sl": 10,
+    "key": "stage_1_compliance",
+    "label": "Stage-I Compliance Accepted",
+    "type": "yesno",
+    "remark": "Authority confirmation",
+    "allowUpload": true
+  },
+  {
+    "sl": 11,
+    "key": "eligible_stage_2",
+    "label": "Eligible for Stage-II",
+    "type": "chip"
+  },
+  {
+    "sl": 12,
+    "key": "stage_1_status",
+    "label": "Stage-I Status",
+    "type": "chip"
+  }
+]
+
 
 const LevelOneForm = () => {
   const [form, setForm] = useState({});

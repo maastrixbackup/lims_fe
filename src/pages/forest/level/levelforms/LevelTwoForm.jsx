@@ -3,88 +3,89 @@ import React, { useState, useMemo } from "react";
 
 const STAGE_II_DATA = [
   {
-    sl: 1,
-    key: "environmentalClearance",
-    label: "Environmental Clearance",
-    type: "status",
-    options: ["Obtained", "Not Obtained"],
-    remark: "EC letter (if applicable)",
-    allowUpload: true,
+    "sl": 1,
+    "key": "environmental_clearance",
+    "label": "Environmental Clearance",
+    "type": "status",
+    "options": ["Obtained", "Not Obtained"],
+    "remark": "EC letter (if applicable)",
+    "allowUpload": true
   },
   {
-    sl: 2,
-    key: "nbwlClearance",
-    label: "NBWL Clearance",
-    type: "status",
-    options: ["Obtained", "Not Obtained"],
-    remark: "NBWL approval (if applicable)",
-    allowUpload: true,
+    "sl": 2,
+    "key": "nbwl_clearance",
+    "label": "NBWL Clearance",
+    "type": "status",
+    "options": ["Obtained", "Not Obtained"],
+    "remark": "NBWL approval (if applicable)",
+    "allowUpload": true
   },
   {
-    sl: 3,
-    key: "finalCAExecution",
-    label: "Final CA Execution",
-    type: "status",
-    options: ["Completed", "Pending"],
-    remark: "Execution proof",
-    allowUpload: true,
+    "sl": 3,
+    "key": "final_ca_execution",
+    "label": "Final CA Execution",
+    "type": "status",
+    "options": ["Completed", "Pending"],
+    "remark": "Execution proof",
+    "allowUpload": true
   },
   {
-    sl: 4,
-    key: "finalMapsApproved",
-    label: "Final Maps Approved",
-    type: "yesno",
-    remark: "Approved maps",
-    allowUpload: true,
+    "sl": 4,
+    "key": "final_maps_approved",
+    "label": "Final Maps Approved",
+    "type": "yesno",
+    "remark": "Approved maps",
+    "allowUpload": true
   },
   {
-    sl: 5,
-    key: "finalTechnicalApproval",
-    label: "Final Technical Approval",
-    type: "status",
-    options: ["Completed", "Pending"],
-    remark: "Mining / Linear approval",
-    allowUpload: true,
+    "sl": 5,
+    "key": "final_technical_approval",
+    "label": "Final Technical Approval",
+    "type": "status",
+    "options": ["Completed", "Pending"],
+    "remark": "Mining / Linear approval",
+    "allowUpload": true
   },
   {
-    sl: 6,
-    key: "stage2ApprovalLetter",
-    label: "Stage-II Approval Letter",
-    type: "yesno",
-    remark: "Final FC Letter Upload",
-    allowUpload: true,
+    "sl": 6,
+    "key": "stage_2_approval_letter",
+    "label": "Stage-II Approval Letter",
+    "type": "yesno",
+    "remark": "Final FC Letter Upload",
+    "allowUpload": true
   },
   {
-    sl: 7,
-    key: "stage2ApprovalDate",
-    label: "Stage-II Approval Date",
-    type: "date",
+    "sl": 7,
+    "key": "stage_2_approval_date",
+    "label": "Stage-II Approval Date",
+    "type": "date"
   },
   {
-    sl: 8,
-    key: "approvedForestArea",
-    label: "Approved Forest Area (Ha)",
-    type: "text",
+    "sl": 8,
+    "key": "approved_forest_area",
+    "label": "Approved Forest Area (Ha)",
+    "type": "text"
   },
   {
-    sl: 9,
-    key: "approvedNonForestArea",
-    label: "Approved Non-Forest Area (Ha)",
-    type: "text",
+    "sl": 9,
+    "key": "approved_non_forest_area",
+    "label": "Approved Non-Forest Area (Ha)",
+    "type": "text"
   },
   {
-    sl: 10,
-    key: "stage2Status",
-    label: "Stage-II Status",
-    type: "chip",
+    "sl": 10,
+    "key": "stage_2_status",
+    "label": "Stage-II Status",
+    "type": "chip"
   },
   {
-    sl: 11,
-    key: "eligiblePostClearance",
-    label: "Eligible for Post-Clearance?",
-    type: "yesno",
-  },
-];
+    "sl": 11,
+    "key": "eligible_post_clearance",
+    "label": "Eligible for Post-Clearance?",
+    "type": "yesno"
+  }
+]
+
 
 const LevelTwoForm = () => {
   const [form, setForm] = useState({});
@@ -95,7 +96,6 @@ const LevelTwoForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 📂 MULTIPLE FILE UPLOAD
   const handleFileChange = (e, rowKey) => {
     const selectedFiles = Array.from(e.target.files);
 
@@ -104,22 +104,18 @@ const LevelTwoForm = () => {
       [rowKey]: [...(prev[rowKey] || []), ...selectedFiles],
     }));
 
-    // reset input
     setInputKeys((prev) => ({
       ...prev,
       [rowKey]: Date.now(),
     }));
   };
 
-  // ❌ REMOVE FILE
   const handleRemoveFile = (rowKey, index) => {
     setFiles((prev) => ({
       ...prev,
       [rowKey]: prev[rowKey].filter((_, i) => i !== index),
     }));
   };
-
-  // 🔁 AUTO STATUS (DEFAULT = Not Granted)
   const stage2Status = useMemo(() => {
     return form.stage2ApprovalLetter === "Yes"
       ? "Granted"

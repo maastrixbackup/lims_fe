@@ -116,7 +116,6 @@ const LevelOneForm = () => {
     }));
   };
 
-  // ❌ REMOVE FILE
   const removeFile = (key, index) => {
     setFiles((prev) => ({
       ...prev,
@@ -124,22 +123,21 @@ const LevelOneForm = () => {
     }));
   };
 
-  // ✅ LOGIC
-  const eligibleStage2 = useMemo(() => {
-    return form.stage1Compliance === "Yes" &&
-      form.fraCompliance === "Complied" &&
-      form.technicalCompliance === "Completed"
+  const eligible_stage_2 = useMemo(() => {
+    return form.stage_1_compliance === "Yes" &&
+      form.fra_compliance === "Complied" &&
+      form.technical_compliance === "Completed"
       ? "Yes"
       : "No";
   }, [form]);
 
-  const stage1Status = useMemo(() => {
-    return form.stage1Compliance === "Yes" ? "Completed" : "Pending";
-  }, [form.stage1Compliance]);
+  const stage_1_status = useMemo(() => {
+    return form.stage_1_compliance === "Yes" ? "Completed" : "Pending";
+  }, [form.stage_1_compliance]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("STAGE-I PAYLOAD:", { ...form, eligibleStage2, stage1Status, documents: files });
+    console.log("STAGE-I PAYLOAD:", { ...form, eligible_stage_2, stage_1_status, documents: files });
     alert("Stage-I Saved");
   };
 
@@ -186,17 +184,17 @@ const LevelOneForm = () => {
                   </select>
                 )}
 
-                {row.type === "chip" && row.key === "eligibleStage2" && (
+                {row.type === "chip" && row.key === "eligible_stage_2" && (
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold
-                    ${eligibleStage2 === "Yes" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                    {eligibleStage2}
+                    ${eligible_stage_2=== "Yes" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {eligible_stage_2}
                   </span>
                 )}
 
-                {row.type === "chip" && row.key === "stage1Status" && (
+                {row.type === "chip" && row.key === "stage_1_status" && (
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold
-                    ${stage1Status === "Completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                    {stage1Status}
+                    ${stage_1_status === "Completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                    {stage_1_status}
                   </span>
                 )}
               </td>

@@ -103,6 +103,7 @@ export function AppContent() {
           <Route element={<PrivateRoute />}>
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/:landType/projects" element={<Projects />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/project-table" element={<ProjectTable />} />
 

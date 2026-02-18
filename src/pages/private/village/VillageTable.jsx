@@ -66,7 +66,7 @@ const VillageTable = ({
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 uppercase text-xs">
                 <tr>
                   <th>Sl/No</th>
-                  <th>Village Code</th>
+                  {/* <th>Village Code</th> */}
                   <th>Village</th>
                   <th>District</th>
                   <th>Tahasil</th>
@@ -80,7 +80,7 @@ const VillageTable = ({
                 {filteredVillages.map((v, i) => (
                   <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
                     <td>{i + 1}</td>
-                    <td>{v.village_code || "No Data"}</td>
+                    {/* <td>{v.village_code || "No Data"}</td> */}
                     <td>{v.village_name || "No Data"}</td>
                     <td>{v.district || "No Data"}</td>
                     <td>{v.tahasil || "No Data"}</td>

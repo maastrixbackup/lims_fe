@@ -466,8 +466,8 @@ const StageZeroForm = () => {
     remark.includes(",") || remark.includes("/");
 
   const stage0Status = useMemo(() => {
-    return form.proposalSubmitted === "Yes" ? "READY" : "ON-GOING";
-  }, [form.proposalSubmitted]);
+    return form.proposal_submitted === "Yes" ? "READY" : "ON-GOING";
+  }, [form.proposal_submitted]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

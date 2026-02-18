@@ -116,18 +116,18 @@ const LevelTwoForm = () => {
       [rowKey]: prev[rowKey].filter((_, i) => i !== index),
     }));
   };
-  const stage2Status = useMemo(() => {
-    return form.stage2ApprovalLetter === "Yes"
+  const stage_2_status = useMemo(() => {
+    return form.stage_2_approval_letter === "Yes"
       ? "Granted"
       : "Not Granted";
-  }, [form.stage2ApprovalLetter]);
+  }, [form.stage_2_approval_letter]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const payload = {
       ...form,
-      stage2Status,
+      stage_2_status,
       documents: files,
     };
 
@@ -215,13 +215,13 @@ const LevelTwoForm = () => {
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
                       ${
-                        stage2Status === "Granted"
+                        stage_2_status === "Granted"
                           ? "bg-green-100 text-green-700 border border-green-300"
                           : "bg-red-100 text-red-700 border border-red-300"
                       }
                     `}
                   >
-                    {stage2Status}
+                    {stage_2_status}
                   </span>
                 )}
               </td>

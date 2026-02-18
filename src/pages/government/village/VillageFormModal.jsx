@@ -25,7 +25,7 @@ const VillageFormModal = ({
     district: "",
     tahasil: "",
     type: "",
-    village_code: "",
+    // village_code: "",
     thana_name_no: "",
     // multiplying_factor: "",
   });
@@ -42,7 +42,7 @@ const VillageFormModal = ({
         district: editingVillage.district,
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
-        village_code: editingVillage.village_code,
+        // village_code: editingVillage.village_code,
         thana_name_no: editingVillage.thana_name_no,
         // multiplying_factor: editingVillage.multiplying_factor || "",
       });
@@ -53,7 +53,7 @@ const VillageFormModal = ({
         district: "",
         tahasil: "",
         type: typeParam.toString(),
-        village_code: "",
+        // village_code: "",
         thana_name_no: "",
         // multiplying_factor: "",
       });
@@ -73,8 +73,8 @@ const VillageFormModal = ({
     else if (!/^[A-Za-z\s]+$/.test(formData.village_name))
       newErrors.village_name = "Village name should contain only letters.";
 
-    if (!formData.village_code.trim())
-      newErrors.village_code = "Village code is required.";
+    // if (!formData.village_code.trim())
+    //   newErrors.village_code = "Village code is required.";
     if (!formData.thana_name_no.trim()) newErrors.thana_name_no = "Thana No is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -232,8 +232,8 @@ const VillageFormModal = ({
           <input type="hidden" name="type" value={formData.type} />
 
           {/* Village Code */}
-          <label>Village Code</label>
-          <input
+          {/* <label>Village Code</label> */}
+          {/* <input
             type="text"
             name="village_code"
             value={formData.village_code}
@@ -244,10 +244,10 @@ const VillageFormModal = ({
               errors.village_code ? "border-red-500" : ""
             }`}
             placeholder="Enter Village Code"
-          />
-          {errors.village_code && (
+          /> */}
+          {/* {errors.village_code && (
             <p className="text-red-500 text-sm">{errors.village_code}</p>
-          )}
+          )} */}
           <label>Thana Name & No</label>
           <input
             type="text"

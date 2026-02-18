@@ -77,7 +77,7 @@ export default function Dashboard() {
       {/* 🔹 Stats */}
       <div className="space-y-6">
         {/* Row 1 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Projects"
             value={landData.projects ?? 0}
@@ -102,11 +102,7 @@ export default function Dashboard() {
             gradient="bg-gradient-to-r from-orange-400 to-red-500"
             onClick={() => navigateByLandType("plots")}
           />
-        </div>
-
-        {/* Row 2 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
+           <StatsCard
             title="Payment Status"
             value={landData.payment_status ?? 0}
             gradient="bg-gradient-to-r from-yellow-400 to-amber-500"
@@ -122,6 +118,25 @@ export default function Dashboard() {
             gradient="bg-gradient-to-r from-sky-400 to-blue-600"
           />
         </div>
+
+        {/* Row 2 */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard
+            title="Payment Status"
+            value={landData.payment_status ?? 0}
+            gradient="bg-gradient-to-r from-yellow-400 to-amber-500"
+          />
+          <StatsCard
+            title="LA Status"
+            value={landData.la_status ?? 0}
+            gradient="bg-gradient-to-r from-lime-400 to-green-600"
+          />
+          <StatsCard
+            title="RR Status"
+            value={landData.rr_status ?? 0}
+            gradient="bg-gradient-to-r from-sky-400 to-blue-600"
+          />
+        </div> */}
       </div>
 
       {/* 🔹 Charts */}

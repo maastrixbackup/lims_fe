@@ -811,7 +811,7 @@ export const stickyCol4Cell =
   "p-3 text-left bg-white md:sticky md:left-[320px] shadow-sm";
 export const COMMON_COLUMNS = [
   // { label: "Present Tenant", field: "name_of_present_tenant" },
-  { label: "Village Code", field: "village_code" },
+  // { label: "Village Code", field: "village_code" },
   { label: "Plot No.", field: "plot_no", format: "multi" },
   { label: "Kissam", field: "kissam_of_land", format: "multi" },
   { label: "Category", field: "land_category", format: "multi" },

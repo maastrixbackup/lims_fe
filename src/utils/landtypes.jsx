@@ -9,6 +9,6 @@ export function useLandTypeParam() {
     case "forest-land":
       return 3;
     default:
-      return 1; // private-land
+      return 1; 
   }
 }

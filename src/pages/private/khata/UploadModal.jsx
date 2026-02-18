@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../../utils/apiClient";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
+import { API_BASE_URL } from "../../../utils/config";
 
 export default function UploadModal({ khata, onClose }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
@@ -149,22 +150,40 @@ export default function UploadModal({ khata, onClose }) {
       setDeleteDoc(null);
     }
   };
-  const handleView = (file) => {
-  const ext = file.name.split(".").pop().toLowerCase();
 
-  if (["pdf", "jpg", "jpeg", "png"].includes(ext)) {
-    window.open(file.url, "_blank"); // viewable
-  } else {
-    // force download
-    const link = document.createElement("a");
-    link.href = file.url;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-};
+  const handleDownload = async (file) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/govtkhata/downloadKhataDocument/${encodeURIComponent(file.name)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download error:", error);
+      setErrorMsg("File download failed.");
+    }
+  };
 
   return (
     <dialog open className="modal modal-open">
@@ -239,13 +258,22 @@ export default function UploadModal({ khata, onClose }) {
                         >
                           <span className="truncate w-52">{file.name}</span>
                           <div className="flex gap-2">
-                                               <button
-  className="btn btn-xs btn-outline btn-success"
-  onClick={() => handleView(file)}
->
-  View
-</button>
+                {file.name.match(/\.(pdf|jpg|jpeg|png)$/i) && (
+                              <button
+                                className="btn btn-xs btn-outline btn-success"
+                                onClick={() => window.open(file.url, "_blank")}
+                              >
+                                View
+                              </button>
+                            )}
+
                             <button
+                              className="btn btn-xs btn-outline btn-info"
+                              onClick={() => handleDownload(file)}
+                            >
+                              Download
+                            </button>            
+                             <button
                               className="btn btn-xs btn-error btn-outline"
                               onClick={() => openDeleteModal(file)}
                             >

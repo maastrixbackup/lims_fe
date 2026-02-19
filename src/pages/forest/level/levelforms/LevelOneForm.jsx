@@ -100,7 +100,7 @@ const STAGE_I_IMAGE_DATA = [
 ]
 
 
-const LevelOneForm = () => {
+const LevelOneForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
 
@@ -139,6 +139,7 @@ const LevelOneForm = () => {
     e.preventDefault();
     console.log("STAGE-I PAYLOAD:", { ...form, eligible_stage_2, stage_1_status, documents: files });
     alert("Stage-I Saved");
+    onStageComplete?.();
   };
 
   return (

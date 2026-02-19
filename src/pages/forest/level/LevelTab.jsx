@@ -175,29 +175,48 @@ import LevelThreeForm from "./levelforms/LevelThreeForm";
 // import LevelFourForm from "./levelforms/LevelFourForm";
 
 const LevelTab = () => {
-  const [activeTab, setActiveTab] = useState("stage0");
-
   const tabs = [
     { id: "stage0", label: "Stage 0" },
     { id: "stage1", label: "Stage I" },
     { id: "stage2", label: "Stage II" },
     { id: "stage3", label: "Post Clearance" },
-   
   ];
+  const [activeTab, setActiveTab] = useState("stage0");
+  const [unlockedStep, setUnlockedStep] = useState(0);
+
+  const handleTabClick = (tabIndex) => {
+    if (tabIndex <= unlockedStep) {
+      setActiveTab(tabs[tabIndex].id);
+    }
+  };
+
+  const handleStageComplete = (stageIndex) => {
+    const nextStep = Math.min(stageIndex + 1, tabs.length - 1);
+
+    setUnlockedStep((prev) => Math.max(prev, nextStep));
+
+    if (nextStep !== stageIndex) {
+      setActiveTab(tabs[nextStep].id);
+    }
+  };
 
   return (
     <div className="w-full mt-6">
       {/* Tabs */}
       <div className="flex gap-2 mb-4 bg-gray-100 p-2 rounded-lg shadow-sm overflow-x-auto">
-        {tabs.map((tab) => (
+        {tabs.map((tab, index) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            type="button"
+            onClick={() => handleTabClick(index)}
+            disabled={index > unlockedStep}
             className={`px-6 py-2 rounded-md text-sm font-semibold transition-all whitespace-nowrap
               ${
                 activeTab === tab.id
                   ? "bg-blue-600 text-white shadow"
-                  : "bg-white text-gray-700 hover:bg-gray-200"
+                  : index <= unlockedStep
+                    ? "bg-white text-gray-700 hover:bg-gray-200"
+                    : "bg-white text-gray-400 cursor-not-allowed"
               }`}
           >
             {tab.label}
@@ -207,11 +226,18 @@ const LevelTab = () => {
 
       {/* Content */}
       <div className="bg-white p-2 rounded-lg shadow-sm">
-        {activeTab === "stage0" && <LevelZeroForm />}
-        
-        {activeTab === "stage1" &&  <LevelOneForm />}
-        {activeTab === "stage2" && <LevelTwoForm />}
-        {activeTab === "stage3" && <LevelThreeForm />}
+        {activeTab === "stage0" && (
+          <LevelZeroForm onStageComplete={() => handleStageComplete(0)} />
+        )}
+        {activeTab === "stage1" && (
+          <LevelOneForm onStageComplete={() => handleStageComplete(1)} />
+        )}
+        {activeTab === "stage2" && (
+          <LevelTwoForm onStageComplete={() => handleStageComplete(2)} />
+        )}
+        {activeTab === "stage3" && (
+          <LevelThreeForm onStageComplete={() => handleStageComplete(3)} />
+        )}
         {/* {activeTab === "stage4" && <LevelFourForm />} */}
       </div>
     </div>

@@ -62,24 +62,53 @@ const LandCost = () => {
       const data = await res.json();
 
       if (data.success && data.data?.length > 0) {
-        const mapped = data.data.map((item) => ({
-          uniqueId: item.unique_id,
-          khataNo: item.khata_no,
-          totalComp: Number(item.total_compensation ?? 0),
-          records: item.tenants.map((t) => ({
-            id: t.id,
-            leaseCaseNo: item.lease_case_no ?? t.lease_case_no ?? "No Data",
-            plotNos: t.plot_nos ?? t.plot_no ?? "No Data",
-            totalArea: Number(t.total_area ?? item.total_area ?? 0),
-            landCostAmount: Number(
-              t.land_cost_amount ?? t.compensation_payment ?? item.total_compensation ?? 0
-            ),
-            demandNoteFile: null,
-            receiptFile: null,
-            demandNoteUrl: t.demand_note_doc ?? t.demand_note ?? null,
-            receiptUrl: t.receipt_doc ?? t.receipt ?? null,
-          })),
-        }));
+        const mapped = data.data.map((item) => {
+          const grouped = (item.tenants ?? []).reduce((acc, t) => {
+            const leaseCaseNo = item.lease_case_no ?? t.lease_case_no ?? "No Data";
+            const key = leaseCaseNo || "No Data";
+
+            if (!acc[key]) {
+              acc[key] = {
+                id: t.id,
+                leaseCaseNo: key,
+                plotNosSet: new Set(),
+                totalArea: Number(t.total_area ?? item.total_area ?? 0),
+                landCostAmount: 0,
+                demandNoteFile: null,
+                receiptFile: null,
+                demandNoteUrl: t.demand_note_doc ?? t.demand_note ?? null,
+                receiptUrl: t.receipt_doc ?? t.receipt ?? null,
+              };
+            }
+
+            const rawPlotNos = t.plot_nos ?? t.plot_no ?? "";
+            rawPlotNos
+              .toString()
+              .split(",")
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .forEach((p) => acc[key].plotNosSet.add(p));
+
+            acc[key].landCostAmount += Number(
+              t.land_cost_amount ?? t.compensation_payment ?? 0
+            );
+
+            return acc;
+          }, {});
+
+          const records = Object.values(grouped).map(({ plotNosSet, ...r }) => ({
+            ...r,
+            plotNos: plotNosSet.size ? Array.from(plotNosSet).join(", ") : "No Data",
+          }));
+
+          return {
+            uniqueId: item.unique_id,
+            khataNo: item.khata_no,
+            totalComp: Number(item.total_compensation ?? 0),
+            totalArea: Number(item.total_area ?? 0),
+            records,
+          };
+        });
 
         setKhatas(mapped);
       } else {
@@ -121,51 +150,61 @@ const LandCost = () => {
     });
   };
 
-  const handleFileChange = async (kIndex, rIndex, file, fieldType) => {
-    if (!file) return;
+const handleFileChange = async (kIndex, rIndex, file, attachmentType) => {
+  if (!file) return;
 
-    const record = khatas[kIndex].records[rIndex];
-    const uploadKey = `${record.id}-${fieldType}`;
+  const record = khatas[kIndex].records[rIndex];
+  const uploadKey = `${record.id}-${attachmentType}`;
+  setUploadingKey(uploadKey);
 
-    setUploadingKey(uploadKey);
+  try {
+    const formData = new FormData();
+    formData.append("land_cost_id", record.id);
+    formData.append("demand_note_attachment", attachmentType); // "demand_note" | "receipt"
+    formData.append("payment_proof", file); // actual file
 
-    try {
-      const formData = new FormData();
-      formData.append("land_cost_id", record.id);
-      formData.append("payment_proof", file);
-      formData.append("attachment_type", fieldType);
-
-      const res = await fetch(`${API_BASE_URL}/plots/landCostPaymentUpload`, {
+    const res = await fetch(
+      `${API_BASE_URL}/govtplots/landCostPaymentUpload`,
+      {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.message || "File upload failed");
       }
+    );
 
-      showSuccess(data.message || "File uploaded successfully");
-      setKhatas((prev) => {
-        const updated = [...prev];
-        updated[kIndex].records[rIndex] = {
-          ...updated[kIndex].records[rIndex],
-          [fieldType === "demand_note" ? "demandNoteFile" : "receiptFile"]: file,
-          [fieldType === "demand_note" ? "demandNoteUrl" : "receiptUrl"]:
-            data?.data?.url || null,
-        };
-        return updated;
-      });
-    } catch (err) {
-      showError(err.message || "Network error during file upload");
-    } finally {
-      setUploadingKey(null);
+    const result = await res.json();
+    if (!result.success) {
+      throw new Error(result.message || "File upload failed");
     }
-  };
+
+    showSuccess(result.message || "File uploaded successfully");
+
+    setKhatas((prev) => {
+      const updated = [...prev];
+
+      updated[kIndex].records[rIndex] = {
+        ...updated[kIndex].records[rIndex],
+        ...(attachmentType === "demand_note"
+          ? {
+              demandNoteFile: file,
+              demandNoteUrl: result?.data?.url || null,
+            }
+          : {
+              receiptFile: file,
+              receiptUrl: result?.data?.url || null,
+            }),
+      };
+
+      return updated;
+    });
+  } catch (err) {
+    showError(err.message || "Network error during file upload");
+  } finally {
+    setUploadingKey(null);
+  }
+};
 
   const handleDeleteRecord = (kIndex, rIndex) => {
     setKhatas((prev) => {
@@ -485,8 +524,22 @@ const LandCost = () => {
                     </tbody>
                   </table>
                 </div>
+                      <div className="flex justify-end mt-4 md:mt-6">
+                  <button
+                    className="btn btn-primary w-full md:w-auto"
+                    disabled={!valid}
+                    title={!valid ? "Totals do not match!" : ""}
+                    onClick={() => handlePaymentCompleted(khata)}
+                  >
+                    Payment Completed
+                  </button>
+                </div>
               </div>
+             
+              
             )}
+
+            
           </div>
         );
       })}

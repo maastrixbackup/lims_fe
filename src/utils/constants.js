@@ -219,7 +219,7 @@ export const DOCUMENT_TYPES = [
 export const GOVT_DOCUMENT_TYPES = [
   "Certified Copy",
   "Hal/Sabik Reference",
-  "RI Certificate",
+  "RI Report",
   "Miscellaneous Document",
 ];
 

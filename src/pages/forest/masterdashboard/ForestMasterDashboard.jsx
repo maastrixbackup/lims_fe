@@ -223,9 +223,56 @@ export default function ForestMasterDashboard() {
   const start = (page - 1) * rowsPerPage;
   const currentRows = dashboardData.slice(start, start + rowsPerPage);
 
+ const COLUMN_LABELS = {
+  sl: "SL",
+  metric: "DASHBOARD METRIC",
+  s0: "STAGE-0",
+  s1: "STAGE-I",
+  s2: "STAGE-II",
+  pc: "POST-CLEARANCE",
+  total: "TOTAL",
+};
+
+const exportDashboardCSV = (rows, fileName) => {
+  if (!rows || !rows.length) return;
+
+  // Only allow primitive fields
+  const allowedKeys = Object.keys(COLUMN_LABELS).filter((key) =>
+    rows.some((row) => row[key] !== undefined)
+  );
+
+  // Use mapped column labels
+  const headers = allowedKeys.map((key) => COLUMN_LABELS[key]);
+
+  const csvRows = rows.map((row) =>
+    allowedKeys
+      .map((key) => `"${row[key] ?? ""}"`)
+      .join(",")
+  );
+
+  const csvContent = [headers.join(","), ...csvRows].join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = fileName;
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+  const handleExport = () => {
+    exportDashboardCSV(dashboardData, "FOREST_MASTER_DASHBOARD.csv");
+  };
+
   return (
     <div className="p-2 space-y-6">
-      <h1 className="text-2xl font-bold text-center">
+      <h1 className="text-2xl font-bold text-center mb-4">
         FOREST PORTFOLIO – MASTER DASHBOARD
       </h1>
 
@@ -245,6 +292,14 @@ export default function ForestMasterDashboard() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExport}
+          className="btn bg-green-600 text-white flex items-center gap-2"
+        >
+          Export
+        </button>
       </div>
       <div className="shadow-lg overflow-hidden">
         <div className="max-h-[420px] overflow-y-auto">
@@ -279,7 +334,8 @@ export default function ForestMasterDashboard() {
         </div>
         <div className="flex items-center justify-between p-3 bg-gray-50">
           <span className="text-sm">
-            Showing {start + 1}–{Math.min(start + rowsPerPage, dashboardData.length)} of{" "}
+            Showing {start + 1}–
+            {Math.min(start + rowsPerPage, dashboardData.length)} of{" "}
             {dashboardData.length}
           </span>
 

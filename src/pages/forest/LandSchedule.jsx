@@ -14,6 +14,7 @@ import { getLandScheduleList } from "../../utils/LandAreaSchedule";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import { deleteForestLand } from "../../hooks/deleteForestLand";
 import Pagination from "../../shared/Pagination";
+import { FolderUp } from "lucide-react";
 
 const SCHEDULE_TYPE_MAP = {
   forest: "FOREST_AREA",
@@ -109,6 +110,72 @@ const LandSchedule = () => {
       onError: (err) => console.error("Delete failed", err),
     });
   };
+const exportToCSV = (rows, fileName) => {
+  if (!rows || !rows.length) return;
+
+  // 1️⃣ Filter out JSON / object / array type fields
+  const validKeys = Object.keys(rows[0]).filter((key) => {
+    const value = rows[0][key];
+    return (
+      value === null ||
+      ["string", "number", "boolean"].includes(typeof value)
+    );
+  });
+
+  // 2️⃣ Convert column names to CAPITAL
+  const headers = validKeys.map((key) =>
+    key.replace(/_/g, " ").toUpperCase()
+  );
+
+  // 3️⃣ Prepare rows
+  const csvRows = rows.map((row) =>
+    validKeys
+      .map((key) => `"${row[key] ?? ""}"`)
+      .join(",")
+  );
+
+  const csvContent = [headers.join(","), ...csvRows].join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = fileName;
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+
+const handleExport = async () => {
+  if (!token || !selectedProject?.id) return;
+
+  try {
+    const scheduleType = SCHEDULE_TYPE_MAP[activeTab];
+
+    // fetch ALL data (no pagination)
+    const res = await getLandScheduleList(
+      token,
+      scheduleType,
+      selectedProject,
+      1,
+      10000 // large limit
+    );
+
+    const exportData = res?.data || [];
+
+    exportToCSV(
+      exportData,
+      `${scheduleType}_LAND_SCHEDULE.csv`
+    );
+  } catch (error) {
+    console.error("Export failed", error);
+  }
+};
 
   const getAddButtonText = () => {
     if (activeTab === "forest") return "Add Forest Land";
@@ -153,21 +220,29 @@ const LandSchedule = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-        <h2 className="text-lg sm:text-xl font-semibold">
-          Land Area Schedule / Land Details
-        </h2>
+ 
+   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+  <h2 className="text-lg sm:text-xl font-semibold">
+    Land Area Schedule / Land Details
+  </h2>
 
-        <button
-          className="btn btn-primary w-full sm:w-auto"
-          onClick={() => setOpenModal(true)}
-        >
-          {getAddButtonText()}
-        </button>
-      </div>
+  <div className="flex gap-2 w-full sm:w-auto">
+  
+     <button  className="btn bg-green-600 text-white flex items-center gap-2" onClick={handleExport}>
+        <FolderUp size={18} /> 
+        Export 
+      </button>
 
-      {/* Tabs + Table */}
+    <button
+      className="btn btn-primary w-full sm:w-auto"
+      onClick={() => setOpenModal(true)}
+    >
+      {getAddButtonText()}
+    </button>
+  </div>
+</div>
+
+
       <div className="bg-white p-4 rounded shadow mb-4">
         <div className="flex gap-4 mb-4 overflow-x-auto scrollbar-hide">
           {TABS.map((tab) => (

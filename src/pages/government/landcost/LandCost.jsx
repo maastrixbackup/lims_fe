@@ -138,7 +138,8 @@ const LandCost = () => {
   };
 
   const handleLandCostChange = (kIndex, rIndex, value) => {
-    const amount = Math.max(0, Number(value) || 0);
+    const amount = Math.max(value);
+    
 
     setKhatas((prev) => {
       const updated = [...prev];
@@ -234,6 +235,7 @@ const handleFileChange = async (kIndex, rIndex, file, attachmentType) => {
             total_area: data.totalArea,
             land_cost_amount: data.landCostAmount,
             compensation_payment: data.landCostAmount,
+            
           }),
         }
       );
@@ -631,10 +633,16 @@ const handleFileChange = async (kIndex, rIndex, file, attachmentType) => {
                 <strong>Plot Nos:</strong> {editData.plotNos || "No Data"}
               </p>
               <p>
-                <strong>Total Area:</strong> {editData.totalArea || 0}
+                <strong>Total Area:</strong> {editData.totalArea || "No Data"}
               </p>
               <p>
-                <strong>Land Cost:</strong> {editData.landCostAmount || 0}
+                <strong>Land Cost:</strong> {editData.landCostAmount || "No Data"}
+              </p>
+               <p>
+                <strong>Demand Note Attachment:</strong> {editData.demandNoteAttachment || "No Data"}
+              </p>
+              <p>
+                <strong>Receipt Attachment:</strong> {editData.receiptAttachment || "No Data"}
               </p>
             </div>
             <div className="flex justify-end mt-5">

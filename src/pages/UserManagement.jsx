@@ -78,8 +78,11 @@ const UserManagement = () => {
           </div>
         </div>
 
-        <div className="card bg-white shadow-lg overflow-hidden" >
-          <div className="max-h-[400px] overflow-x-auto" style={{scrollbarWidth:"thin"}}>
+        <div className="card bg-white shadow-lg overflow-hidden">
+          <div
+            className="max-h-[400px] overflow-x-auto"
+            style={{ scrollbarWidth: "thin" }}
+          >
             <table className="table w-full">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap">
                 <tr>
@@ -91,7 +94,7 @@ const UserManagement = () => {
                       >
                         {h}
                       </th>
-                    )
+                    ),
                   )}
                 </tr>
               </thead>
@@ -118,7 +121,16 @@ const UserManagement = () => {
 
                       <td>{u.email}</td>
                       <td>{u.role_name}</td>
-                      <td>{u.accessed_projects || "—"}</td>
+                      <td
+                        className={
+                          u.accessed_projects
+                            ? "text-gray-600 "
+                            : "text-red-600 "
+                        }
+                      >
+                        {u.accessed_projects || "No Projects Assigned"}
+                      </td>
+
                       <td className="text-right">
                         <button
                           className="btn btn-xs btn-warning text-white mr-2"
@@ -149,7 +161,10 @@ const UserManagement = () => {
       </main>
       {isModalOpen && (
         <dialog open className="modal modal-open">
-          <div className="modal-box max-w-xl max-h-130 bg-white relative" style={{scrollbarWidth:"thin"}}>
+          <div
+            className="modal-box max-w-xl max-h-130 bg-white relative"
+            style={{ scrollbarWidth: "thin" }}
+          >
             <button
               type="button"
               className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -284,7 +299,7 @@ const UserManagement = () => {
                     .filter((p) => !formData.accessed_projects.includes(p.id))
                     .map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name}
+                        {p.project_name}
                       </option>
                     ))}
                 </select>
@@ -293,7 +308,7 @@ const UserManagement = () => {
                 {formData.accessed_projects.length ? (
                   formData.accessed_projects.map((id) => {
                     const projectName =
-                      projects.find((p) => p.id === id)?.name || "Unknown";
+                      projects.find((p) => p.id === id)?.project_name || "Unknown";
                     return (
                       <span
                         key={id}
@@ -306,7 +321,7 @@ const UserManagement = () => {
                             setFormData((p) => ({
                               ...p,
                               accessed_projects: p.accessed_projects.filter(
-                                (pid) => pid !== id
+                                (pid) => pid !== id,
                               ),
                             }))
                           }

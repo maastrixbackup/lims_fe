@@ -83,9 +83,9 @@ export default function useUserManagement(token) {
           .filter(Boolean);
 
         parsedProjects = names
-          .map((name) => {
+          .map((project_name) => {
             const match = projects.find(
-              (p) => p.name.toLowerCase() === name.toLowerCase()
+              (p) => p.project_name.toLowerCase() === project_name.toLowerCase()
             );
             return match ? match.id : null;
           })

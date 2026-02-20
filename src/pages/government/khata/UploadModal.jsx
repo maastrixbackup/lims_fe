@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../../utils/apiClient";
 import { API_BASE_URL } from "../../../utils/config";
 
-export default function UploadModal({ khata, onClose }) {
+export default function UploadModal({ khata, onClose, onUploaded }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [uploading, setUploading] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -106,6 +106,7 @@ export default function UploadModal({ khata, onClose }) {
       );
 
       await fetchDocuments();
+      onUploaded?.();
     } catch (err) {
       if (err.message === "Invalid or expired token") {
         navigate("/");
@@ -133,6 +134,7 @@ export default function UploadModal({ khata, onClose }) {
 
       setSuccessMsg("File deleted successfully!");
       await fetchDocuments();
+      onUploaded?.();
     } catch (err) {
       if (err.message === "Invalid or expired token") {
         navigate("/");

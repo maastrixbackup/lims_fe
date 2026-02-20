@@ -30,13 +30,13 @@ export const PRESENT_STATUS_MAP = {
 const stickyCol1Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md ";
 
-const stickyCol1Cell = "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
+const stickyCol1Cell = "p-3 text-left bg-base-100 md:sticky md:left-0 shadow-sm ";
 
 const stickyCol2Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-[110px] z-[35] shadow-md ";
 
 const stickyCol2Cell =
-  "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
+  "p-3 text-left bg-base-100 md:sticky md:left-[110px] shadow-sm ";
 const Plots = () => {
   // const [plots, setPlots] = useState(plotData);
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();

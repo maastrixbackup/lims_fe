@@ -18,7 +18,7 @@ const ForgotPassword = () => {
         setMessage(data.message || "Failed to send reset link.");
       }
     } catch (error) {
-      setMessage("Something went wrong.");
+      setMessage(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

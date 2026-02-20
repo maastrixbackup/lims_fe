@@ -87,7 +87,7 @@ const STAGE_II_DATA = [
 ]
 
 
-const LevelTwoForm = () => {
+const LevelTwoForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [inputKeys, setInputKeys] = useState({});
@@ -133,6 +133,7 @@ const LevelTwoForm = () => {
 
     console.log("STAGE-II PAYLOAD:", payload);
     alert("Stage-II Saved Successfully");
+    onStageComplete?.();
   };
 
   return (

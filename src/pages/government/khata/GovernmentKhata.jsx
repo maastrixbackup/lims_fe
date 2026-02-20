@@ -24,7 +24,6 @@ const GovernmentKhata = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
@@ -46,16 +45,25 @@ const GovernmentKhata = () => {
 
   // 🔹 Fetch Khatas (reusable)
   const fetchKhatas = useCallback(async () => {
-    if (!projectId || !typeParam) return;
+    if (!projectId || !typeParam) {
+      setKhatas([]);
+      return;
+    }
 
     setLoading(true);
 
     try {
-      const url = `/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=${page}&limit=${limit}`;
+      const pageSize = 500;
+      let currentPage = 1;
+      let totalPageCount = 1;
+      const allKhatas = [];
 
-      const res = await apiClient(url);
+      do {
+        const url = `/govtkhata/govtKhataList?project_id=${projectId}&type=${typeParam}&page=${currentPage}&limit=${pageSize}`;
+        const res = await apiClient(url);
 
-      if (res?.success) {
+        if (!res?.success) break;
+
         const mapped = (res.data || []).map((k) => ({
           id: k.id,
           khata_no: k.khata_no,
@@ -65,7 +73,7 @@ const GovernmentKhata = () => {
           lease_case_no: k.lease_case_no || "-",
           present_status: PRESENT_STATUS_MAP[k.present_status || ""],
           case_details: k.case_details,
-          village: k.village_name || k.village || "-",
+          village_name: k.village_name || "-",
           plot_count: k.plot_count || 0,
           kissam_of_land: k.kissam_of_land || "",
           unique_id: k.unique_id || "",
@@ -75,11 +83,14 @@ const GovernmentKhata = () => {
           khata_map_document_count: k.khata_map_document_count || 0,
         }));
 
-        setTotalPages(res.totalPages || 1);
-        setKhatas(mapped);
-      } else {
-        setKhatas([]);
-      }
+        allKhatas.push(...mapped);
+        totalPageCount = res.totalPages || 1;
+
+        if (mapped.length === 0) break;
+        currentPage += 1;
+      } while (currentPage <= totalPageCount);
+
+      setKhatas(allKhatas);
     } catch (err) {
       // TOKEN_EXPIRED already handled by apiClient (logout + redirect)
       if (err.message === "Invalid or expired token") {
@@ -90,11 +101,15 @@ const GovernmentKhata = () => {
     } finally {
       setLoading(false);
     }
-  }, [projectId, typeParam, page, limit]);
+  }, [projectId, typeParam]);
 
   useEffect(() => {
     fetchKhatas();
-  }, [fetchKhatas, page, limit]);
+  }, [fetchKhatas]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [projectId, typeParam]);
 
   const openModal = (khata = null) => {
     setEditingKhata(khata);
@@ -155,7 +170,7 @@ const onViewPlots = (khata) => {
     const rows = khatas.map((k) => [
       k.khata_no,
       k.plot_no,
-      k.village,
+      k.village_name,
       k.kissam_of_land,
       k.lease_case_no,
       k.present_status,
@@ -225,7 +240,6 @@ const onViewPlots = (khata) => {
           setPage={setPage}
           limit={limit}
           setLimit={setLimit}
-          totalPages={totalPages}
           onUpload={onUpload}
           onViewPlots={onViewPlots}
           onMap={onMap}

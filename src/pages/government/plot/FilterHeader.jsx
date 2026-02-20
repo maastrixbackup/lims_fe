@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Filter, ArrowUpDown } from "lucide-react";
 
 const FilterHeader = ({
@@ -11,17 +12,36 @@ const FilterHeader = ({
   activeFilterKey,
   setActiveFilterKey,
 }) => {
-  const ref = useRef(null);
+  const containerRef = useRef(null);
+  const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const [style, setStyle] = useState({});
 
   if (!column) return null;
 
   const { key, label, type, options = [] } = column;
   const isOpen = activeFilterKey === key;
+
+  const filterOptions =
+    type === "yesno"
+      ? ["Yes", "No"]
+      : type === "status"
+        ? ["Not Started", "In Progress", "Complete"]
+        : type === "select"
+          ? options
+          : type === "text"
+            ? getUniqueValues(key)
+            : [];
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setActiveFilterKey(null);
+      if (
+        containerRef.current?.contains(e.target) ||
+        dropdownRef.current?.contains(e.target)
+      ) {
+        return;
       }
+      setActiveFilterKey(null);
     };
 
     if (isOpen) {
@@ -33,86 +53,103 @@ const FilterHeader = ({
     };
   }, [isOpen, setActiveFilterKey]);
 
+  useEffect(() => {
+    if (!isOpen || !triggerRef.current) return;
+
+    const updatePosition = () => {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownHeight = 240;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < dropdownHeight;
+
+      setStyle({
+        position: "fixed",
+        left: rect.left,
+        top: openUp ? rect.top - dropdownHeight - 6 : rect.bottom + 6,
+        width: 220,
+        zIndex: 9999,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [isOpen]);
+
   return (
-    <div ref={ref} className="relative flex items-center gap-1">
-      <span className="font-semibold text-sm text-gray-700">
+    <div ref={containerRef} className="relative flex items-center gap-1">
+      <span ref={triggerRef} className="font-semibold text-sm text-gray-700">
         {label}
       </span>
+
       <Filter
         size={14}
         className={`cursor-pointer ${
-          filters[key]
-            ? "text-blue-600"
-            : "text-gray-400 hover:text-gray-600"
+          filters[key] ? "text-blue-600" : "text-gray-400 hover:text-gray-600"
         }`}
-        onClick={() =>
-          setActiveFilterKey(isOpen ? null : key)
-        }
+        onClick={() => setActiveFilterKey(isOpen ? null : key)}
       />
+
       <ArrowUpDown
         size={14}
         className={`cursor-pointer ${
-          sortConfig.key === key
-            ? "text-blue-600"
-            : "text-gray-400 hover:text-gray-600"
+          sortConfig.key === key ? "text-blue-600" : "text-gray-400 hover:text-gray-600"
         }`}
         onClick={() =>
           setSortConfig((prev) => ({
             key,
             direction:
-              prev.key === key && prev.direction === "asc"
-                ? "desc"
-                : "asc",
+              prev.key === key && prev.direction === "asc" ? "desc" : "asc",
           }))
         }
-      />    
-      {isOpen && (
-        <div className="absolute top-6 left-0 z-50 bg-whiteshadow-md p-2 min-w-[160px]">
-          <select
-            className="select select-sm select-bordered w-full"
-            value={filters[key] || ""}
-            onChange={(e) => {
-              setFilters((prev) => ({
-                ...prev,
-                [key]: e.target.value,
-              }));
-              setActiveFilterKey(null);
-            }}
+      />
+
+      {isOpen &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            style={style}
+            className="bg-white rounded-lg shadow-xl border border-gray-200"
           >
-            <option value="">All</option>
+            <ul className="max-h-56 overflow-y-auto text-sm" style={{ scrollbarWidth: "thin" }}>
+              <li>
+                <button
+                  className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${
+                    !filters[key] ? "font-semibold text-primary" : ""
+                  }`}
+                  onClick={() => {
+                    setFilters((prev) => ({ ...prev, [key]: "" }));
+                    setActiveFilterKey(null);
+                  }}
+                >
+                  All
+                </button>
+              </li>
 
-            {type === "yesno" &&
-              ["Yes", "No"].map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
+              {filterOptions.map((value) => (
+                <li key={value}>
+                  <button
+                    className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${
+                      filters[key] === value ? "font-semibold text-primary" : ""
+                    }`}
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, [key]: value }));
+                      setActiveFilterKey(null);
+                    }}
+                  >
+                    {value}
+                  </button>
+                </li>
               ))}
-
-            {type === "status" &&
-              ["Not Started", "In Progress", "Complete"].map(
-                (v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                )
-              )}
-
-            {type === "select" &&
-              options.map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-
-            {type === "text" &&
-              getUniqueValues(key).map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-          </select>
-        </div>
-      )}
+            </ul>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

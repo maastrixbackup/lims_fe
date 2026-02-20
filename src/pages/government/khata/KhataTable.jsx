@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   GovtKhataColumn,
   stickyActionCell,
@@ -19,7 +19,6 @@ const KhataTable = ({
   setPage,
   limit,
   setLimit,
-  totalPages,
   onUpload,
   onMap,
   onViewPlots,
@@ -70,7 +69,19 @@ const KhataTable = ({
       if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
-  console.log("khataa", khatas);
+
+  const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));
+  const paginatedKhatas = filteredKhatas.slice(
+    (page - 1) * limit,
+    page * limit,
+  );
+
+  useEffect(() => {
+    if (page > clientTotalPages) {
+      setPage?.(clientTotalPages);
+    }
+  }, [page, clientTotalPages, setPage]);
+
   return (
     <div className="card bg-white shadow-lg">
       {(!selectedProjectId || filteredKhatas.length === 0) && (
@@ -176,14 +187,14 @@ const KhataTable = ({
 
               <tbody>
                 {/* {khatas.length > 0 ? ( */}
-                {filteredKhatas.map((k, idx) => (
+                {paginatedKhatas.map((k, idx) => (
                   <tr key={k.id}>
-                    <td>{idx + 1}</td>
+                    <td>{(page - 1) * limit + idx + 1}</td>
                     <td className={stickyCol1Cell}>
                       {k.khata_no || "No Data"}
                     </td>
                     <td className={stickyCol2Cell}>{k.plot_no || "No Data"}</td>
-                    <td>{k.village || "No Data"}</td>
+                    <td>{k.village_name || "No Data"}</td>
                     <td>{k.kissam_of_land || "No Data"}</td>
                     <td>{k.lease_case_no || "No Data"}</td>
                     <td>{k.present_status || "No Data"}</td>
@@ -259,7 +270,7 @@ const KhataTable = ({
             setPage={setPage}
             limit={limit}
             setLimit={setLimit}
-            totalPages={totalPages}
+            totalPages={clientTotalPages}
           />
         </>
       )}

@@ -12,7 +12,7 @@ const POST_CLEARANCE_DATA = [
   { sl: 8, key: "post_clearance_status", label: "Post-Clearance Status", type: "dropdown", options: ["Ongoing", "Completed"], remark: "", allowUpload: false },
 ];
 
-const LevelThreeForm = () => {
+const LevelThreeForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const fileRefs = useRef({});
@@ -62,6 +62,7 @@ const LevelThreeForm = () => {
     });
 
     alert("Post-Clearance Data Saved");
+    onStageComplete?.();
   };
 
   return (

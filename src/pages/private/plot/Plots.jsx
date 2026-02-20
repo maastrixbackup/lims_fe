@@ -8,7 +8,6 @@ import { API_BASE_URL } from "../../../utils/config";
 import { useLandTypeParam } from "../../../utils/landtypes";
 
 import { FolderUp } from "lucide-react";
-import Pagination from "../../../shared/Pagination";
 import { apiClient } from "../../../utils/apiClient";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../shared/SuccessMessage";
@@ -21,7 +20,6 @@ const Plots = () => {
   const [plots, setPlots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10);
 
   const token = useSelector((state) => state.auth.userToken);
@@ -35,33 +33,48 @@ const Plots = () => {
 
   const fetchPlots = async () => {
     if (!projectId) {
-      console.warn("Project ID not available yet.");
+      setPlots([]);
       return;
     }
 
     setLoading(true);
 
     try {
-      const endpoint = `/plots/plotList?project_id=${projectId}&type=${typeParam}&page=${page}&limit=${limit}`;
-      const data = await apiClient(endpoint);
-      // console.log("Fetched Plots Data:", data);
+      const pageSize = 500;
+      let currentPage = 1;
+      let totalPageCount = 1;
+      const allPlots = [];
 
-      if (data.success) {
-        setPlots(data.plots || []);
-        setTotalPages(data.totalPages || 1);
-      }
+      do {
+        const endpoint = `/plots/plotList?project_id=${projectId}&type=${typeParam}&page=${currentPage}&limit=${pageSize}`;
+        const data = await apiClient(endpoint);
+
+        if (!data.success) break;
+
+        const pageData = data.plots || [];
+        allPlots.push(...pageData);
+        totalPageCount = data.totalPages || 1;
+
+        if (pageData.length === 0) break;
+        currentPage += 1;
+      } while (currentPage <= totalPageCount);
+
+      setPlots(allPlots);
     } catch (err) {
-      // console.error("Error fetching plots:", err);
-      showError(data.err || "Someting went wrong");
+      showError(err?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
-    if (token && projectId) {
+    if (token) {
       fetchPlots();
     }
-  }, [page, limit, token, projectId, typeParam]);
+  }, [token, projectId, typeParam]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [projectId, typeParam]);
 
   const confirmDelete = async () => {
     if (!deleteConfirm?.id) return;
@@ -169,6 +182,10 @@ const Plots = () => {
 
       <PlotTable
         plots={plots}
+        page={page}
+        setPage={setPage}
+        limit={limit}
+        setLimit={setLimit}
         setDeleteConfirm={setDeleteConfirm}
         className="overflow-x"
         style={{ scrollbarWidth: "thin" }}
@@ -182,16 +199,6 @@ const Plots = () => {
       ) : (
         <PlotTable plots={plots} setDeleteConfirm={setDeleteConfirm} />
       )} */}
-      {projectId && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
-          limit={limit}
-          setLimit={setLimit}
-        />
-      )}
-
       {deleteConfirm && (
         <dialog open className="modal modal-open">
           <div className="modal-box max-w-md">

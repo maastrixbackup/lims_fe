@@ -47,7 +47,7 @@ export default function LandingPage() {
           user: data.user,
           token: data.token,
           accessed_projects: data.accessed_projects || [],
-        })
+        }),
       );
       navigate("/dashboard");
     } catch (err) {
@@ -136,12 +136,13 @@ export default function LandingPage() {
                   <input type="checkbox" className="checkbox checkbox-sm" />
                   <span>Remember me</span>
                 </label>
-                <span
+                <button
+                  type="button"
                   onClick={() => navigate("/forgot-password")}
-                  className="link link-primary cursor-pointer"
+                  className="link link-primary"
                 >
                   Forgot password?
-                </span>
+                </button>
               </div>
               <div className="form-control mt-4">
                 <button

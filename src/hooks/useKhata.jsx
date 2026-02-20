@@ -59,15 +59,34 @@ export const useKhata = () => {
     setLoading(true);
 
     try {
-      const url = `/khata/khataList?page=${page}&limit=${limit}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`;
-      const data = await apiClient(url);
- console.log("khata id", data);
- 
-      if (data.success) {
-        setKhatas(data.khatas || []);
-        setTotal(data.total);
-        setTotalPages(data.totalPages);
+      if (!projectId) {
+        setKhatas([]);
+        setTotal(0);
+        setTotalPages(1);
+        return;
       }
+
+      const pageSize = 500;
+      let currentPage = 1;
+      let totalPageCount = 1;
+      const allKhatas = [];
+
+      do {
+        const url = `/khata/khataList?page=${currentPage}&limit=${pageSize}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`;
+        const data = await apiClient(url);
+
+        if (!data.success) break;
+
+        const pageData = data.khatas || [];
+        allKhatas.push(...pageData);
+        totalPageCount = data.totalPages || 1;
+
+        if (pageData.length === 0) break;
+        currentPage += 1;
+      } while (currentPage <= totalPageCount);
+
+      setKhatas(allKhatas);
+      setTotal(allKhatas.length);
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {
@@ -77,7 +96,15 @@ export const useKhata = () => {
 
   useEffect(() => {
     if (token) fetchKhatas();
-  }, [token, page, limit, projectId, filterVillage, typeParam]);
+  }, [token, projectId, filterVillage, typeParam]);
+
+  useEffect(() => {
+    const pages = Math.max(1, Math.ceil((khatas?.length || 0) / limit));
+    setTotalPages(pages);
+    if (page > pages) {
+      setPage(pages);
+    }
+  }, [khatas, limit, page]);
 
   const handleDeleteConfirm = (id) => {
     setKhatas((prev) => prev.filter((k) => k.id !== id));

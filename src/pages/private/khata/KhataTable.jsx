@@ -145,6 +145,19 @@ const KhataTable = ({
       if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
+
+  const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));
+  const paginatedKhatas = filteredKhatas.slice(
+    (page - 1) * limit,
+    page * limit
+  );
+
+  useEffect(() => {
+    if (page > clientTotalPages) {
+      setPage?.(clientTotalPages);
+    }
+  }, [page, clientTotalPages, setPage]);
+
   const isAnyFilterApplied = Object.values(filters).some(Boolean);
   useEffect(() => {
     if (isAnyFilterApplied && filteredKhatas.length === 0) {
@@ -313,7 +326,7 @@ const KhataTable = ({
                     </thead>
 
                     <tbody>
-                      {filteredKhatas.map((khata, idx) => (
+                      {paginatedKhatas.map((khata, idx) => (
                         <tr key={khata.id}>
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
@@ -418,7 +431,7 @@ const KhataTable = ({
 
                 <Pagination
                   page={page}
-                  totalPages={totalPages}
+                  totalPages={clientTotalPages}
                   setPage={setPage}
                   limit={limit}
                   setLimit={setLimit}
@@ -506,7 +519,7 @@ const KhataTable = ({
                     </thead>
 
                     <tbody>
-                      {filteredKhatas.map((khata, idx) => (
+                      {paginatedKhatas.map((khata, idx) => (
                         <tr key={khata.id}>
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
@@ -614,7 +627,7 @@ const KhataTable = ({
 
                 <Pagination
                   page={page}
-                  totalPages={totalPages}
+                  totalPages={clientTotalPages}
                   setPage={setPage}
                   limit={limit}
                   setLimit={setLimit}

@@ -432,7 +432,7 @@ import { X } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { STAGE_0_DATA } from "../../../../utils/constants";
 
-const StageZeroForm = () => {
+const StageZeroForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [inputKeys, setInputKeys] = useState({});
@@ -480,6 +480,7 @@ const StageZeroForm = () => {
 
     console.log("STAGE-0 PAYLOAD:", payload);
     alert("Stage-0 Saved Successfully");
+    onStageComplete?.();
   };
 
   return (

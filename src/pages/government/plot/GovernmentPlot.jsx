@@ -64,7 +64,6 @@ const Plots = () => {
   const [deletePlotList, setDeletePlotList] = useState(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
   const user = useSelector((state) => state.auth.user);
   const role = user?.role_name;
   const isRestricted = role === "Viewer";
@@ -144,35 +143,46 @@ const Plots = () => {
     payment_status: item.payment_status || "",
   });
   const fetchPlots = useCallback(async () => {
-    if (!selectedProjectId || !token) return;
+    if (!selectedProjectId || !token) {
+      setPlots([]);
+      return;
+    }
 
     try {
       setLoading(true);
+      const pageSize = 500;
+      let currentPage = 1;
+      let totalPageCount = 1;
+      const allPlots = [];
 
-      const res = await fetch(
-        `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=${page}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+      do {
+        const res = await fetch(
+          `${API_BASE_URL}/govtplots/govtPlotList?project_id=${selectedProjectId}&type=2&page=${currentPage}&limit=${pageSize}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           },
-        },
-      );
+        );
 
-      const json = await res.json();
+        const json = await res.json();
+        const pageData = (json.data || []).map(mapGovtPlot);
 
-      const mappedData = json.data.map(mapGovtPlot);
+        allPlots.push(...pageData);
+        totalPageCount = json.totalPages || 1;
 
-      setPlots(mappedData);
+        if (pageData.length === 0) break;
+        currentPage += 1;
+      } while (currentPage <= totalPageCount);
 
-      // ✅ FIX HERE
-      setTotalPages(json.totalPages || Math.ceil(json.total / limit));
+      setPlots(allPlots);
     } catch (error) {
       console.error("Failed to fetch plots", error);
     } finally {
       setLoading(false);
     }
-  }, [selectedProjectId, page, limit, token]);
+  }, [selectedProjectId, token]);
   useEffect(() => {
     setPage(1);
   }, [selectedProjectId]);
@@ -310,6 +320,18 @@ const Plots = () => {
 
     return data;
   }, [plots, filters, sortConfig]);
+
+  const clientTotalPages = Math.max(1, Math.ceil(filteredPlots.length / limit));
+  const paginatedPlots = filteredPlots.slice(
+    (page - 1) * limit,
+    page * limit,
+  );
+
+  useEffect(() => {
+    if (page > clientTotalPages) {
+      setPage?.(clientTotalPages);
+    }
+  }, [page, clientTotalPages, setPage]);
   const handleExport = () => {
     if (!filteredPlots.length) return;
 
@@ -686,12 +708,12 @@ const handlePaymentStatusChange = async (plot, code) => {
 
                   <tbody>
                     {plots.length > 0 ? (
-                      filteredPlots.map((plot, idx) => (
+                      paginatedPlots.map((plot, idx) => (
                         <tr
                           key={plot.id}
                           className="hover:bg-gray-50 transition-colors"
                         >
-                          <td>{idx + 1}</td>
+                          <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
                             {plot.khata_no || "No Data"}
                           </td>
@@ -958,12 +980,12 @@ const handlePaymentStatusChange = async (plot, code) => {
 
                   <tbody>
                     {plots.length > 0 ? (
-                      filteredPlots.map((plot, idx) => (
+                      paginatedPlots.map((plot, idx) => (
                         <tr
                           key={plot.id}
                           className="hover:bg-gray-50 transition-colors"
                         >
-                          <td>{idx + 1}</td>
+                          <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
                             {plot.khata_no || "No Data"}
                           </td>
@@ -1157,12 +1179,12 @@ const handlePaymentStatusChange = async (plot, code) => {
 
                   <tbody>
                     {plots.length > 0 ? (
-                      filteredPlots.map((plot, idx) => (
+                      paginatedPlots.map((plot, idx) => (
                         <tr
                           key={plot.id}
                           className="hover:bg-gray-50 transition-colors"
                         >
-                          <td>{idx + 1}</td>
+                          <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
                             {plot.khata_no || "No Data"}
                           </td>
@@ -1303,7 +1325,7 @@ const handlePaymentStatusChange = async (plot, code) => {
               setPage={setPage}
               limit={limit}
               setLimit={setLimit}
-              totalPages={totalPages}
+              totalPages={clientTotalPages}
             />
           </>
         )}

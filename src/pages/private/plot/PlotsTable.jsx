@@ -33,11 +33,19 @@ import {
   FamilyDetails,
 } from "../../../utils/constants";
 import ResetFilters from "../../../shared/ResetFilters";
+import Pagination from "../../../shared/Pagination";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 // import { useLandTypeParam } from "../../../utils/landtypes";
 
-const PlotTable = ({ plots, setDeleteConfirm }) => {
+const PlotTable = ({
+  plots,
+  page,
+  setPage,
+  limit,
+  setLimit,
+  setDeleteConfirm,
+}) => {
   const { landType } = useParams();
   const [selectedVillage, setSelectedVillage] = useState("");
   const [selectedKhata, setSelectedKhata] = useState("");
@@ -216,8 +224,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
       const columnMatch = Object.entries(columnFilters).every(
         ([field, value]) => !value || plot[field] === value,
       );
+      const villageMatch =
+        !selectedVillage || plot.village_name === selectedVillage;
 
-      return searchMatch && columnMatch;
+      return searchMatch && columnMatch && villageMatch;
     });
 
     if (sortConfig.field) {
@@ -239,7 +249,19 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
     }
 
     return data;
-  }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig]);
+  }, [projectFilteredPlots, searchQuery, columnFilters, sortConfig, selectedVillage]);
+
+  const clientTotalPages = Math.max(1, Math.ceil(filteredPlots.length / limit));
+  const paginatedPlots = filteredPlots.slice(
+    (page - 1) * limit,
+    page * limit,
+  );
+
+  useEffect(() => {
+    if (page > clientTotalPages) {
+      setPage?.(clientTotalPages);
+    }
+  }, [page, clientTotalPages, setPage]);
 
   const resetFilters = useCallback(() => {
     setSearchQuery("");
@@ -400,13 +422,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </thead>
 
               <tbody className="divide-y divide-gray-100 text-xs">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr
                     key={plot.id || idx}
                     className="hover:bg-gray-50 transition"
                   >
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                     <td className={stickyCol1Cell}>
@@ -563,13 +585,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </thead>
 
               <tbody className="divide-y divide-gray-100 text-xs ">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr
                     key={plot.id || idx}
                     className="hover:bg-gray-50 transition"
                   >
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                     <td className={stickyCol1Cell}>
@@ -711,10 +733,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-xs">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr key={plot.id || idx} className={rowClass}>
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     <td className={stickyCol1Cell}>
                       {plot.la_case_file_no || "N/A"}
@@ -855,13 +877,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </thead>
 
               <tbody className="divide-y divide-gray-100 text-xs">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr
                     key={plot.id || idx}
                     className="hover:bg-gray-50 transition"
                   >
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     <td className={stickyCol1Cell}>
                       {plot.la_case_file_no || "N/A"}
@@ -1000,10 +1022,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </thead>
 
               <tbody className="text-xs">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr key={plot.id || idx} className="">
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     <td className={stickyCol1Cell}>
                       {plot.la_case_file_no || "N/A"}
@@ -1174,13 +1196,13 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
               </thead>
 
               <tbody className="divide-y divide-gray-100 text-xs ">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr
                     key={plot.id || idx}
                     className="hover:bg-gray-50 transition"
                   >
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                     <td className={stickyCol1Cell}>
@@ -1324,10 +1346,10 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-xs">
-                {filteredPlots.map((plot, idx) => (
+                {paginatedPlots.map((plot, idx) => (
                   <tr key={plot.id || idx} className={rowClass}>
                     <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                      {idx + 1}
+                      {(page - 1) * limit + idx + 1}
                     </td>
                     {/* <td className="p-3">{plot.project_name || "N/A"}</td> */}
                     <td className={stickyCol1Cell}>
@@ -1449,6 +1471,15 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
           </div>
         </PlotTabs>
       )}
+      {selectedProject && filteredPlots.length > 0 && (
+        <Pagination
+          page={page}
+          totalPages={clientTotalPages}
+          setPage={setPage}
+          limit={limit}
+          setLimit={setLimit}
+        />
+      )}
       <SuccessMessage
         open={modal.open}
         type={modal.type}
@@ -1460,3 +1491,4 @@ const PlotTable = ({ plots, setDeleteConfirm }) => {
 };
 
 export default PlotTable;
+

@@ -1,5 +1,8 @@
 import React, { useState, useRef } from "react";
 import { X } from "lucide-react";
+import { useSelector } from "react-redux";
+import { apiClient } from "../../../../utils/apiClient";
+import { showToast } from "../../../../utils/constants";
 
 const POST_CLEARANCE_DATA = [
   { sl: 1, key: "ca_plantation_started", label: "CA Plantation Started", type: "yesno", remark: "Plantation report", allowUpload: true },
@@ -15,7 +18,9 @@ const POST_CLEARANCE_DATA = [
 const LevelThreeForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const fileRefs = useRef({});
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -53,16 +58,78 @@ const LevelThreeForm = ({ onStageComplete }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log({
-      ...form,
-      documents: files,
+    const forestProjectId = selectedProject?.id;
+    if (!forestProjectId) {
+      showToast("Please select a project first", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("forest_project_id", forestProjectId);
+    formData.append(
+      "ca_plantation_started",
+      yesNoToInt(form.ca_plantation_started),
+    );
+    formData.append(
+      "ca_plantation_completed",
+      yesNoToInt(form.ca_plantation_completed),
+    );
+    formData.append(
+      "survival_report_submitted",
+      yesNoToInt(form.survival_report_submitted),
+    );
+    formData.append("wildlife_mitigation", yesNoToInt(form.wildlife_mitigation));
+    formData.append(
+      "safety_zone_maintained",
+      yesNoToInt(form.safety_zone_maintained),
+    );
+    formData.append(
+      "periodic_compliance_submitted",
+      yesNoToInt(form.periodic_compliance),
+    );
+    formData.append("periodic_compliance_type", form.compliance_period || "");
+    formData.append("inspection_observations", form.inspection_observations || "");
+    formData.append("inspection_remarks", form.inspection_remarks || "");
+    formData.append("post_clearance_status", form.post_clearance_status || "");
+
+    const fileMap = {
+      ca_plantation_started: "ca_plantation_started_document",
+      ca_plantation_completed: "ca_plantation_completed_document",
+      survival_report_submitted: "survival_report_document",
+      wildlife_mitigation: "wildlife_mitigation_document",
+      safety_zone_maintained: "safety_zone_document",
+    };
+
+    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
+      const file = files[uiKey];
+      if (file) {
+        formData.append(apiKey, file);
+      }
     });
 
-    alert("Post-Clearance Data Saved");
-    onStageComplete?.();
+    try {
+      setSubmitting(true);
+      const res = await apiClient("/forestland/postClearance", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to save post clearance");
+      }
+
+      showToast(res?.message || "Post clearance saved successfully", "success");
+      onStageComplete?.();
+    } catch (error) {
+      showToast(error.message || "Failed to save post clearance", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -174,6 +241,7 @@ const LevelThreeForm = ({ onStageComplete }) => {
                   <select
                     name="compliance_period"
                     className="select select-bordered select-sm mt-1 w-full"
+                    value={form.compliance_period || ""}
                     onChange={handleChange}
                   >
                     <option value="">Select Period</option>
@@ -187,6 +255,7 @@ const LevelThreeForm = ({ onStageComplete }) => {
                     name="inspection_remarks"
                     className="textarea textarea-bordered textarea-sm mt-1 w-full"
                     placeholder="Enter inspection observations"
+                    value={form.inspection_remarks || ""}
                     onChange={handleChange}
                   />
                 )}
@@ -197,8 +266,8 @@ const LevelThreeForm = ({ onStageComplete }) => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <button className="btn btn-success btn-sm">
-          Save Post-Clearance
+        <button className="btn btn-success btn-sm" disabled={submitting}>
+          {submitting ? "Saving..." : "Save Post-Clearance"}
         </button>
       </div>
     </form>

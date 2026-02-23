@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { X } from "lucide-react";
+import { useSelector } from "react-redux";
+import { apiClient } from "../../../../utils/apiClient";
+import { showToast } from "../../../../utils/constants";
 
 const STAGE_I_IMAGE_DATA = [
   {
@@ -103,12 +106,13 @@ const STAGE_I_IMAGE_DATA = [
 const LevelOneForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ MULTI FILE UPLOAD
   const handleFileChange = (key, selectedFiles) => {
     setFiles((prev) => ({
       ...prev,
@@ -135,11 +139,77 @@ const LevelOneForm = ({ onStageComplete }) => {
     return form.stage_1_compliance === "Yes" ? "Completed" : "Pending";
   }, [form.stage_1_compliance]);
 
-  const handleSubmit = (e) => {
+  const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
+
+  const getFirstFile = (key) =>
+    Array.isArray(files[key]) && files[key].length > 0 ? files[key][0] : null;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("STAGE-I PAYLOAD:", { ...form, eligible_stage_2, stage_1_status, documents: files });
-    alert("Stage-I Saved");
-    onStageComplete?.();
+
+    const forestProjectId = selectedProject?.id;
+    if (!forestProjectId) {
+      showToast("Please select a project first", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("forest_project_id", forestProjectId);
+    formData.append("stage1_approval_letter", form.stage_1_approval_letter || "");
+    formData.append(
+      "stage1_conditions_extracted",
+      yesNoToInt(form.stage_1_conditions),
+    );
+    formData.append("ca_land_handed_over", yesNoToInt(form.ca_land_handed_over));
+    formData.append("fra_compliance", form.fra_compliance || "");
+    formData.append("npv_payment", form.npv_payment || "");
+    formData.append("ca_payment", form.ca_payment || "");
+    formData.append("aca_payment", form.aca_payment || "");
+    formData.append("wildlife_payment", form.wildlife_payment || "");
+    formData.append("technical_compliance", form.technical_compliance || "");
+    formData.append(
+      "stage1_compliance_accepted",
+      yesNoToInt(form.stage_1_compliance),
+    );
+
+    const fileMap = {
+      stage_1_approval_letter: "stage1_approval_document",
+      stage_1_conditions: "stage1_conditions_document",
+      ca_land_handed_over: "ca_land_document",
+      fra_compliance: "fra_document",
+      npv_payment: "npv_document",
+      ca_payment: "ca_payment_document",
+      aca_payment: "aca_payment_document",
+      wildlife_payment: "wildlife_payment_document",
+      technical_compliance: "technical_document",
+      stage_1_compliance: "stage1_acceptance_document",
+    };
+
+    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
+      const file = getFirstFile(uiKey);
+      if (file) {
+        formData.append(apiKey, file);
+      }
+    });
+
+    try {
+      setSubmitting(true);
+      const res = await apiClient("/forestland/addStage1", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to save Stage-I");
+      }
+
+      showToast(res?.message || "Stage-I saved successfully", "success");
+      onStageComplete?.();
+    } catch (error) {
+      showToast(error.message || "Failed to save Stage-I", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -237,7 +307,9 @@ const LevelOneForm = ({ onStageComplete }) => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <button className="btn btn-success btn-sm">Save Stage-I</button>
+        <button className="btn btn-success btn-sm" disabled={submitting}>
+          {submitting ? "Saving..." : "Save Stage-I"}
+        </button>
       </div>
     </form>
   );

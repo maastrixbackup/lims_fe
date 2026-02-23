@@ -1,5 +1,8 @@
 import { X } from "lucide-react";
 import React, { useState, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { apiClient } from "../../../../utils/apiClient";
+import { showToast } from "../../../../utils/constants";
 
 const STAGE_II_DATA = [
   {
@@ -91,6 +94,8 @@ const LevelTwoForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [inputKeys, setInputKeys] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -122,18 +127,75 @@ const LevelTwoForm = ({ onStageComplete }) => {
       : "Not Granted";
   }, [form.stage_2_approval_letter]);
 
-  const handleSubmit = (e) => {
+  const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
+
+  const getFirstFile = (key) =>
+    Array.isArray(files[key]) && files[key].length > 0 ? files[key][0] : null;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...form,
-      stage_2_status,
-      documents: files,
+    const forestProjectId = selectedProject?.id;
+    if (!forestProjectId) {
+      showToast("Please select a project first", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("forest_project_id", forestProjectId);
+    formData.append("environmental_clearance", form.environmental_clearance || "");
+    formData.append("nbwl_clearance", form.nbwl_clearance || "");
+    formData.append("final_ca_execution", form.final_ca_execution || "");
+    formData.append("final_maps_approved", yesNoToInt(form.final_maps_approved));
+    formData.append(
+      "final_technical_approval",
+      form.final_technical_approval || "",
+    );
+    formData.append("stage2_approval_letter", yesNoToInt(form.stage_2_approval_letter));
+    formData.append("stage2_approval_date", form.stage_2_approval_date || "");
+    formData.append(
+      "approved_forest_area_ha",
+      form.approved_forest_area || "",
+    );
+    formData.append(
+      "approved_non_forest_area_ha",
+      form.approved_non_forest_area || "",
+    );
+
+    const fileMap = {
+      environmental_clearance: "environmental_document",
+      nbwl_clearance: "nbwl_document",
+      final_ca_execution: "final_ca_document",
+      final_maps_approved: "final_maps_document",
+      final_technical_approval: "final_technical_document",
+      stage_2_approval_letter: "stage2_approval_document",
     };
 
-    console.log("STAGE-II PAYLOAD:", payload);
-    alert("Stage-II Saved Successfully");
-    onStageComplete?.();
+    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
+      const file = getFirstFile(uiKey);
+      if (file) {
+        formData.append(apiKey, file);
+      }
+    });
+
+    try {
+      setSubmitting(true);
+      const res = await apiClient("/forestland/addStage2", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to save Stage-II");
+      }
+
+      showToast(res?.message || "Stage-II saved successfully", "success");
+      onStageComplete?.();
+    } catch (error) {
+      showToast(error.message || "Failed to save Stage-II", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -286,8 +348,8 @@ const LevelTwoForm = ({ onStageComplete }) => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <button className="btn btn-success btn-sm">
-          Save Stage-II
+        <button className="btn btn-success btn-sm" disabled={submitting}>
+          {submitting ? "Saving..." : "Save Stage-II"}
         </button>
       </div>
     </form>

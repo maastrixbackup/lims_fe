@@ -431,11 +431,16 @@
 import { X } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { STAGE_0_DATA } from "../../../../utils/constants";
+import { useSelector } from "react-redux";
+import { apiClient } from "../../../../utils/apiClient";
+import { showToast } from "../../../../utils/constants";
 
 const StageZeroForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [inputKeys, setInputKeys] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const selectedProject = useSelector((state) => state.selectedProject.project);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -469,18 +474,84 @@ const StageZeroForm = ({ onStageComplete }) => {
     return form.proposal_submitted === "Yes" ? "READY" : "ON-GOING";
   }, [form.proposal_submitted]);
 
-  const handleSubmit = (e) => {
+  const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
+
+  const getFirstFile = (key) =>
+    Array.isArray(files[key]) && files[key].length > 0 ? files[key][0] : null;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...form,
-      stage0Status,
-      documents: files,
+    const forestProjectId = selectedProject?.id;
+    if (!forestProjectId) {
+      showToast("Please select a project first", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("forest_project_id", forestProjectId);
+    formData.append("dgps_survey_done", yesNoToInt(form.dgps_survey_done));
+    formData.append("orsac_authentication", yesNoToInt(form.orsac));
+    formData.append("tree_enumeration_done", yesNoToInt(form.tree_enumeration));
+    formData.append(
+      "administrative_documents",
+      yesNoToInt(form.administrative_docs),
+    );
+    formData.append("legal_lease_documents", yesNoToInt(form.legal_lease));
+    formData.append("technical_data", yesNoToInt(form.technical_data));
+    formData.append("forest_land_details", form.forest_land_details || "");
+    formData.append("ca_ca_planning", yesNoToInt(form.ca_planning));
+    formData.append("fra_records", form.fra_compliance || "");
+    formData.append("environmental_statutory", form.env_statutory || "");
+    formData.append("wildlife_safeguards", form.wildlife_safeguards || "");
+    formData.append("maps_spatial_evidence", form.maps_spatial || "");
+    formData.append("financial_undertakings", form.financial || "");
+    formData.append("proposal_submitted", yesNoToInt(form.proposal_submitted));
+    formData.append("parivesh_proposal_no", form.parivesh_proposal || "");
+    formData.append("submission_date", form.submission_date || "");
+
+    const fileMap = {
+      dgps_survey_done: "dgps_document",
+      orsac: "orsac_document",
+      tree_enumeration: "tree_enumeration_document",
+      administrative_docs: "administrative_document",
+      legal_lease: "legal_lease_document",
+      technical_data: "technical_document",
+      forest_land_details: "forest_land_details_document",
+      ca_planning: "ca_ca_document",
+      fra_compliance: "fra_document",
+      env_statutory: "environmental_document",
+      wildlife_safeguards: "wildlife_document",
+      maps_spatial: "maps_document",
+      financial: "financial_document",
+      proposal_submitted: "proposal_document",
     };
 
-    console.log("STAGE-0 PAYLOAD:", payload);
-    alert("Stage-0 Saved Successfully");
-    onStageComplete?.();
+    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
+      const file = getFirstFile(uiKey);
+      if (file) {
+        formData.append(apiKey, file);
+      }
+    });
+
+    try {
+      setSubmitting(true);
+      const res = await apiClient("/forestland/addStage0", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to save Stage-0");
+      }
+
+      showToast(res?.message || "Stage-0 saved successfully", "success");
+      onStageComplete?.();
+    } catch (error) {
+      showToast(error.message || "Failed to save Stage-0", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -623,7 +694,9 @@ const StageZeroForm = ({ onStageComplete }) => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <button className="btn btn-success btn-sm">Save Stage-0</button>
+        <button className="btn btn-success btn-sm" disabled={submitting}>
+          {submitting ? "Saving..." : "Save Stage-0"}
+        </button>
       </div>
     </form>
   );

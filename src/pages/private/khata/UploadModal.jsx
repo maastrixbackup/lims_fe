@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { X, CheckCircle, Trash2 } from "lucide-react";
 // import { API_BASE_URL } from "../../../utils/config";
 import { DOCUMENT_TYPES, showToast } from "../../../utils/constants";
@@ -8,7 +8,7 @@ import { apiClient } from "../../../utils/apiClient";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import { API_BASE_URL } from "../../../utils/config";
 
-export default function UploadModal({ khata, onClose }) {
+export default function UploadModal({ khata, onClose, onUploaded }) {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [uploading, setUploading] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,7 @@ export default function UploadModal({ khata, onClose }) {
         `${files.length} file(s) uploaded successfully to "${docType}".`,
       );
 
-      // await fetchDocuments();
+      onUploaded?.();
     } catch (err) {
       if (err.message === "Invalid or expired token") {
         navigate("/");
@@ -139,6 +139,7 @@ export default function UploadModal({ khata, onClose }) {
 
       setSuccessMsg("File deleted successfully!");
       await fetchDocuments();
+      onUploaded?.();
     } catch (err) {
       if (err.message === "Invalid or expired token") {
         navigate("/");

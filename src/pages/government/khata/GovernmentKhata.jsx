@@ -254,13 +254,18 @@ const onViewPlots = (khata) => {
         />
       )}
       {uploadKhata && (
-        <UploadModal khata={uploadKhata} onClose={() => setUploadKhata(null)} />
+        <UploadModal
+          khata={uploadKhata}
+          onClose={() => setUploadKhata(null)}
+          onUploaded={fetchKhatas}
+        />
       )}
 {/* Map */}
 {mapKhata && (
   <MapModal
     khata={mapKhata}
     onClose={() => setMapKhata(null)}
+    onUpload={fetchKhatas}
   />
 )}
 

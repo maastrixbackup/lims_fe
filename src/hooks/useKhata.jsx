@@ -148,7 +148,7 @@ export const useKhata = () => {
       setModals((m) => ({
         ...m,
         isUploadOpen: true,
-        uploadProps: { khata },
+        uploadProps: { khata, onUploaded: fetchKhatas },
       })),
 
     closeUploadModal: () =>
@@ -158,7 +158,7 @@ export const useKhata = () => {
       setModals((m) => ({
         ...m,
         isMapOpen: true,
-        mapProps: { khata },
+        mapProps: { khata, onUpload: fetchKhatas },
       })),
 
     closeMapModal: () =>

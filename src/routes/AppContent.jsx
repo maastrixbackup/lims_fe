@@ -1,9 +1,9 @@
 import React, { useEffect, Suspense, lazy } from "react";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -75,12 +75,21 @@ const MissingDocument = lazy(() => import("../pages/reports/MissingDocument"));
 
 export function AppContent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.userToken);
 
   useEffect(() => {
-    if (!token) navigate("/", { replace: true });
-  }, [token, navigate]);
+    const isPublicRoute =
+      location.pathname === "/" ||
+      location.pathname === "/forgot-password" ||
+      location.pathname.startsWith("/reset-password/") ||
+      location.pathname === "/unauthorized";
+
+    if (!token && !isPublicRoute) {
+      navigate("/", { replace: true });
+    }
+  }, [token, location.pathname, navigate]);
 
   useEffect(() => {
     if (token) {

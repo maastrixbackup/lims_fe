@@ -21,12 +21,12 @@ const ResetPassword = () => {
       const data = await resetPassword(token, password);
       if (data.success) {
         setMessage("Password reset successful! Redirecting...");
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/"), 2000);
       } else {
         setMessage(data.message || "Failed to reset password.");
       }
-    } catch {
-      setMessage("Something went wrong.");
+    } catch (error) {
+      setMessage(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

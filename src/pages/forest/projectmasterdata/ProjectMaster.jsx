@@ -36,9 +36,18 @@ const ProjectMaster = () => {
     current_stage: "",
     current_stage_status: "",
     eds_flag: 0,
-
-    // 🔹 MULTIPLE EDS
-    eds_list: [],
+    eds_list: [
+      {
+        eds_ref_no: "",
+        issuing_authority: "",
+        eds_issue_date: "",
+        eds_due_date: "",
+        total_issues: "",
+        issues_closed: "",
+        issues_pending: "",
+        eds_status: "",
+      },
+    ],
 
     project_category: "",
     project_nature: "",
@@ -116,15 +125,15 @@ const ProjectMaster = () => {
         {
           project_id: prev.project_id,
           eds_sl_no: prev.eds_list.length + 1,
-          edsRefNo: "",
-          issuingAuthority: "",
-          edsIssueDate: "",
-          edsDueDate: "",
-          totalIssues: "",
-          issuesClosed: "",
-          issuesPending: "",
-          eds_reply_documents: null,
-          edsStatus: "",
+          eds_ref_no: "",
+          issuing_authority: "",
+          eds_issue_date: "",
+          eds_due_date: "",
+          total_issues: "",
+          issues_closed: "",
+          issues_pending: "",
+          eds_reply_document: null,
+          eds_status: "",
         },
       ],
     }));
@@ -143,13 +152,34 @@ const ProjectMaster = () => {
     setFormData({ ...formData, eds_list: updated });
   };
 
+  const getPreparedFormData = () => {
+    const normalizedEdsList = (formData.eds_list || []).map((eds) => ({
+      eds_ref_no: eds.eds_ref_no || "",
+      issuing_authority: eds.issuing_authority || "",
+      eds_issue_date: eds.eds_issue_date || "",
+      eds_due_date: eds.eds_due_date || "",
+      total_issues: eds.total_issues || "",
+      issues_closed: eds.issues_closed || "",
+      issues_pending: eds.issues_pending || "",
+      eds_status: eds.eds_status || "",
+      eds_reply_document: eds.eds_reply_document || null,
+    }));
+
+    return {
+      ...formData,
+      eds_flag: Number(formData.eds_flag || 0),
+      eds_list: normalizedEdsList,
+    };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const preparedFormData = getPreparedFormData();
 
     if (editData) {
       await updateForestProject({
         id: editData.id,
-        formData,
+        formData: preparedFormData,
         token,
         onSuccess: () => {
           showSuccess("Project updated successfully!");
@@ -161,7 +191,7 @@ const ProjectMaster = () => {
     }
 
     await addForestProject({
-      formData,
+      formData: preparedFormData,
       token,
       selectedProject,
       onSuccess: () => {
@@ -471,9 +501,9 @@ const ProjectMaster = () => {
                       <td>
                         <input
                           className="input input-sm input-bordered"
-                          value={eds.edsRefNo}
+                          value={eds.eds_ref_no}
                           onChange={(e) =>
-                            handleEDSChange(index, "edsRefNo", e.target.value)
+                            handleEDSChange(index, "eds_ref_no", e.target.value)
                           }
                         />
                       </td>
@@ -481,11 +511,11 @@ const ProjectMaster = () => {
                       <td>
                         <input
                           className="input input-sm input-bordered"
-                          value={eds.issuingAuthority}
+                          value={eds.issuing_authority}
                           onChange={(e) =>
                             handleEDSChange(
                               index,
-                              "issuingAuthority",
+                              "issuing_authority",
                               e.target.value,
                             )
                           }
@@ -496,11 +526,11 @@ const ProjectMaster = () => {
                         <input
                           type="date"
                           className="input input-sm input-bordered"
-                          value={eds.edsIssueDate}
+                          value={eds.eds_issue_date}
                           onChange={(e) =>
                             handleEDSChange(
                               index,
-                              "edsIssueDate",
+                              "eds_issue_date",
                               e.target.value,
                             )
                           }
@@ -511,21 +541,11 @@ const ProjectMaster = () => {
                         <input
                           type="date"
                           className="input input-sm input-bordered"
-                          value={eds.edsDueDate}
-                          onChange={(e) =>
-                            handleEDSChange(index, "edsDueDate", e.target.value)
-                          }
-                        />
-                      </td>
-
-                      <td>
-                        <input
-                          className="input input-sm input-bordered"
-                          value={eds.totalIssues}
+                          value={eds.eds_due_date}
                           onChange={(e) =>
                             handleEDSChange(
                               index,
-                              "totalIssues",
+                              "eds_due_date",
                               e.target.value,
                             )
                           }
@@ -535,11 +555,11 @@ const ProjectMaster = () => {
                       <td>
                         <input
                           className="input input-sm input-bordered"
-                          value={eds.issuesClosed}
+                          value={eds.total_issues}
                           onChange={(e) =>
                             handleEDSChange(
                               index,
-                              "issuesClosed",
+                              "total_issues",
                               e.target.value,
                             )
                           }
@@ -549,11 +569,11 @@ const ProjectMaster = () => {
                       <td>
                         <input
                           className="input input-sm input-bordered"
-                          value={eds.issuesPending}
+                          value={eds.issues_closed}
                           onChange={(e) =>
                             handleEDSChange(
                               index,
-                              "issuesPending",
+                              "issues_closed",
                               e.target.value,
                             )
                           }
@@ -563,9 +583,23 @@ const ProjectMaster = () => {
                       <td>
                         <input
                           className="input input-sm input-bordered"
-                          value={eds.edsStatus}
+                          value={eds.issues_pending}
                           onChange={(e) =>
-                            handleEDSChange(index, "edsStatus", e.target.value)
+                            handleEDSChange(
+                              index,
+                              "issues_pending",
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        <input
+                          className="input input-sm input-bordered"
+                          value={eds.eds_status}
+                          onChange={(e) =>
+                            handleEDSChange(index, "eds_status", e.target.value)
                           }
                         />
                       </td>
@@ -577,7 +611,7 @@ const ProjectMaster = () => {
                           onChange={(e) =>
                             handleEDSChange(
                               index,
-                              "eds_document",
+                              "eds_reply_document",
                               e.target.files[0],
                             )
                           }

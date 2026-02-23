@@ -42,6 +42,7 @@ export const addForestProject = async ({
       if (
         key !== "project_id" &&
         key !== "project_name" &&
+        key !== "eds_flag" &&
         key !== "eds_list" &&
         key !== "eds_document" &&
         formData[key] !== null &&
@@ -56,7 +57,7 @@ export const addForestProject = async ({
 
     // Supports repeated file key: eds_reply_document, one per EDS row/file.
     edsList.forEach((row) => {
-      const file = row?.eds_document || row?.eds_reply_document;
+      const file = row?.eds_reply_document || row?.eds_document;
       if (file instanceof File) {
         payload.append("eds_reply_document", file);
       }

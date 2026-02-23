@@ -13,8 +13,8 @@ export const addForestProject = async ({
 
     const projectName =
       formData.project_name ||
-      selectedProject?.project_name ||   
-      selectedProject?.name ||          
+      selectedProject?.project_name ||
+      selectedProject?.name ||
       "";
 
     if (!projectId || !projectName) {
@@ -75,11 +75,11 @@ export const addForestProject = async ({
           Authorization: `Bearer ${token}`,
         },
         body: payload,
-      }
+      },
     );
 
     const result = await response.json();
- console.log("Add Forest Project Response:", result);
+    console.log("Add Forest Project Response:", result);
     if (!response.ok) throw result;
 
     onSuccess(result);

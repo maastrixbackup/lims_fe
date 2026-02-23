@@ -29,7 +29,8 @@ export const PRESENT_STATUS_MAP = {
 const stickyCol1Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-0 z-[40] shadow-md ";
 
-const stickyCol1Cell = "p-3 text-left bg-base-100 md:sticky md:left-0 shadow-sm ";
+const stickyCol1Cell =
+  "p-3 text-left bg-base-100 md:sticky md:left-0 shadow-sm ";
 
 const stickyCol2Header =
   "p-3 text-left bg-gray-200 md:sticky md:left-[110px] z-[35] shadow-md ";
@@ -74,7 +75,8 @@ const Plots = () => {
   const [selectedLeaseCaseNo, setSelectedLeaseCaseNo] = useState("");
   const token = useSelector((state) => state.auth.userToken);
 
-  const getLeasePaymentKey = (plot) => plot?.lease_case_no || `plot_${plot?.id}`;
+  const getLeasePaymentKey = (plot) =>
+    plot?.lease_case_no || `plot_${plot?.id}`;
 
   const paymentCodeFromStatus = (status) => {
     if (status === "processing") return "PP";
@@ -231,7 +233,10 @@ const Plots = () => {
       return;
     }
 
-    if (selectedLeaseCaseNo && !leaseCaseOptions.includes(selectedLeaseCaseNo)) {
+    if (
+      selectedLeaseCaseNo &&
+      !leaseCaseOptions.includes(selectedLeaseCaseNo)
+    ) {
       setSelectedLeaseCaseNo("");
     }
   }, [leaseCaseOptions, selectedLeaseCaseNo]);
@@ -375,10 +380,7 @@ const Plots = () => {
   }, [plots, filters, sortConfig]);
 
   const clientTotalPages = Math.max(1, Math.ceil(filteredPlots.length / limit));
-  const paginatedPlots = filteredPlots.slice(
-    (page - 1) * limit,
-    page * limit,
-  );
+  const paginatedPlots = filteredPlots.slice((page - 1) * limit, page * limit);
 
   useEffect(() => {
     if (page > clientTotalPages) {
@@ -546,7 +548,9 @@ const Plots = () => {
   const handleGlobalPaymentStatusChange = async (code) => {
     if (isRestricted || !selectedLeaseCaseNo) return;
 
-    const leasePlots = plots.filter((p) => p.lease_case_no === selectedLeaseCaseNo);
+    const leasePlots = plots.filter(
+      (p) => p.lease_case_no === selectedLeaseCaseNo,
+    );
     if (!leasePlots.length) return;
 
     const targetPlot = leasePlots[0];
@@ -591,7 +595,9 @@ const Plots = () => {
         const updatedPlot = { ...targetPlot, payment_status: "processing" };
         setTimeout(() => {
           closeModal();
-          navigate(`/${landType}/government/land-cost`, { state: { plot: updatedPlot } });
+          navigate(`/${landType}/government/land-cost`, {
+            state: { plot: updatedPlot },
+          });
         }, 300);
       }
     } catch (err) {
@@ -607,14 +613,72 @@ const Plots = () => {
 
   const selectedPaymentCode = getPaymentCodeByLease(selectedLeaseCaseNo) || "";
 
-
   return (
     <main className="flex-1 overflow-y-auto space-y-2">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Government Land Plot</h2>
-
-       <div className="grid grid-cols-5 gap-2 items-center justify-end">
-          <select
+    <div 
+    // className="w-full flex justify-end"
+    >
+        <div className="grid grid-cols-3 gap-3 items-center">
+          <div>
+            <select
+              value={selectedLeaseCaseNo}
+              onChange={(e) => setSelectedLeaseCaseNo(e.target.value)}
+              className="select select-sm select-bordered"
+              disabled={!leaseCaseOptions.length}
+            >
+              <option value="">Select Lease Case</option>
+              {leaseCaseOptions.map((leaseNo) => (
+                <option key={leaseNo} value={leaseNo}>
+                  {leaseNo}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <select
+              value={selectedPaymentCode}
+              onChange={(e) => handleGlobalPaymentStatusChange(e.target.value)}
+              className="select select-sm select-bordered text-gray-700 text-md font-medium"
+              disabled={
+                isRestricted ||
+                !selectedLeaseCaseNo ||
+                loadingLeaseCaseNo === selectedLeaseCaseNo
+              }
+            >
+              <option value="" disabled>
+                Payment Status
+              </option>
+              <option value="RP">Ready for Payment</option>
+              <option value="PP">Payment Processing</option>
+              <option value="RC">Payment Complete</option>
+            </select>
+          </div>
+          <div>
+            <button
+              type="button"
+              className={`btn btn-sm pointer-events-none ${
+                !selectedLeaseCaseNo
+                  ? "bg-gray-200 text-gray-600 border-gray-300"
+                  : selectedPaymentCode === "RP"
+                    ? "bg-orange-600 text-white border-orange-600"
+                    : selectedPaymentCode === "PP"
+                      ? "bg-green-400 text-white border-green-400"
+                      : selectedPaymentCode === "RC"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-gray-200 text-gray-600 border-gray-300"
+              }`}
+            >
+              <span className="text-xs whitespace-nowrap px-2">
+                {selectedPaymentCode || "No Payment"}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+        <div className="grid grid-cols-2 gap-2 items-center justify-end">
+          {/* <select
             value={selectedLeaseCaseNo}
             onChange={(e) => setSelectedLeaseCaseNo(e.target.value)}
             className="select select-sm select-bordered "
@@ -654,14 +718,14 @@ const Plots = () => {
                 : selectedPaymentCode === "RP"
                   ? "bg-orange-600 text-white border-orange-600"
                   : selectedPaymentCode === "PP"
-                    ? "bg-green-700 text-white border-green-700"
+                    ? "bg-green-400 text-white border-green-400"
                     : selectedPaymentCode === "RC"
                       ? "bg-blue-600 text-white border-blue-600"
                       : "bg-gray-200 text-gray-600 border-gray-300"
             }`}
           >
-           <span className="text-xs"> {selectedPaymentCode || "No Payment"}</span>
-          </button>
+           <span className="text-xs whitespace-nowrap p-2"> {selectedPaymentCode || "No Payment"}</span>
+          </button> */}
 
           <button
             className="btn btn-sm bg-green-600 text-white"
@@ -679,14 +743,14 @@ const Plots = () => {
             : ""
         }
       `}
-            onClick={() =>openModal()}
+            onClick={() => openModal()}
             disabled={isRestricted}
           >
             Add Plot
           </button>
         </div>
       </div>
-
+  
       <div>
         {(!selectedProjectId || filteredPlots.length === 0) && (
           <div className="py-10 text-center text-gray-600">
@@ -722,16 +786,19 @@ const Plots = () => {
         )}
         {selectedProjectId && filteredPlots.length > 0 && (
           <>
-            <PlotTabs>
           
+            <PlotTabs>
+              
               <div
                 className=" max-h-[400px] overflow-y-auto"
                 style={{ scrollbarWidth: "thin" }}
               >
+                
                 <table
                   className="table w-full whitespace-nowrap overflow-x-auto"
                   title="Basic Details"
                 >
+                  
                   <thead className="bg-gray-200 sticky top-0 z-10">
                     <tr>
                       <th className="">Sl/No</th>
@@ -1209,7 +1276,7 @@ const Plots = () => {
                           <td>{plot.cess || "no data"}</td>
                           <td>{plot.admin_charges || "no data"}</td>
                           <td>{plot.total_cost || "no data"}</td>
-                     
+
                           <td className={stickyActionCell}>
                             <select
                               className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -1311,5 +1378,3 @@ const Plots = () => {
 };
 
 export default Plots;
-
-

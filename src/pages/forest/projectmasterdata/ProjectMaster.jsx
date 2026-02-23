@@ -36,6 +36,8 @@ const ProjectMaster = () => {
     current_stage: "",
     current_stage_status: "",
     eds_flag: 0,
+
+    // 🔹 MULTIPLE EDS
     eds_list: [
       {
         eds_ref_no: "",
@@ -152,34 +154,13 @@ const ProjectMaster = () => {
     setFormData({ ...formData, eds_list: updated });
   };
 
-  const getPreparedFormData = () => {
-    const normalizedEdsList = (formData.eds_list || []).map((eds) => ({
-      eds_ref_no: eds.eds_ref_no || "",
-      issuing_authority: eds.issuing_authority || "",
-      eds_issue_date: eds.eds_issue_date || "",
-      eds_due_date: eds.eds_due_date || "",
-      total_issues: eds.total_issues || "",
-      issues_closed: eds.issues_closed || "",
-      issues_pending: eds.issues_pending || "",
-      eds_status: eds.eds_status || "",
-      eds_reply_document: eds.eds_reply_document || null,
-    }));
-
-    return {
-      ...formData,
-      eds_flag: Number(formData.eds_flag || 0),
-      eds_list: normalizedEdsList,
-    };
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const preparedFormData = getPreparedFormData();
 
     if (editData) {
       await updateForestProject({
         id: editData.id,
-        formData: preparedFormData,
+        formData,
         token,
         onSuccess: () => {
           showSuccess("Project updated successfully!");
@@ -191,7 +172,7 @@ const ProjectMaster = () => {
     }
 
     await addForestProject({
-      formData: preparedFormData,
+      formData,
       token,
       selectedProject,
       onSuccess: () => {
@@ -383,9 +364,9 @@ const ProjectMaster = () => {
               required
             >
               <option value="">Select Stage</option>
-              <option value="Stage 0">Stage 0</option>
-              <option value="Stage 1">Stage I</option>
-              <option value="Stage 2">Stage II</option>
+              <option value="0">Stage 0</option>
+              <option value="I">Stage I</option>
+              <option value="II">Stage II</option>
             </select>
           </div>
           <div>

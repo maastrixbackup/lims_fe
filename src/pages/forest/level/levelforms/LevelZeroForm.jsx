@@ -433,7 +433,10 @@ import React, { useState, useMemo } from "react";
 import { STAGE_0_DATA } from "../../../../utils/constants";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
-import { showToast } from "../../../../utils/constants";
+
+import SuccessMessage from "../../../../shared/SuccessMessage";
+import { useSuccessMessage } from "../../../../hooks/useSuccessMessage";
+
 
 const StageZeroForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
@@ -441,7 +444,7 @@ const StageZeroForm = ({ onStageComplete }) => {
   const [inputKeys, setInputKeys] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const selectedProject = useSelector((state) => state.selectedProject.project);
-
+const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -484,7 +487,7 @@ const StageZeroForm = ({ onStageComplete }) => {
 
     const forestProjectId = selectedProject?.id;
     if (!forestProjectId) {
-      showToast("Please select a project first", "error");
+      showSuccess("Please select a project first", "error");
       return;
     }
 
@@ -545,17 +548,18 @@ const StageZeroForm = ({ onStageComplete }) => {
         throw new Error(res?.message || "Failed to save Stage-0");
       }
 
-      showToast(res?.message || "Stage-0 saved successfully", "success");
+      showSuccess(res?.message || "Stage-0 saved successfully", "success");
       onStageComplete?.();
     } catch (error) {
-      showToast(error.message || "Failed to save Stage-0", "error");
+      showError(error.message || "Failed to save Stage-0");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 max-w-6xl mx-auto">
+    <>
+      <form onSubmit={handleSubmit} className="p-4 max-w-6xl mx-auto">
       <h2 className="text-lg font-bold mb-4">
         Stage-0 : Proposal Preparation & Readiness (Pre-PARIVESH)
       </h2>
@@ -699,6 +703,14 @@ const StageZeroForm = ({ onStageComplete }) => {
         </button>
       </div>
     </form>
+       <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
+    </>
+  
   );
 };
 

@@ -383,9 +383,9 @@ const ProjectMaster = () => {
               required
             >
               <option value="">Select Stage</option>
-              <option value="0">Stage 0</option>
-              <option value="1">Stage I</option>
-              <option value="2">Stage II</option>
+              <option value="Stage 0">Stage 0</option>
+              <option value="Stage 1">Stage I</option>
+              <option value="Stage 2">Stage II</option>
             </select>
           </div>
           <div>

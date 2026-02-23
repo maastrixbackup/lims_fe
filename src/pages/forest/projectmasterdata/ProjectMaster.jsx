@@ -384,8 +384,8 @@ const ProjectMaster = () => {
             >
               <option value="">Select Stage</option>
               <option value="0">Stage 0</option>
-              <option value="I">Stage I</option>
-              <option value="II">Stage II</option>
+              <option value="1">Stage I</option>
+              <option value="2">Stage II</option>
             </select>
           </div>
           <div>

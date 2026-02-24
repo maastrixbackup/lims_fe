@@ -104,85 +104,101 @@ const PlotTable = ({
     return "";
   };
 
+  const extractApiErrorMessage = (message, fallback = "Network error") => {
+    const raw = String(message || "").trim();
+    if (!raw) return fallback;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed?.message || raw;
+    } catch {
+      return raw;
+    }
+  };
+
+  const isSuccessResponse = (data) =>
+    data?.success === true ||
+    String(data?.success || "").toLowerCase() === "true" ||
+    data?.status === 200;
+
   const handlePaymentStatusChange = async (plot, code) => {
     if (isRestricted) return;
-    if (code === "RP") {
-      setLoadingPlotId(plot.id);
+    const targetCode = code === "RC" ? "PC" : code;
+    const currentCode = getPaymentCode(plot);
+    if (!targetCode || currentCode === targetCode) return;
 
-      try {
-        const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            plot_id: plot.id,
-            payment_status: "ready",
-          }),
-        });
+    if (currentCode === "PP" && targetCode === "RP") {
+      showError(
+        "Payment is already in processing. It cannot be changed back to ready.",
+      );
+      return;
+    }
 
-        const data = await res.json();
+    if (targetCode === "PC") {
+      setPaymentStatusMap((prev) => ({
+        ...prev,
+        [plot.id]: "PC",
+      }));
+      navigate(`/${landType}/land-cost`, {
+        state: { plot: { ...plot, payment_status: "complete" } },
+      });
+      return;
+    }
 
-        if (data.success === true) {
-          showSuccess(data.message || "Successful");
+    if (targetCode !== "RP" && targetCode !== "PP") return;
 
-          setPaymentStatusMap((prev) => ({
-            ...prev,
-            [plot.id]: "RP",
-          }));
-        } else if (data.success === false) {
-          showSuccess(data.message || "Failed to update status", "error");
-        } else {
-          showSuccess(data.message || "Failed to update status", "error");
-        }
-      } catch (err) {
-        showError("Network error", "error");
+    setLoadingPlotId(plot.id);
+
+    try {
+      const payment_status = targetCode === "RP" ? "ready" : "processing";
+      const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          plot_id: plot.id,
+          payment_status,
+        }),
+      });
+
+      const data = await res.json();
+      if (!isSuccessResponse(data)) {
+        throw new Error(data?.message || "Failed to update status");
       }
 
-      setLoadingPlotId(null);
-      return;
-    }
+      setPaymentStatusMap((prev) => ({
+        ...prev,
+        [plot.id]: targetCode,
+      }));
+      showSuccess(data?.message || "Payment status updated");
 
-    if (code === "RC") {
-      navigate(`/${landType}/land-cost`, { state: { plot } });
-      return;
-    }
-
-    if (code === "PP") {
-      setLoadingPlotId(plot.id);
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/plots/paymentReady`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            plot_id: plot.id,
-            payment_status: "processing",
-          }),
-        });
-
-        const data = await res.json();
-        if (showSuccess(data.message || "Successful")) {
-          setPaymentStatusMap((prev) => ({
-            ...prev,
-            [plot.id]: "PP",
-          }));
-        }
-
-        showSuccess(data.message || "Failed to update payment", "error");
+      if (targetCode === "PP") {
+        const updatedPlot = { ...plot, payment_status: "processing" };
         setTimeout(() => {
           closeModal();
-          navigate(`/${landType}/land-cost`, { state: { plot } });
-        }, 400);
-      } catch (err) {
-        showSuccess(err.message || "Network error. Please try again", "error");
-      } finally {
-        setLoadingPlotId(null);
+          navigate(`/${landType}/land-cost`, { state: { plot: updatedPlot } });
+        }, 300);
       }
+    } catch (err) {
+      const message = extractApiErrorMessage(
+        err?.message,
+        "Network error. Please try again",
+      );
+
+      if (
+        message.toLowerCase().includes("already in processing state") ||
+        message.toLowerCase().includes("already in processing")
+      ) {
+        setPaymentStatusMap((prev) => ({
+          ...prev,
+          [plot.id]: "PP",
+        }));
+      }
+
+      showError(message);
+    } finally {
+      setLoadingPlotId(null);
     }
   };
 

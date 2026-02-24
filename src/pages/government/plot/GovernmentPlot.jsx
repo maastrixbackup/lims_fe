@@ -78,18 +78,59 @@ const Plots = () => {
   const getLeasePaymentKey = (plot) =>
     plot?.lease_case_no || `plot_${plot?.id}`;
 
+  const normalizePaymentStatus = (value) =>
+    String(value || "")
+      .trim()
+      .toLowerCase();
+
   const paymentCodeFromStatus = (status) => {
-    if (status === "processing") return "PP";
-    if (status === "complete") return "PC";
-    if (status === "ready") return "RP";
+    const normalized = normalizePaymentStatus(status);
+
+    if (["pp", "processing", "payment processing"].includes(normalized)) {
+      return "PP";
+    }
+    if (
+      [
+        "pc",
+        "rc",
+        "complete",
+        "completed",
+        "payment complete",
+        "payment completed",
+      ].includes(normalized)
+    ) {
+      return "PC";
+    }
+    if (
+      ["rp", "ready", "ready for payment", "payment ready"].includes(
+        normalized,
+      )
+    ) {
+      return "RP";
+    }
     return "";
   };
 
   const paymentStatusFromCode = (code) => {
-    if (code === "PP") return "processing";
-    if (code === "PC") return "complete";
-    if (code === "RP") return "ready";
+    const normalized = String(code || "")
+      .trim()
+      .toUpperCase();
+
+    if (normalized === "PP") return "processing";
+    if (normalized === "PC" || normalized === "RC") return "complete";
+    if (normalized === "RP") return "ready";
     return "";
+  };
+
+  const extractApiErrorMessage = (err) => {
+    const raw = String(err?.message || "").trim();
+    if (!raw) return "";
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed?.message || raw;
+    } catch {
+      return raw;
+    }
   };
 
   const leaseCaseOptions = useMemo(
@@ -219,8 +260,9 @@ const Plots = () => {
       const merged = { ...prev };
       plots.forEach((plot) => {
         const key = getLeasePaymentKey(plot);
-        if (!merged[key]) {
-          merged[key] = paymentCodeFromStatus(plot.payment_status);
+        const serverCode = paymentCodeFromStatus(plot.payment_status);
+        if (serverCode) {
+          merged[key] = serverCode;
         }
       });
       return merged;
@@ -547,6 +589,17 @@ const Plots = () => {
   };
   const handleGlobalPaymentStatusChange = async (code) => {
     if (isRestricted || !selectedLeaseCaseNo) return;
+    const targetCode = code === "RC" ? "PC" : code;
+    const currentCode = getPaymentCodeByLease(selectedLeaseCaseNo);
+    if (currentCode === targetCode) {
+      return;
+    }
+    if (currentCode === "PP" && targetCode === "RP") {
+      showError(
+        "Payment is already in processing. It cannot be changed back to ready.",
+      );
+      return;
+    }
 
     const leasePlots = plots.filter(
       (p) => p.lease_case_no === selectedLeaseCaseNo,
@@ -555,22 +608,31 @@ const Plots = () => {
 
     const targetPlot = leasePlots[0];
 
-    if (code === "PC") {
+    if (targetCode === "PC") {
       const updatedPlot = { ...targetPlot, payment_status: "complete" };
       setPaymentStatusMap((prev) => ({
         ...prev,
         [selectedLeaseCaseNo]: "PC",
       }));
-      navigate(`/${landType}/land-cost`, { state: { plot: updatedPlot } });
+      setPlots((prev) =>
+        prev.map((plot) =>
+          plot.lease_case_no === selectedLeaseCaseNo
+            ? { ...plot, payment_status: "complete" }
+            : plot,
+        ),
+      );
+      navigate(`/${landType}/government/land-cost`, {
+        state: { plot: updatedPlot },
+      });
       return;
     }
 
-    if (code !== "RP" && code !== "PP") return;
+    if (targetCode !== "RP" && targetCode !== "PP") return;
 
     setLoadingLeaseCaseNo(selectedLeaseCaseNo);
 
     try {
-      const payment_status = code === "RP" ? "ready" : "processing";
+      const payment_status = targetCode === "RP" ? "ready" : "processing";
 
       await Promise.all(
         leasePlots.map((plot) =>
@@ -586,12 +648,20 @@ const Plots = () => {
 
       setPaymentStatusMap((prev) => ({
         ...prev,
-        [selectedLeaseCaseNo]: code,
+        [selectedLeaseCaseNo]: targetCode,
       }));
+
+      setPlots((prev) =>
+        prev.map((plot) =>
+          plot.lease_case_no === selectedLeaseCaseNo
+            ? { ...plot, payment_status }
+            : plot,
+        ),
+      );
 
       showSuccess("Payment status updated");
 
-      if (code === "PP") {
+      if (targetCode === "PP") {
         const updatedPlot = { ...targetPlot, payment_status: "processing" };
         setTimeout(() => {
           closeModal();
@@ -601,11 +671,30 @@ const Plots = () => {
         }, 300);
       }
     } catch (err) {
+      const message = extractApiErrorMessage(err);
+
+      if (
+        message.toLowerCase().includes("already in processing state") ||
+        message.toLowerCase().includes("already in processing")
+      ) {
+        setPaymentStatusMap((prev) => ({
+          ...prev,
+          [selectedLeaseCaseNo]: "PP",
+        }));
+        setPlots((prev) =>
+          prev.map((plot) =>
+            plot.lease_case_no === selectedLeaseCaseNo
+              ? { ...plot, payment_status: "processing" }
+              : plot,
+          ),
+        );
+      }
+
       if (err.message === "Invalid or expired token") {
         navigate("/");
         return;
       }
-      showError(err.message || "Network error. Please try again");
+      showError(message || "Network error. Please try again");
     } finally {
       setLoadingLeaseCaseNo(null);
     }
@@ -650,9 +739,11 @@ const Plots = () => {
               <option value="" disabled>
                 Payment Status
               </option>
-              <option value="RP">Ready for Payment</option>
+              <option value="RP" disabled={selectedPaymentCode === "PP"}>
+                Ready for Payment
+              </option>
               <option value="PP">Payment Processing</option>
-              <option value="RC">Payment Complete</option>
+              <option value="PC">Payment Complete</option>
             </select>
           </div>
           <div>
@@ -665,7 +756,7 @@ const Plots = () => {
                     ? "bg-orange-600 text-white border-orange-600"
                     : selectedPaymentCode === "PP"
                       ? "bg-green-400 text-white border-green-400"
-                      : selectedPaymentCode === "RC"
+                      : selectedPaymentCode === "PC"
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-gray-200 text-gray-600 border-gray-300"
               }`}
@@ -705,9 +796,11 @@ const Plots = () => {
             <option value="" disabled>
               Payment Status
             </option>
-            <option value="RP">Ready for Payment</option>
+            <option value="RP" disabled={selectedPaymentCode === "PP"}>
+              Ready for Payment
+            </option>
             <option value="PP">Payment Processing</option>
-            <option value="RC">Payment Complete</option>
+            <option value="PC">Payment Complete</option>
           </select>
 
           <button
@@ -719,7 +812,7 @@ const Plots = () => {
                   ? "bg-orange-600 text-white border-orange-600"
                   : selectedPaymentCode === "PP"
                     ? "bg-green-400 text-white border-green-400"
-                    : selectedPaymentCode === "RC"
+                  : selectedPaymentCode === "PC"
                       ? "bg-blue-600 text-white border-blue-600"
                       : "bg-gray-200 text-gray-600 border-gray-300"
             }`}

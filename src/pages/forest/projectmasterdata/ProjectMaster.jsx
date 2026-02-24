@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { addForestProject } from "../addForestProject";
 import { updateForestProject } from "../../../hooks/updateForestProject";
+import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import {
@@ -36,8 +37,6 @@ const ProjectMaster = () => {
     current_stage: "",
     current_stage_status: "",
     eds_flag: 0,
-
-    // 🔹 MULTIPLE EDS
     eds_list: [
       {
         eds_ref_no: "",
@@ -50,7 +49,6 @@ const ProjectMaster = () => {
         eds_status: "",
       },
     ],
-
     project_category: "",
     project_nature: "",
     project_sub_category: "",
@@ -58,21 +56,47 @@ const ProjectMaster = () => {
 
   const [formData, setFormData] = useState(initialFormData);
   useEffect(() => {
-    let status = "";
+    let cancelled = false;
 
-    if (formData.current_stage === "0") {
-      status = "Ongoing";
-    } else if (formData.current_stage === "I") {
-      status = "Completed";
-    } else if (formData.current_stage === "II") {
-      status = "Granted";
-    }
+    const fetchStageStatus = async () => {
+      const projectId = formData.project_id;
+      const stage = formData.current_stage;
 
-    setFormData((prev) => ({
-      ...prev,
-      current_stage_status: status,
-    }));
-  }, [formData.current_stage]);
+      if (!projectId || !stage) {
+        setFormData((prev) => ({
+          ...prev,
+          current_stage_status: "",
+        }));
+        return;
+      }
+
+      try {
+        const res = await apiClient(
+          `/forestland/getStageStatus/${projectId}/${encodeURIComponent(stage)}`,
+        );
+
+        if (!cancelled) {
+          setFormData((prev) => ({
+            ...prev,
+            current_stage_status: res?.stage_status || "",
+          }));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setFormData((prev) => ({
+            ...prev,
+            current_stage_status: "",
+          }));
+        }
+      }
+    };
+
+    fetchStageStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [formData.project_id, formData.current_stage]);
 
   useEffect(() => {
     if (editData) {
@@ -99,25 +123,25 @@ const ProjectMaster = () => {
     const { name, value, type, files } = e.target;
 
     if (type === "file") {
-      setFormData({ ...formData, [name]: files[0] });
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
       return;
     }
 
     if (name === "project_category") {
       const nature = PROJECT_CATEGORY_NATURE_MAP[value] || "";
 
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         project_category: value,
         project_nature: nature,
         project_sub_category:
-          value === "Mining / Quarrying" ? formData.project_sub_category : "",
-      });
+          value === "Mining / Quarrying" ? prev.project_sub_category : "",
+      }));
 
       return;
     }
 
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const addEDSRow = () => {
     setFormData((prev) => ({
@@ -364,9 +388,9 @@ const ProjectMaster = () => {
               required
             >
               <option value="">Select Stage</option>
-              <option value="0">Stage 0</option>
-              <option value="I">Stage I</option>
-              <option value="II">Stage II</option>
+              <option value="Stage 0">Stage 0</option>
+              <option value="Stage 1">Stage I</option>
+              <option value="Stage 2">Stage II</option>
             </select>
           </div>
           <div>
@@ -382,7 +406,8 @@ const ProjectMaster = () => {
           Completed: "bg-green-100 text-green-700 border-green-300",
           Ongoing: "bg-yellow-100 text-yellow-700 border-yellow-300",
           Granted: "bg-blue-100 text-blue-700 border-blue-300",
-          Pending: "bg-gray-100 text-gray-700 border-gray-300",
+          Pending: "bg-gray-100 text-red-700 border-red-300",
+          Ready: "bg-purple-100 text-purple-700 border-purple-300",
         }[formData.current_stage_status] ||
         "bg-gray-100 text-gray-700 border-gray-300"
       }

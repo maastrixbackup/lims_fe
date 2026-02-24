@@ -83,6 +83,7 @@ const LandCost = () => {
                 totalArea: 0,
                 landCostAmount: null,
                 id: t.id,
+                landCostId: t.land_cost_id ?? t.id ?? null,
                 demandNoteFile: null,
                 receiptFile: null,
                 demandNoteUrl: t.demand_note_doc ?? t.demand_note ?? null,
@@ -132,6 +133,9 @@ const LandCost = () => {
             if (!row.id && t.id) {
               row.id = t.id;
             }
+            if (!row.landCostId && (t.land_cost_id || t.id)) {
+              row.landCostId = t.land_cost_id ?? t.id;
+            }
           });
         });
 
@@ -153,6 +157,7 @@ const LandCost = () => {
               records: [
                 {
                   id: row.id,
+                  landCostId: row.landCostId,
                   leaseCaseNo: row.leaseCaseNo,
                   khataNos,
                   plotNos,
@@ -212,14 +217,23 @@ const LandCost = () => {
     if (!file) return;
 
     const record = khatas[kIndex].records[rIndex];
-    const uploadKey = `${record.id}-${attachmentType}`;
+    const landCostId = record.landCostId ?? record.id;
+    if (!landCostId) {
+      showError("land_cost_id is missing for this record");
+      return;
+    }
+
+    const demandNoteAttachment =
+      attachmentType === "receipt" ? "receipt" : "demand_note";
+
+    const uploadKey = `${landCostId}-${attachmentType}`;
     setUploadingKey(uploadKey);
 
     try {
       const formData = new FormData();
-      formData.append("land_cost_id", record.id);
-      formData.append("demand_note_attachment", attachmentType); // "demand_note" | "receipt"
-      formData.append("payment_proof", file); // actual file
+      formData.append("land_cost_id", String(landCostId));
+      formData.append("demand_note_attachment", demandNoteAttachment);
+      formData.append("payment_proof", file, file.name);
 
       const res = await fetch(
         `${API_BASE_URL}/govtplots/landCostPaymentUpload`,

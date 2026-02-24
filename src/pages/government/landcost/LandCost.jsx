@@ -78,9 +78,10 @@ const LandCost = () => {
                 leaseCaseNo: key,
                 khataNosSet: new Set(),
                 plotNosSet: new Set(),
+                uniqueIds: new Set(),
                 totalComp: 0,
                 totalArea: 0,
-                landCostAmount: 0,
+                landCostAmount: null,
                 id: t.id,
                 demandNoteFile: null,
                 receiptFile: null,
@@ -91,6 +92,10 @@ const LandCost = () => {
             }
 
             const row = groupedByLease[key];
+            const uniqueId = item.unique_id ?? t.unique_id ?? null;
+            if (uniqueId) {
+              row.uniqueIds.add(uniqueId);
+            }
 
             const rawKhataNos = item.khata_no ?? t.khata_no ?? "";
             rawKhataNos
@@ -109,9 +114,15 @@ const LandCost = () => {
               .forEach((p) => row.plotNosSet.add(p));
 
             row.totalArea += Number(t.total_area ?? item.total_area ?? 0);
-            row.landCostAmount += Number(
-              t.land_cost_amount ?? t.compensation_payment ?? 0,
-            );
+            const landCostValue = t.land_cost_amount ?? t.compensation_payment;
+            if (
+              landCostValue !== null &&
+              landCostValue !== undefined &&
+              landCostValue !== ""
+            ) {
+              row.landCostAmount =
+                Number(row.landCostAmount || 0) + Number(landCostValue);
+            }
 
             if (!row.itemKeys.has(itemKey)) {
               row.totalComp += Number(item.total_compensation ?? 0);
@@ -125,7 +136,7 @@ const LandCost = () => {
         });
 
         const mapped = Object.values(groupedByLease).map(
-          ({ khataNosSet, plotNosSet, itemKeys, ...row }) => {
+          ({ khataNosSet, plotNosSet, uniqueIds, itemKeys, ...row }) => {
             const khataNos = khataNosSet.size
               ? Array.from(khataNosSet).join(", ")
               : "No Data";
@@ -136,6 +147,7 @@ const LandCost = () => {
             return {
               leaseCaseNo: row.leaseCaseNo,
               khataNos,
+              uniqueIds: Array.from(uniqueIds),
               totalComp: row.totalComp,
               totalArea: row.totalArea,
               records: [
@@ -177,6 +189,7 @@ const LandCost = () => {
       (sum, r) => sum + Number(r.landCostAmount || 0),
       0,
     );
+    
 
     return {
       valid:
@@ -185,13 +198,11 @@ const LandCost = () => {
   };
 
   const handleLandCostChange = (kIndex, rIndex, value) => {
-    const amount = Math.max(value);
-
     setKhatas((prev) => {
       const updated = [...prev];
       updated[kIndex].records[rIndex] = {
         ...updated[kIndex].records[rIndex],
-        landCostAmount: amount,
+        landCostAmount: value,
       };
       return updated;
     });
@@ -252,6 +263,7 @@ const LandCost = () => {
       setUploadingKey(null);
     }
   };
+ 
 
   const handleDeleteRecord = (kIndex, rIndex) => {
     setKhatas((prev) => {
@@ -279,8 +291,8 @@ const LandCost = () => {
             lease_case_no: data.leaseCaseNo,
             plot_nos: data.plotNos,
             total_area: data.totalArea,
-            land_cost_amount: data.landCostAmount,
-            compensation_payment: data.landCostAmount,
+            land_cost_amount: Number(data.landCostAmount || 0),
+            compensation_payment: Number(data.landCostAmount || 0),
           }),
         },
       );
@@ -338,6 +350,53 @@ const LandCost = () => {
 
   const toggleAccordion = (index) => {
     setOpenIndex((prev) => (prev === index ? null : index));
+  };
+
+  const handlePaymentCompleted = async (khata) => {
+    const uniqueIds = Array.isArray(khata?.uniqueIds)
+      ? khata.uniqueIds.filter(Boolean)
+      : [];
+
+    if (!uniqueIds.length) {
+      showError("Unique ID is missing for this lease case");
+      return;
+    }
+
+    const payloadBase = {
+      project_id: Number(projectId),
+      type: Number(typeParam) || 2,
+    };
+
+    try {
+      const results = await Promise.all(
+        uniqueIds.map(async (uniqueId) => {
+          const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              unique_id: uniqueId,
+              ...payloadBase,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok || !data?.success) {
+            throw new Error(data?.message || "Failed to mark payment completed");
+          }
+          return data;
+        }),
+      );
+
+      showSuccess(
+        results?.[0]?.message || "Payment marked as completed successfully",
+      );
+      await fetchData();
+    } catch (err) {
+      showError(err.message || "Failed to mark payment as completed");
+    }
   };
 
   if (!projectId) {
@@ -441,219 +500,169 @@ const LandCost = () => {
               </div>
             </div>
             {openIndex === kIndex && (
-  <div className="p-4">
-    <div
-      className="overflow-x-auto mt-2"
-      style={{ scrollbarWidth: "thin" }}
-    >
-      <table className="table table-zebra w-full text-xs sm:text-sm table-fixed">
-        {/* ================= HEADER ================= */}
-        <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
-          <tr>
-            <th className="w-[140px] break-words whitespace-normal">
-              Khata Nos.
-            </th>
-
-            <th className="w-[340px] break-words whitespace-normal">
-              Plot Nos.
-            </th>
-
-            <th className="w-[140px] whitespace-nowrap">
-              Total Area
-            </th>
-
-            <th className="w-[140px] whitespace-nowrap">
-              Total Amount
-            </th>
-
-            <th className="w-[180px] break-words whitespace-nowrap">
-              Demand Note Attachment
-            </th>
-
-            <th className="w-[160px] break-words whitespace-nowrap">
-              Receipt Attachment
-            </th>
-
-            <th className="w-[160px] whitespace-nowrap text-center">
-              Edit / Delete / View
-            </th>
-          </tr>
-        </thead>
-
-        {/* ================= BODY ================= */}
-        <tbody>
-          {khata.records.map((r, rIndex) => (
-            <tr key={r.id ?? rIndex}>
-              {/* Khata Nos */}
-              <td className="w-[140px] whitespace-normal">
-                {r.khataNos || khata.khataNos || "No Data"}
-              </td>
-
-              {/* Plot Nos (WRAP + SCROLL) */}
-              <td className="w-[340px] max-h-28 overflow-y-auto break-words whitespace-normal">
-                {r.plotNos || "No Data"}
-              </td>
-
-              {/* Total Area */}
-              <td className="w-[140px] whitespace-nowrap">
-                {r.totalArea || 0}
-              </td>
-
-              {/* Total Amount */}
-              <td className="w-[140px]">
-                <input
-                  type="number"
-                  value={r.landCostAmount}
-                  className="input input-bordered input-xs sm:input-sm w-full"
-                  onChange={(e) =>
-                    handleLandCostChange(
-                      kIndex,
-                      rIndex,
-                      e.target.value
-                    )
-                  }
-                />
-              </td>
-
-              {/* Demand Note */}
-              <td className="w-[180px] whitespace-nowrap">
-                <label className="cursor-pointer flex items-center gap-2">
-                  <Upload size={16} />
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) =>
-                      handleFileChange(
-                        kIndex,
-                        rIndex,
-                        e.target.files?.[0],
-                        "demand_note"
-                      )
-                    }
-                  />
-
-                  {uploadingKey === `${r.id}-demand_note` ? (
-                    <span className="loading loading-spinner loading-xs" />
-                  ) : r.demandNoteFile ? (
-                    <span
-                      className="text-green-600 text-xs max-w-[120px] truncate"
-                      title={r.demandNoteFile.name}
-                    >
-                      {r.demandNoteFile.name}
-                    </span>
-                  ) : r.demandNoteUrl ? (
-                    <a
-                      href={r.demandNoteUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 text-xs underline"
-                    >
-                      View
-                    </a>
-                  ) : (
-                    <span className="text-gray-400 text-xs">
-                      Choose
-                    </span>
-                  )}
-                </label>
-              </td>
-
-              {/* Receipt */}
-              <td className="w-[160px] whitespace-nowrap">
-                <label className="cursor-pointer flex items-center gap-2">
-                  <Upload size={16} />
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) =>
-                      handleFileChange(
-                        kIndex,
-                        rIndex,
-                        e.target.files?.[0],
-                        "receipt"
-                      )
-                    }
-                  />
-
-                  {uploadingKey === `${r.id}-receipt` ? (
-                    <span className="loading loading-spinner loading-xs" />
-                  ) : r.receiptFile ? (
-                    <span
-                      className="text-green-600 text-xs max-w-[120px] truncate"
-                      title={r.receiptFile.name}
-                    >
-                      {r.receiptFile.name}
-                    </span>
-                  ) : r.receiptUrl ? (
-                    <a
-                      href={r.receiptUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 text-xs underline"
-                    >
-                      View
-                    </a>
-                  ) : (
-                    <span className="text-gray-400 text-xs">
-                      Choose
-                    </span>
-                  )}
-                </label>
-              </td>
-
-              {/* Actions */}
-              <td className="w-[160px] whitespace-nowrap">
-                <div className="flex items-center gap-2 justify-center">
-                  <button
-                    className="btn btn-xs btn-warning text-white"
-                    onClick={() => {
-                      setEditData({ ...r });
-                      setEditIndex({ kIndex, rIndex });
-                      setIsEditOpen(true);
-                    }}
+              <div className="p-4 space-y-4">
+                {khata.records.map((r, rIndex) => (
+                  <div
+                    key={r.id ?? rIndex}
+                    className="shadow-md rounded-lg p-3 md:p-4 bg-blue-50"
                   >
-                    <Pencil size={14} />
-                  </button>
+                      <div className="mb-3">
+                      <p className="text-sm font-semibold text-gray-500 mb-1">Plot Nos.</p>
+                      <div className="text-sm bg-white shadow-md rounded-md p-2 max-h-28 overflow-y-auto break-words leading-6 bg-blue-50">
+                        {r.plotNos || "No Data"}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Khata Nos.</p>
+                        <p className="text-sm font-medium break-words">
+                          {r.khataNos || khata.khataNos || "No Data"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Total Area</p>
+                        <p className="text-sm font-medium">{r.totalArea || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Total Amount</p>
+                        <input
+                          type="number"
+                          value={r.landCostAmount ?? ""}
+                          className="input input-bordered input-sm w-full max-w-[180px]"
+                          onChange={(e) =>
+                            handleLandCostChange(kIndex, rIndex, e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Actions</p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="btn btn-xs btn-warning text-white"
+                            onClick={() => {
+                              setEditData({ ...r });
+                              setEditIndex({ kIndex, rIndex });
+                              setIsEditOpen(true);
+                            }}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            className="btn btn-xs btn-error text-white"
+                            onClick={() => handleDeleteRecord(kIndex, rIndex)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                          <button
+                            className="btn btn-xs btn-info text-white"
+                            onClick={() => {
+                              setEditData({ ...r });
+                              setIsViewOpen(true);
+                            }}
+                          >
+                            <Eye size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
 
-                  <button
-                    className="btn btn-xs btn-error text-white"
-                    onClick={() =>
-                      handleDeleteRecord(kIndex, rIndex)
-                    }
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  
 
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Demand Note Attachment</p>
+                        <label className="cursor-pointer flex items-center gap-2">
+                          <Upload size={16} />
+                          <input
+                            type="file"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleFileChange(
+                                kIndex,
+                                rIndex,
+                                e.target.files?.[0],
+                                "demand_note"
+                              )
+                            }
+                          />
+                          {uploadingKey === `${r.id}-demand_note` ? (
+                            <span className="loading loading-spinner loading-xs" />
+                          ) : r.demandNoteFile ? (
+                            <span
+                              className="text-green-600 text-xs max-w-[180px] truncate"
+                              title={r.demandNoteFile.name}
+                            >
+                              {r.demandNoteFile.name}
+                            </span>
+                          ) : r.demandNoteUrl ? (
+                            <a
+                              href={r.demandNoteUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-600 text-xs underline"
+                            >
+                              View
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-xs">Choose</span>
+                          )}
+                        </label>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Receipt Attachment</p>
+                        <label className="cursor-pointer flex items-center gap-2">
+                          <Upload size={16} />
+                          <input
+                            type="file"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleFileChange(
+                                kIndex,
+                                rIndex,
+                                e.target.files?.[0],
+                                "receipt"
+                              )
+                            }
+                          />
+                          {uploadingKey === `${r.id}-receipt` ? (
+                            <span className="loading loading-spinner loading-xs" />
+                          ) : r.receiptFile ? (
+                            <span
+                              className="text-green-600 text-xs max-w-[180px] truncate"
+                              title={r.receiptFile.name}
+                            >
+                              {r.receiptFile.name}
+                            </span>
+                          ) : r.receiptUrl ? (
+                            <a
+                              href={r.receiptUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-600 text-xs underline"
+                            >
+                              View
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-xs">Choose</span>
+                          )}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex justify-end mt-4 md:mt-6">
                   <button
-                    className="btn btn-xs btn-info text-white"
-                    onClick={() => {
-                      setEditData({ ...r });
-                      setIsViewOpen(true);
-                    }}
+                    className="btn btn-primary w-full md:w-auto"
+                    disabled={!valid}
+                    title={!valid ? "Totals do not match!" : ""}
+                    onClick={() => handlePaymentCompleted(khata)}
                   >
-                    <Eye size={14} />
+                    Payment Completed
                   </button>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    {/* ================= FOOTER BUTTON ================= */}
-    <div className="flex justify-end mt-4 md:mt-6">
-      <button
-        className="btn btn-primary w-full md:w-auto"
-        disabled={!valid}
-        title={!valid ? "Totals do not match!" : ""}
-        onClick={() => handlePaymentCompleted(khata)}
-      >
-        Payment Completed
-      </button>
-    </div>
-  </div>
-)}
+              </div>
+            )}
           </div>
         );
       })}
@@ -670,12 +679,8 @@ const LandCost = () => {
                   type="text"
                   className="input input-bordered w-full"
                   value={editData.leaseCaseNo || ""}
-                  onChange={(e) =>
-                    setEditData((prev) => ({
-                      ...prev,
-                      leaseCaseNo: e.target.value,
-                    }))
-                  }
+                  readOnly
+                  tabIndex={-1}
                 />
               </div>
 
@@ -685,12 +690,8 @@ const LandCost = () => {
                   type="text"
                   className="input input-bordered w-full"
                   value={editData.khataNos || ""}
-                  onChange={(e) =>
-                    setEditData((prev) => ({
-                      ...prev,
-                      khataNos: e.target.value,
-                    }))
-                  }
+                  readOnly
+                  tabIndex={-1}
                 />
               </div>
 
@@ -700,12 +701,8 @@ const LandCost = () => {
                   type="text"
                   className="input input-bordered w-full"
                   value={editData.plotNos || ""}
-                  onChange={(e) =>
-                    setEditData((prev) => ({
-                      ...prev,
-                      plotNos: e.target.value,
-                    }))
-                  }
+                  readOnly
+                  tabIndex={-1}
                 />
               </div>
 
@@ -729,11 +726,11 @@ const LandCost = () => {
                 <input
                   type="number"
                   className="input input-bordered w-full"
-                  value={editData.landCostAmount}
+                  value={editData.landCostAmount ?? ""}
                   onChange={(e) =>
                     setEditData((prev) => ({
                       ...prev,
-                      landCostAmount: Math.max(0, Number(e.target.value) || 0),
+                      landCostAmount: e.target.value,
                     }))
                   }
                 />

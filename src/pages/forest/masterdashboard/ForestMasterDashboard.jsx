@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const summaryCards = [
   {
@@ -216,13 +216,6 @@ const dashboardData = [
 ];
 
 export default function ForestMasterDashboard() {
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
-
-  const totalPages = Math.ceil(dashboardData.length / rowsPerPage);
-  const start = (page - 1) * rowsPerPage;
-  const currentRows = dashboardData.slice(start, start + rowsPerPage);
-
  const COLUMN_LABELS = {
   sl: "SL",
   metric: "DASHBOARD METRIC",
@@ -301,22 +294,24 @@ const exportDashboardCSV = (rows, fileName) => {
           Export
         </button>
       </div>
-      <div className="shadow-lg overflow-hidden">
-        <div className="max-h-[420px] overflow-y-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-200 sticky top-0 z-10">
+      <div className="shadow-lg overflow-hidden" >
+        <div
+        //  className="max-h-[420px] overflow-y-auto" style={{scrollbarWidth:"none"}}
+         >
+          <table className="min-w-full text-sm ">
+            <thead className="bg-gray-200 sticky top-0 z-10 border-collapse border border-gray-700">
               <tr>
-                <th className="border px-2 py-2">Sl</th>
-                <th className="border px-2 py-2 text-left">Dashboard Metric</th>
-                <th className="border px-2 py-2">Stage-0</th>
-                <th className="border px-2 py-2">Stage-I</th>
-                <th className="border px-2 py-2">Stage-II</th>
-                <th className="border px-2 py-2">Post</th>
-                <th className="border px-2 py-2">Total</th>
+                <th className=" px-2 py-2">Sl</th>
+                <th className=" px-2 py-2 text-left">Dashboard Metric</th>
+                <th className=" px-2 py-2">Stage-0</th>
+                <th className=" px-2 py-2">Stage-I</th>
+                <th className=" px-2 py-2">Stage-II</th>
+                <th className=" px-2 py-2">Post</th>
+                <th className=" px-2 py-2">Total</th>
               </tr>
             </thead>
-            <tbody>
-              {currentRows.map((row) => (
+            <tbody className="border-collapse border border-gray-300">
+              {dashboardData.map((row) => (
                 <tr key={row.sl} className="hover:bg-gray-50">
                   <td className="border px-2 py-1 text-center">{row.sl}</td>
                   <td className="border px-2 py-1">{row.metric}</td>
@@ -331,30 +326,6 @@ const exportDashboardCSV = (rows, fileName) => {
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="flex items-center justify-between p-3 bg-gray-50">
-          <span className="text-sm">
-            Showing {start + 1}–
-            {Math.min(start + rowsPerPage, dashboardData.length)} of{" "}
-            {dashboardData.length}
-          </span>
-
-          <div className="space-x-2">
-            <button
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              disabled={page === 1}
-              className="border rounded disabled:opacity-50 btn-sm text-sm px-3"
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-              disabled={page === totalPages}
-              className="border rounded disabled:opacity-50 btn-sm text-sm px-3"
-            >
-              Next
-            </button>
-          </div>
         </div>
       </div>
     </div>

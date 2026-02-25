@@ -51,7 +51,7 @@ const Logs = () => {
   }, [search, logs]);
 
   return (
-    <main className="p-6 space-y-6">
+    <main className="p-4 space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <h2 className="text-xl font-bold">📜 System Logs</h2>
         <input
@@ -67,9 +67,9 @@ const Logs = () => {
       {loading && <p>Loading logs...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
-        <div className="overflow-auto max-h-[600px] border rounded-md shadow-sm">
+        <div className="overflow-auto max-h-[600px] border rounded-md shadow-sm" style={{scrollbarWidth:"thin"}}>
           <table className="min-w-full text-sm text-left border-collapse">
-            <thead className="bg-gray-100 sticky top-0 z-10">
+            <thead className="bg-gray-100 sticky top-0 z-10 whitespace-nowrap">
               <tr>
                 <th className="px-4 py-2 border">#</th>
                 <th className="px-4 py-2 border">User ID</th>
@@ -83,7 +83,7 @@ const Logs = () => {
             <tbody>
               {filteredLogs.length > 0 ? (
                 filteredLogs.map((log, idx) => (
-                  <tr key={log.id} className="hover:bg-gray-50">
+                  <tr key={log.id} className="hover:bg-gray-50 whitespace-nowrap">
                     <td className="px-4 py-2 border text-center">
                       {(page - 1) * 10 + idx + 1}
                     </td>
@@ -102,7 +102,7 @@ const Logs = () => {
                     </td>
                     <td className="px-4 py-2 border">{log.message}</td>
                     <td className="px-4 py-2 border">
-                      {log.response_payload?.name || "N/A"}
+                      {log.user_name || "N/A"}
                     </td>
                     <td className="px-4 py-2 border">
                       {moment(log.created_at).format("DD MMM YYYY, h : mm A")}

@@ -105,16 +105,16 @@ export default function Sidebar({ open, setOpen, isMobile }) {
             base: "khata-reports",
             children: ["Khata Summary", "Khata Document"],
           },
-          {
-            title: "Village Reports",
-            base: "village-reports",
-            children: ["Village Land Register", "Village Document Report"],
-          },
-          {
-            title: "Plot Reports",
-            base: "plot-reports",
-            children: ["Plot Details", "Plot Owner History"],
-          },
+          // {
+          //   title: "Village Reports",
+          //   base: "village-reports",
+          //   children: ["Village Land Register", "Village Document Report"],
+          // },
+          // {
+          //   title: "Plot Reports",
+          //   base: "plot-reports",
+          //   children: ["Plot Details", "Plot Owner History"],
+          // },
         ],
         roles: ["Admin", "Data Entry User", "Viewer"],
       },

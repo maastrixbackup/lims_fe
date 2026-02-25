@@ -25,12 +25,8 @@ const Projects = () => {
 
   const canModify = !(userRole === "Data Entry User" || userRole === "Viewer");
 
-  const {
-    projects,
-    loading,
-    handleSaveProject,
-    handleDeleteProject,
-  } = useProjects(token);
+  const { projects, loading, handleSaveProject, handleDeleteProject } =
+    useProjects(token);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
@@ -53,7 +49,7 @@ const Projects = () => {
       data.sort((a, b) =>
         sortOrder === "asc"
           ? a.project_name.localeCompare(b.project_name)
-          : b.project_name.localeCompare(a.project_name)
+          : b.project_name.localeCompare(a.project_name),
       );
     }
 
@@ -67,7 +63,7 @@ const Projects = () => {
       setEditingProject(project);
       setIsModalOpen(true);
     },
-    [canModify]
+    [canModify],
   );
 
   const closeModal = useCallback(() => {
@@ -80,7 +76,7 @@ const Projects = () => {
       await handleSaveProject(formData, editingProject);
       closeModal();
     },
-    [handleSaveProject, editingProject, closeModal]
+    [handleSaveProject, editingProject, closeModal],
   );
 
   const handleConfirmDelete = useCallback(async () => {
@@ -91,52 +87,62 @@ const Projects = () => {
   /* ================= UI ================= */
   return (
     <main>
-     <div className="flex justify-between items-center flex-wrap gap-4 mb-4">
-  <h2 className="text-lg font-semibold">Projects List</h2>
+      <div className="flex justify-between items-center flex-wrap gap-4 mb-4">
+        <h2 className="text-lg font-semibold">Projects List</h2>
 
-  <div className="grid grid-cols-3 gap-3 items-center w-full sm:w-auto">
-    <select
-      className="select bg-white border border-gray-400 w-full"
-      value={typeFilter}
-      onChange={(e) => setTypeFilter(e.target.value)}
-    >
-      {PROJECT_TYPES.map((t) => (
-        <option key={t.value} value={t.value}>
-          {t.label}
-        </option>
-      ))}
-    </select>
+        <div className="grid grid-cols-3 gap-3 items-center w-full sm:w-auto">
+          <select
+            className="select bg-white border border-gray-400 w-full"
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+          >
+            {PROJECT_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
 
-    <select
-      className="select bg-white border border-gray-400 w-full"
-      value={sortOrder}
-      onChange={(e) => setSortOrder(e.target.value)}
-    >
-      <option value="">Sort by Name</option>
-      <option value="asc">Ascending</option>
-      <option value="desc">Descending</option>
-    </select>
+          <select
+            className="select bg-white border border-gray-400 w-full"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="">Sort by Name</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
 
-    <button
-      className={`btn btn-primary w-full text-white ${
-        !canModify &&
-        "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
-      }`}
-      onClick={() => openModal()}
-      disabled={!canModify}
-    >
-      + Add Project
-    </button>
+          <button
+            className={`btn btn-primary w-full text-white ${
+              !canModify &&
+              "!bg-gray-300 !text-gray-400 !border-gray-300 !cursor-not-allowed"
+            }`}
+            onClick={() => openModal()}
+            disabled={!canModify}
+          >
+            + Add Project
+          </button>
+        </div>
+      </div>
+
+    {!loading && filteredAndSortedProjects.length === 0 ? (
+  <div className="flex flex-col items-center justify-center py-10 text-center ">
+    <p className="text-gray-600 font-medium text-red-600 text-lg">
+      No projects found
+    </p>
+    <p className="text-sm text-gray-500 mt-1">
+      Try changing filters or add a new project.
+    </p>
   </div>
-</div>
-
-
-      <ProjectTable
-        projects={filteredAndSortedProjects}
-        loading={loading}
-        onEdit={openModal}
-        onDelete={setDeleteConfirm}
-      />
+) : (
+  <ProjectTable
+    projects={filteredAndSortedProjects}
+    loading={loading}
+    onEdit={openModal}
+    onDelete={setDeleteConfirm}
+  />
+)}
 
       {isModalOpen && (
         <ProjectFormModal

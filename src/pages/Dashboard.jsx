@@ -101,6 +101,7 @@ export default function Dashboard() {
             value={landData.plots ?? 0}
             gradient="bg-gradient-to-r from-orange-400 to-red-500"
             onClick={() => navigateByLandType("plots")}
+            
           />
            <StatsCard
             title="Payment Status"
@@ -116,6 +117,7 @@ export default function Dashboard() {
             title="RR Status"
             value={landData.rr_status ?? 0}
             gradient="bg-gradient-to-r from-sky-400 to-blue-600"
+            onClick={() => navigateByLandType("khatas")}
           />
         </div>
 

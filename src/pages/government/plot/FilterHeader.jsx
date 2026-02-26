@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Filter, ArrowUpDown } from "lucide-react";
+import { Filter, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 const FilterHeader = ({
   column,
@@ -32,6 +32,14 @@ const FilterHeader = ({
           : type === "text"
             ? getUniqueValues(key)
             : [];
+  const isSorted = sortConfig.key === key;
+  const sortDirection = isSorted ? sortConfig.direction : null;
+
+  const renderSortIcon = () => {
+    if (!isSorted) return <ArrowUpDown size={14} className="text-gray-400" />;
+    if (sortDirection === "asc") return <ArrowUp size={14} className="text-black" />;
+    return <ArrowDown size={14} className="text-black" />;
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -95,19 +103,25 @@ const FilterHeader = ({
         onClick={() => setActiveFilterKey(isOpen ? null : key)}
       />
 
-      <ArrowUpDown
-        size={14}
-        className={`cursor-pointer ${
-          sortConfig.key === key ? "text-blue-600" : "text-gray-400 hover:text-gray-600"
+      <button
+        type="button"
+        className={`p-1 rounded cursor-pointer ${
+          isSorted ? "text-blue-600" : "text-gray-400 hover:text-gray-600"
         }`}
         onClick={() =>
-          setSortConfig((prev) => ({
-            key,
-            direction:
-              prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-          }))
+          setSortConfig((prev) => {
+            if (prev.key !== key) {
+              return { key, direction: "asc" };
+            }
+            if (prev.direction === "asc") {
+              return { key, direction: "desc" };
+            }
+            return { key: null, direction: "asc" };
+          })
         }
-      />
+      >
+        {renderSortIcon()}
+      </button>
 
       {isOpen &&
         createPortal(

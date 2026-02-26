@@ -76,13 +76,13 @@ const PlotTable = ({
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
-      if (prev.field === field) {
-        return {
-          field,
-          direction: prev.direction === "asc" ? "desc" : "asc",
-        };
+      if (prev.field !== field) {
+        return { field, direction: "asc" };
       }
-      return { field, direction: "asc" };
+      if (prev.direction === "asc") {
+        return { field, direction: "desc" };
+      }
+      return { field: null, direction: "asc" };
     });
   };
 
@@ -224,6 +224,66 @@ const PlotTable = ({
   }, [projectFilteredPlots]);
 
   const filteredPlots = useMemo(() => {
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+
+    const parseNumericValue = (value) => {
+      if (typeof value === "number" && Number.isFinite(value)) return value;
+      if (typeof value !== "string") return null;
+      const normalized = value.replace(/,/g, "").trim();
+      if (!normalized) return null;
+      const num = Number(normalized);
+      return Number.isFinite(num) ? num : null;
+    };
+
+    const naturalCompare = (aText, bText) => {
+      const aParts = aText.match(/(\d+|\D+)/g) || [aText];
+      const bParts = bText.match(/(\d+|\D+)/g) || [bText];
+      const maxLen = Math.max(aParts.length, bParts.length);
+
+      for (let i = 0; i < maxLen; i += 1) {
+        const aPart = aParts[i];
+        const bPart = bParts[i];
+
+        if (aPart === undefined) return -1;
+        if (bPart === undefined) return 1;
+
+        const aIsNum = /^\d+$/.test(aPart);
+        const bIsNum = /^\d+$/.test(bPart);
+
+        if (aIsNum && bIsNum) {
+          const diff = Number(aPart) - Number(bPart);
+          if (diff !== 0) return diff;
+          continue;
+        }
+
+        const partCompare = collator.compare(aPart, bPart);
+        if (partCompare !== 0) return partCompare;
+      }
+
+      return 0;
+    };
+
+    const compareValues = (aVal, bVal, direction) => {
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      const aNum = parseNumericValue(aVal);
+      const bNum = parseNumericValue(bVal);
+
+      if (aNum !== null && bNum !== null) {
+        return direction === "asc" ? aNum - bNum : bNum - aNum;
+      }
+
+      const aText = String(aVal).trim();
+      const bText = String(bVal).trim();
+      const result = naturalCompare(aText, bText);
+      return direction === "asc" ? result : -result;
+    };
+
     let data = projectFilteredPlots.filter((plot) => {
       const searchText = Object.values(plot)
         .map((value) => {
@@ -250,17 +310,7 @@ const PlotTable = ({
       data.sort((a, b) => {
         const aVal = a[sortConfig.field];
         const bVal = b[sortConfig.field];
-
-        if (aVal == null) return 1;
-        if (bVal == null) return -1;
-
-        if (typeof aVal === "number") {
-          return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
-        }
-
-        return sortConfig.direction === "asc"
-          ? String(aVal).localeCompare(String(bVal))
-          : String(bVal).localeCompare(String(aVal));
+        return compareValues(aVal, bVal, sortConfig.direction);
       });
     }
 

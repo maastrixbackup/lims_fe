@@ -353,11 +353,11 @@ const UserManagement = () => {
                   }}
                   className="file-input file-input-bordered w-full"
                 />
-                {formData.profile_pic && (
+                {(formData.profile_pic || formData.existing_profile_pic) && (
                   <p className="text-xs text-gray-500 mt-1">
-                    {typeof formData.profile_pic === "string"
-                      ? formData.profile_pic.split("/").pop()
-                      : formData.profile_pic.name}
+                    {formData.profile_pic instanceof File
+                      ? formData.profile_pic.name
+                      : formData.existing_profile_pic.split("/").pop()}
                   </p>
                 )}
               </div>

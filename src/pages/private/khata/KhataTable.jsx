@@ -72,6 +72,10 @@ const KhataTable = ({
     "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
   const stickyActionCell =
     "p-3 text-right sticky right-0 border-l border-gray-100 shadow-sm bg-white";
+  const sortCollator = new Intl.Collator(undefined, {
+    sensitivity: "base",
+    numeric: true,
+  });
 
   const formatThreeItems = (value) => {
     if (!value) return "No data";
@@ -85,13 +89,32 @@ const KhataTable = ({
     return items.length > 3 ? `${firstThree} … (${items.length})` : firstThree;
   };
 
-  const normalizeValue = (value) => {
-    if (value === null || value === undefined) return "";
-    if (typeof value === "number") return value;
-    if (!isNaN(Date.parse(value))) return new Date(value).getTime();
-    if (typeof value === "string")
-      return value.split(",")[0].trim().toLowerCase();
-    return value.toString().toLowerCase();
+  const parseNumericValue = (value) => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (value == null) return null;
+    const normalized = String(value).replace(/,/g, "").trim();
+    if (!normalized) return null;
+    const num = Number(normalized);
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const compareNaturally = (aVal, bVal, direction) => {
+    if (aVal == null && bVal == null) return 0;
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    const aText = String(aVal).split(",")[0].trim();
+    const bText = String(bVal).split(",")[0].trim();
+    const aNum = parseNumericValue(aText);
+    const bNum = parseNumericValue(bText);
+
+    if (aNum !== null && bNum !== null) {
+      const diff = aNum - bNum;
+      return direction === "asc" ? diff : -diff;
+    }
+
+    const result = sortCollator.compare(aText, bText);
+    return direction === "asc" ? result : -result;
   };
 
   const handleSort = (field) => {
@@ -117,7 +140,9 @@ const KhataTable = ({
         set.add(String(val));
       }
     });
-    return Array.from(set).sort();
+    return Array.from(set).sort((a, b) =>
+      sortCollator.compare(String(a), String(b))
+    );
   };
 
   const filteredKhatas = displayKhatas
@@ -138,12 +163,11 @@ const KhataTable = ({
     )
     .sort((a, b) => {
       if (!sortConfig.field || !sortConfig.direction) return 0;
-      const aVal = normalizeValue(a[sortConfig.field]);
-      const bVal = normalizeValue(b[sortConfig.field]);
-
-      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
+      return compareNaturally(
+        a[sortConfig.field],
+        b[sortConfig.field],
+        sortConfig.direction
+      );
     });
 
   const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));

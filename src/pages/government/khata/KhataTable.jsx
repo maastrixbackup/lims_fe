@@ -47,8 +47,45 @@ const KhataTable = ({
 
   const stickyCol2Cell =
     "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
+  const sortCollator = new Intl.Collator(undefined, {
+    sensitivity: "base",
+    numeric: true,
+  });
+
+  const parseNumericValue = (value) => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (value == null) return null;
+
+    const normalized = String(value).replace(/,/g, "").trim();
+    if (!normalized) return null;
+
+    const num = Number(normalized);
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const compareValues = (aVal, bVal, direction) => {
+    if (aVal == null && bVal == null) return 0;
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    const aNum = parseNumericValue(aVal);
+    const bNum = parseNumericValue(bVal);
+
+    if (aNum !== null && bNum !== null) {
+      const diff = aNum - bNum;
+      return direction === "asc" ? diff : -diff;
+    }
+
+    const aText = String(aVal).trim();
+    const bText = String(bVal).trim();
+    const result = sortCollator.compare(aText, bText);
+    return direction === "asc" ? result : -result;
+  };
+
   const getUniqueValues = (key) => {
-    return [...new Set(khatas.map((k) => k[key]).filter(Boolean))];
+    return [...new Set(khatas.map((k) => k[key]).filter(Boolean))].sort((a, b) =>
+      sortCollator.compare(String(a), String(b)),
+    );
   };
 
   const filteredKhatas = khatas
@@ -64,10 +101,7 @@ const KhataTable = ({
 
       const aVal = a[sortConfig.key] ?? "";
       const bVal = b[sortConfig.key] ?? "";
-
-      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
+      return compareValues(aVal, bVal, sortConfig.direction);
     });
 
   const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));

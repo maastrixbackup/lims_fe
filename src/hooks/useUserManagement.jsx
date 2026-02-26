@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { apiClient } from "../utils/apiClient"; // <-- GLOBAL API CLIENT
 
 export default function useUserManagement(token) {
@@ -33,6 +32,7 @@ export default function useUserManagement(token) {
   role_id: "",
   accessed_projects: [],
   profile_pic: null,
+  existing_profile_pic: "",
   permissions: {
     can_add: false,
     can_edit: false,
@@ -104,7 +104,8 @@ export default function useUserManagement(token) {
         role_id: user.role_id || "",
         accessed_projects: parsedProjects,
         phone_number: user.phone_number || "",
-        profile_pic: user.profile_pic || "",
+        profile_pic: null,
+        existing_profile_pic: user.profile_pic || "",
       });
     } else {
       resetForm();
@@ -122,7 +123,8 @@ export default function useUserManagement(token) {
       role_id: "",
       accessed_projects: [],
       phone_number: "",
-      profile_pic: "",
+      profile_pic: null,
+      existing_profile_pic: "",
     });
   };
 
@@ -156,6 +158,10 @@ export default function useUserManagement(token) {
 
       if (formData.profile_pic instanceof File) {
         form.append("profile_pic", formData.profile_pic);
+      } else if (editingUser && formData.existing_profile_pic) {
+        // Keep current image on edit when no new file is chosen.
+        form.append("existing_profile_pic", formData.existing_profile_pic);
+        form.append("keep_existing_profile_pic", "1");
       }
 
       const endpoint = editingUser

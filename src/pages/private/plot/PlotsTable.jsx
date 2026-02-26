@@ -76,13 +76,13 @@ const PlotTable = ({
 
   const handleSort = (field) => {
     setSortConfig((prev) => {
-      if (prev.field === field) {
-        return {
-          field,
-          direction: prev.direction === "asc" ? "desc" : "asc",
-        };
+      if (prev.field !== field) {
+        return { field, direction: "asc" };
       }
-      return { field, direction: "asc" };
+      if (prev.direction === "asc") {
+        return { field, direction: "desc" };
+      }
+      return { field: null, direction: "asc" };
     });
   };
 

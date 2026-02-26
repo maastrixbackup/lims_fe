@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { X, CheckCircle } from "lucide-react";
+import { X } from "lucide-react";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../utils/apiClient";
+import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import SuccessMessage from "../../../shared/SuccessMessage";
 
 const VillageFormModal = ({
   isOpen,
@@ -15,6 +17,7 @@ const VillageFormModal = ({
   const { projects } = useSelector((s) => s.list);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const typeParam = useLandTypeParam();
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const [formData, setFormData] = useState({
     project_id: "",
@@ -28,7 +31,6 @@ const VillageFormModal = ({
   });
 
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -89,28 +91,33 @@ const VillageFormModal = ({
 
     const method = editingVillage ? "PUT" : "POST";
 
-    const data = await apiClient(endpoint, {
-      method,
-      body: formData,
-    });
+    try {
+      const data = await apiClient(endpoint, {
+        method,
+        body: formData,
+      });
 
-    setLoading(false);
+      if (data?.success) {
+        showSuccess(
+          data.message ||
+            (editingVillage
+              ? "Village updated successfully!"
+              : "Village added successfully!"),
+        );
 
-    if (data.success) {
-      setSuccessMessage(
-        editingVillage
-          ? "Village updated successfully!"
-          : "Village added successfully!",
-      );
+        fetchVillages();
 
-      fetchVillages();
-
-      setTimeout(() => {
-        setSuccessMessage("");
-        onClose();
-      }, 1500);
-    } else {
-      setSuccessMessage(data.message || "Something went wrong.");
+        setTimeout(() => {
+          closeModal();
+          onClose();
+        }, 800);
+      } else {
+        showError(data?.message || "Something went wrong.");
+      }
+    } catch (error) {
+      showError("Failed to save village. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,15 +134,7 @@ const VillageFormModal = ({
           {editingVillage ? "Edit Village" : "Add Village"}
         </h3>
 
-        {successMessage ? (
-          <div className="flex flex-col items-center justify-center text-center space-y-3 py-6">
-            <CheckCircle className="text-green-500 w-12 h-12" />
-            <p className="text-lg font-semibold text-green-600">
-              {successMessage}
-            </p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
             {/* Project Name */}
             <div>
               <label className="block text-sm font-medium mb-1">
@@ -309,9 +308,14 @@ const VillageFormModal = ({
                     : "Save"}
               </button>
             </div>
-          </form>
-        )}
+        </form>
       </div>
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </dialog>
   );
 };

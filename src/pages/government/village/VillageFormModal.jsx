@@ -75,7 +75,7 @@ const VillageFormModal = ({
 
     // if (!formData.village_code.trim())
     //   newErrors.village_code = "Village code is required.";
-    if (!formData.thana_name_no.trim()) newErrors.thana_name_no = "Thana No is required.";
+    // if (!formData.thana_name_no.trim()) newErrors.thana_name_no = "Thana No is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

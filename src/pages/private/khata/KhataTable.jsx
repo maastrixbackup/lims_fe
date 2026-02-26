@@ -86,7 +86,10 @@ const KhataTable = ({
         ? value
         : [];
     const firstThree = items.slice(0, 3).join(", ");
-    return items.length > 3 ? `${firstThree} … (${items.length})` : firstThree;
+    const remainingCount = items.length - 3;
+    return remainingCount > 0
+      ? `${firstThree} ... (${remainingCount})`
+      : firstThree;
   };
 
   const parseNumericValue = (value) => {

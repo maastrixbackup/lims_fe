@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUp,
   ArrowDown,
@@ -20,10 +20,24 @@ const FilterableHeader = ({
   onSort,
 }) => {
   const buttonRef = useRef(null);
+  const [optionSearch, setOptionSearch] = useState("");
   const options = getFilterOptions(field) || [];
+  const filteredOptions = useMemo(() => {
+    const query = optionSearch.trim().toLowerCase();
+    if (!query) return options;
+    return options.filter((opt) =>
+      String(opt).toLowerCase().includes(query)
+    );
+  }, [options, optionSearch]);
 
   const isActive = sortConfig?.field === field;
   const direction = isActive ? sortConfig.direction : null;
+
+  useEffect(() => {
+    if (activeFilter === field) {
+      setOptionSearch("");
+    }
+  }, [activeFilter, field]);
 
   const renderSortIcon = () => {
     if (!isActive) return <ArrowUpDown size={14} className="text-gray-400" />;
@@ -67,6 +81,15 @@ const FilterableHeader = ({
           onClose={() => setActiveFilter(null)}
         >
           <div className="bg-white rounded-md shadow-lg w-52 max-h-60 overflow-y-auto">
+            <div className="p-2 border-b">
+              <input
+                type="text"
+                value={optionSearch}
+                onChange={(e) => setOptionSearch(e.target.value)}
+                placeholder="Search options..."
+                className="input input-sm input-bordered w-full"
+              />
+            </div>
             <ul className="menu p-2 text-sm">
               <li>
                 <button
@@ -86,7 +109,7 @@ const FilterableHeader = ({
 
               <li className="my-1 border-t" />
 
-              {options.map((opt) => (
+              {filteredOptions.map((opt) => (
                 <li key={opt}>
                   <button
                     className={
@@ -103,6 +126,9 @@ const FilterableHeader = ({
                   </button>
                 </li>
               ))}
+              {filteredOptions.length === 0 && (
+                <li className="px-3 py-2 text-gray-500">No options found</li>
+              )}
             </ul>
           </div>
         </FilterDropdownPortal>

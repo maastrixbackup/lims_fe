@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Filter, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
@@ -16,6 +16,7 @@ const FilterHeader = ({
   const triggerRef = useRef(null);
   const dropdownRef = useRef(null);
   const [style, setStyle] = useState({});
+  const [optionSearch, setOptionSearch] = useState("");
 
   if (!column) return null;
 
@@ -32,6 +33,13 @@ const FilterHeader = ({
           : type === "text"
             ? getUniqueValues(key)
             : [];
+  const filteredOptions = useMemo(() => {
+    const query = optionSearch.trim().toLowerCase();
+    if (!query) return filterOptions;
+    return filterOptions.filter((value) =>
+      String(value).toLowerCase().includes(query),
+    );
+  }, [filterOptions, optionSearch]);
   const isSorted = sortConfig.key === key;
   const sortDirection = isSorted ? sortConfig.direction : null;
 
@@ -89,6 +97,12 @@ const FilterHeader = ({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setOptionSearch("");
+    }
+  }, [isOpen]);
+
   return (
     <div ref={containerRef} className="relative flex items-center gap-1">
       <span ref={triggerRef} className="font-semibold text-sm text-gray-700">
@@ -130,6 +144,15 @@ const FilterHeader = ({
             style={style}
             className="bg-white rounded-lg shadow-xl border border-gray-200"
           >
+            <div className="p-2 border-b">
+              <input
+                type="text"
+                value={optionSearch}
+                onChange={(e) => setOptionSearch(e.target.value)}
+                placeholder="Search options..."
+                className="input input-sm input-bordered w-full"
+              />
+            </div>
             <ul className="max-h-56 overflow-y-auto text-sm" style={{ scrollbarWidth: "thin" }}>
               <li>
                 <button
@@ -145,7 +168,7 @@ const FilterHeader = ({
                 </button>
               </li>
 
-              {filterOptions.map((value) => (
+              {filteredOptions.map((value) => (
                 <li key={value}>
                   <button
                     className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${
@@ -160,6 +183,9 @@ const FilterHeader = ({
                   </button>
                 </li>
               ))}
+              {filteredOptions.length === 0 && (
+                <li className="px-3 py-2 text-gray-500">No options found</li>
+              )}
             </ul>
           </div>,
           document.body,

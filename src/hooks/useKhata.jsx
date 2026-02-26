@@ -74,7 +74,7 @@ export const useKhata = () => {
       do {
         const url = `/khata/khataList?page=${currentPage}&limit=${pageSize}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`;
         const data = await apiClient(url);
-
+        console.log(`Fetched page`, data);
         if (!data.success) break;
 
         const pageData = data.khatas || [];

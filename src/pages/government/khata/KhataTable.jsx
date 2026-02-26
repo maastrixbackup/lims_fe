@@ -35,7 +35,7 @@ const KhataTable = ({
     (state) => state.selectedProject.project?.id,
   );
   const dispatch = useDispatch();
-
+console.log("Rendering KhataTable with khatas:", khatas);
   const stickyCol1Header =
     "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md ";
 

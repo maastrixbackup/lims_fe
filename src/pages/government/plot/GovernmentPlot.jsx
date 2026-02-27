@@ -888,13 +888,13 @@ const Plots = () => {
                   first.
                 </p>
                 <p className="text-lg text-gray-500 mt-1">
-                  A project is required to view Khata list.
+                  A project is required to view Plot list.
                 </p>
               </>
             ) : (
               <>
                 <p className="text-md font-medium text-red-500">
-                  No Khata found for the{" "}
+                  No Plot found for the{" "}
                   <span className="text-primary font-bold">
                     Selected Project.
                   </span>
@@ -902,7 +902,7 @@ const Plots = () => {
                 <p className="text-md text-gray-500 mt-1">
                   Try selecting a different{" "}
                   <span className="text-gray-700 font-semibold">Project</span>{" "}
-                  or add a new Khata.
+                  or add a new Plot.
                 </p>
               </>
             )}

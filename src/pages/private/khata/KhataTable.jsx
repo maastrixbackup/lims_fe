@@ -202,7 +202,7 @@ const KhataTable = ({
 
   if (noData) {
     return (
-      <div className="card bg-white shadow-lg py-16 flex flex-col items-center">
+      <div className="card bg-white py-16 flex flex-col items-center">
         <p className="text-lg font-semibold text-red-600">
           No matching Khata found
         </p>
@@ -223,7 +223,7 @@ const KhataTable = ({
 
   return (
     <>
-      <div className="card bg-white shadow-lg">
+      <div className="card bg-white ">
         {(!selectedProject || displayKhatas.length === 0) && (
           <div className="py-10 text-center text-gray-600">
             {!selectedProject ? (

@@ -122,7 +122,7 @@ const VillageTable = ({
   const showNoVillages = selectedProject && filteredVillages.length === 0;
 
   return (
-    <div className="card bg-white shadow-lg">
+    <div className="card bg-white">
       {showNoProject && (
         <div className="py-10 text-center">
           <p className="text-lg font-medium text-gray-500">

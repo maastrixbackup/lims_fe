@@ -60,7 +60,7 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
                 first.
               </p>
               <p className="text-lg text-gray-500 mt-1">
-                A project is required to view Forest Land Schedule list.
+                A project is required to view Non-Forest Land Schedule list.
               </p>
             </>
           ) : (

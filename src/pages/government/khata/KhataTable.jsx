@@ -117,7 +117,7 @@ console.log("Rendering KhataTable with khatas:", khatas);
   }, [page, clientTotalPages, setPage]);
 
   return (
-    <div className="card bg-white shadow-lg">
+    <div className="card bg-white">
       {(!selectedProjectId || filteredKhatas.length === 0) && (
         <div className="py-10 text-center text-gray-600">
           {!selectedProjectId ? (

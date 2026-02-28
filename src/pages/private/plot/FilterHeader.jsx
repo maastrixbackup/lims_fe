@@ -19,13 +19,20 @@ const FilterHeader = ({
   const dropdownRef = useRef(null);
   const [style, setStyle] = useState({});
   const [optionSearch, setOptionSearch] = useState("");
+  const optionCollator = useMemo(
+    () => new Intl.Collator(undefined, { numeric: true, sensitivity: "base" }),
+    [],
+  );
   const filteredOptions = useMemo(() => {
     const query = optionSearch.trim().toLowerCase();
-    if (!query) return options;
-    return options.filter((opt) =>
-      String(opt).toLowerCase().includes(query)
+    const matched = !query
+      ? options
+      : options.filter((opt) => String(opt).toLowerCase().includes(query));
+
+    return [...matched].sort((a, b) =>
+      optionCollator.compare(String(a), String(b)),
     );
-  }, [options, optionSearch]);
+  }, [options, optionSearch, optionCollator]);
 
   const isSorted = sortConfig?.field === field;
   const sortDirection = isSorted ? sortConfig.direction : null;

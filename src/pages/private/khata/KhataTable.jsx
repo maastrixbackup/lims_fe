@@ -19,7 +19,6 @@ import {
   RR_FIELDS_FORMS,
   COMMON_COLUMNS,
 } from "../../../utils/constants";
-import { useLandTypeParam } from "../../../utils/landtypes";
 import KhataTabs from "./KhataTabs";
 
 const KhataTable = ({
@@ -27,13 +26,11 @@ const KhataTable = ({
   page,
   limit,
   setLimit,
-  totalPages,
   setPage,
   onEdit,
   onDelete,
   onUpload,
   onMap,
-  total,
 }) => {
   const dispatch = useDispatch();
   const selectedProject = useSelector((state) => state.selectedProject.project);
@@ -184,6 +181,10 @@ const KhataTable = ({
       setPage?.(clientTotalPages);
     }
   }, [page, clientTotalPages, setPage]);
+
+  useEffect(() => {
+    setPage?.(1);
+  }, [filters, sortConfig.field, sortConfig.direction, setPage]);
 
   const isAnyFilterApplied = Object.values(filters).some(Boolean);
   useEffect(() => {

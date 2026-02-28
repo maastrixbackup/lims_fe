@@ -68,10 +68,10 @@ export const useKhata = () => {
 
       const pageSize = 500;
       let currentPage = 1;
-      let totalPageCount = 1;
+      const maxPages = 1000;
       const allKhatas = [];
 
-      do {
+      while (currentPage <= maxPages) {
         const url = `/khata/khataList?page=${currentPage}&limit=${pageSize}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`;
         const data = await apiClient(url);
         console.log(`Fetched page`, data);
@@ -79,14 +79,27 @@ export const useKhata = () => {
 
         const pageData = data.khatas || [];
         allKhatas.push(...pageData);
-        totalPageCount = data.totalPages || 1;
 
-        if (pageData.length === 0) break;
+        const serverTotalPages = Number(
+          data.totalPages ?? data.total_pages ?? data.last_page ?? 0
+        );
+        const reachedServerEnd =
+          Number.isFinite(serverTotalPages) &&
+          serverTotalPages > 0 &&
+          currentPage >= serverTotalPages;
+        const reachedDataEnd =
+          pageData.length === 0 || pageData.length < pageSize;
+
+        if (reachedServerEnd || reachedDataEnd) break;
         currentPage += 1;
-      } while (currentPage <= totalPageCount);
+      }
 
-      setKhatas(allKhatas);
-      setTotal(allKhatas.length);
+      const uniqueKhatas = Array.from(
+        new Map(allKhatas.map((item) => [item.id, item])).values()
+      );
+
+      setKhatas(uniqueKhatas);
+      setTotal(uniqueKhatas.length);
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {

@@ -225,19 +225,19 @@ console.log("Rendering KhataTable with khatas:", khatas);
                   <tr key={k.id}>
                     <td>{(page - 1) * limit + idx + 1}</td>
                     <td className={stickyCol1Cell}>
-                      {k.khata_no || "No Data"}
+                      {k.khata_no || "No data found"}
                     </td>
-                    <td className={stickyCol2Cell}>{k.plot_no || "No Data"}</td>
-                    <td>{k.village_name || "No Data"}</td>
-                    <td>{k.kissam_of_land || "No Data"}</td>
-                    <td>{k.lease_case_no || "No Data"}</td>
-                    <td>{k.present_status || "No Data"}</td>
-                    <td>{k.case_details || "No Data"}</td>
+                    <td className={stickyCol2Cell}>{k.plot_no || "No data found"}</td>
+                    <td>{k.village_name || "No data found"}</td>
+                    <td>{k.kissam_of_land || "No data found"}</td>
+                    <td>{k.lease_case_no || "No data found"}</td>
+                    <td>{k.present_status || "No data found"}</td>
+                    <td>{k.case_details || "No data found"}</td>
 
-                    <td>{k.plot_count || "No Data"}</td>
-                    <td>{k.unique_id || "No Data"}</td>
-                    <td>{k.ror_name || "No Data"}</td>
-                    <td>{k.land_category || "No Data"}</td>
+                    <td>{k.plot_count || "No data found"}</td>
+                    <td>{k.unique_id || "No data found"}</td>
+                    <td>{k.ror_name || "No data found"}</td>
+                    <td>{k.land_category || "No data found"}</td>
                     <td className={stickyActionCell}>
                       <select
                         className="select select-sm bg-gray-100 border w-[42px]"
@@ -313,3 +313,4 @@ console.log("Rendering KhataTable with khatas:", khatas);
 };
 
 export default KhataTable;
+

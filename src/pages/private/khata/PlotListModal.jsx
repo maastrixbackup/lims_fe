@@ -553,7 +553,7 @@ useEffect(() => {
                 ) : (
                   <tr>
                     <td colSpan="8" className="text-center py-6 text-gray-500">
-                      No plots found
+                      No data found
                     </td>
                   </tr>
                 )}
@@ -589,3 +589,5 @@ const SummaryBox = ({ title, value, bgColor, textColor }) => (
 );
 
 export default PlotListModal;
+
+

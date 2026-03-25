@@ -89,7 +89,7 @@ const MissingDocumentsReport = () => {
             ) : (
               <tr>
                 <td colSpan="4" className="text-center py-4 text-gray-500">
-                  No matching records found
+                  No data found
                 </td>
               </tr>
             )}
@@ -101,3 +101,5 @@ const MissingDocumentsReport = () => {
 };
 
 export default MissingDocumentsReport;
+
+

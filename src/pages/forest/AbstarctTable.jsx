@@ -73,7 +73,7 @@ const AbstractTable = ({landData}) => {
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={4} className="text-center py-4">
-                  No data available
+                  No data found available
                 </td>
               </tr>
             ) : (
@@ -97,3 +97,4 @@ const AbstractTable = ({landData}) => {
 };
 
 export default AbstractTable;
+

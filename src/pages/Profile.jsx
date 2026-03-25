@@ -5,6 +5,9 @@ import { useDispatch } from "react-redux";
 import { updateUser } from "../utils/userSlice";
 
 const Profile = () => {
+  const getAuthToken = () =>
+    localStorage.getItem("userToken") || localStorage.getItem("authToken");
+
   const [profile, setProfile] = useState({
     avatar: null,
     fullName: "",
@@ -28,7 +31,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("authToken");
+        const token = getAuthToken();
         if (!token) throw new Error("User not authenticated");
 
         const response = await fetch(`${API_BASE_URL}/user/getProfile`, {
@@ -84,7 +87,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       setUpdating(true);
-      const token = localStorage.getItem("authToken");
+      const token = getAuthToken();
       if (!token) throw new Error("Not authorized");
 
       const formData = new FormData();

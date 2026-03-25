@@ -17,6 +17,7 @@ import { useLocation } from "react-router";
 import { showToast } from "../../../utils/constants";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../shared/SuccessMessage";
+import Loader from "../../../shared/Loader";
 
 const Compensation = () => {
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
@@ -388,7 +389,7 @@ const Compensation = () => {
     );
   }
 
-  if (loading) return <p className="p-4">Loading...</p>;
+  if (loading) return <Loader message="Loading compensation list..." />;
 
   if (khatas.length === 0) {
     return (
@@ -538,10 +539,10 @@ const Compensation = () => {
                               }
                             />
                           </td>
-                          <td>{r.days_of_interest ?? "No Data"}</td>
-                          <td>{r.bankAcc ?? "No Data"}</td>
-                          <td>{r.bankName ?? "No Data"}</td>
-                          <td>{r.ifsc ?? "No Data"}</td>
+                          <td>{r.days_of_interest ?? "No data found"}</td>
+                          <td>{r.bankAcc ?? "No data found"}</td>
+                          <td>{r.bankName ?? "No data found"}</td>
+                          <td>{r.ifsc ?? "No data found"}</td>
 
                           <td>
                             <span
@@ -555,7 +556,7 @@ const Compensation = () => {
                             </span>
                           </td>
 
-                          <td>{r.txnNumber ?? "No Data"}</td>
+                          <td>{r.txnNumber ?? "No data found"}</td>
 
                           <td>
                             <label className="cursor-pointer flex items-center gap-2">
@@ -800,3 +801,4 @@ const Compensation = () => {
 };
 
 export default Compensation;
+

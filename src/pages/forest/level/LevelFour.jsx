@@ -121,7 +121,7 @@ const Level4Stage2Clearance = () => {
             {filteredAndSortedData.length === 0 && (
               <tr>
                 <td colSpan={tableColumns.length + 1} className="text-center">
-                  No Data
+                  No data found
                 </td>
               </tr>
             )}
@@ -172,3 +172,4 @@ const Level4Stage2Clearance = () => {
 };
 
 export default Level4Stage2Clearance;
+

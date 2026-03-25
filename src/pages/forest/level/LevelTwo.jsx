@@ -193,7 +193,7 @@ const Level2Stage1Approval = () => {
             {filteredAndSortedData.length === 0 && (
               <tr>
                 <td colSpan="7" className="text-center">
-                  No Data
+                  No data found
                 </td>
               </tr>
             )}
@@ -249,3 +249,4 @@ const Level2Stage1Approval = () => {
 };
 
 export default Level2Stage1Approval;
+

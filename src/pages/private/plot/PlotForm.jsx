@@ -995,8 +995,8 @@ if (name === "land_area_acquired_acres") {
                         className="select select-bordered w-full"
                       >
                         <option value="">Select Type</option>
-                        <option value="PAF">Person Affected Families</option>
-                        <option value="PDF">Person Deffected Families</option>
+                        <option value="PAF">Project Affected Families (PAF) </option>
+                        <option value="PDF">Project Displaced Families (PDF) </option>
                       </select>
                     ) : ["family_with_orphan_members", "tribunal"].includes(
                         field,

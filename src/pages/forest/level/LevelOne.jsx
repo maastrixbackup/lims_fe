@@ -169,7 +169,14 @@ const Level1FDProposal = () => {
           </thead>
 
           <tbody>
-            {filteredAndSortedData.map((r, i) => (
+            {filteredAndSortedData.length === 0 ? (
+              <tr>
+                <td colSpan={levelOne.length + 1} className="text-center py-6">
+                  No data found
+                </td>
+              </tr>
+            ) : (
+              filteredAndSortedData.map((r, i) => (
               <tr key={i}>
                 {levelOne.map(([, k]) => (
                   <td key={k}>
@@ -215,7 +222,8 @@ const Level1FDProposal = () => {
                   </select>
                 </td>
               </tr>
-            ))}
+            ))
+            )}
           </tbody>
         </table>
       </div>

@@ -109,7 +109,7 @@ const Level3Stage2Compliance = () => {
             {filteredAndSortedData.length === 0 && (
               <tr>
                 <td colSpan="7" className="text-center">
-                  No Data
+                  No data found
                 </td>
               </tr>
             )}
@@ -165,3 +165,4 @@ const Level3Stage2Compliance = () => {
 };
 
 export default Level3Stage2Compliance;
+

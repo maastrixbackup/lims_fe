@@ -124,7 +124,7 @@ const DocumentUploadReport = () => {
                   colSpan="5"
                   className="text-center py-5 text-gray-500 font-medium"
                 >
-                  No matching records found.
+                  No data found
                 </td>
               </tr>
             )}

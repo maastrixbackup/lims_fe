@@ -77,7 +77,11 @@ export function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.auth.userToken);
+  const reduxToken = useSelector((state) => state.auth.userToken);
+  const token =
+    reduxToken ||
+    localStorage.getItem("userToken") ||
+    localStorage.getItem("authToken");
 
   useEffect(() => {
     const isPublicRoute =

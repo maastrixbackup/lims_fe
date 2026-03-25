@@ -7,7 +7,6 @@ import VillageTable from "./VillageTable";
 import VillageFilter from "./VillageFilter";
 import VillageFormModal from "./VillageFormModal";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
-import Loader from "../../../shared/Loader";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import ExportButtons from "../../../shared/ExportButtons";
 import { apiClient } from "../../../utils/apiClient";
@@ -40,7 +39,7 @@ const Villages = () => {
   const [editingVillage, setEditingVillage] = useState(null);
   const [deleteVillage, setDeleteVillage] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const tahasils = useMemo(() => {
     return [...new Set(villages.map((v) => v.tahasil).filter(Boolean))];
@@ -99,6 +98,7 @@ const Villages = () => {
     if (!selectedProject?.id) {
       setVillages([]);
       setTotalPages(1);
+      setLoading(false);
       return;
     }
     fetchVillages();
@@ -193,13 +193,8 @@ const Villages = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-10">
-          <Loader />
-        </div>
-      ) : (
-        <>
-          {/* <div className="flex justify-end items-center mb-4">
+      <>
+        {/* <div className="flex justify-end items-center mb-4">
             <div className="flex items-center gap-3">
               <ExportButtons
                 data={projectFilteredData}
@@ -229,40 +224,40 @@ const Villages = () => {
             </div>
           </div> */}
 
-          <VillageFilter
-            formData={formData}
-            setFormData={setFormData}
-            odishaDistricts={odishaDistricts}
-            tahasils={tahasils}
-            villages={villages}
-          />
+        <VillageFilter
+          formData={formData}
+          setFormData={setFormData}
+          odishaDistricts={odishaDistricts}
+          tahasils={tahasils}
+          villages={villages}
+        />
 
-          <motion.div
-            key={landType}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <VillageTable
-              villages={filteredVillages}
-              projects={projects}
-              isRestricted={!canEdit}
-              onEdit={openModal}
-              onDelete={(village) => {
-                setDeleteVillage(village);
-                setIsDeleteModalOpen(true);
-              }}
-              landType={landType}
-              page={page}
-              setPage={setPage}
-              limit={limit}
-              setLimit={setLimit}
-              totalPages={totalPages}
-            />
-          </motion.div>
-        </>
-      )}
+        <motion.div
+          key={landType}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <VillageTable
+            villages={filteredVillages}
+            projects={projects}
+            isRestricted={!canEdit}
+            onEdit={openModal}
+            onDelete={(village) => {
+              setDeleteVillage(village);
+              setIsDeleteModalOpen(true);
+            }}
+            landType={landType}
+            page={page}
+            setPage={setPage}
+            limit={limit}
+            setLimit={setLimit}
+            totalPages={totalPages}
+            loading={loading}
+          />
+        </motion.div>
+      </>
 
       {isModalOpen && (
         <VillageFormModal

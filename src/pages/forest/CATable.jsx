@@ -120,7 +120,14 @@ const CATable = ({ data = [], onEdit, onDelete }) => {
             </thead>
 
             <tbody>
-              {filteredAndSortedData.map((row, index) => (
+              {filteredAndSortedData.length === 0 ? (
+                <tr>
+                  <td colSpan={15} className="text-center py-6 text-gray-500">
+                    No data found
+                  </td>
+                </tr>
+              ) : (
+                filteredAndSortedData.map((row, index) => (
                 <tr key={row.id ?? index} className="hover">
                   <td>{index + 1}</td>
                   <td>{row.district}</td>
@@ -179,7 +186,8 @@ const CATable = ({ data = [], onEdit, onDelete }) => {
                     </select>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

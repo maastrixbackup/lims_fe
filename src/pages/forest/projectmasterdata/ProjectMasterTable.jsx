@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import FilterSortHeader from "../FilterSortHeader";
 import { useNavigate, useParams } from "react-router-dom";
+import Loader from "../../../shared/Loader";
 
 const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
   const userRole = useSelector((s) => s.auth.user?.role_name);
@@ -56,7 +57,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
     return result;
   }, [projects, filters, sortConfig]);
 
-  if (loading) return <p className="p-4">Loading...</p>;
+  if (loading) return <Loader message="Loading project master data..." />;
 
   return (
     <>
@@ -137,7 +138,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               {!filteredAndSortedData.length && (
                 <tr>
                   <td colSpan="20" className="text-center py-6">
-                    No records found
+                    No data found
                   </td>
                 </tr>
               )}
@@ -145,21 +146,21 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               {filteredAndSortedData.map((row) => (
                 <tr key={row.id}>
                   <td>{row.id}</td>
-                  <td>{row.proposal_no || "No Data"}</td>
-                  <td>{row.project_name || "No Data"}</td>
-                  <td>{row.user_agency || "No Data"}</td>
-                  <td>{row.sector || "No Data"}</td>
-                  <td>{row.state || "No Data"}</td>
-                  <td>{row.district || "No Data"}</td>
-                  <td>{row.tahasil || "No Data"}</td>
-                  <td>{row.mouza || "No Data"}</td>
-                  <td>{row.range_division || "No Data"}</td>
-                  <td>{row.forest_type || "No Data"}</td>
-                  <td>{row.total_project_area_ha || "No Data"}</td>
-                  <td>{row.forest_area_ha || "No Data"}</td>
-                  <td>{row.non_forest_area_ha || "No Data"}</td>
-                  <td>{row.project_status || "No Data"}</td>
-                  <td>{row.current_stage || "No Data"}</td>
+                  <td>{row.proposal_no || "No data found"}</td>
+                  <td>{row.project_name || "No data found"}</td>
+                  <td>{row.user_agency || "No data found"}</td>
+                  <td>{row.sector || "No data found"}</td>
+                  <td>{row.state || "No data found"}</td>
+                  <td>{row.district || "No data found"}</td>
+                  <td>{row.tahasil || "No data found"}</td>
+                  <td>{row.mouza || "No data found"}</td>
+                  <td>{row.range_division || "No data found"}</td>
+                  <td>{row.forest_type || "No data found"}</td>
+                  <td>{row.total_project_area_ha || "No data found"}</td>
+                  <td>{row.forest_area_ha || "No data found"}</td>
+                  <td>{row.non_forest_area_ha || "No data found"}</td>
+                  <td>{row.project_status || "No data found"}</td>
+                  <td>{row.current_stage || "No data found"}</td>
                   <td>
                     {Number(row.eds_flag) === 1 ? (
                       <span
@@ -189,7 +190,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
                     View
                   </a>
                 ) : (
-                  "No Data"
+                  "No data found"
                 )}
               </td> */}
 
@@ -229,3 +230,5 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
 };
 
 export default ProjectMasterTable;
+
+

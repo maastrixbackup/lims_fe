@@ -96,7 +96,7 @@ const KMZAvailability = ({ kmz }) => {
             {filteredData.length === 0 && (
               <tr>
                 <td colSpan="5" className="p-4 text-center text-gray-500">
-                  No records found.
+                  No data found
                 </td>
               </tr>
             )}
@@ -108,3 +108,5 @@ const KMZAvailability = ({ kmz }) => {
 };
 
 export default KMZAvailability;
+
+

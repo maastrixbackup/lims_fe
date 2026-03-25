@@ -427,7 +427,7 @@ const PlotTable = ({
           {selectedProject ? (
             <>
               <p className="text-md font-medium text-red-500">
-                No Plot found for the{" "}
+                No data found for the{" "}
                 <span className="text-primary font-bold">
                   Selected Project.
                 </span>

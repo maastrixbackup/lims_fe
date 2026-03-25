@@ -17,6 +17,7 @@ import { useLandTypeParam } from "../../../utils/landtypes";
 import { useLocation } from "react-router";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../shared/SuccessMessage";
+import Loader from "../../../shared/Loader";
 
 const LandCost = () => {
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
@@ -70,8 +71,8 @@ const LandCost = () => {
 
           tenants.forEach((t) => {
             const leaseCaseNo =
-              item.lease_case_no ?? t.lease_case_no ?? "No Data";
-            const key = leaseCaseNo || "No Data";
+              item.lease_case_no ?? t.lease_case_no ?? "No data found";
+            const key = leaseCaseNo || "No data found";
 
             if (!groupedByLease[key]) {
               groupedByLease[key] = {
@@ -143,10 +144,10 @@ const LandCost = () => {
           ({ khataNosSet, plotNosSet, uniqueIds, itemKeys, ...row }) => {
             const khataNos = khataNosSet.size
               ? Array.from(khataNosSet).join(", ")
-              : "No Data";
+              : "No data found";
             const plotNos = plotNosSet.size
               ? Array.from(plotNosSet).join(", ")
-              : "No Data";
+              : "No data found";
 
             return {
               leaseCaseNo: row.leaseCaseNo,
@@ -433,7 +434,7 @@ const LandCost = () => {
     );
   }
 
-  if (loading) return <p className="p-4">Loading...</p>;
+  if (loading) return <Loader message="Loading land cost list..." />;
 
   if (khatas.length === 0) {
     return (
@@ -523,14 +524,14 @@ const LandCost = () => {
                       <div className="mb-3">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Plot Nos.</p>
                       <div className="text-sm bg-white shadow-md rounded-md p-2 max-h-28 overflow-y-auto break-words leading-6 bg-blue-50">
-                        {r.plotNos || "No Data"}
+                        {r.plotNos || "No data found"}
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                       <div>
                         <p className="text-sm font-semibold text-gray-500 mb-1">Khata Nos.</p>
                         <p className="text-sm font-medium break-words">
-                          {r.khataNos || khata.khataNos || "No Data"}
+                          {r.khataNos || khata.khataNos || "No data found"}
                         </p>
                       </div>
                       <div>
@@ -784,28 +785,28 @@ const LandCost = () => {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <p>
                 <strong>Lease Case No:</strong>{" "}
-                {editData.leaseCaseNo || "No Data"}
+                {editData.leaseCaseNo || "No data found"}
               </p>
               <p>
-                <strong>Khata Nos:</strong> {editData.khataNos || "No Data"}
+                <strong>Khata Nos:</strong> {editData.khataNos || "No data found"}
               </p>
               <p>
-                <strong>Plot Nos:</strong> {editData.plotNos || "No Data"}
+                <strong>Plot Nos:</strong> {editData.plotNos || "No data found"}
               </p>
               <p>
-                <strong>Total Area:</strong> {editData.totalArea || "No Data"}
+                <strong>Total Area:</strong> {editData.totalArea || "No data found"}
               </p>
               <p>
                 <strong>Land Cost:</strong>{" "}
-                {editData.landCostAmount || "No Data"}
+                {editData.landCostAmount || "No data found"}
               </p>
               <p>
                 <strong>Demand Note Attachment:</strong>{" "}
-                {editData.demandNoteAttachment || "No Data"}
+                {editData.demandNoteAttachment || "No data found"}
               </p>
               <p>
                 <strong>Receipt Attachment:</strong>{" "}
-                {editData.receiptAttachment || "No Data"}
+                {editData.receiptAttachment || "No data found"}
               </p>
             </div>
             <div className="flex justify-end mt-5">
@@ -831,3 +832,4 @@ const LandCost = () => {
 };
 
 export default LandCost;
+

@@ -159,7 +159,7 @@ const AuditTrail = ({ audits = dummyAudits }) => {
             {filteredAudits.length === 0 && (
               <tr>
                 <td colSpan="5" className="p-4 text-center text-gray-500">
-                  No audit results found.
+                  No data found
                 </td>
               </tr>
             )}
@@ -171,3 +171,5 @@ const AuditTrail = ({ audits = dummyAudits }) => {
 };
 
 export default AuditTrail;
+
+

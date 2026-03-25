@@ -11,6 +11,7 @@ import { FolderUp } from "lucide-react";
 import { apiClient } from "../../../utils/apiClient";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../shared/SuccessMessage";
+import Loader from "../../../shared/Loader";
 
 const Plots = () => {
   const { landType } = useParams();
@@ -18,7 +19,8 @@ const Plots = () => {
 
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [plots, setPlots] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -34,6 +36,7 @@ const Plots = () => {
   const fetchPlots = async () => {
     if (!projectId) {
       setPlots([]);
+      setLoading(false);
       return;
     }
 
@@ -110,7 +113,7 @@ const Plots = () => {
     }
 
     try {
-      setLoading(true);
+      setExporting(true);
 
       const res = await fetch(
         `${API_BASE_URL}/plots/exportPlot?project_id=${projectId}&page=${page}&type=${typeParam}`,
@@ -145,7 +148,7 @@ const Plots = () => {
       console.error("Export error:", error);
       alert("Failed to export plot data");
     } finally {
-      setLoading(false);
+      setExporting(false);
     }
   };
 
@@ -161,9 +164,14 @@ const Plots = () => {
           <button
             className="btn bg-green-600 text-white flex items-center justify-center gap-2"
             onClick={exportPlot}
+            disabled={exporting}
           >
-            <FolderUp size={18} />
-            Export
+            {exporting ? (
+              <span className="loading loading-spinner loading-sm" />
+            ) : (
+              <FolderUp size={18} />
+            )}
+            {exporting ? "Exporting..." : "Export"}
           </button>
 
           <button
@@ -180,16 +188,20 @@ const Plots = () => {
         </div>
       </div>
 
-      <PlotTable
-        plots={plots}
-        page={page}
-        setPage={setPage}
-        limit={limit}
-        setLimit={setLimit}
-        setDeleteConfirm={setDeleteConfirm}
-        className="overflow-x"
-        style={{ scrollbarWidth: "thin" }}
-      />
+      {loading && projectId ? (
+        <Loader message="Loading plot list..." />
+      ) : (
+        <PlotTable
+          plots={plots}
+          page={page}
+          setPage={setPage}
+          limit={limit}
+          setLimit={setLimit}
+          setDeleteConfirm={setDeleteConfirm}
+          className="overflow-x"
+          style={{ scrollbarWidth: "thin" }}
+        />
+      )}
       {/* {!projectId ? (
         <p className="text-center text-gray-600">
           Please select a project to view plots.

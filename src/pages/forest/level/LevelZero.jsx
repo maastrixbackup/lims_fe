@@ -191,7 +191,7 @@ const Level0PreProposal = () => {
             {rows.length === 0 && (
               <tr>
                 <td colSpan="9" className="text-center">
-                  No Data
+                  No data found
                 </td>
               </tr>
             )}
@@ -265,3 +265,4 @@ const Level0PreProposal = () => {
 };
 
 export default Level0PreProposal;
+

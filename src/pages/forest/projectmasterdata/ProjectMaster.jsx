@@ -55,6 +55,69 @@ const ProjectMaster = () => {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const normalizeEditPayload = (row) => {
+    if (!row) return null;
+
+    let parsedEdsList = [];
+    if (Array.isArray(row.eds_list)) {
+      parsedEdsList = row.eds_list;
+    } else if (typeof row.eds_list === "string") {
+      try {
+        const parsed = JSON.parse(row.eds_list);
+        parsedEdsList = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        parsedEdsList = [];
+      }
+    }
+
+    return {
+      ...row,
+      eds_flag: Number(row.eds_flag || 0),
+      eds_list:
+        parsedEdsList.length > 0 ? parsedEdsList : initialFormData.eds_list,
+    };
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchExistingMasterData = async () => {
+      if (!selectedProject?.id) return;
+
+      try {
+        const res = await apiClient(
+          `/forestland/forestProjectList?project_id=${selectedProject.id}&page=1&limit=1`,
+        );
+
+        if (cancelled) return;
+
+        const latestRecord = Array.isArray(res?.data) ? res.data[0] : null;
+        const normalized = normalizeEditPayload(latestRecord);
+
+        setEditData(normalized);
+
+        if (!normalized) {
+          setFormData((prev) => ({
+            ...prev,
+            project_id: selectedProject.id,
+            project_name:
+              selectedProject.project_name || selectedProject.name || "",
+          }));
+        }
+      } catch {
+        if (!cancelled) {
+          setEditData(null);
+        }
+      }
+    };
+
+    fetchExistingMasterData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedProject?.id]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -104,6 +167,10 @@ const ProjectMaster = () => {
         ...initialFormData,
         ...editData,
         eds_flag: Number(editData.eds_flag || 0),
+        eds_list:
+          Array.isArray(editData.eds_list) && editData.eds_list.length
+            ? editData.eds_list
+            : initialFormData.eds_list,
       });
     }
   }, [editData]);

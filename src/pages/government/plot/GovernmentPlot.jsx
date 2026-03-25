@@ -19,6 +19,7 @@ import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import Pagination from "../../../shared/Pagination";
 import { FolderUp } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
+import Loader from "../../../shared/Loader";
 
 export const PRESENT_STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
@@ -59,7 +60,7 @@ const Plots = () => {
     key: "",
     direction: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletePlotList, setDeletePlotList] = useState(null);
   const [page, setPage] = useState(1);
@@ -209,6 +210,7 @@ const Plots = () => {
   const fetchPlots = useCallback(async () => {
     if (!selectedProjectId || !token) {
       setPlots([]);
+      setLoading(false);
       return;
     }
 
@@ -876,7 +878,10 @@ const Plots = () => {
       </div>
   
       <div>
-        {(!selectedProjectId || filteredPlots.length === 0) && (
+        {loading && selectedProjectId ? (
+          <Loader message="Loading plot list..." />
+        ) : null}
+        {!loading && (!selectedProjectId || filteredPlots.length === 0) && (
           <div className="py-10 text-center text-gray-600">
             {!selectedProjectId ? (
               <>
@@ -908,7 +913,7 @@ const Plots = () => {
             )}
           </div>
         )}
-        {selectedProjectId && filteredPlots.length > 0 && (
+        {!loading && selectedProjectId && filteredPlots.length > 0 && (
           <>
           
             <PlotTabs>
@@ -990,63 +995,63 @@ const Plots = () => {
                         >
                           <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
-                            {plot.khata_no || "No Data"}
+                            {plot.khata_no || "No data found"}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {plot.plot_no || "No Data"}
+                            {plot.plot_no || "No data found"}
                           </td>
-                          <td>{plot.thana_no || "No Data"}</td>
-                          <td>{plot.mouza || "No Data"}</td>
-                          <td>{plot.tahasil || "No Data"}</td>
-                          <td>{plot.ri_circle || "No Data"}</td>
-                          <td>{plot.kissam || "No Data"}</td>
-                          <td>{plot.name_of_ror || "No Data"}</td>
-                          <td>{plot.total_area_acres || "No Data"}</td>
-                          <td>{plot.proposed_area_acres || "No Data"}</td>
-                          <td>{plot.total_area_hectares || "No Data"}</td>
-                          <td>{plot.proposed_area_hectares || "No Data"}</td>
-                          <td>{plot.lease_case_no || "No Data"}</td>
-                          <td>{plot.present_status || "No Data"}</td>
-                          <td>{plot.ua_idco_to_tahasildar || "No Data"}</td>
-                          <td>{plot.case_details || "No Data"}</td>
-                          <td>{plot.action_to_be_taken || "No Data"}</td>
-                          <td>{plot.ri_report || "No Data"}</td>
+                          <td>{plot.thana_no || "No data found"}</td>
+                          <td>{plot.mouza || "No data found"}</td>
+                          <td>{plot.tahasil || "No data found"}</td>
+                          <td>{plot.ri_circle || "No data found"}</td>
+                          <td>{plot.kissam || "No data found"}</td>
+                          <td>{plot.name_of_ror || "No data found"}</td>
+                          <td>{plot.total_area_acres || "No data found"}</td>
+                          <td>{plot.proposed_area_acres || "No data found"}</td>
+                          <td>{plot.total_area_hectares || "No data found"}</td>
+                          <td>{plot.proposed_area_hectares || "No data found"}</td>
+                          <td>{plot.lease_case_no || "No data found"}</td>
+                          <td>{plot.present_status || "No data found"}</td>
+                          <td>{plot.ua_idco_to_tahasildar || "No data found"}</td>
+                          <td>{plot.case_details || "No data found"}</td>
+                          <td>{plot.action_to_be_taken || "No data found"}</td>
+                          <td>{plot.ri_report || "No data found"}</td>
                           <td>
                             {renderAttachments(
                               plot.ri_report_attachment.file_name,
-                              "RI Report Attachments" || "No Data",
+                              "RI Report Attachments" || "No data found",
                             )}
                           </td>
-                          <td>{plot.proclamation || "No Data"}</td>
-                          <td>{plot.objection_received || "No Data"}</td>
-                          <td>{plot.others || "No Data"}</td>
-                          <td>{plot.modification_revision || "No Data"}</td>
-                          <td>{plot.misc_dr_case_prep || "No Data"}</td>
-                          <td>{plot.misc_dr_case_prep_number || "No Data"}</td>
-                          <td>{plot.reason_for_misc_dr_case || "No Data"}</td>
-                          <td>{plot.tree_enumeration || "No Data"}</td>
+                          <td>{plot.proclamation || "No data found"}</td>
+                          <td>{plot.objection_received || "No data found"}</td>
+                          <td>{plot.others || "No data found"}</td>
+                          <td>{plot.modification_revision || "No data found"}</td>
+                          <td>{plot.misc_dr_case_prep || "No data found"}</td>
+                          <td>{plot.misc_dr_case_prep_number || "No data found"}</td>
+                          <td>{plot.reason_for_misc_dr_case || "No data found"}</td>
+                          <td>{plot.tree_enumeration || "No data found"}</td>
                           <td>
                             {renderAttachments(
                               plot.tree_enumeration_attachment.file_name,
-                              "Tree Enumeration Attachments" || "No Data",
+                              "Tree Enumeration Attachments" || "No data found",
                             )}
                           </td>
-                          <td>{plot.order_sheet_prep || "No Data"}</td>
-                          <td>{plot.lease_to_idco || "No Data"}</td>
+                          <td>{plot.order_sheet_prep || "No data found"}</td>
+                          <td>{plot.lease_to_idco || "No data found"}</td>
                           <td>
                             {renderAttachments(
                               plot.lease_to_idco_attachment.file_name,
-                              "Lease to IDCO Attachments" || "No Data",
+                              "Lease to IDCO Attachments" || "No data found",
                             )}
                           </td>
-                          <td>{plot.lease_to_ua || "No Data"}</td>
+                          <td>{plot.lease_to_ua || "No data found"}</td>
                           <td>
                             {renderAttachments(
                               plot.lease_to_ua_attachment.file_name,
-                              "Lease to UA Attachments" || "No Data",
+                              "Lease to UA Attachments" || "No data found",
                             )}
                           </td>
-                          <td>{plot.remarks || "No Data"}</td>
+                          <td>{plot.remarks || "No data found"}</td>
                           <td className={stickyActionCell}>
                             <select
                               className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
@@ -1098,7 +1103,7 @@ const Plots = () => {
                           colSpan="8"
                           className="text-center py-6 text-gray-500"
                         >
-                          No plots found. Click{" "}
+                          No data found. Click{" "}
                           <span className="font-semibold">+ Add Plot</span> to
                           create one.
                         </td>
@@ -1224,15 +1229,15 @@ const Plots = () => {
                         >
                           <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
-                            {plot.khata_no || "No Data"}
+                            {plot.khata_no || "No data found"}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {plot.plot_no || "No Data"}
+                            {plot.plot_no || "No data found"}
                           </td>
-                          <td>{plot.legal_heir_case_no || "no data"}</td>
-                          <td>{plot.land_case_no || "no data"}</td>
-                          <td>{plot.land_case_date || "no data"}</td>
-                          <td>{plot.land_case_type || "no data"}</td>
+                          <td>{plot.legal_heir_case_no || "No data found"}</td>
+                          <td>{plot.land_case_no || "No data found"}</td>
+                          <td>{plot.land_case_date || "No data found"}</td>
+                          <td>{plot.land_case_type || "No data found"}</td>
                           <td
                             className={`
  text-gray-700 text-center rounded-full btn btn-xs mt-3
@@ -1247,10 +1252,10 @@ const Plots = () => {
     }
   `}
                           >
-                            {plot.land_case_status || "No Data"}
+                            {plot.land_case_status || "No data found"}
                           </td>
 
-                          <td>{plot.land_case_details || "no data"}</td>
+                          <td>{plot.land_case_details || "No data found"}</td>
                           <td className={stickyActionCell}>
                             <select
                               className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -1301,7 +1306,7 @@ const Plots = () => {
                           colSpan="8"
                           className="text-center py-6 text-gray-500"
                         >
-                          No plots found. Click{" "}
+                          No data found. Click{" "}
                           <span className="font-semibold">+ Add Plot</span> to
                           create one.
                         </td>
@@ -1382,24 +1387,24 @@ const Plots = () => {
                         >
                           <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
-                            {plot.khata_no || "No Data"}
+                            {plot.khata_no || "No data found"}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {plot.plot_no || "No Data"}
+                            {plot.plot_no || "No data found"}
                           </td>
-                          <td>{plot.land_area_total_acres || "no data"}</td>
-                          <td>{plot.land_area_total_hectares || "no data"}</td>
-                          <td>{plot.land_area_acquired_acres || "no data"}</td>
+                          <td>{plot.land_area_total_acres || "No data found"}</td>
+                          <td>{plot.land_area_total_hectares || "No data found"}</td>
+                          <td>{plot.land_area_acquired_acres || "No data found"}</td>
                           <td>
-                            {plot.land_area_acquired_hectares || "no data"}
+                            {plot.land_area_acquired_hectares || "No data found"}
                           </td>
-                          <td>{plot.market_value_per_acre || "no data"}</td>
-                          <td>{plot.bench_market_value || "no data"}</td>
-                          <td>{plot.premium || "no data"}</td>
-                          <td>{plot.ground_rent || "no data"}</td>
-                          <td>{plot.cess || "no data"}</td>
-                          <td>{plot.admin_charges || "no data"}</td>
-                          <td>{plot.total_cost || "no data"}</td>
+                          <td>{plot.market_value_per_acre || "No data found"}</td>
+                          <td>{plot.bench_market_value || "No data found"}</td>
+                          <td>{plot.premium || "No data found"}</td>
+                          <td>{plot.ground_rent || "No data found"}</td>
+                          <td>{plot.cess || "No data found"}</td>
+                          <td>{plot.admin_charges || "No data found"}</td>
+                          <td>{plot.total_cost || "No data found"}</td>
 
                           <td className={stickyActionCell}>
                             <select
@@ -1451,7 +1456,7 @@ const Plots = () => {
                           colSpan="8"
                           className="text-center py-6 text-gray-500"
                         >
-                          No plots found. Click{" "}
+                          No data found. Click{" "}
                           <span className="font-semibold">+ Add Plot</span> to
                           create one.
                         </td>
@@ -1502,3 +1507,5 @@ const Plots = () => {
 };
 
 export default Plots;
+
+

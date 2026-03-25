@@ -105,7 +105,7 @@ const ProjectDocumentRegister = ({ docs }) => {
                 colSpan={5}
                 className="p-4 text-center text-gray-500 italic border"
               >
-                No matching records found
+                No data found
               </td>
             </tr>
           ) : (
@@ -139,3 +139,5 @@ const ProjectDocumentRegister = ({ docs }) => {
 };
 
 export default ProjectDocumentRegister;
+
+

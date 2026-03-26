@@ -80,8 +80,8 @@ export default ReadyToPayment
 //           const itemKey = item.unique_id ?? `${itemIndex}`;
 
 //           tenants.forEach((t) => {
-//             const leaseCaseNo = item.lease_case_no ?? t.lease_case_no ?? "No Data";
-//             const key = leaseCaseNo || "No Data";
+//             const leaseCaseNo = item.lease_case_no ?? t.lease_case_no ?? "No data found";
+//             const key = leaseCaseNo || "No data found";
 
 //             if (!groupedByLease[key]) {
 //               groupedByLease[key] = {
@@ -136,10 +136,10 @@ export default ReadyToPayment
 //           ({ khataNosSet, plotNosSet, itemKeys, ...row }) => {
 //             const khataNos = khataNosSet.size
 //               ? Array.from(khataNosSet).join(", ")
-//               : "No Data";
+//               : "No data found";
 //             const plotNos = plotNosSet.size
 //               ? Array.from(plotNosSet).join(", ")
-//               : "No Data";
+//               : "No data found";
 
 //             return {
 //               leaseCaseNo: row.leaseCaseNo,
@@ -460,9 +460,9 @@ export default ReadyToPayment
 //                     <tbody>
 //                       {khata.records.map((r, rIndex) => (
 //                         <tr key={r.id ?? rIndex}>
-//                           <td>{r.khataNos || khata.khataNos || "No Data"}</td>
+//                           <td>{r.khataNos || khata.khataNos || "No data found"}</td>
 //                           <td className="w-[38%] min-w-[320px] whitespace-normal break-words align-top">
-//                             {r.plotNos || "No Data"}
+//                             {r.plotNos || "No data found"}
 //                           </td>
 //                           <td>{r.totalArea || 0}</td>
 
@@ -694,25 +694,25 @@ export default ReadyToPayment
 //             <h3 className="text-lg font-semibold mb-4">View Land Cost</h3>
 //             <div className="grid grid-cols-2 gap-4 text-sm">
 //               <p>
-//                 <strong>Lease Case No:</strong> {editData.leaseCaseNo || "No Data"}
+//                 <strong>Lease Case No:</strong> {editData.leaseCaseNo || "No data found"}
 //               </p>
 //               <p>
-//                 <strong>Khata Nos:</strong> {editData.khataNos || "No Data"}
+//                 <strong>Khata Nos:</strong> {editData.khataNos || "No data found"}
 //               </p>
 //               <p>
-//                 <strong>Plot Nos:</strong> {editData.plotNos || "No Data"}
+//                 <strong>Plot Nos:</strong> {editData.plotNos || "No data found"}
 //               </p>
 //               <p>
-//                 <strong>Total Area:</strong> {editData.totalArea || "No Data"}
+//                 <strong>Total Area:</strong> {editData.totalArea || "No data found"}
 //               </p>
 //               <p>
-//                 <strong>Land Cost:</strong> {editData.landCostAmount || "No Data"}
+//                 <strong>Land Cost:</strong> {editData.landCostAmount || "No data found"}
 //               </p>
 //                <p>
-//                 <strong>Demand Note Attachment:</strong> {editData.demandNoteAttachment || "No Data"}
+//                 <strong>Demand Note Attachment:</strong> {editData.demandNoteAttachment || "No data found"}
 //               </p>
 //               <p>
-//                 <strong>Receipt Attachment:</strong> {editData.receiptAttachment || "No Data"}
+//                 <strong>Receipt Attachment:</strong> {editData.receiptAttachment || "No data found"}
 //               </p>
 //             </div>
 //             <div className="flex justify-end mt-5">
@@ -735,3 +735,4 @@ export default ReadyToPayment
 // };
 
 // export default LandCost;
+

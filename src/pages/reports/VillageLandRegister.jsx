@@ -132,7 +132,7 @@ const VillageLandRegister = () => {
         </table>
 
         {filteredData.length === 0 && (
-          <p className="text-center py-4 text-gray-600">No records found.</p>
+          <p className="text-center py-4 text-gray-600">No data found</p>
         )}
       </div>
     </div>
@@ -140,3 +140,5 @@ const VillageLandRegister = () => {
 };
 
 export default VillageLandRegister;
+
+

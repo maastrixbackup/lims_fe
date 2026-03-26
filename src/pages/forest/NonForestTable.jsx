@@ -121,7 +121,13 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
         </thead>
 
         <tbody>
-          {
+          {filteredAndSortedData.length === 0 ? (
+            <tr>
+              <td colSpan={14} className="text-center py-6 text-gray-500">
+                No data found
+              </td>
+            </tr>
+          ) : (
             filteredAndSortedData.map((row, index) => (
               <tr key={row.id ?? index} className="hover">
                 <td>{index + 1}</td>
@@ -181,7 +187,7 @@ const NonForestTable = ({ data = [], onEdit, onDelete }) => {
                 </td>
               </tr>
             ))
-          }
+          )}
         </tbody>
       </table>
     </div>

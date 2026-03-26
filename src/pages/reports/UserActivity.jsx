@@ -120,7 +120,7 @@ const UserActivity = ({ logs = dummyLogs }) => {
             {filteredLogs.length === 0 && (
               <tr>
                 <td colSpan="6" className="p-4 text-center text-gray-500">
-                  No activity found.
+                  No data found
                 </td>
               </tr>
             )}
@@ -132,3 +132,5 @@ const UserActivity = ({ logs = dummyLogs }) => {
 };
 
 export default UserActivity;
+
+

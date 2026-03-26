@@ -177,7 +177,7 @@ const VillageDocumentReport = ({ documents = dummyDocuments }) => {
         </table>
 
         {filteredData.length === 0 && (
-          <p className="text-center py-4 text-gray-500">No records found.</p>
+          <p className="text-center py-4 text-gray-500">No data found</p>
         )}
       </div>
     </div>
@@ -356,7 +356,7 @@ export default VillageDocumentReport;
 //             {sortedFilteredData.length === 0 && (
 //               <tr>
 //                 <td colSpan="4" className="p-4 text-center text-gray-500">
-//                   No records found
+//                   No data found
 //                 </td>
 //               </tr>
 //             )}
@@ -368,4 +368,6 @@ export default VillageDocumentReport;
 // };
 
 // export default VillageDocumentReport;
+
+
 

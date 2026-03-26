@@ -273,7 +273,14 @@ const handleDelete = async () => {
               </tr>
             </thead>
             <tbody>
-          {plotDocs.map((doc, id) => (
+          {plotDocs.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="text-center py-6 text-gray-500">
+                No data found
+              </td>
+            </tr>
+          ) : (
+            plotDocs.map((doc, id) => (
   <tr key={doc.id}> 
                   <td>{id + 1}</td>
                   <td>{doc.name}</td>
@@ -297,7 +304,8 @@ const handleDelete = async () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+              ))
+          )}
             </tbody>
           </table>
         ) : (

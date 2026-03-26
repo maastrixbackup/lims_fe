@@ -1,33 +1,11 @@
 import React from "react";
-import { motion } from "framer-motion";
+
 
 const Loader = () => {
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-50">
-      <motion.div
-        className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full"
-        animate={{ rotate: 360 }}
-        transition={{
-          repeat: Infinity,
-          ease: "linear",
-          duration: 1,
-        }}
-      />
-      <motion.p
-        className="mt-4 text-gray-600 text-sm font-medium tracking-wide"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{
-          delay: 0.3,
-          duration: 0.6,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-      >
-        Loading, please wait...
-      </motion.p>
-
-    </div>
+ <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
   );
 };
 

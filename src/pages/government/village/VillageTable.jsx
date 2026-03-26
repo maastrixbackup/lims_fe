@@ -3,6 +3,7 @@ import moment from "moment";
 import { useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "../../private/khata/FilterableHeader";
+import Loader from "../../../shared/Loader";
 
 const VillageTable = ({
   villages = [],
@@ -15,6 +16,7 @@ const VillageTable = ({
   limit,
   setLimit,
   totalPages,
+  loading = false,
 }) => {
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const userRole = useSelector((state) => state.auth.user?.role_name);
@@ -119,6 +121,7 @@ const VillageTable = ({
   };
 
   const showNoProject = !selectedProject;
+  const showLoading = selectedProject && loading;
   const showNoVillages = selectedProject && filteredVillages.length === 0;
 
   return (
@@ -136,7 +139,9 @@ const VillageTable = ({
         </div>
       )}
 
-      {showNoVillages && (
+      {showLoading && <Loader message="Loading village list..." />}
+
+      {showNoVillages && !showLoading && (
         <div className="py-10 text-center">
           <p className="text-md font-medium text-red-500">
             No Village found for the{" "}
@@ -150,7 +155,7 @@ const VillageTable = ({
         </div>
       )}
 
-      {!showNoProject && !showNoVillages && (
+      {!showNoProject && !showNoVillages && !showLoading && (
         <>
           <div
             className="max-h-[400px] overflow-x-auto"
@@ -220,59 +225,67 @@ const VillageTable = ({
               </thead>
 
               <tbody>
-                {filteredVillages.map((v, i) => (
-                  <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
-                    <td>{i + 1}</td>
-                    <td>{v.village_name || "No Data"}</td>
-                    <td>{v.district || "No Data"}</td>
-                    <td>{v.tahasil || "No Data"}</td>
-                    <td>{v.thana_name_no || "No Data"}</td>
-                    <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
-
-                    <td className="text-right">
-                      <select
-                        className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                        defaultValue=""
-                        onChange={(e) => {
-                          const action = e.target.value;
-                          e.target.value = "";
-
-                          if (action === "edit" && canEdit) {
-                            onEdit(v);
-                          }
-
-                          if (action === "delete" && canDelete) {
-                            onDelete(v);
-                          }
-                        }}
-                      >
-                        <option value="" disabled>
-                          Actions
-                        </option>
-
-                        <option
-                          value="edit"
-                          disabled={userRole === "Viewer"}
-                          className={`text-md text-gray-700 font-bold ${
-                            userRole === "Viewer" ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          Edit
-                        </option>
-
-                        <option
-                          value="delete"
-                          disabled={!canDelete}
-                          className={`text-md text-gray-700 font-bold ${
-                            !canDelete ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          Delete
-                        </option>
-                      </select>
+                {filteredVillages.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-6 text-gray-500">
+                      No data found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredVillages.map((v, i) => (
+                    <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
+                      <td>{i + 1}</td>
+                      <td>{v.village_name || "No Data"}</td>
+                      <td>{v.district || "No Data"}</td>
+                      <td>{v.tahasil || "No Data"}</td>
+                      <td>{v.thana_name_no || "No Data"}</td>
+                      <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
+
+                      <td className="text-right">
+                        <select
+                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+                          defaultValue=""
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            e.target.value = "";
+
+                            if (action === "edit" && canEdit) {
+                              onEdit(v);
+                            }
+
+                            if (action === "delete" && canDelete) {
+                              onDelete(v);
+                            }
+                          }}
+                        >
+                          <option value="" disabled>
+                            Actions
+                          </option>
+
+                          <option
+                            value="edit"
+                            disabled={userRole === "Viewer"}
+                            className={`text-md text-gray-700 font-bold ${
+                              userRole === "Viewer" ? "!text-gray-400" : ""
+                            }`}
+                          >
+                            Edit
+                          </option>
+
+                          <option
+                            value="delete"
+                            disabled={!canDelete}
+                            className={`text-md text-gray-700 font-bold ${
+                              !canDelete ? "!text-gray-400" : ""
+                            }`}
+                          >
+                            Delete
+                          </option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -291,3 +304,4 @@ const VillageTable = ({
 };
 
 export default VillageTable;
+

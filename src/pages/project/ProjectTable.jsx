@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import { stickyActionCell, stickyActionHeader } from "../../utils/constants";
+import Loader from "../../shared/Loader";
 
 const projectTypeMap = {
   1: { label: "Private Land", badge: "badge-warning" },
@@ -16,7 +17,7 @@ const ProjectTable = ({ projects = [], onEdit, onDelete, loading }) => {
 
   const canEdit = !(role === "Data Entry User" || role === "Viewer");
 
-  if (loading) return <p className="text-center py-6">Loading...</p>;
+  if (loading) return <Loader message="Loading projects..." />;
 
   return (
     <div
@@ -38,56 +39,64 @@ const ProjectTable = ({ projects = [], onEdit, onDelete, loading }) => {
         </thead>
 
         <tbody>
-          {projects.map((p, i) => (
-            <tr key={p.id} className="whitespace-nowrap">
-              <td>{i + 1}</td>
-              <td>{p.project_name}</td>
-              <td>{p.project_location}</td>
-
-              <td>
-                <span
-                  className={`badge ${p.status === 1 ? "badge-success" : "badge-warning"} text-white`}
-                >
-                  {p.status === 1 ? "Active" : "Pending"}
-                </span>
-              </td>
-
-              <td>{p.client_code}</td>
-
-              <td>
-                {/* {projectTypeMap[p.type] ? (
-                  <span className={`badge ${projectTypeMap[p.type].badge} text-white`}>
-                  
-                  </span>
-                ) : (
-                  <span className="badge badge-ghost">Unknown</span>
-                )} */}
-                {projectTypeMap[p.type].label}
-              </td>
-
-              <td>{moment(p.created_at).format("DD-MM-YYYY")}</td>
-
-              <td className={stickyActionCell}>
-               <div className="gap-2 flex">
-                 <button
-                  className="btn btn-xs btn-warning text-white"
-                  onClick={() => canEdit && onEdit(p)}
-                  disabled={!canEdit}
-                >
-                  <Pencil size={14} /> Edit
-                </button>
-
-                <button
-                  className="btn btn-xs btn-error text-white"
-                  onClick={() => onDelete(p)}
-                  disabled={!canEdit}
-                >
-                  <Trash2 size={14} /> Delete
-                </button>
-               </div>
+          {projects.length === 0 ? (
+            <tr>
+              <td colSpan={8} className="text-center py-6 text-gray-500">
+                No data found
               </td>
             </tr>
-          ))}
+          ) : (
+            projects.map((p, i) => (
+              <tr key={p.id} className="whitespace-nowrap">
+                <td>{i + 1}</td>
+                <td>{p.project_name}</td>
+                <td>{p.project_location}</td>
+
+                <td>
+                  <span
+                    className={`badge ${p.status === 1 ? "badge-success" : "badge-warning"} text-white`}
+                  >
+                    {p.status === 1 ? "Active" : "Pending"}
+                  </span>
+                </td>
+
+                <td>{p.client_code}</td>
+
+                <td>
+                  {/* {projectTypeMap[p.type] ? (
+                    <span className={`badge ${projectTypeMap[p.type].badge} text-white`}>
+                    
+                    </span>
+                  ) : (
+                    <span className="badge badge-ghost">Unknown</span>
+                  )} */}
+                  {projectTypeMap[p.type].label}
+                </td>
+
+                <td>{moment(p.created_at).format("DD-MM-YYYY")}</td>
+
+                <td className={stickyActionCell}>
+                  <div className="gap-2 flex">
+                    <button
+                      className="btn btn-xs btn-warning text-white"
+                      onClick={() => canEdit && onEdit(p)}
+                      disabled={!canEdit}
+                    >
+                      <Pencil size={14} /> Edit
+                    </button>
+
+                    <button
+                      className="btn btn-xs btn-error text-white"
+                      onClick={() => onDelete(p)}
+                      disabled={!canEdit}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

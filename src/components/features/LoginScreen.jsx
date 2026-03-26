@@ -39,7 +39,7 @@ export default function LandingPage() {
         throw new Error(data.message || "Invalid email or password");
       }
 
-      localStorage.setItem("authToken", data.token);
+      localStorage.removeItem("authToken");
       localStorage.setItem("user", JSON.stringify(data.user));
 
       dispatch(

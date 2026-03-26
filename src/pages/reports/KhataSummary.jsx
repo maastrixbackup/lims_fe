@@ -187,9 +187,11 @@ const token = useSelector((state) => state.auth.userToken);
         </table>
 
         {filteredData.length === 0 && (
-          <p className="text-center py-4 text-gray-500">No records found.</p>
+          <p className="text-center py-4 text-gray-500">No data found</p>
         )}
       </div>
     </div>
   );
 }
+
+

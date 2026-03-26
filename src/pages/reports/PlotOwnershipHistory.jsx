@@ -130,7 +130,7 @@ export default function PlotOwnershipHistory() {
             {filteredData.length === 0 && (
               <tr>
                 <td colSpan="7" className="text-center py-4 text-gray-500">
-                  No records found.
+                  No data found
                 </td>
               </tr>
             )}
@@ -140,3 +140,5 @@ export default function PlotOwnershipHistory() {
     </div>
   );
 }
+
+

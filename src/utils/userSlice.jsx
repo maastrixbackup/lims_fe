@@ -2,7 +2,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const storedUser = localStorage.getItem("user");
-const storedToken = localStorage.getItem("userToken");
+const storedToken =
+  localStorage.getItem("userToken") || localStorage.getItem("authToken");
 const storedAccess = localStorage.getItem("accessed_projects");
 // console.log("Stored user from localStorage:", storedUser);
 // console.log("Stored token from localStorage:", storedToken);
@@ -32,6 +33,7 @@ const userSlice = createSlice({
       state.error = null;
       state.selectedProject = null;
       localStorage.setItem("userToken", token);
+      localStorage.removeItem("authToken");
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("accessed_projects", JSON.stringify(accessed_projects || []));
     },
@@ -43,6 +45,7 @@ const userSlice = createSlice({
       state.success = false;
       state.error = null;
       localStorage.removeItem("userToken");
+      localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       localStorage.removeItem("accessed_projects");
     },

@@ -25,25 +25,33 @@ export default function RecentProjects({ data }) {
                 </tr>
               </thead>
               <tbody>
-                {projects.map((project, index) => (
-                  <tr key={project.id || index} className="hover">
-                    <td>{project.id}</td>
-                    <td>{project.project_name}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          project.status_text === "Active"
-                            ? "badge-success"
-                            : project.status_text === "Pending"
-                            ? "badge-warning"
-                            : "badge-error"
-                        } text-white`}
-                      >
-                        {project.status_text}
-                      </span>
+                {projects.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center py-4 text-gray-500">
+                      No data found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  projects.map((project, index) => (
+                    <tr key={project.id || index} className="hover">
+                      <td>{project.id}</td>
+                      <td>{project.project_name}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            project.status_text === "Active"
+                              ? "badge-success"
+                              : project.status_text === "Pending"
+                              ? "badge-warning"
+                              : "badge-error"
+                          } text-white`}
+                        >
+                          {project.status_text}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

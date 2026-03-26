@@ -1,32 +1,61 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
-
-const POST_CLEARANCE_DATA = [
-  { sl: 1, key: "ca_plantation_started", label: "CA Plantation Started", type: "yesno", remark: "Plantation report", allowUpload: true },
-  { sl: 2, key: "ca_plantation_completed", label: "CA Plantation Completed", type: "yesno", remark: "Completion report", allowUpload: true },
-  { sl: 3, key: "survival_report_submitted", label: "Survival Report Submitted", type: "yesno", remark: "Annual survival report", allowUpload: true },
-  { sl: 4, key: "wildlife_mitigation", label: "Wildlife Mitigation Implemented", type: "yesno", remark: "If applicable", allowUpload: true },
-  { sl: 5, key: "safety_zone_maintained", label: "Safety Zone Maintained", type: "yesno", remark: "Inspection report", allowUpload: true },
-  { sl: 6, key: "periodic_compliance", label: "Periodic Compliance Submitted", type: "yesno", remark: "Half-yearly / Annual", allowUpload: false },
-  { sl: 7, key: "inspection_observations", label: "Inspection Observations", type: "status", options: ["Open", "Closed"], remark: "Remarks", allowUpload: false },
-  { sl: 8, key: "post_clearance_status", label: "Post-Clearance Status", type: "dropdown", options: ["Ongoing", "Completed"], remark: "", allowUpload: false },
-];
+import { POST_CLEARANCE_DATA } from "../../../../utils/stages";
 
 const LevelThreeForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+
   const fileRefs = useRef({});
   const selectedProject = useSelector((state) => state.selectedProject.project);
 
+  // ---------------- FETCH EXISTING ----------------
+  useEffect(() => {
+    const fetchPostClearance = async () => {
+      if (!selectedProject?.id) return;
+
+      try {
+        const res = await apiClient(
+          `/forestland/getPostClearance/${selectedProject.id}`
+        );
+
+        if (res?.success && res.data) {
+          const d = res.data;
+
+          setForm({
+            ca_plantation_started: d.ca_plantation_started ? "Yes" : "No",
+            ca_plantation_completed: d.ca_plantation_completed ? "Yes" : "No",
+            survival_report_submitted: d.survival_report_submitted ? "Yes" : "No",
+            wildlife_mitigation: d.wildlife_mitigation ? "Yes" : "No",
+            safety_zone_maintained: d.safety_zone_maintained ? "Yes" : "No",
+            periodic_compliance: d.periodic_compliance_submitted ? "Yes" : "No",
+            compliance_period: d.periodic_compliance_type || "",
+            inspection_observations: d.inspection_observations || "",
+            inspection_remarks: d.inspection_remarks || "",
+            post_clearance_status: d.post_clearance_status || "",
+          });
+
+          setIsEdit(true);
+        }
+      } catch (err) {
+        console.log("No Post Clearance data found");
+        setIsEdit(false);
+      }
+    };
+
+    fetchPostClearance();
+  }, [selectedProject]);
+
+  // ---------------- HANDLERS ----------------
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /* 📂 SINGLE FILE UPLOAD */
   const handleFileChange = (e, key) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -39,13 +68,6 @@ const LevelThreeForm = ({ onStageComplete }) => {
     e.target.value = "";
   };
 
-  /* 👁 VIEW FILE */
-  const handleViewFile = (file) => {
-    const url = URL.createObjectURL(file);
-    window.open(url, "_blank");
-  };
-
-  /* ❌ REMOVE FILE */
   const handleRemoveFile = (key) => {
     setFiles((prev) => {
       const updated = { ...prev };
@@ -58,8 +80,14 @@ const LevelThreeForm = ({ onStageComplete }) => {
     }
   };
 
+  const handleViewFile = (file) => {
+    const url = URL.createObjectURL(file);
+    window.open(url, "_blank");
+  };
+
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
 
+  // ---------------- SUBMIT ----------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -70,32 +98,48 @@ const LevelThreeForm = ({ onStageComplete }) => {
     }
 
     const formData = new FormData();
+
     formData.append("forest_project_id", forestProjectId);
     formData.append(
       "ca_plantation_started",
-      yesNoToInt(form.ca_plantation_started),
+      yesNoToInt(form.ca_plantation_started)
     );
     formData.append(
       "ca_plantation_completed",
-      yesNoToInt(form.ca_plantation_completed),
+      yesNoToInt(form.ca_plantation_completed)
     );
     formData.append(
       "survival_report_submitted",
-      yesNoToInt(form.survival_report_submitted),
+      yesNoToInt(form.survival_report_submitted)
     );
-    formData.append("wildlife_mitigation", yesNoToInt(form.wildlife_mitigation));
+    formData.append(
+      "wildlife_mitigation",
+      yesNoToInt(form.wildlife_mitigation)
+    );
     formData.append(
       "safety_zone_maintained",
-      yesNoToInt(form.safety_zone_maintained),
+      yesNoToInt(form.safety_zone_maintained)
     );
     formData.append(
       "periodic_compliance_submitted",
-      yesNoToInt(form.periodic_compliance),
+      yesNoToInt(form.periodic_compliance)
     );
-    formData.append("periodic_compliance_type", form.compliance_period || "");
-    formData.append("inspection_observations", form.inspection_observations || "");
-    formData.append("inspection_remarks", form.inspection_remarks || "");
-    formData.append("post_clearance_status", form.post_clearance_status || "");
+    formData.append(
+      "periodic_compliance_type",
+      form.compliance_period || ""
+    );
+    formData.append(
+      "inspection_observations",
+      form.inspection_observations || ""
+    );
+    formData.append(
+      "inspection_remarks",
+      form.inspection_remarks || ""
+    );
+    formData.append(
+      "post_clearance_status",
+      form.post_clearance_status || ""
+    );
 
     const fileMap = {
       ca_plantation_started: "ca_plantation_started_document",
@@ -114,19 +158,39 @@ const LevelThreeForm = ({ onStageComplete }) => {
 
     try {
       setSubmitting(true);
-      const res = await apiClient("/forestland/postClearance", {
-        method: "POST",
+
+      const url = isEdit
+        ? `/forestland/updatePostClearance/${forestProjectId}`
+        : `/forestland/postClearance`;
+
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await apiClient(url, {
+        method,
         body: formData,
       });
 
       if (!res?.success) {
-        throw new Error(res?.message || "Failed to save post clearance");
+        throw new Error(
+          res?.message || "Failed to save post clearance"
+        );
       }
 
-      showToast(res?.message || "Post clearance saved successfully", "success");
+      showToast(
+        res?.message ||
+          (isEdit
+            ? "Post clearance updated successfully"
+            : "Post clearance saved successfully"),
+        "success"
+      );
+
+      setIsEdit(true);
       onStageComplete?.();
     } catch (error) {
-      showToast(error.message || "Failed to save post clearance", "error");
+      showToast(
+        error.message || "Failed to save post clearance",
+        "error"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -267,7 +331,11 @@ const LevelThreeForm = ({ onStageComplete }) => {
 
       <div className="flex justify-end mt-4">
         <button className="btn btn-success btn-sm" disabled={submitting}>
-          {submitting ? "Saving..." : "Save Post-Clearance"}
+          {submitting
+            ? "Saving..."
+            : isEdit
+            ? "Update Post-Clearance"
+            : "Save Post-Clearance"}
         </button>
       </div>
     </form>

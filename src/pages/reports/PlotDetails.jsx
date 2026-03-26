@@ -126,7 +126,7 @@ export default function PlotDetails() {
             {filteredData.length === 0 && (
               <tr>
                 <td colSpan="11" className="text-center py-4 text-gray-500">
-                  No records found.
+                  No data found
                 </td>
               </tr>
             )}
@@ -136,3 +136,5 @@ export default function PlotDetails() {
     </div>
   );
 }
+
+

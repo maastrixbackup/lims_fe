@@ -150,7 +150,7 @@ const UserManagement = () => {
                 ) : (
                   <tr>
                     <td colSpan="6" className="text-center py-6 text-gray-500">
-                      No users found.
+                      No data found
                     </td>
                   </tr>
                 )}
@@ -445,3 +445,5 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
+
+

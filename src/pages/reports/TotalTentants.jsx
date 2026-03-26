@@ -242,7 +242,7 @@ export default function Tenants() {
                 {filteredTenants.length === 0 && (
                   <tr>
                     <td colSpan={8} className="text-center py-5 text-gray-500">
-                      No tenants found.
+                      No data found
                     </td>
                   </tr>
                 )}

@@ -1,22 +1,32 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useAuth } from "../context/AuthContext";
 
 export default function PrivateRoute({ allowedRoles }) {
-  const { user, token } = useSelector((state) => state.auth);
+  const { user, userToken } = useSelector((state) => state.auth);
+  const { isSessionActive } = useAuth();
 
-  const storedToken = localStorage.getItem("authToken");
-  const storedUser = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user"))
-    : null;
+  const storedToken =
+    localStorage.getItem("userToken") || localStorage.getItem("authToken");
+
+  let storedUser = null;
+  const storedUserRaw = localStorage.getItem("user");
+  if (storedUserRaw) {
+    try {
+      storedUser = JSON.parse(storedUserRaw);
+    } catch (err) {
+      console.error("Invalid stored user data:", err);
+    }
+  }
 
   const currentUser = user || storedUser;
-  const currentToken = token || storedToken;
+  const currentToken = userToken || storedToken;
 
   // console.log(" PrivateRoute check:", { currentUser, allowedRoles });
 
-  if (!currentToken || !currentUser) {
-    // console.warn("No user/token found — redirecting to login");
+  if (!isSessionActive || !currentToken || !currentUser) {
+    // console.warn("No user/token found - redirecting to login");
     return <Navigate to="/" replace />;
   }
 
@@ -26,13 +36,9 @@ export default function PrivateRoute({ allowedRoles }) {
   //   currentUser.role ||
   //   "Unknown";
 
-  // // console.log("🔍 Detected role:", userRole);
-
   // if (!allowedRoles.includes(userRole)) {
-  //   // console.warn(`Role '${userRole}' not allowed`);
   //   return <Navigate to="/unauthorized" replace />;
   // }
 
-  // console.log("Access granted to:", userRole);
   return <Outlet />;
 }

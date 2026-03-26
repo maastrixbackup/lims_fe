@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { addForestProject } from "../addForestProject";
 import { updateForestProject } from "../../../hooks/updateForestProject";
 import { apiClient } from "../../../utils/apiClient";
@@ -10,10 +11,33 @@ import {
   PROJECT_CATEGORY_NATURE_MAP,
 } from "../../../utils/constants";
 
+const PROJECT_MASTER_DRAFTS_KEY = "forest_project_master_drafts_v1";
+
+const readProjectMasterDrafts = () => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(PROJECT_MASTER_DRAFTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeProjectMasterDrafts = (drafts) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PROJECT_MASTER_DRAFTS_KEY, JSON.stringify(drafts));
+  } catch {
+    // Ignore localStorage write errors (quota/private mode)
+  }
+};
+
 const ProjectMaster = () => {
   const token = useSelector((state) => state.auth.userToken);
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((s) => s.list.projects || []);
+  const location = useLocation();
   const [editData, setEditData] = useState();
 
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
@@ -23,7 +47,6 @@ const ProjectMaster = () => {
     project_name: "",
     proposal_no: "",
     user_agency: "",
-    sector: "",
     state: "",
     district: "",
     tahasil: "",
@@ -47,6 +70,7 @@ const ProjectMaster = () => {
         issues_closed: "",
         issues_pending: "",
         eds_status: "",
+        eds_reply_document:""
       },
     ],
     project_category: "",
@@ -55,6 +79,149 @@ const ProjectMaster = () => {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+
+  const sanitizeDraft = (data) => ({
+    ...data,
+    eds_list: Array.isArray(data?.eds_list)
+      ? data.eds_list.map((eds) => ({
+          ...eds,
+          // File objects are not serializable in localStorage
+          eds_reply_document:
+            typeof eds?.eds_reply_document === "string"
+              ? eds.eds_reply_document
+              : null,
+        }))
+      : initialFormData.eds_list,
+  });
+
+  const normalizeEditPayload = (row) => {
+    if (!row) return null;
+
+    let parsedEdsList = [];
+    if (Array.isArray(row.eds_list)) {
+      parsedEdsList = row.eds_list;
+    } else if (typeof row.eds_list === "string") {
+      try {
+        const parsed = JSON.parse(row.eds_list);
+        parsedEdsList = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        parsedEdsList = [];
+      }
+    }
+
+    return {
+      ...row,
+      eds_flag: Number(row.eds_flag || 0),
+      eds_list:
+        parsedEdsList.length > 0 ? parsedEdsList : initialFormData.eds_list,
+    };
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchExistingMasterData = async () => {
+      const requestedRow = location.state?.projectMasterRow;
+      if (requestedRow && selectedProject?.id && String(requestedRow.project_id) === String(selectedProject.id)) {
+        const normalized = normalizeEditPayload(requestedRow);
+        setEditData(normalized);
+        setFormData({
+          ...initialFormData,
+          ...normalized,
+          project_id: selectedProject.id,
+          project_name: selectedProject.project_name || selectedProject.name || "",
+          eds_flag: Number(normalized.eds_flag || 0),
+          eds_list:
+            Array.isArray(normalized.eds_list) && normalized.eds_list.length
+              ? normalized.eds_list
+              : initialFormData.eds_list,
+        });
+        return;
+      }
+
+      if (!selectedProject?.id) return;
+
+      try {
+        const res = await apiClient(
+          `/forestland/forestProjectList?project_id=${selectedProject.id}&page=1&limit=1`,
+        );
+
+        if (cancelled) return;
+
+        const latestRecord = Array.isArray(res?.data) ? res.data[0] : null;
+        const normalized = normalizeEditPayload(latestRecord);
+        const drafts = readProjectMasterDrafts();
+        const projectId = String(selectedProject.id);
+        const localDraft = drafts[projectId];
+
+        setEditData(normalized);
+
+        if (localDraft) {
+          setFormData({
+            ...initialFormData,
+            ...localDraft,
+            project_id: selectedProject.id,
+            project_name:
+              selectedProject.project_name || selectedProject.name || "",
+          });
+          return;
+        }
+
+        if (normalized) {
+          setFormData({
+            ...initialFormData,
+            ...normalized,
+            project_id: selectedProject.id,
+            project_name:
+              selectedProject.project_name || selectedProject.name || "",
+            eds_flag: Number(normalized.eds_flag || 0),
+            eds_list:
+              Array.isArray(normalized.eds_list) && normalized.eds_list.length
+                ? normalized.eds_list
+                : initialFormData.eds_list,
+          });
+          return;
+        }
+
+        setFormData({
+          ...initialFormData,
+          project_id: selectedProject.id,
+          project_name: selectedProject.project_name || selectedProject.name || "",
+        });
+      } catch {
+        if (!cancelled) {
+          setEditData(null);
+          const drafts = readProjectMasterDrafts();
+          const projectId = String(selectedProject.id);
+          const localDraft = drafts[projectId];
+
+          if (localDraft) {
+            setFormData({
+              ...initialFormData,
+              ...localDraft,
+              project_id: selectedProject.id,
+              project_name:
+                selectedProject.project_name || selectedProject.name || "",
+            });
+          } else {
+            setFormData({
+              ...initialFormData,
+              project_id: selectedProject.id,
+              project_name:
+                selectedProject.project_name || selectedProject.name || "",
+            });
+          }
+        }
+      }
+    };
+
+    fetchExistingMasterData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedProject?.id]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -99,25 +266,13 @@ const ProjectMaster = () => {
   }, [formData.project_id, formData.current_stage]);
 
   useEffect(() => {
-    if (editData) {
-      setFormData({
-        ...initialFormData,
-        ...editData,
-        eds_flag: Number(editData.eds_flag || 0),
-      });
-    }
-  }, [editData]);
+    const projectId = formData?.project_id || selectedProject?.id;
+    if (!projectId) return;
 
-  useEffect(() => {
-    if (selectedProject?.id) {
-      setFormData((prev) => ({
-        ...prev,
-        project_id: selectedProject.id,
-        project_name:
-          selectedProject.project_name || selectedProject.name || "",
-      }));
-    }
-  }, [selectedProject]);
+    const drafts = readProjectMasterDrafts();
+    drafts[String(projectId)] = sanitizeDraft(formData);
+    writeProjectMasterDrafts(drafts);
+  }, [formData, selectedProject?.id]);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -138,6 +293,29 @@ const ProjectMaster = () => {
           value === "Mining / Quarrying" ? prev.project_sub_category : "",
       }));
 
+      return;
+    }
+
+    if (name === "project_id") {
+      const matchedProject = projects.find((p) => String(p.id) === String(value));
+      const nextProjectName = matchedProject?.project_name || matchedProject?.name || "";
+      const drafts = readProjectMasterDrafts();
+      const projectDraft = drafts[String(value)];
+
+      if (projectDraft) {
+        setFormData({
+          ...initialFormData,
+          ...projectDraft,
+          project_id: value,
+          project_name: nextProjectName,
+        });
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          project_id: value,
+          project_name: nextProjectName,
+        }));
+      }
       return;
     }
 
@@ -187,6 +365,9 @@ const ProjectMaster = () => {
         formData,
         token,
         onSuccess: () => {
+          const drafts = readProjectMasterDrafts();
+          delete drafts[String(formData.project_id)];
+          writeProjectMasterDrafts(drafts);
           showSuccess("Project updated successfully!");
           //   fetchProjects();
         },
@@ -200,9 +381,16 @@ const ProjectMaster = () => {
       token,
       selectedProject,
       onSuccess: () => {
+        const drafts = readProjectMasterDrafts();
+        delete drafts[String(formData.project_id || selectedProject?.id)];
+        writeProjectMasterDrafts(drafts);
         showSuccess("Project added successfully!");
         // fetchProjects();
-        setFormData(initialFormData);
+        setFormData({
+          ...initialFormData,
+          project_id: selectedProject?.id || "",
+          project_name: selectedProject?.project_name || selectedProject?.name || "",
+        });
       },
       onError: (err) => showError(err?.message || "Error adding project"),
     });

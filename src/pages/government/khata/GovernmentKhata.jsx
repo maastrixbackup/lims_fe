@@ -12,13 +12,14 @@ import { useNavigate } from "react-router-dom";
 import UploadModal from "./UploadModal";
 import MapModal from "./MapModal"
 import PlotListModal from "./PlotListModal";
+import Loader from "../../../shared/Loader";
 
 const GovernmentKhata = () => {
   const [mapKhata, setMapKhata] = useState(null);
   const [plotKhata, setPlotKhata] = useState(null);
   const [uploadKhata, setUploadKhata] = useState(null);
   const [khatas, setKhatas] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKhata, setEditingKhata] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -47,6 +48,7 @@ const GovernmentKhata = () => {
   const fetchKhatas = useCallback(async () => {
     if (!projectId || !typeParam) {
       setKhatas([]);
+      setLoading(false);
       return;
     }
 
@@ -229,7 +231,7 @@ const onViewPlots = (khata) => {
       </div>
 
       {loading ? (
-        <p className="text-center py-4">Loading...</p>
+        <Loader message="Loading khata list..." />
       ) : (
         <KhataTable
           khatas={khatas}

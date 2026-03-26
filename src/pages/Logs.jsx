@@ -112,10 +112,10 @@ const Logs = () => {
               ) : (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="text-center text-gray-500 py-4 border"
                   >
-                    No logs found.
+                    No data found
                   </td>
                 </tr>
               )}

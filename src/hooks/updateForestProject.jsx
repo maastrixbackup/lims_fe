@@ -7,6 +7,7 @@ export const updateForestProject = async ({
   onSuccess,
   onError,
 }) => {
+  console.log('form data*********', formData)
   try {
     const payload = new FormData();
     const normalizeEdsRow = (row = {}) => ({

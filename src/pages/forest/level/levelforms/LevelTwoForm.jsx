@@ -1,102 +1,56 @@
 import { X } from "lucide-react";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
-
-const STAGE_II_DATA = [
-  {
-    "sl": 1,
-    "key": "environmental_clearance",
-    "label": "Environmental Clearance",
-    "type": "status",
-    "options": ["Obtained", "Not Obtained"],
-    "remark": "EC letter (if applicable)",
-    "allowUpload": true
-  },
-  {
-    "sl": 2,
-    "key": "nbwl_clearance",
-    "label": "NBWL Clearance",
-    "type": "status",
-    "options": ["Obtained", "Not Obtained"],
-    "remark": "NBWL approval (if applicable)",
-    "allowUpload": true
-  },
-  {
-    "sl": 3,
-    "key": "final_ca_execution",
-    "label": "Final CA Execution",
-    "type": "status",
-    "options": ["Completed", "Pending"],
-    "remark": "Execution proof",
-    "allowUpload": true
-  },
-  {
-    "sl": 4,
-    "key": "final_maps_approved",
-    "label": "Final Maps Approved",
-    "type": "yesno",
-    "remark": "Approved maps",
-    "allowUpload": true
-  },
-  {
-    "sl": 5,
-    "key": "final_technical_approval",
-    "label": "Final Technical Approval",
-    "type": "status",
-    "options": ["Completed", "Pending"],
-    "remark": "Mining / Linear approval",
-    "allowUpload": true
-  },
-  {
-    "sl": 6,
-    "key": "stage_2_approval_letter",
-    "label": "Stage-II Approval Letter",
-    "type": "yesno",
-    "remark": "Final FC Letter Upload",
-    "allowUpload": true
-  },
-  {
-    "sl": 7,
-    "key": "stage_2_approval_date",
-    "label": "Stage-II Approval Date",
-    "type": "date"
-  },
-  {
-    "sl": 8,
-    "key": "approved_forest_area",
-    "label": "Approved Forest Area (Ha)",
-    "type": "text"
-  },
-  {
-    "sl": 9,
-    "key": "approved_non_forest_area",
-    "label": "Approved Non-Forest Area (Ha)",
-    "type": "text"
-  },
-  {
-    "sl": 10,
-    "key": "stage_2_status",
-    "label": "Stage-II Status",
-    "type": "chip"
-  },
-  {
-    "sl": 11,
-    "key": "eligible_post_clearance",
-    "label": "Eligible for Post-Clearance?",
-    "type": "yesno"
-  }
-]
-
+import { STAGE_II_DATA } from "../../../../utils/stages";
 
 const LevelTwoForm = ({ onStageComplete }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [inputKeys, setInputKeys] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+
   const selectedProject = useSelector((state) => state.selectedProject.project);
 
+  // ---------------- FETCH EXISTING ----------------
+  useEffect(() => {
+    const fetchStage2 = async () => {
+      if (!selectedProject?.id) return;
+
+      try {
+        const res = await apiClient(
+          `/forestland/getStage2/${selectedProject.id}`
+        );
+
+        if (res?.success && res.data) {
+          const d = res.data;
+
+          setForm({
+            environmental_clearance: d.environmental_clearance || "",
+            nbwl_clearance: d.nbwl_clearance || "",
+            final_ca_execution: d.final_ca_execution || "",
+            final_maps_approved: d.final_maps_approved ? "Yes" : "No",
+            final_technical_approval: d.final_technical_approval || "",
+            stage_2_approval_letter: d.stage2_approval_letter ? "Yes" : "No",
+            stage_2_approval_date: d.stage2_approval_date || "",
+            approved_forest_area: d.approved_forest_area_ha || "",
+            approved_non_forest_area: d.approved_non_forest_area_ha || "",
+          });
+
+          setIsEdit(true);
+        }
+      } catch (err) {
+        console.log("No Stage-2 data found");
+        setIsEdit(false);
+      }
+    };
+
+    fetchStage2();
+  }, [selectedProject]);
+
+  // ---------------- HANDLERS ----------------
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -121,17 +75,22 @@ const LevelTwoForm = ({ onStageComplete }) => {
       [rowKey]: prev[rowKey].filter((_, i) => i !== index),
     }));
   };
+
+  const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
+
+  const getFirstFile = (key) =>
+    Array.isArray(files[key]) && files[key].length > 0
+      ? files[key][0]
+      : null;
+
+  // ---------------- DERIVED ----------------
   const stage_2_status = useMemo(() => {
     return form.stage_2_approval_letter === "Yes"
       ? "Granted"
       : "Not Granted";
   }, [form.stage_2_approval_letter]);
 
-  const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
-
-  const getFirstFile = (key) =>
-    Array.isArray(files[key]) && files[key].length > 0 ? files[key][0] : null;
-
+  // ---------------- SUBMIT ----------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -142,24 +101,37 @@ const LevelTwoForm = ({ onStageComplete }) => {
     }
 
     const formData = new FormData();
+
     formData.append("forest_project_id", forestProjectId);
-    formData.append("environmental_clearance", form.environmental_clearance || "");
+    formData.append(
+      "environmental_clearance",
+      form.environmental_clearance || ""
+    );
     formData.append("nbwl_clearance", form.nbwl_clearance || "");
     formData.append("final_ca_execution", form.final_ca_execution || "");
-    formData.append("final_maps_approved", yesNoToInt(form.final_maps_approved));
+    formData.append(
+      "final_maps_approved",
+      yesNoToInt(form.final_maps_approved)
+    );
     formData.append(
       "final_technical_approval",
-      form.final_technical_approval || "",
+      form.final_technical_approval || ""
     );
-    formData.append("stage2_approval_letter", yesNoToInt(form.stage_2_approval_letter));
-    formData.append("stage2_approval_date", form.stage_2_approval_date || "");
+    formData.append(
+      "stage2_approval_letter",
+      yesNoToInt(form.stage_2_approval_letter)
+    );
+    formData.append(
+      "stage2_approval_date",
+      form.stage_2_approval_date || ""
+    );
     formData.append(
       "approved_forest_area_ha",
-      form.approved_forest_area || "",
+      form.approved_forest_area || ""
     );
     formData.append(
       "approved_non_forest_area_ha",
-      form.approved_non_forest_area || "",
+      form.approved_non_forest_area || ""
     );
 
     const fileMap = {
@@ -180,8 +152,15 @@ const LevelTwoForm = ({ onStageComplete }) => {
 
     try {
       setSubmitting(true);
-      const res = await apiClient("/forestland/addStage2", {
-        method: "POST",
+
+      const url = isEdit
+        ? `/forestland/updateStage2/${forestProjectId}`
+        : `/forestland/addStage2`;
+
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await apiClient(url, {
+        method,
         body: formData,
       });
 
@@ -189,7 +168,15 @@ const LevelTwoForm = ({ onStageComplete }) => {
         throw new Error(res?.message || "Failed to save Stage-II");
       }
 
-      showToast(res?.message || "Stage-II saved successfully", "success");
+      showToast(
+        res?.message ||
+          (isEdit
+            ? "Stage-II updated successfully"
+            : "Stage-II saved successfully"),
+        "success"
+      );
+
+      setIsEdit(true);
       onStageComplete?.();
     } catch (error) {
       showToast(error.message || "Failed to save Stage-II", "error");
@@ -197,7 +184,6 @@ const LevelTwoForm = ({ onStageComplete }) => {
       setSubmitting(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit} className="p-4 max-w-6xl mx-auto">
       <h2 className="text-lg font-bold mb-4">
@@ -348,8 +334,12 @@ const LevelTwoForm = ({ onStageComplete }) => {
       </table>
 
       <div className="flex justify-end mt-4">
-        <button className="btn btn-success btn-sm" disabled={submitting}>
-          {submitting ? "Saving..." : "Save Stage-II"}
+         <button className="btn btn-success btn-sm" disabled={submitting}>
+          {submitting
+            ? "Saving..."
+            : isEdit
+            ? "Update Stage-II"
+            : "Save Stage-II"}
         </button>
       </div>
     </form>

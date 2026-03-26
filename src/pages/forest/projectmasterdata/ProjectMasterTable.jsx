@@ -1,24 +1,35 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import FilterSortHeader from "../FilterSortHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../../../shared/Loader";
+import Pagination from "../../../shared/Pagination";
+import { apiClient } from "../../../utils/apiClient";
 
 const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
   const userRole = useSelector((s) => s.auth.user?.role_name);
   const navigate = useNavigate();
   const { landType } = useParams();
-  // const typeParam = useLandTypeParam();
 
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
 
-  const [filters, setFilters] = React.useState({});
-  const [sortConfig, setSortConfig] = React.useState({
+  const [filters, setFilters] = useState({});
+  const [sortConfig, setSortConfig] = useState({
     field: null,
     direction: null,
   });
+  const [tableData, setTableData] = useState([]);
+  const [internalLoading, setInternalLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   const selectedProject = useSelector((state) => state.selectedProject.project);
+
+  const dataSource = projects.length ? projects : tableData;
+  const isLoading = typeof loading === "boolean" ? loading : internalLoading;
 
   const stickyActionHeader =
     "p-3 text-right bg-[#7A69E1] text-white md:sticky md:right-0 z-[30] shadow-md";
@@ -27,11 +38,74 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
     "text-right font-bold md:sticky md:right-0 border-gray-100 shadow-sm bg-white";
 
   const getUniqueOptions = (field) => [
-    ...new Set(projects.map((i) => i?.[field]).filter(Boolean)),
+    ...new Set(dataSource.map((item) => item?.[field]).filter(Boolean)),
   ];
 
+  useEffect(() => {
+    setPage(1);
+  }, [selectedProject?.id]);
+
+  useEffect(() => {
+    if (projects.length) return;
+
+    if (!selectedProject?.id) {
+      setTableData([]);
+      setError("");
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchProjectMasterList = async () => {
+      setInternalLoading(true);
+      setError("");
+
+      try {
+        const res = await apiClient(
+          `/forestland/forestProjectList?project_id=${selectedProject.id}&page=${page}&limit=${limit}`,
+        );
+
+        if (cancelled) return;
+
+        setTableData(Array.isArray(res?.data) ? res.data : []);
+        setTotalPages(Number(res?.totalPages || 1));
+      } catch {
+        if (cancelled) return;
+
+        setTableData([]);
+        setTotalPages(1);
+        setError("Unable to load project master data.");
+      } finally {
+        if (!cancelled) {
+          setInternalLoading(false);
+        }
+      }
+    };
+
+    fetchProjectMasterList();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projects.length, selectedProject?.id, page, limit]);
+
+  const handleAction = (action, row) => {
+    if (action === "edit") {
+      onEdit?.(row);
+      navigate(`/${landType}/project-master`, {
+        state: { projectMasterRow: row },
+      });
+      return;
+    }
+
+    if (action === "delete") {
+      onDelete?.(row);
+      return;
+    }
+  };
+
   const filteredAndSortedData = useMemo(() => {
-    let result = [...projects];
+    let result = [...dataSource];
 
     Object.entries(filters).forEach(([field, values]) => {
       if (values?.length) {
@@ -55,12 +129,19 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
     }
 
     return result;
-  }, [projects, filters, sortConfig]);
+  }, [dataSource, filters, sortConfig]);
 
-  if (loading) return <Loader message="Loading project master data..." />;
+  if (isLoading) return <Loader message="Loading project master data..." />;
 
   return (
     <>
+      <div>
+        <h2 className="font-bold text-lg mb-4">Project Master Data List </h2>
+      </div>
+      {error && selectedProject && (
+        <p className="text-sm text-red-500 mb-2">{error}</p>
+      )}
+
       {(!selectedProject || filteredAndSortedData.length === 0) && (
         <div className="py-10 text-center text-gray-600">
           {!selectedProject ? (
@@ -87,12 +168,13 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               <p className="text-md text-gray-500 mt-1">
                 Try selecting a different{" "}
                 <span className="text-gray-700 font-semibold">Project</span> or
-                add a Project Master Data .
+                add a Project Master Data.
               </p>
             </>
           )}
         </div>
       )}
+
       {selectedProject && filteredAndSortedData.length > 0 && (
         <div
           className="max-h-[400px] overflow-x-auto"
@@ -102,11 +184,14 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
             <thead className="bg-[#7A69E1] text-white sticky top-0 z-20">
               <tr>
                 {[
-                  ["Project ID", "id"],
+                  ["ID", "id"],
+                  ["Project ID", "project_id"],
                   ["Proposal No", "proposal_no"],
                   ["Project Name", "project_name"],
+                  ["Project Category", "project_category"],
+                  ["Project Sub Category", "project_sub_category"],
+                  ["Project Nature", "project_nature"],
                   ["User Agency", "user_agency"],
-                  ["Sector", "sector"],
                   ["State", "state"],
                   ["District", "district"],
                   ["Tahasil", "tahasil"],
@@ -125,11 +210,13 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
                     label={label}
                     field={field}
                     options={getUniqueOptions(field)}
-                    {...{ filters, setFilters, sortConfig, setSortConfig }}
+                    filters={filters}
+                    setFilters={setFilters}
+                    sortConfig={sortConfig}
+                    setSortConfig={setSortConfig}
                   />
                 ))}
 
-                {/* <th>EDS Doc</th> */}
                 <th className={stickyActionHeader}>Action</th>
               </tr>
             </thead>
@@ -137,7 +224,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
             <tbody>
               {!filteredAndSortedData.length && (
                 <tr>
-                  <td colSpan="20" className="text-center py-6">
+                  <td colSpan="22" className="text-center py-6">
                     No data found
                   </td>
                 </tr>
@@ -146,10 +233,13 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               {filteredAndSortedData.map((row) => (
                 <tr key={row.id}>
                   <td>{row.id}</td>
+                  <td>{row.project_id || "No data found"}</td>
                   <td>{row.proposal_no || "No data found"}</td>
                   <td>{row.project_name || "No data found"}</td>
+                  <td>{row.project_category || "No data found"}</td>
+                  <td>{row.project_sub_category || "No data found"}</td>
+                  <td>{row.project_nature || "No data found"}</td>
                   <td>{row.user_agency || "No data found"}</td>
-                  <td>{row.sector || "No data found"}</td>
                   <td>{row.state || "No data found"}</td>
                   <td>{row.district || "No data found"}</td>
                   <td>{row.tahasil || "No data found"}</td>
@@ -178,22 +268,6 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
                     )}
                   </td>
 
-                  {/* 
-              <td>
-                {row.eds_document_url ? (
-                  <a
-                    href={row.eds_document_url}
-                    target="_blank"
-                    // rel="noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    View
-                  </a>
-                ) : (
-                  "No data found"
-                )}
-              </td> */}
-
                   <td className={stickyActionCell}>
                     <select
                       className="select select-sm bg-gray-100 w-[42px]"
@@ -202,8 +276,7 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
                         const action = e.target.value;
                         e.target.value = "";
 
-                        if (action === "edit") onEdit?.(row);
-                        if (action === "delete") onDelete?.(row);
+                        handleAction(action, row);
                       }}
                     >
                       <option value="" disabled>
@@ -211,11 +284,11 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
                       </option>
 
                       <option value="edit" disabled={!canEdit}>
-                        ✏️ Edit
+                        Edit
                       </option>
 
                       <option value="delete" disabled={!canDelete}>
-                        🗑 Delete
+                        Delete
                       </option>
                     </select>
                   </td>
@@ -225,10 +298,20 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
           </table>
         </div>
       )}
+
+      {!!selectedProject && totalPages > 1 && !projects.length && (
+        <div className="mt-4">
+          <Pagination
+            page={page}
+            setPage={setPage}
+            limit={limit}
+            setLimit={setLimit}
+            totalPages={totalPages}
+          />
+        </div>
+      )}
     </>
   );
 };
 
 export default ProjectMasterTable;
-
-

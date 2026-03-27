@@ -1273,7 +1273,7 @@ export const STAGE_0_DATA = [
   },
   {
     "sl": 2,
-    "key": "dgps_area",
+    "key": "dgps_area_ha",
     "label": "DGPS Area (ha)",
     "type": "text",
     "remark": ""

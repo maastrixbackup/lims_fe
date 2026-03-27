@@ -183,6 +183,7 @@ const LevelTab = () => {
   ];
   const [activeTab, setActiveTab] = useState("stage0");
   const [unlockedStep, setUnlockedStep] = useState(0);
+  const [stageModes, setStageModes] = useState({});
 
   const handleTabClick = (tabIndex) => {
     if (tabIndex <= unlockedStep) {
@@ -198,6 +199,32 @@ const LevelTab = () => {
     if (nextStep !== stageIndex) {
       setActiveTab(tabs[nextStep].id);
     }
+  };
+
+  const handleStageSubmit = (stageIndex, mode) => {
+    if (mode !== "edit") {
+      return;
+    }
+
+    handleStageComplete(stageIndex);
+  };
+
+  const handleStageModeChange = (stageId, mode) => {
+    setStageModes((prev) => ({
+      ...prev,
+      [stageId]: mode,
+    }));
+  };
+
+  const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  const canGoNext =
+    activeTabIndex > -1 &&
+    activeTabIndex < tabs.length - 1 &&
+    stageModes[activeTab] === "edit";
+
+  const handleNextClick = () => {
+    if (!canGoNext) return;
+    handleStageComplete(activeTabIndex);
   };
 
   return (
@@ -227,16 +254,36 @@ const LevelTab = () => {
       {/* Content */}
       <div className="bg-white p-2 rounded-lg shadow-sm">
         {activeTab === "stage0" && (
-          <LevelZeroForm onStageComplete={() => handleStageComplete(0)} />
+          <LevelZeroForm
+            onStageComplete={(mode) => handleStageSubmit(0, mode)}
+            onModeChange={(mode) => handleStageModeChange("stage0", mode)}
+            showNext={canGoNext}
+            onNext={handleNextClick}
+          />
         )}
         {activeTab === "stage1" && (
-          <LevelOneForm onStageComplete={() => handleStageComplete(1)} />
+          <LevelOneForm
+            onStageComplete={(mode) => handleStageSubmit(1, mode)}
+            onModeChange={(mode) => handleStageModeChange("stage1", mode)}
+            showNext={canGoNext}
+            onNext={handleNextClick}
+          />
         )}
         {activeTab === "stage2" && (
-          <LevelTwoForm onStageComplete={() => handleStageComplete(2)} />
+          <LevelTwoForm
+            onStageComplete={(mode) => handleStageSubmit(2, mode)}
+            onModeChange={(mode) => handleStageModeChange("stage2", mode)}
+            showNext={canGoNext}
+            onNext={handleNextClick}
+          />
         )}
         {activeTab === "stage3" && (
-          <LevelThreeForm onStageComplete={() => handleStageComplete(3)} />
+          <LevelThreeForm
+            onStageComplete={(mode) => handleStageSubmit(3, mode)}
+            onModeChange={(mode) => handleStageModeChange("stage3", mode)}
+            showNext={canGoNext}
+            onNext={handleNextClick}
+          />
         )}
         {/* {activeTab === "stage4" && <LevelFourForm />} */}
       </div>

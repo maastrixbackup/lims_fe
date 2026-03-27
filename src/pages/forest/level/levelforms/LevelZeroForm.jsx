@@ -3,53 +3,128 @@ import React, { useState, useMemo, useEffect } from "react";
 import { STAGE_0_DATA, showToast } from "../../../../utils/constants";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
+import { buildExistingDocumentsByKey } from "./documentHelpers";
 
-const StageZeroForm = ({ onStageComplete }) => {
+const FILE_MAP = {
+  dgps_survey_done: "dgps_document",
+  orsac: "orsac_document",
+  tree_enumeration: "tree_enumeration_document",
+  administrative_docs: "administrative_document",
+  legal_lease: "legal_lease_document",
+  technical_data: "technical_document",
+  forest_land_details: "forest_land_details_document",
+  ca_planning: "ca_ca_document",
+  fra_compliance: "fra_document",
+  env_statutory: "environmental_document",
+  wildlife_safeguards: "wildlife_document",
+  maps_spatial: "maps_document",
+  financial: "financial_document",
+  proposal_submitted: "proposal_document",
+};
+
+const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const [existingDocs, setExistingDocs] = useState({});
   const [inputKeys, setInputKeys] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
   const selectedProject = useSelector((state) => state.selectedProject.project);
 
+  const normalizeStatusValue = (value, options = []) => {
+    if (value === null || value === undefined) return "";
+
+    const exactMatch = options.find((opt) => opt === value);
+    if (exactMatch) return exactMatch;
+
+    const normalized = String(value).trim().toLowerCase();
+    const optionMatch = options.find(
+      (opt) => String(opt).trim().toLowerCase() === normalized,
+    );
+    if (optionMatch) return optionMatch;
+
+    if (["1", "true", "yes", "y"].includes(normalized)) {
+      return options[0] || "";
+    }
+
+    if (["0", "false", "no", "n"].includes(normalized)) {
+      return options[1] || "";
+    }
+
+    return String(value);
+  };
+
   // ------------------ FETCH EXISTING DATA ------------------
   useEffect(() => {
     const fetchStage0 = async () => {
-      if (!selectedProject?.id) return;
+      if (!selectedProject?.id) {
+        setExistingDocs({});
+        setIsEdit(false);
+        onModeChange?.("add");
+        return;
+      }
 
       try {
         const res = await apiClient(
-          `/forestland/getStage0/${selectedProject.id}`
+          `/forestland/getStage0/${selectedProject.id}`,
         );
 
         if (res?.success && res.data) {
           const data = res.data;
+          setExistingDocs(buildExistingDocumentsByKey(data, FILE_MAP));
 
           setForm({
+            dgps_document:data.dgps_document || "",
+            dgps_area_ha:data.dgps_area_ha || "",
             dgps_survey_done: data.dgps_survey_done ? "Yes" : "No",
             orsac: data.orsac_authentication ? "Yes" : "No",
             tree_enumeration: data.tree_enumeration_done ? "Yes" : "No",
             administrative_docs: data.administrative_documents ? "Yes" : "No",
             legal_lease: data.legal_lease_documents ? "Yes" : "No",
             technical_data: data.technical_data ? "Yes" : "No",
-            forest_land_details: data.forest_land_details || "",
+            forest_land_details: normalizeStatusValue(
+              data.forest_land_details,
+              ["Uploaded", "Not Uploaded"],
+            ),
             ca_planning: data.ca_ca_planning ? "Yes" : "No",
-            fra_compliance: data.fra_records || "",
-            env_statutory: data.environmental_statutory || "",
-            wildlife_safeguards: data.wildlife_safeguards || "",
-            maps_spatial: data.maps_spatial_evidence || "",
-            financial: data.financial_undertakings || "",
+            fra_compliance: normalizeStatusValue(data.fra_records, [
+              "Completed",
+              "Not Completed",
+            ]),
+            env_statutory: normalizeStatusValue(data.environmental_statutory, [
+              "Cleared",
+              "Not Cleared",
+            ]),
+            wildlife_safeguards: normalizeStatusValue(
+              data.wildlife_safeguards,
+              ["Completed", "Not Completed"],
+            ),
+            maps_spatial: normalizeStatusValue(data.maps_spatial_evidence, [
+              "Authenticated",
+              "Not Authenticated",
+            ]),
+            financial: normalizeStatusValue(data.financial_undertakings, [
+              "Submitted",
+              "Not Submitted",
+            ]),
             proposal_submitted: data.proposal_submitted ? "Yes" : "No",
             parivesh_proposal: data.parivesh_proposal_no || "",
             submission_date: data.submission_date || "",
           });
 
           setIsEdit(true);
+          onModeChange?.("edit");
+        } else {
+          setIsEdit(false);
+          setExistingDocs({});
+          onModeChange?.("add");
         }
       } catch (err) {
         console.log("No existing Stage-0 found");
         setIsEdit(false);
+        setExistingDocs({});
+        onModeChange?.("add");
       }
     };
 
@@ -91,10 +166,8 @@ const StageZeroForm = ({ onStageComplete }) => {
 
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
 
-  const getFirstFile = (key) =>
-    Array.isArray(files[key]) && files[key].length > 0
-      ? files[key][0]
-      : null;
+  const getFiles = (key) =>
+    Array.isArray(files[key]) && files[key].length > 0 ? files[key] : [];
 
   // ------------------ SUBMIT ------------------
   const handleSubmit = async (e) => {
@@ -109,82 +182,37 @@ const StageZeroForm = ({ onStageComplete }) => {
     const formData = new FormData();
 
     formData.append("forest_project_id", forestProjectId);
+    formData.append("dgps_area_ha",form.dgps_area_ha || "")
     formData.append("dgps_survey_done", yesNoToInt(form.dgps_survey_done));
     formData.append("orsac_authentication", yesNoToInt(form.orsac));
-    formData.append(
-      "tree_enumeration_done",
-      yesNoToInt(form.tree_enumeration)
-    );
+    formData.append("tree_enumeration_done", yesNoToInt(form.tree_enumeration));
     formData.append(
       "administrative_documents",
-      yesNoToInt(form.administrative_docs)
+      yesNoToInt(form.administrative_docs),
     );
-    formData.append(
-      "legal_lease_documents",
-      yesNoToInt(form.legal_lease)
-    );
+    formData.append("legal_lease_documents", yesNoToInt(form.legal_lease));
     formData.append("technical_data", yesNoToInt(form.technical_data));
-    formData.append(
-      "forest_land_details",
-      form.forest_land_details || ""
-    );
+    formData.append("forest_land_details", form.forest_land_details || "");
     formData.append("ca_ca_planning", yesNoToInt(form.ca_planning));
     formData.append("fra_records", form.fra_compliance || "");
-    formData.append(
-      "environmental_statutory",
-      form.env_statutory || ""
-    );
-    formData.append(
-      "wildlife_safeguards",
-      form.wildlife_safeguards || ""
-    );
-    formData.append(
-      "maps_spatial_evidence",
-      form.maps_spatial || ""
-    );
-    formData.append(
-      "financial_undertakings",
-      form.financial || ""
-    );
-    formData.append(
-      "proposal_submitted",
-      yesNoToInt(form.proposal_submitted)
-    );
-    formData.append(
-      "parivesh_proposal_no",
-      form.parivesh_proposal || ""
-    );
-    formData.append(
-      "submission_date",
-      form.submission_date || ""
-    );
+    formData.append("environmental_statutory", form.env_statutory || "");
+    formData.append("wildlife_safeguards", form.wildlife_safeguards || "");
+    formData.append("maps_spatial_evidence", form.maps_spatial || "");
+    formData.append("financial_undertakings", form.financial || "");
+    formData.append("proposal_submitted", yesNoToInt(form.proposal_submitted));
+    formData.append("parivesh_proposal_no", form.parivesh_proposal || "");
+    formData.append("submission_date", form.submission_date || "");
 
-    const fileMap = {
-      dgps_survey_done: "dgps_document",
-      orsac: "orsac_document",
-      tree_enumeration: "tree_enumeration_document",
-      administrative_docs: "administrative_document",
-      legal_lease: "legal_lease_document",
-      technical_data: "technical_document",
-      forest_land_details: "forest_land_details_document",
-      ca_planning: "ca_ca_document",
-      fra_compliance: "fra_document",
-      env_statutory: "environmental_document",
-      wildlife_safeguards: "wildlife_document",
-      maps_spatial: "maps_document",
-      financial: "financial_document",
-      proposal_submitted: "proposal_document",
-    };
-
-    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
-      const file = getFirstFile(uiKey);
-      if (file) {
+    Object.entries(FILE_MAP).forEach(([uiKey, apiKey]) => {
+      const selectedFiles = getFiles(uiKey);
+      selectedFiles.forEach((file) => {
         formData.append(apiKey, file);
-      }
+      });
     });
 
     try {
       setSubmitting(true);
+      const submitMode = isEdit ? "edit" : "add";
 
       const url = isEdit
         ? `/forestland/updateStage0/${forestProjectId}`
@@ -206,11 +234,12 @@ const StageZeroForm = ({ onStageComplete }) => {
           (isEdit
             ? "Stage-0 updated successfully"
             : "Stage-0 saved successfully"),
-        "success"
+        "success",
       );
 
       setIsEdit(true);
-      onStageComplete?.();
+      onModeChange?.("edit");
+      onStageComplete?.(submitMode);
     } catch (error) {
       showToast(error.message || "Failed to save Stage-0", "error");
     } finally {
@@ -218,7 +247,6 @@ const StageZeroForm = ({ onStageComplete }) => {
     }
   };
 
-  // ------------------ UI ------------------
   return (
     <form onSubmit={handleSubmit} className="p-4 max-w-6xl mx-auto">
       <h2 className="text-lg font-bold mb-4">
@@ -280,6 +308,20 @@ const StageZeroForm = ({ onStageComplete }) => {
                   />
                 )}
 
+                {row.type === "status" && (
+                  <select
+                    name={row.key}
+                    className="select select-bordered select-sm"
+                    value={form[row.key] || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select</option>
+                    {(row.options || []).map((o) => (
+                      <option key={o}>{o}</option>
+                    ))}
+                  </select>
+                )}
+
                 {row.type === "auto" && (
                   <span
                     className={`px-2 py-1 text-xs rounded ${
@@ -296,40 +338,61 @@ const StageZeroForm = ({ onStageComplete }) => {
               {/* FILES */}
               <td>
                 {row.remark && (
-                  <div className="text-xs mb-1 text-gray-600">
-                    {row.remark}
-                  </div>
+                  <div className="text-xs mb-1 text-gray-600">{row.remark}</div>
                 )}
 
-                {form[row.key] === "Yes" && (
-                  <>
+            
+
+               {[
+                  "Yes",
+                  "Uploaded",
+                  "Completed",
+                  "Submitted",
+                  "Authenticated",
+                  "Cleared",
+                  "Complied",
+                ].includes(form[row.key]) && (
+                  <div className="space-y-1">
                     <input
                       key={inputKeys[row.key] || "default"}
                       type="file"
                       multiple={isMultipleAllowed(row.remark)}
                       className="file-input file-input-bordered file-input-sm"
-                      onChange={(e) =>
-                        handleFileChange(e, row.key)
-                      }
+                      onChange={(e) => handleFileChange(e, row.key)}
                     />
 
+                    {files[row.key]?.length > 0 && (
+                      <div className="text-xs text-green-700">
+                        {files[row.key].length} document(s) uploaded
+                      </div>
+                    )}
+
                     {files[row.key]?.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-between text-xs"
-                      >
+                      <div key={idx} className="flex justify-between text-xs">
                         {file.name}
                         <button
                           type="button"
-                          onClick={() =>
-                            handleRemoveFile(row.key, idx)
-                          }
+                          onClick={() => handleRemoveFile(row.key, idx)}
                         >
                           <X size={12} />
                         </button>
                       </div>
                     ))}
-                  </>
+                  </div>
+                )}
+                    {existingDocs[row.key]?.length > 0 && (
+                  <div className="mb-2">
+                    {existingDocs[row.key].map((doc, idx) => (
+                      <button
+                        key={`${row.key}-existing-${idx}`}
+                        type="button"
+                        className="text-xs text-blue-700 block text-left"
+                        onClick={() => window.open(doc.url, "_blank")}
+                      >
+                        {doc.name} 
+                      </button>
+                    ))}
+                  </div>
                 )}
               </td>
             </tr>
@@ -337,14 +400,23 @@ const StageZeroForm = ({ onStageComplete }) => {
         </tbody>
       </table>
 
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end gap-2 mt-4">
         <button className="btn btn-success btn-sm" disabled={submitting}>
           {submitting
             ? "Saving..."
             : isEdit
-            ? "Update Stage-0"
-            : "Save Stage-0"}
+              ? "Update Stage-0"
+              : "Save Stage-0"}
         </button>
+        {showNext && (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={onNext}
+          >
+            Next
+          </button>
+        )}
       </div>
     </form>
   );

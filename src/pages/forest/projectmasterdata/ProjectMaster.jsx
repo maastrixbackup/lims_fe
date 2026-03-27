@@ -77,7 +77,53 @@ const ProjectMaster = () => {
     project_nature: "",
     project_sub_category: "",
   };
+useEffect(() => {
+  let cancelled = false;
 
+  const fetchData = async () => {
+    if (!selectedProject?.id) return;
+
+    try {
+      const res = await apiClient(
+        `/forestland/forestProjectList?project_id=${selectedProject.id}&page=1&limit=1`
+      );
+
+      if (cancelled) return;
+
+      const latest = res?.data?.[0];
+      const normalized = normalizeEditPayload(latest);
+
+      if (normalized) {
+        setFormData({
+          ...initialFormData,
+          ...normalized,
+          project_id: selectedProject.id,
+          project_name:
+            selectedProject.project_name || selectedProject.name || "",
+        });
+
+        // ✅ STORE EXISTING EDS FILES
+        const fileMap = {};
+        normalized.eds_list?.forEach((eds, i) => {
+          if (eds.eds_reply_document) {
+            fileMap[i] = eds.eds_reply_document;
+          }
+        });
+
+        setExistingEdsFiles(fileMap);
+        setIsEdit(true);
+        return;
+      }
+
+      setIsEdit(false);
+    } catch {
+      setIsEdit(false);
+    }
+  };
+
+  fetchData();
+  return () => (cancelled = true);
+}, [selectedProject?.id]);
   const [formData, setFormData] = useState(initialFormData);
 
   const sanitizeDraft = (data) => ({

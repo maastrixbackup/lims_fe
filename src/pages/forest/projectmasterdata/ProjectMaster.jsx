@@ -85,12 +85,14 @@ useEffect(() => {
 
     try {
       const res = await apiClient(
-        `/forestland/forestProjectList?project_id=${selectedProject.id}&page=1&limit=1`
+        `/forestland/getForestProject/${selectedProject.id}`
       );
 
       if (cancelled) return;
 
-      const latest = res?.data?.[0];
+      const latest = res?.data?.master
+        ? { ...res.data.master, eds_list: res?.data?.eds_list || [] }
+        : null;
       const normalized = normalizeEditPayload(latest);
 
       if (normalized) {
@@ -189,12 +191,14 @@ useEffect(() => {
 
       try {
         const res = await apiClient(
-          `/forestland/forestProjectList?project_id=${selectedProject.id}&page=1&limit=1`,
+          `/forestland/getForestProject/${selectedProject.id}`,
         );
 
         if (cancelled) return;
 
-        const latestRecord = Array.isArray(res?.data) ? res.data[0] : null;
+        const latestRecord = res?.data?.master
+          ? { ...res.data.master, eds_list: res?.data?.eds_list || [] }
+          : null;
         const normalized = normalizeEditPayload(latestRecord);
         const drafts = readProjectMasterDrafts();
         const projectId = String(selectedProject.id);

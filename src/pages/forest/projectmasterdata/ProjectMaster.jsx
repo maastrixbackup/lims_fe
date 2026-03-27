@@ -39,6 +39,8 @@ const ProjectMaster = () => {
   const projects = useSelector((s) => s.list.projects || []);
   const location = useLocation();
   const [editData, setEditData] = useState();
+  const [existingEdsFiles, setExistingEdsFiles] = useState({});
+  const [isEdit, setIsEdit] = useState(false);
 
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
@@ -144,6 +146,13 @@ useEffect(() => {
 
   const normalizeEditPayload = (row) => {
     if (!row) return null;
+    const toDateInput = (value) => {
+      if (!value) return "";
+      if (typeof value === "string" && value.length >= 10) {
+        return value.slice(0, 10);
+      }
+      return "";
+    };
 
     let parsedEdsList = [];
     if (Array.isArray(row.eds_list)) {
@@ -161,7 +170,13 @@ useEffect(() => {
       ...row,
       eds_flag: Number(row.eds_flag || 0),
       eds_list:
-        parsedEdsList.length > 0 ? parsedEdsList : initialFormData.eds_list,
+        parsedEdsList.length > 0
+          ? parsedEdsList.map((eds) => ({
+              ...eds,
+              eds_issue_date: toDateInput(eds?.eds_issue_date),
+              eds_due_date: toDateInput(eds?.eds_due_date),
+            }))
+          : initialFormData.eds_list,
     };
   };
 
@@ -860,6 +875,14 @@ useEffect(() => {
                             )
                           }
                         />
+                        {(eds?.eds_reply_document || existingEdsFiles[index]) && (
+                          <div className="text-xs text-gray-500 mt-1 truncate">
+                            {typeof eds.eds_reply_document === "string"
+                              ? eds.eds_reply_document
+                              : eds.eds_reply_document?.name ||
+                                existingEdsFiles[index]}
+                          </div>
+                        )}
                       </td>
 
                       <td>

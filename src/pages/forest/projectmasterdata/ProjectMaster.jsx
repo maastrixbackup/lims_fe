@@ -39,6 +39,8 @@ const ProjectMaster = () => {
   const projects = useSelector((s) => s.list.projects || []);
   const location = useLocation();
   const [editData, setEditData] = useState();
+  const [existingEdsFiles, setExistingEdsFiles] = useState({});
+  const [isEdit, setIsEdit] = useState(false);
 
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
@@ -77,7 +79,55 @@ const ProjectMaster = () => {
     project_nature: "",
     project_sub_category: "",
   };
+useEffect(() => {
+  let cancelled = false;
 
+  const fetchData = async () => {
+    if (!selectedProject?.id) return;
+
+    try {
+      const res = await apiClient(
+        `/forestland/getForestProject/${selectedProject.id}`
+      );
+
+      if (cancelled) return;
+
+      const latest = res?.data?.master
+        ? { ...res.data.master, eds_list: res?.data?.eds_list || [] }
+        : null;
+      const normalized = normalizeEditPayload(latest);
+
+      if (normalized) {
+        setFormData({
+          ...initialFormData,
+          ...normalized,
+          project_id: selectedProject.id,
+          project_name:
+            selectedProject.project_name || selectedProject.name || "",
+        });
+
+        // ✅ STORE EXISTING EDS FILES
+        const fileMap = {};
+        normalized.eds_list?.forEach((eds, i) => {
+          if (eds.eds_reply_document) {
+            fileMap[i] = eds.eds_reply_document;
+          }
+        });
+
+        setExistingEdsFiles(fileMap);
+        setIsEdit(true);
+        return;
+      }
+
+      setIsEdit(false);
+    } catch {
+      setIsEdit(false);
+    }
+  };
+
+  fetchData();
+  return () => (cancelled = true);
+}, [selectedProject?.id]);
   const [formData, setFormData] = useState(initialFormData);
 
   const sanitizeDraft = (data) => ({
@@ -96,6 +146,13 @@ const ProjectMaster = () => {
 
   const normalizeEditPayload = (row) => {
     if (!row) return null;
+    const toDateInput = (value) => {
+      if (!value) return "";
+      if (typeof value === "string" && value.length >= 10) {
+        return value.slice(0, 10);
+      }
+      return "";
+    };
 
     let parsedEdsList = [];
     if (Array.isArray(row.eds_list)) {
@@ -113,7 +170,13 @@ const ProjectMaster = () => {
       ...row,
       eds_flag: Number(row.eds_flag || 0),
       eds_list:
-        parsedEdsList.length > 0 ? parsedEdsList : initialFormData.eds_list,
+        parsedEdsList.length > 0
+          ? parsedEdsList.map((eds) => ({
+              ...eds,
+              eds_issue_date: toDateInput(eds?.eds_issue_date),
+              eds_due_date: toDateInput(eds?.eds_due_date),
+            }))
+          : initialFormData.eds_list,
     };
   };
 
@@ -143,12 +206,14 @@ const ProjectMaster = () => {
 
       try {
         const res = await apiClient(
-          `/forestland/forestProjectList?project_id=${selectedProject.id}&page=1&limit=1`,
+          `/forestland/getForestProject/${selectedProject.id}`,
         );
 
         if (cancelled) return;
 
-        const latestRecord = Array.isArray(res?.data) ? res.data[0] : null;
+        const latestRecord = res?.data?.master
+          ? { ...res.data.master, eds_list: res?.data?.eds_list || [] }
+          : null;
         const normalized = normalizeEditPayload(latestRecord);
         const drafts = readProjectMasterDrafts();
         const projectId = String(selectedProject.id);
@@ -649,7 +714,7 @@ const ProjectMaster = () => {
               <table className="table table-bordered w-full table-fixed">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="w-[80px]">EDS Sl No</th>
+                    {/* <th className="w-[80px]">EDS Sl No</th> */}
                     <th className="w-[160px]">EDS Ref No</th>
                     <th className="w-[200px]">Issuing Authority</th>
                     <th className="w-[160px]">EDS Issue Date</th>
@@ -683,7 +748,7 @@ const ProjectMaster = () => {
                           }
                         />
                       </td> */}
-                      <td>
+                      {/* <td>
                         <input
                           className="input input-sm input-bordered"
                           value={eds.eds_sl_no}
@@ -691,7 +756,7 @@ const ProjectMaster = () => {
                             handleEDSChange(index, "eds_sl_no", e.target.value)
                           }
                         />
-                      </td>
+                      </td> */}
                       <td>
                         <input
                           className="input input-sm input-bordered"
@@ -810,6 +875,14 @@ const ProjectMaster = () => {
                             )
                           }
                         />
+                        {(eds?.eds_reply_document || existingEdsFiles[index]) && (
+                          <div className="text-xs text-gray-500 mt-1 truncate">
+                            {typeof eds.eds_reply_document === "string"
+                              ? eds.eds_reply_document
+                              : eds.eds_reply_document?.name ||
+                                existingEdsFiles[index]}
+                          </div>
+                        )}
                       </td>
 
                       <td>

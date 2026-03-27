@@ -4,33 +4,55 @@ import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
 import { POST_CLEARANCE_DATA } from "../../../../utils/stages";
+import { buildExistingDocumentsByKey } from "./documentHelpers";
 
-const LevelThreeForm = ({ onStageComplete }) => {
+const FILE_MAP = {
+  ca_plantation_started: "ca_plantation_started_document",
+  ca_plantation_completed: "ca_plantation_completed_document",
+  survival_report_submitted: "survival_report_document",
+  wildlife_mitigation: "wildlife_mitigation_document",
+  safety_zone_maintained: "safety_zone_document",
+};
+
+const LevelThreeForm = ({
+  onStageComplete,
+  onModeChange,
+  showNext,
+  onNext,
+}) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const [existingDocs, setExistingDocs] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
   const fileRefs = useRef({});
   const selectedProject = useSelector((state) => state.selectedProject.project);
-
   // ---------------- FETCH EXISTING ----------------
   useEffect(() => {
     const fetchPostClearance = async () => {
-      if (!selectedProject?.id) return;
+      if (!selectedProject?.id) {
+        setExistingDocs({});
+        setIsEdit(false);
+        onModeChange?.("add");
+        return;
+      }
 
       try {
         const res = await apiClient(
-          `/forestland/getPostClearance/${selectedProject.id}`
+          `/forestland/getPostClearance/${selectedProject.id}`,
         );
 
         if (res?.success && res.data) {
           const d = res.data;
+          setExistingDocs(buildExistingDocumentsByKey(d, FILE_MAP));
 
           setForm({
             ca_plantation_started: d.ca_plantation_started ? "Yes" : "No",
             ca_plantation_completed: d.ca_plantation_completed ? "Yes" : "No",
-            survival_report_submitted: d.survival_report_submitted ? "Yes" : "No",
+            survival_report_submitted: d.survival_report_submitted
+              ? "Yes"
+              : "No",
             wildlife_mitigation: d.wildlife_mitigation ? "Yes" : "No",
             safety_zone_maintained: d.safety_zone_maintained ? "Yes" : "No",
             periodic_compliance: d.periodic_compliance_submitted ? "Yes" : "No",
@@ -41,10 +63,17 @@ const LevelThreeForm = ({ onStageComplete }) => {
           });
 
           setIsEdit(true);
+          onModeChange?.("edit");
+        } else {
+          setIsEdit(false);
+          setExistingDocs({});
+          onModeChange?.("add");
         }
       } catch (err) {
         console.log("No Post Clearance data found");
         setIsEdit(false);
+        setExistingDocs({});
+        onModeChange?.("add");
       }
     };
 
@@ -57,22 +86,24 @@ const LevelThreeForm = ({ onStageComplete }) => {
   };
 
   const handleFileChange = (e, key) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const selectedFiles = Array.from(e.target.files || []);
+    if (!selectedFiles.length) return;
 
     setFiles((prev) => ({
       ...prev,
-      [key]: file,
+      [key]: [...(prev[key] || []), ...selectedFiles],
     }));
 
     e.target.value = "";
   };
 
-  const handleRemoveFile = (key) => {
+  const handleRemoveFile = (key, index) => {
     setFiles((prev) => {
-      const updated = { ...prev };
-      delete updated[key];
-      return updated;
+      const updatedList = (prev[key] || []).filter((_, i) => i !== index);
+      return {
+        ...prev,
+        [key]: updatedList,
+      };
     });
 
     if (fileRefs.current[key]) {
@@ -102,62 +133,46 @@ const LevelThreeForm = ({ onStageComplete }) => {
     formData.append("forest_project_id", forestProjectId);
     formData.append(
       "ca_plantation_started",
-      yesNoToInt(form.ca_plantation_started)
+      yesNoToInt(form.ca_plantation_started),
     );
     formData.append(
       "ca_plantation_completed",
-      yesNoToInt(form.ca_plantation_completed)
+      yesNoToInt(form.ca_plantation_completed),
     );
     formData.append(
       "survival_report_submitted",
-      yesNoToInt(form.survival_report_submitted)
+      yesNoToInt(form.survival_report_submitted),
     );
     formData.append(
       "wildlife_mitigation",
-      yesNoToInt(form.wildlife_mitigation)
+      yesNoToInt(form.wildlife_mitigation),
     );
     formData.append(
       "safety_zone_maintained",
-      yesNoToInt(form.safety_zone_maintained)
+      yesNoToInt(form.safety_zone_maintained),
     );
     formData.append(
       "periodic_compliance_submitted",
-      yesNoToInt(form.periodic_compliance)
+      yesNoToInt(form.periodic_compliance),
     );
-    formData.append(
-      "periodic_compliance_type",
-      form.compliance_period || ""
-    );
+    formData.append("periodic_compliance_type", form.compliance_period || "");
     formData.append(
       "inspection_observations",
-      form.inspection_observations || ""
+      form.inspection_observations || "",
     );
-    formData.append(
-      "inspection_remarks",
-      form.inspection_remarks || ""
-    );
-    formData.append(
-      "post_clearance_status",
-      form.post_clearance_status || ""
-    );
+    formData.append("inspection_remarks", form.inspection_remarks || "");
+    formData.append("post_clearance_status", form.post_clearance_status || "");
 
-    const fileMap = {
-      ca_plantation_started: "ca_plantation_started_document",
-      ca_plantation_completed: "ca_plantation_completed_document",
-      survival_report_submitted: "survival_report_document",
-      wildlife_mitigation: "wildlife_mitigation_document",
-      safety_zone_maintained: "safety_zone_document",
-    };
-
-    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
-      const file = files[uiKey];
-      if (file) {
+    Object.entries(FILE_MAP).forEach(([uiKey, apiKey]) => {
+      const selectedFiles = Array.isArray(files[uiKey]) ? files[uiKey] : [];
+      selectedFiles.forEach((file) => {
         formData.append(apiKey, file);
-      }
+      });
     });
 
     try {
       setSubmitting(true);
+      const submitMode = isEdit ? "edit" : "add";
 
       const url = isEdit
         ? `/forestland/updatePostClearance/${forestProjectId}`
@@ -171,9 +186,7 @@ const LevelThreeForm = ({ onStageComplete }) => {
       });
 
       if (!res?.success) {
-        throw new Error(
-          res?.message || "Failed to save post clearance"
-        );
+        throw new Error(res?.message || "Failed to save post clearance");
       }
 
       showToast(
@@ -181,16 +194,14 @@ const LevelThreeForm = ({ onStageComplete }) => {
           (isEdit
             ? "Post clearance updated successfully"
             : "Post clearance saved successfully"),
-        "success"
+        "success",
       );
 
       setIsEdit(true);
-      onStageComplete?.();
+      onModeChange?.("edit");
+      onStageComplete?.(submitMode);
     } catch (error) {
-      showToast(
-        error.message || "Failed to save post clearance",
-        "error"
-      );
+      showToast(error.message || "Failed to save post clearance", "error");
     } finally {
       setSubmitting(false);
     }
@@ -270,73 +281,103 @@ const LevelThreeForm = ({ onStageComplete }) => {
               <td>
                 <div className="text-xs mb-1">{row.remark}</div>
 
+                {existingDocs[row.key]?.length > 0 && (
+                  <div className="mb-2">
+                    {existingDocs[row.key].map((doc, idx) => (
+                      <button
+                        key={`${row.key}-existing-${idx}`}
+                        type="button"
+                        className="text-xs text-blue-700 underline block text-left"
+                        onClick={() => window.open(doc.url, "_blank")}
+                      >
+                        {doc.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {row.allowUpload && form[row.key] === "Yes" && (
                   <>
                     <input
                       type="file"
+                      multiple
                       ref={(el) => (fileRefs.current[row.key] = el)}
                       className="file-input file-input-bordered file-input-sm w-full"
                       onChange={(e) => handleFileChange(e, row.key)}
                     />
 
-                    {files[row.key] && (
-                      <div className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded mt-1">
+                    {files[row.key]?.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded mt-1"
+                      >
                         <span
                           className="truncate cursor-pointer text-gray-600"
-                          onClick={() => handleViewFile(files[row.key])}
+                          onClick={() => handleViewFile(file)}
                           title="Click to view"
                         >
-                          • {files[row.key].name}
+                          • {file.name}
                         </span>
 
                         <button
                           type="button"
-                          onClick={() => handleRemoveFile(row.key)}
+                          onClick={() => handleRemoveFile(row.key, idx)}
                           className="text-red-500 hover:text-red-700"
                         >
                           <X size={12} />
                         </button>
                       </div>
-                    )}
+                    ))}
                   </>
                 )}
 
-                {row.key === "periodic_compliance" && form.periodic_compliance === "Yes" && (
-                  <select
-                    name="compliance_period"
-                    className="select select-bordered select-sm mt-1 w-full"
-                    value={form.compliance_period || ""}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select Period</option>
-                    <option value="Half-Yearly">Half-Yearly</option>
-                    <option value="Annual">Annual</option>
-                  </select>
-                )}
+                {row.key === "periodic_compliance" &&
+                  form.periodic_compliance === "Yes" && (
+                    <select
+                      name="compliance_period"
+                      className="select select-bordered select-sm mt-1 w-full"
+                      value={form.compliance_period || ""}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Period</option>
+                      <option value="Half-Yearly">Half-Yearly</option>
+                      <option value="Annual">Annual</option>
+                    </select>
+                  )}
 
-                {row.key === "inspection_observations" && form.inspection_observations === "Open" && (
-                  <textarea
-                    name="inspection_remarks"
-                    className="textarea textarea-bordered textarea-sm mt-1 w-full"
-                    placeholder="Enter inspection observations"
-                    value={form.inspection_remarks || ""}
-                    onChange={handleChange}
-                  />
-                )}
+                {row.key === "inspection_observations" &&
+                  form.inspection_observations === "Open" && (
+                    <textarea
+                      name="inspection_remarks"
+                      className="textarea textarea-bordered textarea-sm mt-1 w-full"
+                      placeholder="Enter inspection observations"
+                      value={form.inspection_remarks || ""}
+                      onChange={handleChange}
+                    />
+                  )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end gap-2 mt-4">
         <button className="btn btn-success btn-sm" disabled={submitting}>
           {submitting
             ? "Saving..."
             : isEdit
-            ? "Update Post-Clearance"
-            : "Save Post-Clearance"}
+              ? "Update Post-Clearance"
+              : "Save Post-Clearance"}
         </button>
+        {showNext && (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={onNext}
+          >
+            Next
+          </button>
+        )}
       </div>
     </form>
   );

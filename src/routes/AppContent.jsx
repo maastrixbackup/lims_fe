@@ -14,7 +14,7 @@ import "../App.css";
 
 import { fetchProjects, fetchVillages } from "../utils/listSlice";
 import ForestMasterDashboard from "../pages/forest/masterdashboard/ForestMasterDashboard";
-import ProjectMasterTable from "../pages/forest/projectmasterdata/ProjectMasterTable";
+// import ProjectMasterTable from "../pages/forest/projectmasterdata/ProjectMasterTable";
 
 const GovernmentPlot = lazy(() => import("../pages/government/plot/GovernmentPlot"));
 const GovernmentKhata = lazy(() => import("../pages/government/khata/GovernmentKhata"));
@@ -156,10 +156,10 @@ export function AppContent() {
                 path="/:landType/project-master"
                 element={<ProjectMaster />}
               />
-              <Route
+              {/* <Route
                 path="/:landType/project-masterdata-list"
                 element={<ProjectMasterTable />}
-              />
+              /> */}
               <Route
                 path="/:landType/master-dashboard"
                 element={<ForestMasterDashboard />}

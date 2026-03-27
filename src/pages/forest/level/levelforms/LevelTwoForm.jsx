@@ -4,28 +4,44 @@ import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
 import { STAGE_II_DATA } from "../../../../utils/stages";
+import { buildExistingDocumentsByKey } from "./documentHelpers";
 
-const LevelTwoForm = ({ onStageComplete }) => {
+const FILE_MAP = {
+  environmental_clearance: "environmental_document",
+  nbwl_clearance: "nbwl_document",
+  final_ca_execution: "final_ca_document",
+  final_maps_approved: "final_maps_document",
+  final_technical_approval: "final_technical_document",
+  stage_2_approval_letter: "stage2_approval_document",
+};
+
+const LevelTwoForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const [existingDocs, setExistingDocs] = useState({});
   const [inputKeys, setInputKeys] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
   const selectedProject = useSelector((state) => state.selectedProject.project);
-
   // ---------------- FETCH EXISTING ----------------
   useEffect(() => {
     const fetchStage2 = async () => {
-      if (!selectedProject?.id) return;
+      if (!selectedProject?.id) {
+        setExistingDocs({});
+        setIsEdit(false);
+        onModeChange?.("add");
+        return;
+      }
 
       try {
         const res = await apiClient(
-          `/forestland/getStage2/${selectedProject.id}`
+          `/forestland/getStage2/${selectedProject.id}`,
         );
 
         if (res?.success && res.data) {
           const d = res.data;
+          setExistingDocs(buildExistingDocumentsByKey(d, FILE_MAP));
 
           setForm({
             environmental_clearance: d.environmental_clearance || "",
@@ -40,10 +56,17 @@ const LevelTwoForm = ({ onStageComplete }) => {
           });
 
           setIsEdit(true);
+          onModeChange?.("edit");
+        } else {
+          setIsEdit(false);
+          setExistingDocs({});
+          onModeChange?.("add");
         }
       } catch (err) {
         console.log("No Stage-2 data found");
         setIsEdit(false);
+        setExistingDocs({});
+        onModeChange?.("add");
       }
     };
 
@@ -78,16 +101,12 @@ const LevelTwoForm = ({ onStageComplete }) => {
 
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
 
-  const getFirstFile = (key) =>
-    Array.isArray(files[key]) && files[key].length > 0
-      ? files[key][0]
-      : null;
+  const getFiles = (key) =>
+    Array.isArray(files[key]) && files[key].length > 0 ? files[key] : [];
 
   // ---------------- DERIVED ----------------
   const stage_2_status = useMemo(() => {
-    return form.stage_2_approval_letter === "Yes"
-      ? "Granted"
-      : "Not Granted";
+    return form.stage_2_approval_letter === "Yes" ? "Granted" : "Not Granted";
   }, [form.stage_2_approval_letter]);
 
   // ---------------- SUBMIT ----------------
@@ -105,53 +124,39 @@ const LevelTwoForm = ({ onStageComplete }) => {
     formData.append("forest_project_id", forestProjectId);
     formData.append(
       "environmental_clearance",
-      form.environmental_clearance || ""
+      form.environmental_clearance || "",
     );
     formData.append("nbwl_clearance", form.nbwl_clearance || "");
     formData.append("final_ca_execution", form.final_ca_execution || "");
     formData.append(
       "final_maps_approved",
-      yesNoToInt(form.final_maps_approved)
+      yesNoToInt(form.final_maps_approved),
     );
     formData.append(
       "final_technical_approval",
-      form.final_technical_approval || ""
+      form.final_technical_approval || "",
     );
     formData.append(
       "stage2_approval_letter",
-      yesNoToInt(form.stage_2_approval_letter)
+      yesNoToInt(form.stage_2_approval_letter),
     );
-    formData.append(
-      "stage2_approval_date",
-      form.stage_2_approval_date || ""
-    );
-    formData.append(
-      "approved_forest_area_ha",
-      form.approved_forest_area || ""
-    );
+    formData.append("stage2_approval_date", form.stage_2_approval_date || "");
+    formData.append("approved_forest_area_ha", form.approved_forest_area || "");
     formData.append(
       "approved_non_forest_area_ha",
-      form.approved_non_forest_area || ""
+      form.approved_non_forest_area || "",
     );
 
-    const fileMap = {
-      environmental_clearance: "environmental_document",
-      nbwl_clearance: "nbwl_document",
-      final_ca_execution: "final_ca_document",
-      final_maps_approved: "final_maps_document",
-      final_technical_approval: "final_technical_document",
-      stage_2_approval_letter: "stage2_approval_document",
-    };
-
-    Object.entries(fileMap).forEach(([uiKey, apiKey]) => {
-      const file = getFirstFile(uiKey);
-      if (file) {
+    Object.entries(FILE_MAP).forEach(([uiKey, apiKey]) => {
+      const selectedFiles = getFiles(uiKey);
+      selectedFiles.forEach((file) => {
         formData.append(apiKey, file);
-      }
+      });
     });
 
     try {
       setSubmitting(true);
+      const submitMode = isEdit ? "edit" : "add";
 
       const url = isEdit
         ? `/forestland/updateStage2/${forestProjectId}`
@@ -173,11 +178,12 @@ const LevelTwoForm = ({ onStageComplete }) => {
           (isEdit
             ? "Stage-II updated successfully"
             : "Stage-II saved successfully"),
-        "success"
+        "success",
       );
 
       setIsEdit(true);
-      onStageComplete?.();
+      onModeChange?.("edit");
+      onStageComplete?.(submitMode);
     } catch (error) {
       showToast(error.message || "Failed to save Stage-II", "error");
     } finally {
@@ -186,9 +192,7 @@ const LevelTwoForm = ({ onStageComplete }) => {
   };
   return (
     <form onSubmit={handleSubmit} className="p-4 max-w-6xl mx-auto">
-      <h2 className="text-lg font-bold mb-4">
-        Stage – II : Final Approval
-      </h2>
+      <h2 className="text-lg font-bold mb-4">Stage – II : Final Approval</h2>
 
       <table className="table table-bordered w-full text-sm">
         <thead>
@@ -278,24 +282,33 @@ const LevelTwoForm = ({ onStageComplete }) => {
               {/* DOCUMENT COLUMN */}
               <td>
                 {row.remark && (
-                  <div className="text-xs mb-1 text-gray-600">
-                    {row.remark}
+                  <div className="text-xs mb-1 text-gray-600">{row.remark}</div>
+                )}
+
+                {existingDocs[row.key]?.length > 0 && (
+                  <div className="mb-2">
+                    {existingDocs[row.key].map((doc, idx) => (
+                      <button
+                        key={`${row.key}-existing-${idx}`}
+                        type="button"
+                        className="text-xs text-blue-700 underline block text-left"
+                        onClick={() => window.open(doc.url, "_blank")}
+                      >
+                        {doc.name}
+                      </button>
+                    ))}
                   </div>
                 )}
 
                 {row.allowUpload &&
-                  ["Yes", "Obtained", "Completed"].includes(
-                    form[row.key]
-                  ) && (
+                  ["Yes", "Obtained", "Completed"].includes(form[row.key]) && (
                     <div className="space-y-1">
                       <input
                         key={inputKeys[row.key] || "default"}
                         type="file"
                         multiple
                         className="file-input file-input-bordered file-input-sm"
-                        onChange={(e) =>
-                          handleFileChange(e, row.key)
-                        }
+                        onChange={(e) => handleFileChange(e, row.key)}
                       />
 
                       {/* 📄 FILE COUNT */}
@@ -311,14 +324,10 @@ const LevelTwoForm = ({ onStageComplete }) => {
                           key={idx}
                           className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
                         >
-                          <span className="truncate">
-                            • {file.name}
-                          </span>
+                          <span className="truncate">• {file.name}</span>
                           <button
                             type="button"
-                            onClick={() =>
-                              handleRemoveFile(row.key, idx)
-                            }
+                            onClick={() => handleRemoveFile(row.key, idx)}
                             className="text-red-500 hover:text-red-700"
                           >
                             <X size={12} />
@@ -333,18 +342,26 @@ const LevelTwoForm = ({ onStageComplete }) => {
         </tbody>
       </table>
 
-      <div className="flex justify-end mt-4">
-         <button className="btn btn-success btn-sm" disabled={submitting}>
+      <div className="flex justify-end gap-2 mt-4">
+        <button className="btn btn-success btn-sm" disabled={submitting}>
           {submitting
             ? "Saving..."
             : isEdit
-            ? "Update Stage-II"
-            : "Save Stage-II"}
+              ? "Update Stage-II"
+              : "Save Stage-II"}
         </button>
+        {showNext && (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={onNext}
+          >
+            Next
+          </button>
+        )}
       </div>
     </form>
   );
 };
 
 export default LevelTwoForm;
-

@@ -699,7 +699,7 @@ useEffect(() => {
               <table className="table table-bordered w-full table-fixed">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="w-[80px]">EDS Sl No</th>
+                    {/* <th className="w-[80px]">EDS Sl No</th> */}
                     <th className="w-[160px]">EDS Ref No</th>
                     <th className="w-[200px]">Issuing Authority</th>
                     <th className="w-[160px]">EDS Issue Date</th>
@@ -733,7 +733,7 @@ useEffect(() => {
                           }
                         />
                       </td> */}
-                      <td>
+                      {/* <td>
                         <input
                           className="input input-sm input-bordered"
                           value={eds.eds_sl_no}
@@ -741,7 +741,7 @@ useEffect(() => {
                             handleEDSChange(index, "eds_sl_no", e.target.value)
                           }
                         />
-                      </td>
+                      </td> */}
                       <td>
                         <input
                           className="input input-sm input-bordered"

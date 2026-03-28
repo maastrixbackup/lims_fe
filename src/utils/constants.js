@@ -647,7 +647,7 @@ export const GovernmentPlotFields = [
 
   {
     key: "case_details",
-    label: "Case Details/Deservation Req.",
+    label: "Case Details/De-reservation Req.",
     type: "text",
   },
   { key: "action_to_be_taken", label: "Action to be Taken", type: "text" },

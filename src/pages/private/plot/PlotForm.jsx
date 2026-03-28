@@ -703,6 +703,20 @@ const PlotForm = ({ fetchPlots }) => {
   }));
 
   const REQUIRED_SET = useMemo(() => new Set(REQUIRED_FIELDS), []);
+  const FAMILY_MEMBER_FIELDS = useMemo(
+    () =>
+      new Set([
+        "family_major_male",
+        "family_major_female",
+        "family_minor_male",
+        "family_minor_female",
+        "family_major_transgender",
+        "family_minor_transgender",
+        "persons_with_disability",
+        "family_with_orphan_members",
+      ]),
+    [],
+  );
 
   const projectCode = useMemo(() => {
     const project = projects.find(
@@ -998,9 +1012,7 @@ if (name === "land_area_acquired_acres") {
                         <option value="PAF">Project Affected Families (PAF) </option>
                         <option value="PDF">Project Displaced Families (PDF) </option>
                       </select>
-                    ) : ["family_with_orphan_members", "tribunal"].includes(
-                        field,
-                      ) ? (
+                    ) : field === "tribunal" ? (
                       <select
                         name={field}
                         value={formData[field] || ""}
@@ -1034,7 +1046,8 @@ if (name === "land_area_acquired_acres") {
                         type={
                           field.includes("date")
                             ? "date"
-                            : field.includes("area") ||
+                            : FAMILY_MEMBER_FIELDS.has(field) ||
+                                field.includes("area") ||
                                 field.includes("acres") ||
                                 field.includes("hectares")
                               ? "number"

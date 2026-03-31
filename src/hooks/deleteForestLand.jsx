@@ -12,6 +12,7 @@ export const deleteForestLand= async ({
   id,
   activeTab,
   token,
+  selectedProject,
   page = 1,
   limit = 10,
   setTableData,
@@ -38,6 +39,7 @@ export const deleteForestLand= async ({
     const updatedList = await getLandScheduleList(
       token,
       scheduleType,
+      selectedProject,
       page,
       limit
     );

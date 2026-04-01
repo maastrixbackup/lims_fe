@@ -50,7 +50,7 @@ useEffect(() => {
 
 
   const villages = useMemo(
-    () => [...new Set(plots.map((p) => p.village_name).filter(Boolean))],
+    () => [...new Set(plots.map((p) => p.mouza).filter(Boolean))],
     [plots]
   );
 
@@ -92,13 +92,13 @@ useEffect(() => {
         if (plotNoFilter && plot.plot_no?.toString() !== plotNoFilter)
           return false;
 
-        if (villageFilter && plot.village_name !== villageFilter) return false;
+        if (villageFilter && plot.mouza !== villageFilter) return false;
 
         if (areaFilter) {
           const value =
             areaUnit === "acres"
-              ? plot.land_area_total_acres
-              : plot.land_area_total_hectares;
+              ? (plot.total_area_acres ?? plot.land_area_total_acres)
+              : (plot.total_area_hectares ?? plot.land_area_total_hectares);
           if (value?.toString() !== areaFilter) return false;
         }
 
@@ -122,10 +122,10 @@ useEffect(() => {
   const areaTotals = useMemo(() => {
     return processedPlots.reduce(
       (acc, plot) => {
-        acc.totalAcres += Number(plot.land_area_total_acres) || 0;
-        acc.totalHectares += Number(plot.land_area_total_hectares) || 0;
-        acc.acquiredAcres += Number(plot.land_area_acquired_acres) || 0;
-        acc.acquiredHectares += Number(plot.land_area_acquired_hectares) || 0;
+        acc.totalAcres += Number(plot.total_area_acres) || 0;
+        acc.totalHectares += Number(plot.total_area_hectares) || 0;
+        acc.acquiredAcres += Number(plot.proposed_area_acres) || 0;
+        acc.acquiredHectares += Number(plot.proposed_area_hectares) || 0;
         return acc;
       },
       {
@@ -274,35 +274,35 @@ useEffect(() => {
                     <ArrowUpDown size={14} className="inline" />
                   </th>
                   <th
-                    onClick={() => handleSort("land_area_total_acres")}
+                    onClick={() => handleSort("total_area_acres")}
                     className="cursor-pointer"
                   >
                     Total Area (acres)
                     <ArrowUpDown size={14} className="inline" />
                   </th>
                   <th
-                    onClick={() => handleSort("land_area_total_hectares")}
+                    onClick={() => handleSort("total_area_hectares")}
                     className="cursor-pointer"
                   >
                     Total Area (hectares)
                     <ArrowUpDown size={14} className="inline" />
                   </th>
                   <th
-                    onClick={() => handleSort("land_area_acquired_acres")}
+                    onClick={() => handleSort("proposed_area_acres")}
                     className="cursor-pointer"
                   >
-                    Acquired Area (acres)
+                    Acquired Land Area (acres)
                     <ArrowUpDown size={14} className="inline" />
                   </th>
                   <th
-                    onClick={() => handleSort("land_area_acquired_hectares")}
+                    onClick={() => handleSort("proposed_area_hectares")}
                     className="cursor-pointer"
                   >
                     Acquired Area (hectares)
                     <ArrowUpDown size={14} className="inline" />
                   </th>
                   <th
-                    onClick={() => handleSort("village_name")}
+                    onClick={() => handleSort("mouza")}
                     className="cursor-pointer"
                   >
                     Village <ArrowUpDown size={14} className="inline" />
@@ -316,11 +316,11 @@ useEffect(() => {
                       <td>{i + 1}</td>
                       <td className="font-semibold">{plot.plot_no || "N/A"}</td>
                       <td>{plot.full_part || "N/A"}</td>
-                      <td>{plot.land_area_total_acres || "N/A"}</td>
-                      <td>{plot.land_area_total_hectares || "N/A"}</td>
-                      <td>{plot.land_area_acquired_acres || "N/A"}</td>
-                      <td>{plot.land_area_acquired_hectares || "N/A"}</td>
-                      <td>{plot.village_name || "N/A"}</td>
+                      <td>{plot.total_area_acres ?? plot.land_area_total_acres ?? "N/A"}</td>
+                      <td>{plot.total_area_hectares ?? plot.land_area_total_hectares ?? "N/A"}</td>
+                      <td>{plot.proposed_area_acres ?? plot.land_area_acquired_acres ?? "N/A"}</td>
+                      <td>{plot.proposed_area_hectares ?? plot.land_area_acquired_hectares ?? "N/A"}</td>
+                      <td>{plot.mouza || "N/A"}</td>
                     </tr>
                   ))
                 ) : (

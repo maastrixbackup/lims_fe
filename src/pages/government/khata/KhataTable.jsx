@@ -37,17 +37,17 @@ const KhataTable = ({
 
   const emptyValue = "No data found";
   const headerCellClass =
-    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 border-b border-slate-200 bg-slate-100 whitespace-nowrap";
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 bg-gray-200 whitespace-nowrap";
   const bodyCellClass =
     "px-4 py-3 text-sm text-slate-800 border-b border-slate-100 align-top bg-white";
 
   const stickyCol1Header =
-    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-0 z-[40] border-b border-slate-200 bg-slate-100 whitespace-nowrap";
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-0 z-[40] bg-gray-200 whitespace-nowrap";
   const stickyCol1Cell =
     "px-4 py-3 text-sm text-slate-800 md:sticky md:left-0 border-b border-slate-100 align-top bg-white";
 
   const stickyCol2Header =
-    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-[120px] z-[35] border-b border-slate-200 bg-slate-100 whitespace-nowrap";
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-[120px] z-[35] bg-gray-200 whitespace-nowrap";
   const stickyCol2Cell =
     "px-4 py-3 text-sm text-slate-800 md:sticky md:left-[120px] border-b border-slate-100 align-top bg-white";
 
@@ -166,11 +166,11 @@ const KhataTable = ({
       {selectedProjectId && filteredKhatas.length > 0 && (
         <>
           <div
-            className="overflow-x-auto overflow-y-auto max-h-[520px] rounded-lg"
+            className="overflow-x-auto overflow-y-auto max-h-[420px] rounded-lg"
             style={{ scrollbarWidth: "thin" }}
           >
-            <table className="w-full min-w-[1500px] border-separate border-spacing-0">
-              <thead className="sticky top-0 z-20">
+            <table className="table w-full">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 uppercase text-xs">
                 <tr>
                   <th className={headerCellClass}>
                     <FilterHeader
@@ -229,7 +229,7 @@ const KhataTable = ({
                   ))}
 
                   <th
-                    className={`${stickyActionHeader} px-4 py-3 text-[11px] font-semibold uppercase tracking-wide border-b border-slate-200 bg-slate-100 text-slate-700`}
+                    className={`${stickyActionHeader} px-4 py-3 text-[11px] font-semibold uppercase tracking-wide bg-gray-200 text-slate-700`}
                   >
                     Actions
                   </th>
@@ -242,14 +242,14 @@ const KhataTable = ({
                     <td className={bodyCellClass}>{(page - 1) * limit + idx + 1}</td>
                     <td className={stickyCol1Cell}>{k.khata_no || emptyValue}</td>
                     <td className={`${stickyCol2Cell} min-w-[300px] max-w-[360px]`}>
-                      <div className="max-h-24 overflow-y-auto leading-6 pr-1 whitespace-normal break-words">
+                      <div className="max-h-24 overflow-y-auto leading-6 pr-1 whitespace-normal break-words" style={{scrollbarWidth:"thin"}}>
                         {k.plot_numbers || emptyValue}
                       </div>
                     </td>
                     <td className={`${bodyCellClass} min-w-[180px]`}>{k.village_name || emptyValue}</td>
                     <td className={bodyCellClass}>{k.kissam || emptyValue}</td>
                     <td className={bodyCellClass}>{k.lease_case_no || emptyValue}</td>
-                    <td className={`${bodyCellClass} min-w-[220px]`}>{k.present_status || emptyValue}</td>
+                    <td className={`${bodyCellClass} min-w-[220px]`} style={{scrollbarWidth:"thin"}}>{k.present_status || emptyValue}</td>
                     <td className={`${bodyCellClass} min-w-[220px]`}>{k.case_details || emptyValue}</td>
                     <td className={bodyCellClass}>{k.plot_count || emptyValue}</td>
                     <td className={bodyCellClass}>{k.unique_id || emptyValue}</td>

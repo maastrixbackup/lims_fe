@@ -69,7 +69,9 @@ const GovernmentKhata = () => {
         const mapped = (res.data || []).map((k) => ({
           id: k.id,
           khata_no: k.khata_no,
-          plot_no: k.plot_no || "-",
+          // Keep both keys so existing filters/export (`plot_no`) and UI (`plot_numbers`) work.
+          plot_numbers: k.plot_numbers || k.plot_no || "-",
+          plot_no: k.plot_numbers || k.plot_no || "-",
           project_id: k.project_id,
           village_id: k.village_id,
           lease_case_no: k.lease_case_no || "-",
@@ -77,9 +79,9 @@ const GovernmentKhata = () => {
           case_details: k.case_details,
           village_name: k.village_name || "-",
           plot_count: k.plot_count || 0,
-          kissam_of_land: k.kissam_of_land || "",
+          kissam: k.kissam || "",
           unique_id: k.unique_id || "",
-          ror_name: k.ror_name || "",
+          name_of_ror: k.name_of_ror || "",
           land_category: k.land_category || "",
           khata_document_count: k.khata_document_count || 0,
           khata_map_document_count: k.khata_map_document_count || 0,
@@ -171,15 +173,15 @@ const onViewPlots = (khata) => {
 
     const rows = khatas.map((k) => [
       k.khata_no,
-      k.plot_no,
+      k.plot_numbers || k.plot_no,
       k.village_name,
-      k.kissam_of_land,
+      k.kissam,
       k.lease_case_no,
       k.present_status,
       k.case_details,
       k.plot_count,
       k.unique_id,
-      k.ror_name,
+      k.name_of_ror,
       k.land_category,
     ]);
 

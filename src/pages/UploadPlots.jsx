@@ -19,6 +19,7 @@ const UploadPlots = () => {
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [plotDocs, setPlotDocs] = useState([]);
   const [selectedType, setSelectedType] = useState("");
+  const [scheduleType, setScheduleType] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [docToDelete, setDocToDelete] = useState(null);
 
@@ -41,9 +42,9 @@ const UploadPlots = () => {
       download: "/govtplots/govtPlotDocumentDownload",
     },
     3: {
-      upload: "/forestplots/uploadForestPlotExcel",
-      list: "/forestplots/plotDocumentList",
-      delete: "/forestplots/plotDocumentDelete",
+      upload: "/forestland/uploadForestLandSchedule",
+      list: "/forestland/forestLandDocumentList",
+      delete: "/forestland/forestLandDocumentDelete",
       download: "",
     },
   };
@@ -122,6 +123,9 @@ const fetchPlotDocuments = async () => {
   };
   const handleUploadToAPI = async () => {
     if (!file) return setError("No file selected");
+    if (selectedType === "3" && !scheduleType) {
+      return setError("Please select schedule type for forest land");
+    }
 
     try {
       setUploading(true);
@@ -131,6 +135,10 @@ const fetchPlotDocuments = async () => {
       formData.append("file", file);
       formData.append("project_id", projectId);
       formData.append("type", selectedType);
+      if (selectedType === "3") {
+        formData.append("scheduleType", scheduleType);
+        formData.append("schedule_type", scheduleType);
+      }
 
       await apiClient(api, {
         method: "POST",
@@ -225,13 +233,32 @@ const handleDelete = async () => {
         <select
           className="select select-bordered w-full"
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
+          onChange={(e) => {
+            const nextType = e.target.value;
+            setSelectedType(nextType);
+            if (nextType !== "3") {
+              setScheduleType("");
+            }
+          }}
         >
           <option value="">Select Type</option>
           <option value="1">Pvt Land</option>
           <option value="2">Govt Land</option>
           <option value="3">Forest Land</option>
         </select>
+
+        {selectedType === "3" && (
+          <select
+            className="select select-bordered w-full"
+            value={scheduleType}
+            onChange={(e) => setScheduleType(e.target.value)}
+          >
+            <option value="">Select Schedule Type</option>
+            <option value="FOREST_AREA">Forest Area</option>
+            <option value="NON_FOREST_AREA">Non-Forest Area</option>
+            <option value="CA_LAND">CA / ACA Land</option>
+          </select>
+        )}
 
         <input
           type="file"

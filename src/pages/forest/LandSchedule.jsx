@@ -70,7 +70,11 @@ const LandSchedule = () => {
         limit
       );
 
-      setData(res?.data || []);
+      const filteredData = (res?.data || []).filter(
+        (row) => row?.schedule_type === scheduleType
+      );
+
+      setData(filteredData);
       setTotalPages(res?.totalPages || 1);
     } catch (error) {
       console.error(error);

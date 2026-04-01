@@ -10,13 +10,13 @@ import { X } from "lucide-react";
 const EMPTY_FORM = {
   project_id: "",
   khata_no: "",
- kissam_of_land:"",
+ kissam:"",
   village_id: "",
   plot_no: "",
   lease_case_no: "",
   present_status: "",
   case_details: "",
-  ror_name: "",
+  name_of_ror: "",
   land_category:"",
 };
 const STATUS_MAP = {
@@ -49,14 +49,14 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
       setFormData({
         project_id: editingKhata.project_id || "",
         khata_no: editingKhata.khata_no || "", 
-        kissam_of_land:editingKhata.kissam_of_land || "",
+        kissam:editingKhata.kissam || "",
         village_id: editingKhata.village_id || "",
         plot_no: editingKhata.plot_no || "",
         lease_case_no: editingKhata.lease_case_no || "",
         present_status: STATUS_REVERSE_MAP[editingKhata.present_status] || 0,
         case_details: editingKhata.case_details || "",
         village: editingKhata.village_name || "",
-        ror_name: editingKhata.ror_name || "",
+        name_of_ror: editingKhata.name_of_ror || "",
         land_category:editingKhata.land_category || ""
       });
     } else {
@@ -125,12 +125,12 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
       khata_no: formData.khata_no,
       village_id: formData.village_id,
       village_name: formData.village_name,
-      kissam_of_land: formData.kissam_of_land,
+      kissam: formData.kissam,
       plot_no: formData.plot_no,
       lease_case_no: formData.lease_case_no,
       present_status: formData.present_status,
       case_details: formData.case_details,
-      ror_name: formData.ror_name,
+      name_of_ror: formData.name_of_ror,
       land_category:formData.land_category
     };
     console.log("payload..........", payload);
@@ -222,8 +222,8 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
             <div>
               <label className="font-semibold text-sm block mb-1">Kissam</label>
               <input
-                name="kissam_of_land"
-                value={formData.kissam_of_land}
+                name="kissam"
+                value={formData.kissam}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />
@@ -323,8 +323,8 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
                 ROR Name
               </label>
               <input
-                name="ror_name"
-                value={formData.ror_name}
+                name="name_of_ror"
+                value={formData.name_of_ror}
                 onChange={handleChange}
                 className="input input-bordered w-full"
               />

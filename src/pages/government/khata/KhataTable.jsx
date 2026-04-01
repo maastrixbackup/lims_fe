@@ -7,7 +7,6 @@ import {
 import FilterHeader from "../plot/FilterHeader";
 import { useDispatch, useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
-import { LandPlot, MapIcon, Upload } from "lucide-react";
 import { setSelectedKhataId } from "../../../utils/khataSlice";
 
 const KhataTable = ({
@@ -35,18 +34,23 @@ const KhataTable = ({
     (state) => state.selectedProject.project?.id,
   );
   const dispatch = useDispatch();
-console.log("Rendering KhataTable with khatas:", khatas);
-  const stickyCol1Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[40] shadow-md ";
 
+  const emptyValue = "No data found";
+  const headerCellClass =
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 border-b border-slate-200 bg-slate-100 whitespace-nowrap";
+  const bodyCellClass =
+    "px-4 py-3 text-sm text-slate-800 border-b border-slate-100 align-top bg-white";
+
+  const stickyCol1Header =
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-0 z-[40] border-b border-slate-200 bg-slate-100 whitespace-nowrap";
   const stickyCol1Cell =
-    "p-3 text-left bg-white md:sticky md:left-0 shadow-sm ";
+    "px-4 py-3 text-sm text-slate-800 md:sticky md:left-0 border-b border-slate-100 align-top bg-white";
 
   const stickyCol2Header =
-    "p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-[110px] z-[35] shadow-md ";
-
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-[120px] z-[35] border-b border-slate-200 bg-slate-100 whitespace-nowrap";
   const stickyCol2Cell =
-    "p-3 text-left bg-white md:sticky md:left-[110px] shadow-sm ";
+    "px-4 py-3 text-sm text-slate-800 md:sticky md:left-[120px] border-b border-slate-100 align-top bg-white";
+
   const sortCollator = new Intl.Collator(undefined, {
     sensitivity: "base",
     numeric: true,
@@ -82,7 +86,21 @@ console.log("Rendering KhataTable with khatas:", khatas);
     return direction === "asc" ? result : -result;
   };
 
+  const extractPlotNumbers = (value) => {
+    if (!value) return [];
+    return String(value)
+      .split(/[,\n]/)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  };
+
   const getUniqueValues = (key) => {
+    if (key === "plot_no") {
+      return [...new Set(khatas.flatMap((k) => extractPlotNumbers(k.plot_no)))].sort((a, b) =>
+        sortCollator.compare(String(a), String(b)),
+      );
+    }
+
     return [...new Set(khatas.map((k) => k[key]).filter(Boolean))].sort((a, b) =>
       sortCollator.compare(String(a), String(b)),
     );
@@ -92,7 +110,11 @@ console.log("Rendering KhataTable with khatas:", khatas);
     .filter((k) =>
       Object.entries(filters).every(([key, value]) =>
         value
-          ? String(k[key]).toLowerCase().includes(value.toLowerCase())
+          ? key === "plot_no"
+            ? extractPlotNumbers(k.plot_no).some(
+                (plotNo) => plotNo.toLowerCase() === String(value).toLowerCase(),
+              )
+            : String(k[key]).toLowerCase().includes(value.toLowerCase())
           : true,
       ),
     )
@@ -105,10 +127,7 @@ console.log("Rendering KhataTable with khatas:", khatas);
     });
 
   const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));
-  const paginatedKhatas = filteredKhatas.slice(
-    (page - 1) * limit,
-    page * limit,
-  );
+  const paginatedKhatas = filteredKhatas.slice((page - 1) * limit, page * limit);
 
   useEffect(() => {
     if (page > clientTotalPages) {
@@ -117,16 +136,13 @@ console.log("Rendering KhataTable with khatas:", khatas);
   }, [page, clientTotalPages, setPage]);
 
   return (
-    <div className="card bg-white">
+    <div className="card rounded-xl bg-white shadow-sm border border-slate-200">
       {(!selectedProjectId || filteredKhatas.length === 0) && (
         <div className="py-10 text-center text-gray-600">
           {!selectedProjectId ? (
             <>
               <p className="text-lg font-medium">
-                Please{" "}
-                <span className="text-primary font-semibold">
-                  Select a Project
-                </span>{" "}
+                Please <span className="text-primary font-semibold">Select a Project</span>{" "}
                 first.
               </p>
               <p className="text-lg text-gray-500 mt-1">
@@ -136,30 +152,27 @@ console.log("Rendering KhataTable with khatas:", khatas);
           ) : (
             <>
               <p className="text-md font-medium text-red-500">
-                No Khata found for the{" "}
-                <span className="text-primary font-bold">
-                  Selected Project.
-                </span>
+                No Khata found for the <span className="text-primary font-bold">Selected Project.</span>
               </p>
               <p className="text-md text-gray-500 mt-1">
-                Try selecting a different{" "}
-                <span className="text-gray-700 font-semibold">Project</span> or
+                Try selecting a different <span className="text-gray-700 font-semibold">Project</span> or
                 add a new Khata.
               </p>
             </>
           )}
         </div>
       )}
+
       {selectedProjectId && filteredKhatas.length > 0 && (
         <>
           <div
-            className="overflow-x-auto max-h-[400px] overflow-y-auto"
+            className="overflow-x-auto overflow-y-auto max-h-[520px] rounded-lg"
             style={{ scrollbarWidth: "thin" }}
           >
-                <table className="table w-full">
-                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 ">
+            <table className="w-full min-w-[1500px] border-separate border-spacing-0">
+              <thead className="sticky top-0 z-20">
                 <tr>
-                     <th >
+                  <th className={headerCellClass}>
                     <FilterHeader
                       column={GovtKhataColumn.find((c) => c.key === "sl_no")}
                       filters={filters}
@@ -171,6 +184,7 @@ console.log("Rendering KhataTable with khatas:", khatas);
                       setActiveFilterKey={setActiveFilterKey}
                     />
                   </th>
+
                   <th className={stickyCol1Header}>
                     <FilterHeader
                       column={GovtKhataColumn.find((c) => c.key === "khata_no")}
@@ -184,7 +198,6 @@ console.log("Rendering KhataTable with khatas:", khatas);
                     />
                   </th>
 
-                  {/* PLOT NO */}
                   <th className={stickyCol2Header}>
                     <FilterHeader
                       column={GovtKhataColumn.find((c) => c.key === "plot_no")}
@@ -201,7 +214,7 @@ console.log("Rendering KhataTable with khatas:", khatas);
                   {GovtKhataColumn.filter(
                     (c) => !["khata_no", "plot_no", "sl_no"].includes(c.key),
                   ).map((col) => (
-                    <th key={col.key}>
+                    <th key={col.key} className={headerCellClass}>
                       <FilterHeader
                         column={col}
                         filters={filters}
@@ -215,41 +228,48 @@ console.log("Rendering KhataTable with khatas:", khatas);
                     </th>
                   ))}
 
-                  <th className={stickyActionHeader}>Actions</th>
+                  <th
+                    className={`${stickyActionHeader} px-4 py-3 text-[11px] font-semibold uppercase tracking-wide border-b border-slate-200 bg-slate-100 text-slate-700`}
+                  >
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
-                {/* {khatas.length > 0 ? ( */}
                 {paginatedKhatas.map((k, idx) => (
-                  <tr key={k.id}>
-                    <td>{(page - 1) * limit + idx + 1}</td>
-                    <td className={stickyCol1Cell}>
-                      {k.khata_no || "No data found"}
+                  <tr key={k.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className={bodyCellClass}>{(page - 1) * limit + idx + 1}</td>
+                    <td className={stickyCol1Cell}>{k.khata_no || emptyValue}</td>
+                    <td className={`${stickyCol2Cell} min-w-[300px] max-w-[360px]`}>
+                      <div className="max-h-24 overflow-y-auto leading-6 pr-1 whitespace-normal break-words">
+                        {k.plot_numbers || emptyValue}
+                      </div>
                     </td>
-                    <td className={stickyCol2Cell}>{k.plot_no || "No data found"}</td>
-                    <td>{k.village_name || "No data found"}</td>
-                    <td>{k.kissam_of_land || "No data found"}</td>
-                    <td>{k.lease_case_no || "No data found"}</td>
-                    <td>{k.present_status || "No data found"}</td>
-                    <td>{k.case_details || "No data found"}</td>
+                    <td className={`${bodyCellClass} min-w-[180px]`}>{k.village_name || emptyValue}</td>
+                    <td className={bodyCellClass}>{k.kissam || emptyValue}</td>
+                    <td className={bodyCellClass}>{k.lease_case_no || emptyValue}</td>
+                    <td className={`${bodyCellClass} min-w-[220px]`}>{k.present_status || emptyValue}</td>
+                    <td className={`${bodyCellClass} min-w-[220px]`}>{k.case_details || emptyValue}</td>
+                    <td className={bodyCellClass}>{k.plot_count || emptyValue}</td>
+                    <td className={bodyCellClass}>{k.unique_id || emptyValue}</td>
+                    <td className={bodyCellClass}>{k.name_of_ror || emptyValue}</td>
+                    <td className={bodyCellClass}>{k.land_category || emptyValue}</td>
 
-                    <td>{k.plot_count || "No data found"}</td>
-                    <td>{k.unique_id || "No data found"}</td>
-                    <td>{k.ror_name || "No data found"}</td>
-                    <td>{k.land_category || "No data found"}</td>
-                    <td className={stickyActionCell}>
+                    <td
+                      className={`${stickyActionCell} px-4 py-3 border-b border-slate-100 align-top bg-white`}
+                    >
                       <select
-                        className="select select-sm bg-gray-100 border w-[42px]"
+                        className="select select-sm bg-white border-slate-300 w-[42px] min-h-8 h-8"
                         defaultValue=""
                         onChange={(e) => {
                           const action = e.target.value;
                           e.target.value = "";
+
                           if (action === "viewPlots") {
                             dispatch(setSelectedKhataId(k.id));
                             onViewPlots(k);
                           }
-
                           if (action === "upload") onUpload(k);
                           if (action === "map") onMap(k);
                           if (action === "edit" && canEdit) onEdit(k);
@@ -259,38 +279,16 @@ console.log("Rendering KhataTable with khatas:", khatas);
                         <option value="" disabled>
                           Actions
                         </option>
-                        <option
-                          value="viewPlots"
-                          className="text-md text-gray-700 font-bold"
-                        >
-                          <LandPlot size={14} />
-                          View Plots ({k.plot_count || 0})
-                        </option>
-
-                        <option
-                          value="upload"
-                          disabled={userRole === "Viewer"}
-                          className={`text-md text-gray-700 font-bold ${
-                            userRole === "Viewer" ? "!text-gray-400" : ""
-                          }`}
-                        >
-                          <Upload size={14} />
+                        <option value="viewPlots">View Plots ({k.plot_count || 0})</option>
+                        <option value="upload" disabled={userRole === "Viewer"}>
                           Upload ({k.khata_document_count || 0})
                         </option>
-
-                        <option
-                          value="map"
-                          className="text-md text-gray-700 font-bold"
-                        >
-                          <MapIcon size={14} />
-                          Map ({k.khata_map_document_count || 0})
-                        </option>
+                        <option value="map">Map ({k.khata_map_document_count || 0})</option>
                         <option value="edit" disabled={!canEdit}>
-                          ✏️ Edit
+                          Edit
                         </option>
-
                         <option value="delete" disabled={!canDelete}>
-                          🗑 Delete
+                          Delete
                         </option>
                       </select>
                     </td>
@@ -299,6 +297,7 @@ console.log("Rendering KhataTable with khatas:", khatas);
               </tbody>
             </table>
           </div>
+
           <Pagination
             page={page}
             setPage={setPage}
@@ -313,4 +312,3 @@ console.log("Rendering KhataTable with khatas:", khatas);
 };
 
 export default KhataTable;
-

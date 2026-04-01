@@ -704,7 +704,7 @@ export const GovtKhataColumn = [
   {key:"sl_no", label:"Sl/No", type:"text"},
   { key: "khata_no", label: "Khata No", type: "text" },
   { key: "plot_no", label: "Plot No", type: "text" },
-  { key: "villae_name", label: "Village", type: "text" },
+  { key: "village_name", label: "Village", type: "text" },
   { key: "kissam", label: "Kissam", type: "text" },
 
   { key: "lease_case_no", label: "Lease Case No", type: "text" },
@@ -722,7 +722,7 @@ export const GovtKhataColumn = [
   { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },
   { key: "unique_id", label: "Case Count", type: "text" },
-  { key: "ror_name", label: "ROR Name", type: "text" },
+  { key: "name_of_ror", label: "ROR Name", type: "text" },
   { key: "land_category", label: "Land Category", type: "text" },
 ];
 

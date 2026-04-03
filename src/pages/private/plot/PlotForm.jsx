@@ -1075,17 +1075,6 @@ if (name === "land_area_acquired_acres") {
                         <option value="1">Yes</option>
                         <option value="0">No</option>
                       </select>
-                    ) : field === "abatement" ? (
-                      <select
-                        name={field}
-                        value={formData[field] || ""}
-                        onChange={handleChange}
-                        className="select select-bordered w-full"
-                      >
-                        <option value="">Select Type</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                      </select>
                     ) : (
                       <input
                         name={field}

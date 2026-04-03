@@ -131,7 +131,7 @@ export const sections = {
     "tribunal",
     "tribunal_deposit_date",
     "tribunal_amount",
-    "abatement",
+    // "abatement",
   ],
   // "Tribunal & Revenue": [
   //   // "tribunal",
@@ -1095,10 +1095,10 @@ export const TribunalColumns = [
     label: "Tribunal Amount (₹)",
     field: "tribunal_amount",
   },
-  {
-    label: "Abatement",
-    field: "abatement",
-  },
+  // {
+  //   label: "Abatement",
+  //   field: "abatement",
+  // },
     {
     label:"Payment Status",
     field:"payment_status",

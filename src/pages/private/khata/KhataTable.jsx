@@ -75,7 +75,7 @@ const KhataTable = ({
   });
 
   const formatThreeItems = (value) => {
-    if (!value) return "No data found";
+    if (!value) return "";
     const items =
       typeof value === "string"
         ? value.split(",").map((v) => v.trim())
@@ -359,15 +359,15 @@ const KhataTable = ({
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
                           </td>
-                          <td className={stickyCol1Cell}>{khata.khata_no || "No data found"}</td>
+                          <td className={stickyCol1Cell}>{khata.khata_no || ""}</td>
                           <td className={stickyCol2Cell}>
-                            {khata.village_name || "No data found"}
+                            {khata.village_name || ""}
                           </td>
                           <td className={stickyCol3Cell}>
-                            {khata.name_of_recorded_tenant || "No data found"}
+                            {khata.name_of_recorded_tenant || ""}
                           </td>
                           <td className={stickyCol4Cell}>
-                            {khata.name_of_present_tenant || "No data found"}
+                            {khata.name_of_present_tenant || ""}
                           </td>
 
                           {COMMON_COLUMNS.map(({ field, format }) => (
@@ -376,7 +376,7 @@ const KhataTable = ({
                                 ? formatThreeItems(khata[field])
                                 : field === "created_at"
                                 ? moment(khata[field]).format("DD-MM-YYYY")
-                                : khata[field] || "No data found"}
+                                : khata[field] || ""}
                             </td>
                           ))}
 
@@ -554,16 +554,16 @@ const KhataTable = ({
                           </td>
 
                           <td className={stickyCol1Cell}>
-                            {khata.khata_no || "No data found"}
+                            {khata.khata_no || ""}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {khata.village_name || "No data found"}
+                            {khata.village_name || ""}
                           </td>
                           <td className={stickyCol3Cell}>
-                            {khata.name_of_recorded_tenant || "No data found"}
+                            {khata.name_of_recorded_tenant || ""}
                           </td>
                           <td className={stickyCol4Cell}>
-                            {khata.name_of_present_tenant || "No data found"}
+                            {khata.name_of_present_tenant || ""}
                           </td>
 
                           {RR_FIELDS_FORMS.map(({ name }) => (
@@ -572,7 +572,7 @@ const KhataTable = ({
                               khata[name] !== undefined &&
                               khata[name] !== ""
                                 ? khata[name]
-                                : "No data found"}
+                                : ""}
                             </td>
                           ))}
 

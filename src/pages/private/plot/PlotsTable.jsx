@@ -1313,7 +1313,7 @@ const PlotTable = ({
                     </td>
                     <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
 
-                    <td className="p-3">{plot.abatement || "N/A"}</td>
+                    {/* <td className="p-3">{plot.abatement || "N/A"}</td> */}
                     <td className={stickyPaymentCell}>
                       <div className="relative">
                         {/* Invisible select */}

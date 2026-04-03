@@ -26,7 +26,7 @@ const VillageFormModal = ({
     tahasil: "",
     type: "",
     // village_code: "",
-    thana_name_no:""
+    thana_no:""
     // multiplying_factor: "",
   });
 
@@ -42,7 +42,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         // village_code: editingVillage.village_code,
-        thana_name_no:editingVillage.thana_name_no
+        thana_no:editingVillage.thana_no
         // multiplying_factor: editingVillage.multiplying_factor || "",
       });
     } else {
@@ -53,7 +53,7 @@ const VillageFormModal = ({
         tahasil: "",
         type: typeParam.toString(),
         // village_code: "",
-        thana_name_no:""
+        thana_no:""
         // multiplying_factor: "",
       });
     }
@@ -253,18 +253,18 @@ const VillageFormModal = ({
              <label>Thana Name/No</label>
             <input
               type="text"
-              name="thana_name_no"
-              value={formData.thana_name_no}
+              name="thana_no"
+              value={formData.thana_no}
               onChange={(e) =>
-                setFormData({ ...formData, thana_name_no: e.target.value })
+                setFormData({ ...formData, thana_no: e.target.value })
               }
               className={`input input-bordered w-full ${
-                errors.thana_name_no ? "border-red-500" : ""
+                errors.thana_no ? "border-red-500" : ""
               }`}
               placeholder="Enter Thana Name/ No"
             />
-            {errors.thana_name_no && (
-              <p className="text-red-500 text-sm">{errors.thana_name_no}</p>
+            {errors.thana_no && (
+              <p className="text-red-500 text-sm">{errors.thana_no}</p>
             )}
 
             {/* {editingVillage && (

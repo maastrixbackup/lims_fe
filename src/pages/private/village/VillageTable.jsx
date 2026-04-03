@@ -200,7 +200,7 @@ const VillageTable = ({
                   />
                   <FilterableHeader
                     label="Thana Name/ No"
-                    field="thana_name_no"
+                    field="thana_no"
                     filters={filters}
                     setFilters={setFilters}
                     activeFilter={activeFilter}
@@ -238,7 +238,7 @@ const VillageTable = ({
                       <td>{v.village_name || "No Data"}</td>
                       <td>{v.district || "No Data"}</td>
                       <td>{v.tahasil || "No Data"}</td>
-                      <td>{v.thana_name_no || "No Data"}</td>
+                      <td>{v.thana_no || "No Data"}</td>
                       <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
                       <td className="text-right">
                         <select

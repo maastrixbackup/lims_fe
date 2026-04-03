@@ -104,6 +104,30 @@ const PlotTable = ({
     return "";
   };
 
+  const formatTribunalValue = (value) => {
+    if (value === null || value === undefined || value === "") return "N/A";
+    const normalized = String(value).trim().toUpperCase();
+    if (normalized === "Y" || normalized === "YES" || normalized === "1") {
+      return "Yes";
+    }
+    if (normalized === "N" || normalized === "NO" || normalized === "0") {
+      return "No";
+    }
+    return String(value);
+  };
+
+  const formatOrphanMemberValue = (value) => {
+    if (value === null || value === undefined || value === "") return "N/A";
+    const normalized = String(value).trim().toUpperCase();
+    if (normalized === "Y" || normalized === "YES" || normalized === "1") {
+      return "Yes";
+    }
+    if (normalized === "N" || normalized === "NO" || normalized === "0") {
+      return "No";
+    }
+    return String(value);
+  };
+
   const extractApiErrorMessage = (message, fallback = "Network error") => {
     const raw = String(message || "").trim();
     if (!raw) return fallback;
@@ -516,11 +540,11 @@ const PlotTable = ({
                     </td>
                     <td className="p-3">{plot.present_address || "N/A"}</td>
                     <td className="p-3">
-                      {plot.displaced_affected_person === "PAF"
+                      {plot.displaced_affected_project === "PAF"
                         ? "Person Affected Families"
-                        : plot.displaced_affected_person === "PDF"
+                        : plot.displaced_affected_project === "PDF"
                           ? "Person Displaced Families"
-                          : plot.displaced_affected_person || "N/A"}
+                          : plot.displaced_affected_project || "N/A"}
                     </td>
 
                     <td className="p-3 whitespace-nowrap">
@@ -676,7 +700,7 @@ const PlotTable = ({
                     </td>
                     <td className="p-3">{plot.present_address || "N/A"}</td>
                     <td className="p-3">
-                      {plot.displaced_affected_person || "N/A"}
+                      {plot.displaced_affected_project || "N/A"}
                     </td>
                     <td className={stickyPaymentCell}>
                       <div className="relative">
@@ -1283,15 +1307,13 @@ const PlotTable = ({
                     <td className="p-3">{plot.grievance_subject || "N/A"}</td>
                     <td className="p-3">{plot.grievance_status || "N/A"}</td>
                     <td className="p-3">{plot.grievance_action || "N/A"}</td>
-                    <td className="p-3">
-                      {plot.tribunal === "Y" ? "Yes" : "No"}
-                    </td>
+                    <td className="p-3">{formatTribunalValue(plot.tribunal)}</td>
                     <td className="p-3">
                       {formatDate(plot.tribunal_deposit_date) || "N/A"}
                     </td>
                     <td className="p-3">{plot.tribunal_amount ?? "N/A"}</td>
 
-                    <td className="p-3">{plot.abatement || "N/A"}</td>
+                    {/* <td className="p-3">{plot.abatement || "N/A"}</td> */}
                     <td className={stickyPaymentCell}>
                       <div className="relative">
                         {/* Invisible select */}
@@ -1437,9 +1459,7 @@ const PlotTable = ({
                       {plot.persons_with_disability ?? "N/A"}
                     </td>
                     <td className="p-3">
-                      {plot.family_with_orphan_members === "Y"
-                        ? "Yes"
-                        : ("No" ?? "N/A")}
+                      {formatOrphanMemberValue(plot.family_with_orphan_members)}
                     </td>
                     <td className={stickyPaymentCell}>
                       <div className="relative">

@@ -702,6 +702,29 @@ const PlotForm = ({ fetchPlots }) => {
     project_id: "",
   }));
 
+  const normalizeOrphanMemberValue = (value) => {
+    if (value === 1 || value === "1" || value === true) return "1";
+    if (value === 0 || value === "0" || value === false) return "0";
+    if (typeof value === "string") {
+      const normalized = value.trim().toUpperCase();
+      if (normalized === "Y" || normalized === "YES") return "1";
+      if (normalized === "N" || normalized === "NO") return "0";
+    }
+    return "";
+  };
+
+  const normalizeTribunalValue = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const normalized = String(value).trim().toUpperCase();
+    if (normalized === "Y" || normalized === "YES" || normalized === "1") {
+      return "Yes";
+    }
+    if (normalized === "N" || normalized === "NO" || normalized === "0") {
+      return "No";
+    }
+    return "";
+  };
+
   const REQUIRED_SET = useMemo(() => new Set(REQUIRED_FIELDS), []);
   const FAMILY_MEMBER_FIELDS = useMemo(
     () =>
@@ -785,6 +808,10 @@ const PlotForm = ({ fetchPlots }) => {
     setFormData((prev) => ({
       ...prev,
       ...editingPlot,
+      tribunal: normalizeTribunalValue(editingPlot.tribunal),
+      family_with_orphan_members: normalizeOrphanMemberValue(
+        editingPlot.family_with_orphan_members,
+      ),
       type: editingPlot.type || typeParam,
       project_id: editingPlot.project_id,
     }));
@@ -874,11 +901,25 @@ if (name === "land_area_acquired_acres") {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const url = editingPlot
         ? `${API_BASE_URL}/plots/updatePlot/${editingPlot.id}`
         : `${API_BASE_URL}/plots/createPlot`;
+
+      const payload = {
+        ...formData,
+        type: typeParam,
+        tribunal:
+          formData.tribunal === ""
+            ? null
+            : normalizeTribunalValue(formData.tribunal),
+        family_with_orphan_members:
+          formData.family_with_orphan_members === ""
+            ? null
+            : Number(formData.family_with_orphan_members),
+      };
 
       const res = await fetch(url, {
         method: editingPlot ? "PUT" : "POST",
@@ -886,7 +927,7 @@ if (name === "land_area_acquired_acres") {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...formData, type: typeParam }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -1001,7 +1042,7 @@ if (name === "land_area_acquired_acres") {
                         <option value="Full">Full</option>
                         <option value="Part">Part</option>
                       </select>
-                    ) : field === "displaced_affected_person" ? (
+                    ) : field === "displaced_affected_project" ? (
                       <select
                         name={field}
                         value={formData[field] || ""}
@@ -1020,19 +1061,19 @@ if (name === "land_area_acquired_acres") {
                         className="select select-bordered w-full"
                       >
                         <option value="">Select</option>
-                        <option value="Y">Yes</option>
-                        <option value="N">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                       </select>
-                    ) : field === "abatement" ? (
+                    ) : field === "family_with_orphan_members" ? (
                       <select
                         name={field}
                         value={formData[field] || ""}
                         onChange={handleChange}
                         className="select select-bordered w-full"
                       >
-                        <option value="">Select Type</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
+                        <option value="">Select</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
                       </select>
                     ) : (
                       <input

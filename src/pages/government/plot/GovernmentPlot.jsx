@@ -995,63 +995,63 @@ const Plots = () => {
                         >
                           <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
-                            {plot.khata_no || "No data found"}
+                            {plot.khata_no || ""}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {plot.plot_no || "No data found"}
+                            {plot.plot_no || ""}
                           </td>
-                          <td>{plot.thana_no || "No data found"}</td>
-                          <td>{plot.mouza || "No data found"}</td>
-                          <td>{plot.tahasil || "No data found"}</td>
-                          <td>{plot.ri_circle || "No data found"}</td>
-                          <td>{plot.kissam || "No data found"}</td>
-                          <td>{plot.name_of_ror || "No data found"}</td>
-                          <td>{plot.total_area_acres || "No data found"}</td>
-                          <td>{plot.proposed_area_acres || "No data found"}</td>
-                          <td>{plot.total_area_hectares || "No data found"}</td>
-                          <td>{plot.proposed_area_hectares || "No data found"}</td>
-                          <td>{plot.lease_case_no || "No data found"}</td>
-                          <td>{plot.present_status || "No data found"}</td>
-                          <td>{plot.ua_idco_to_tahasildar || "No data found"}</td>
-                          <td>{plot.case_details || "No data found"}</td>
-                          <td>{plot.action_to_be_taken || "No data found"}</td>
-                          <td>{plot.ri_report || "No data found"}</td>
+                          <td>{plot.thana_no || ""}</td>
+                          <td>{plot.mouza || ""}</td>
+                          <td>{plot.tahasil || ""}</td>
+                          <td>{plot.ri_circle || ""}</td>
+                          <td>{plot.kissam || ""}</td>
+                          <td>{plot.name_of_ror || ""}</td>
+                          <td>{plot.total_area_acres || ""}</td>
+                          <td>{plot.proposed_area_acres || ""}</td>
+                          <td>{plot.total_area_hectares || ""}</td>
+                          <td>{plot.proposed_area_hectares || ""}</td>
+                          <td>{plot.lease_case_no || ""}</td>
+                          <td>{plot.present_status || ""}</td>
+                          <td>{plot.ua_idco_to_tahasildar || ""}</td>
+                          <td>{plot.case_details || ""}</td>
+                          <td>{plot.action_to_be_taken || ""}</td>
+                          <td>{plot.ri_report || ""}</td>
                           <td>
                             {renderAttachments(
                               plot.ri_report_attachment.file_name,
-                              "RI Report Attachments" || "No data found",
+                              "RI Report Attachments" || "",
                             )}
                           </td>
-                          <td>{plot.proclamation || "No data found"}</td>
-                          <td>{plot.objection_received || "No data found"}</td>
-                          <td>{plot.others || "No data found"}</td>
-                          <td>{plot.modification_revision || "No data found"}</td>
-                          <td>{plot.misc_dr_case_prep || "No data found"}</td>
-                          <td>{plot.misc_dr_case_prep_number || "No data found"}</td>
-                          <td>{plot.reason_for_misc_dr_case || "No data found"}</td>
-                          <td>{plot.tree_enumeration || "No data found"}</td>
+                          <td>{plot.proclamation || ""}</td>
+                          <td>{plot.objection_received || ""}</td>
+                          <td>{plot.others || ""}</td>
+                          <td>{plot.modification_revision || ""}</td>
+                          <td>{plot.misc_dr_case_prep || ""}</td>
+                          <td>{plot.misc_dr_case_prep_number || ""}</td>
+                          <td>{plot.reason_for_misc_dr_case || ""}</td>
+                          <td>{plot.tree_enumeration || ""}</td>
                           <td>
                             {renderAttachments(
                               plot.tree_enumeration_attachment.file_name,
-                              "Tree Enumeration Attachments" || "No data found",
+                              "Tree Enumeration Attachments" || "",
                             )}
                           </td>
-                          <td>{plot.order_sheet_prep || "No data found"}</td>
-                          <td>{plot.lease_to_idco || "No data found"}</td>
+                          <td>{plot.order_sheet_prep || ""}</td>
+                          <td>{plot.lease_to_idco || ""}</td>
                           <td>
                             {renderAttachments(
                               plot.lease_to_idco_attachment.file_name,
-                              "Lease to IDCO Attachments" || "No data found",
+                              "Lease to IDCO Attachments" || "",
                             )}
                           </td>
-                          <td>{plot.lease_to_ua || "No data found"}</td>
+                          <td>{plot.lease_to_ua || ""}</td>
                           <td>
                             {renderAttachments(
                               plot.lease_to_ua_attachment.file_name,
-                              "Lease to UA Attachments" || "No data found",
+                              "Lease to UA Attachments" || "",
                             )}
                           </td>
-                          <td>{plot.remarks || "No data found"}</td>
+                          <td>{plot.remarks || ""}</td>
                           <td className={stickyActionCell}>
                             <select
                               className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
@@ -1229,15 +1229,15 @@ const Plots = () => {
                         >
                           <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
-                            {plot.khata_no || "No data found"}
+                            {plot.khata_no || ""}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {plot.plot_no || "No data found"}
+                            {plot.plot_no || ""}
                           </td>
-                          <td>{plot.legal_heir_case_no || "No data found"}</td>
-                          <td>{plot.land_case_no || "No data found"}</td>
-                          <td>{plot.land_case_date || "No data found"}</td>
-                          <td>{plot.land_case_type || "No data found"}</td>
+                          <td>{plot.legal_heir_case_no || ""}</td>
+                          <td>{plot.land_case_no || ""}</td>
+                          <td>{plot.land_case_date || ""}</td>
+                          <td>{plot.land_case_type || ""}</td>
                           <td
                             className={`
  text-gray-700 text-center rounded-full btn btn-xs mt-3
@@ -1252,10 +1252,10 @@ const Plots = () => {
     }
   `}
                           >
-                            {plot.land_case_status || "No data found"}
+                            {plot.land_case_status || ""}
                           </td>
 
-                          <td>{plot.land_case_details || "No data found"}</td>
+                          <td>{plot.land_case_details || ""}</td>
                           <td className={stickyActionCell}>
                             <select
                               className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
@@ -1387,24 +1387,24 @@ const Plots = () => {
                         >
                           <td>{(page - 1) * limit + idx + 1}</td>
                           <td className={stickyCol1Cell}>
-                            {plot.khata_no || "No data found"}
+                            {plot.khata_no || ""}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {plot.plot_no || "No data found"}
+                            {plot.plot_no || ""}
                           </td>
-                          <td>{plot.land_area_total_acres || "No data found"}</td>
-                          <td>{plot.land_area_total_hectares || "No data found"}</td>
-                          <td>{plot.land_area_acquired_acres || "No data found"}</td>
+                          <td>{plot.land_area_total_acres || ""}</td>
+                          <td>{plot.land_area_total_hectares || ""}</td>
+                          <td>{plot.land_area_acquired_acres || ""}</td>
                           <td>
-                            {plot.land_area_acquired_hectares || "No data found"}
+                            {plot.land_area_acquired_hectares || ""}
                           </td>
-                          <td>{plot.market_value_per_acre || "No data found"}</td>
-                          <td>{plot.bench_market_value || "No data found"}</td>
-                          <td>{plot.premium || "No data found"}</td>
-                          <td>{plot.ground_rent || "No data found"}</td>
-                          <td>{plot.cess || "No data found"}</td>
-                          <td>{plot.admin_charges || "No data found"}</td>
-                          <td>{plot.total_cost || "No data found"}</td>
+                          <td>{plot.market_value_per_acre || ""}</td>
+                          <td>{plot.bench_market_value || ""}</td>
+                          <td>{plot.premium || ""}</td>
+                          <td>{plot.ground_rent || ""}</td>
+                          <td>{plot.cess || ""}</td>
+                          <td>{plot.admin_charges || ""}</td>
+                          <td>{plot.total_cost || ""}</td>
 
                           <td className={stickyActionCell}>
                             <select

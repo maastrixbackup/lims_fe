@@ -35,21 +35,21 @@ const KhataTable = ({
   );
   const dispatch = useDispatch();
 
-  const emptyValue = "No data found";
+  const emptyValue = "";
   const headerCellClass =
-    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 bg-gray-200 whitespace-nowrap";
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 bg-gray-200 whitespace-nowrap border-b border-slate-200/80";
   const bodyCellClass =
-    "px-4 py-3 text-sm text-slate-800 border-b border-slate-100 align-top bg-white";
+    "px-4 py-3 text-sm text-slate-800 border-b border-r border-slate-200 align-top bg-white";
 
   const stickyCol1Header =
-    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-0 z-[40] bg-gray-200 whitespace-nowrap";
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-0 z-[40] bg-gray-200 whitespace-nowrap border-b border-slate-200/80";
   const stickyCol1Cell =
-    "px-4 py-3 text-sm text-slate-800 md:sticky md:left-0 border-b border-slate-100 align-top bg-white";
+    "px-4 py-3 text-sm text-slate-800 md:sticky md:left-0 border-b border-r border-slate-200 align-top bg-white";
 
   const stickyCol2Header =
-    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-[120px] z-[35] bg-gray-200 whitespace-nowrap";
+    "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:sticky md:left-[120px] z-[35] bg-gray-200 whitespace-nowrap border-b border-slate-200/80";
   const stickyCol2Cell =
-    "px-4 py-3 text-sm text-slate-800 md:sticky md:left-[120px] border-b border-slate-100 align-top bg-white";
+    "px-4 py-3 text-sm text-slate-800 md:sticky md:left-[120px] border-b border-r border-slate-200 align-top bg-white";
 
   const sortCollator = new Intl.Collator(undefined, {
     sensitivity: "base",
@@ -257,7 +257,7 @@ const KhataTable = ({
                     <td className={bodyCellClass}>{k.land_category || emptyValue}</td>
 
                     <td
-                      className={`${stickyActionCell} px-4 py-3 border-b border-slate-100 align-top bg-white`}
+                      className={`${stickyActionCell} px-4 py-3 border-b border-slate-200 align-top bg-white`}
                     >
                       <select
                         className="select select-sm bg-white border-slate-300 w-[42px] min-h-8 h-8"

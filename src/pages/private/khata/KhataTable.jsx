@@ -355,7 +355,7 @@ const KhataTable = ({
 
                     <tbody>
                       {paginatedKhatas.map((khata, idx) => (
-                        <tr key={khata.id}>
+                        <tr key={khata.id} className="border-b border-gray-200">
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
                           </td>
@@ -548,7 +548,7 @@ const KhataTable = ({
 
                     <tbody>
                       {paginatedKhatas.map((khata, idx) => (
-                        <tr key={khata.id}>
+                        <tr key={khata.id} className="border-b border-gray-200">
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
                           </td>

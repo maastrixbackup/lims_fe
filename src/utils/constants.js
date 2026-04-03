@@ -62,7 +62,7 @@ export const sections = {
     "name_of_recorded_tenant",
     "name_of_present_tenant",
     "present_address",
-    "displaced_affected_person",
+    "displaced_affected_project",
   ],
   "Legal Issues": [
     "legal_heir_certificate_no",
@@ -231,7 +231,7 @@ export const columns = [
   { label: "Recorded Tenant Name", key: "name_of_recorded_tenant" },
   { label: "Present Tenant Name", key: "name_of_present_tenant" },
   { label: "Present Address", key: "present_address" },
-  { label: "Displaced/Affected Person", key: "displaced_affected_person" },
+  { label: "Displaced/Affected Project", key: "displaced_affected_project" },
   { label: "Village Name", key: "village_name" },
   { label: "Village Code", key: "village_code" },
   { label: "Tahasil Name", key: "tahasil_name" },
@@ -364,7 +364,7 @@ export const khataColumn = [
   { label: "Present Address", key: "present_address" },
   {
     label: "Affected Person",
-    key: "displaced_affected_person",
+    key: "displaced_affected_project",
   },
   { label: "Case No", key: "unique_id" },
   { label: "Plot Count", key: "plot_count" },
@@ -773,7 +773,7 @@ export const BasicDetails = [
   },
   {
     label: "Displaced/Affected",
-    field: "displaced_affected_person",
+    field: "displaced_affected_project",
   },
   {
     label: "Village Name",
@@ -847,7 +847,7 @@ export const TenantDetails = [
     field: "present_address",
   },
   {    label: "Displaced/Affected Person",
-    field: "displaced_affected_person",
+    field: "displaced_affected_project",
   },
     {
     label:"Payment Status",

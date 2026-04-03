@@ -41,7 +41,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     name_of_recorded_tenant: "",
     name_of_present_tenant: "",
     present_address: "",
-    displaced_affected_person: "",
+    displaced_affected_project: "",
     rr_employment: "",
     rr_cash_in_lieu: "",
     rr_training_skill_upgradation: "",
@@ -86,7 +86,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         name_of_recorded_tenant: khata.name_of_recorded_tenant || "",
         name_of_present_tenant: khata.name_of_present_tenant || "",
         present_address: khata.present_address || "",
-        displaced_affected_person: khata.displaced_affected_person || "",
+        displaced_affected_project: khata.displaced_affected_project || "",
         rr_employment: khata.rr_employment || "",
         rr_cash_in_lieu: khata.rr_cash_in_lieu || "",
         rr_training_skill_upgradation:
@@ -128,7 +128,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         name_of_recorded_tenant: "",
         name_of_present_tenant: "",
         present_address: "",
-        displaced_affected_person: "",
+        displaced_affected_project: "",
         rr_employment: "",
         rr_cash_in_lieu: "",
         rr_training_skill_upgradation: "",
@@ -486,8 +486,8 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               Displaced / Affected Person
             </label>
             <select
-              name="displaced_affected_person"
-              value={formData.displaced_affected_person || ""}
+              name="displaced_affected_project"
+              value={formData.displaced_affected_project || ""}
               onChange={handleChange}
               className="select select-bordered w-full"
             >

@@ -269,10 +269,10 @@ useEffect(() => {
                   >
                     Plot No <ArrowUpDown size={14} className="inline" />
                   </th>
-                  <th onClick={() => handleSort("")} className="cursor-pointer">
+                  {/* <th onClick={() => handleSort("")} className="cursor-pointer">
                     Full / Part
                     <ArrowUpDown size={14} className="inline" />
-                  </th>
+                  </th> */}
                   <th
                     onClick={() => handleSort("total_area_acres")}
                     className="cursor-pointer"
@@ -315,7 +315,7 @@ useEffect(() => {
                     <tr key={plot.id || i} className="whitespace-nowrap">
                       <td>{i + 1}</td>
                       <td className="font-semibold">{plot.plot_no || "N/A"}</td>
-                      <td>{plot.full_part || "N/A"}</td>
+                      {/* <td>{plot.full_part || "N/A"}</td> */}
                       <td>{plot.total_area_acres ?? plot.land_area_total_acres ?? "N/A"}</td>
                       <td>{plot.total_area_hectares ?? plot.land_area_total_hectares ?? "N/A"}</td>
                       <td>{plot.proposed_area_acres ?? plot.land_area_acquired_acres ?? "N/A"}</td>

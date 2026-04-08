@@ -138,13 +138,13 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
                 onChange={handleChange}
               >
                 <option value="">Select Category</option>
-                <option value="1">Revenue Forest</option>
-                <option value="2">Reserved Forest</option>
-                <option value="3">Proposed Reserved Forest</option>
-                <option value="4">Protected Forest</option>
-                <option value="5">Sabik Forest</option>
-                <option value="6">DLC Forest</option>
-                <option value="7">Others Forest</option>
+                <option value="Revenue Forest">Revenue Forest</option>
+                <option value="Reserved Forest">Reserved Forest</option>
+                <option value="Proposed Reserved Forest">Proposed Reserved Forest</option>
+                <option value="Protected Forest">Protected Forest</option>
+                <option value="Sabik Forest">Sabik Forest</option>
+                <option value="DLC Forest">DLC Forest</option>
+                <option value="Others Forest">Others Forest</option>
               </select>
             </div>
 
@@ -160,7 +160,7 @@ const ForestLandForm = ({ open, onClose, onSuccess, editData }) => {
             </div>
 
             <div>
-              <label className="label">Proposed / Acquired Area (ha)</label>
+              <label className="label">Proposed/ Acquired Area (ha)</label>
               <input
                 type="number"
                 name="proposed_acquired_area_ha"

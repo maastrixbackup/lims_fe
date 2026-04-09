@@ -528,11 +528,11 @@ const KhataTable = ({
                         {/* {RR_FIELDS_FORMS.map(({ label }) => (
                           <th key={label}>{label}</th>
                         ))} */}
-                        {RR_FIELDS_FORMS.map(({ label, field }) => (
+                        {RR_FIELDS_FORMS.map(({ label, name }) => (
                           <FilterableHeader
-                            key={field}
+                            key={name}
                             label={label}
-                            field={field}
+                            field={name}
                             filters={filters}
                             setFilters={setFilters}
                             activeFilter={activeFilter}

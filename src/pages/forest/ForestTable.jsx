@@ -33,14 +33,14 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
 
   // Get unique options for filter dropdowns
   const getUniqueOptions = (field) => {
-    if (field === "forest_category_id") {
-      return [...new Set(data.map((item) => item[field]).filter(Boolean))].map(
-        (id) => ({
-          value: id,
-          label: mapForestCategory[id],
-        }),
-      );
-    }
+    // if (field === "forest_category_id") {
+    //   return [...new Set(data.map((item) => item[field]).filter(Boolean))].map(
+    //     (id) => ({
+    //       value: id,
+    //       label: mapForestCategory[id],
+    //     }),
+    //   );
+    // }
     return [...new Set(data.map((item) => item[field]).filter(Boolean))];
   };
 
@@ -215,9 +215,7 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
                 <FilterSortHeader
                   label="Forest Category"
                   field="forest_category_id"
-                  options={getUniqueOptions("forest_category_id").map(
-                    (opt) => opt.label,
-                  )}
+                  options={getUniqueOptions("forest_category_id")}
                   filters={filters}
                   setFilters={setFilters}
                   sortConfig={sortConfig}
@@ -225,7 +223,7 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
                 />
 
                 <FilterSortHeader
-                  label="Proposed Area (ha)"
+                  label="Proposed/ Acquired Area (ha)"
                   field="proposed_acquired_area_ha"
                   options={getUniqueOptions("proposed_acquired_area_ha")}
                   filters={filters}
@@ -269,7 +267,7 @@ const ForestTable = ({ data = [], onEdit, onDelete }) => {
                   <td>{row.kisam || "No Data"}</td>
                   <td>{row.total_area_ha || "No Data"}</td>
                   <td>
-                    {mapForestCategory[row.forest_category_id] || "No Data"}
+                    {row.forest_category_id || "No Data"}
                   </td>
                   <td>{row.proposed_acquired_area_ha}</td>
                   <td>{row.remarks || "No Data"}</td>

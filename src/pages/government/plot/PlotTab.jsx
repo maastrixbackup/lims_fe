@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 const tabs = [
   "Basic Details",
-  "Legal Issues",
-  "Land Area Valuation Details",
+  // "Legal Issues",
+  // "Land Area Valuation Details",
 ];
 
 const PlotTab = ({ children }) => {

@@ -34,8 +34,21 @@ export default function Dashboard() {
   const { data, loading, error } = useFetchDashboard(landType);
 
   const navigateByLandType = (module) => {
-    if (!landType) return;
-    navigate(`/${landType}/${module}`);
+    if (!selectedProject?.type) return;
+
+    if (module === "projects") {
+      navigate("/projects");
+      return;
+    }
+
+    if (selectedProject.type === 1) {
+      navigate(`/private-land/${module}`);
+      return;
+    }
+
+    if (selectedProject.type === 2) {
+      navigate(`/govt-land/government/${module}`);
+    }
   };
 
   if (loading) return <Loader />;

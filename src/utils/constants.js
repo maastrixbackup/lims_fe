@@ -776,6 +776,10 @@ export const BasicDetails = [
     field: "displaced_affected_project",
   },
   {
+    label: "District",
+    field: "district",
+  },
+  {
     label: "Village Name",
     field: "village_name",
   },

@@ -546,7 +546,9 @@ const PlotTable = ({
                           ? "Person Displaced Families"
                           : plot.displaced_affected_project || "N/A"}
                     </td>
-
+   <td className="p-3">
+                      {plot.district|| "N/A"}
+                    </td>
                     <td className="p-3 whitespace-nowrap">
                       {plot.village_name || "N/A"}
                     </td>
@@ -702,6 +704,7 @@ const PlotTable = ({
                     <td className="p-3">
                       {plot.displaced_affected_project || "N/A"}
                     </td>
+                    
                     <td className={stickyPaymentCell}>
                       <div className="relative">
                         {/* Invisible select */}

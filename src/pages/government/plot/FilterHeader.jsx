@@ -30,7 +30,7 @@ const FilterHeader = ({
         ? ["Not Started", "In Progress", "Complete"]
         : type === "select"
           ? options
-          : type === "text"
+          : type === "text" || type === "number"
             ? getUniqueValues(key)
             : [];
   const filteredOptions = useMemo(() => {

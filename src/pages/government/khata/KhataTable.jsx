@@ -252,7 +252,7 @@ const KhataTable = ({
                     <td className={`${bodyCellClass} min-w-[220px]`} style={{scrollbarWidth:"thin"}}>{k.present_status || emptyValue}</td>
                     <td className={`${bodyCellClass} min-w-[220px]`}>{k.case_details || emptyValue}</td>
                     <td className={bodyCellClass}>{k.plot_count || emptyValue}</td>
-                    <td className={bodyCellClass}>{k.unique_id || emptyValue}</td>
+                    {/* <td className={bodyCellClass}>{k.unique_id || emptyValue}</td> */}
                     <td className={bodyCellClass}>{k.name_of_ror || emptyValue}</td>
                     <td className={bodyCellClass}>{k.land_category || emptyValue}</td>
 

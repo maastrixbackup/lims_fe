@@ -144,12 +144,12 @@ const Compensation = () => {
         r.compPayment = (
           (Number(r.apportionment) / 100) *
           khata.totalComp
-        ).toFixed(2);
+        ).toFixed(4);
 
         r.paymentArea = (
           (Number(r.apportionment) / 100) *
           khata.totalArea
-        ).toFixed(2);
+        ).toFixed(4);
       });
 
       return newData;
@@ -429,7 +429,7 @@ const Compensation = () => {
               <div className="flex flex-col sm:flex-row sm:gap-8 w-full lg:w-auto">
                 <div className="text-left space-y-1">
                   <p className="font-semibold text-sm md:text-base">
-                    Unique ID:{" "}
+                    La Case File No:{" "}
                     <span className="text-primary">{khata.uniqueId}</span>
                   </p>
                   <p className="font-semibold text-sm md:text-base">

@@ -721,7 +721,7 @@ export const GovtKhataColumn = [
   },
   { key: "case_details", label: "Case Details", type: "text" },
   { key: "plot_count", label: "Plot Count", type: "text" },
-  { key: "unique_id", label: "Case Count", type: "text" },
+  // { key: "unique_id", label: "Case Count", type: "text" },
   { key: "name_of_ror", label: "ROR Name", type: "text" },
   { key: "land_category", label: "Land Category", type: "text" },
 ];
@@ -774,6 +774,10 @@ export const BasicDetails = [
   {
     label: "Displaced/Affected",
     field: "displaced_affected_project",
+  },
+  {
+    label: "District",
+    field: "district",
   },
   {
     label: "Village Name",

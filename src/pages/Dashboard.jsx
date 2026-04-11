@@ -8,6 +8,7 @@ import BarChartCard from "../components/dashboard/BarChartCard";
 import RecentProjects from "../components/dashboard/RecentProjects";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import ProgressOverview from "../components/dashboard/ProgressOverview";
+import TotalArea from "../components/dashboard/TotalArea";
 import Loader from "../shared/Loader";
 
 import useFetchDashboard from "../hooks/useFetchDashboard";
@@ -15,11 +16,13 @@ import useFetchDashboard from "../hooks/useFetchDashboard";
 const LAND_TYPES = [
   { key: "private", label: "Private Land" },
   { key: "govt", label: "Government Land" },
+  { key: "forest", label: "Forest Land" },
 ];
 
 const PROJECT_TYPE_MAP = {
   1: "private",
   2: "govt",
+  3: "forest",
 };
 
 export default function Dashboard() {
@@ -34,8 +37,21 @@ export default function Dashboard() {
   const { data, loading, error } = useFetchDashboard(landType);
 
   const navigateByLandType = (module) => {
-    if (!landType) return;
-    navigate(`/${landType}/${module}`);
+    if (!selectedProject?.type) return;
+
+    if (module === "projects") {
+      navigate("/projects");
+      return;
+    }
+
+    if (selectedProject.type === 1) {
+      navigate(`/private-land/${module}`);
+      return;
+    }
+
+    if (selectedProject.type === 2) {
+      navigate(`/govt-land/government/${module}`);
+    }
   };
 
   if (loading) return <Loader />;
@@ -75,6 +91,8 @@ export default function Dashboard() {
       </div>
 
       {/* 🔹 Stats */}
+     
+
       <div className="space-y-6">
         {/* Row 1 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -140,7 +158,7 @@ export default function Dashboard() {
           />
         </div> */}
       </div>
-
+ <TotalArea data={landData} />
       {/* 🔹 Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BarChartCard data={landData} />

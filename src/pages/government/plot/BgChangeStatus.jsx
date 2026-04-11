@@ -344,7 +344,13 @@ const Plots = () => {
     }
   };
   const getUniqueValues = (key) => {
-    return [...new Set(plots.map((p) => p[key]).filter(Boolean))];
+    const isPresent = (value) => {
+      if (value == null) return false;
+      if (typeof value === "string") return value.trim() !== "";
+      return true;
+    };
+
+    return [...new Set(plots.map((p) => p[key]).filter(isPresent))];
   };
   const filteredPlots = useMemo(() => {
     let data = [...plots];
@@ -352,10 +358,11 @@ const Plots = () => {
     // FILTERING
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
+        const filterValue = String(value).toLowerCase();
         data = data.filter((row) =>
           String(row[key] ?? "")
             .toLowerCase()
-            .includes(value.toLowerCase()),
+            .includes(filterValue),
         );
       }
     });

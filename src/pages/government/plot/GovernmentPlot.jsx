@@ -38,6 +38,14 @@ const stickyCol2Header =
 
 const stickyCol2Cell =
   "p-3 text-left bg-base-100 md:sticky md:left-[110px] shadow-sm ";
+
+const sortPlotsByIdAsc = (list) =>
+  [...list].sort((a, b) => {
+    const aId = Number(a?.id) || 0;
+    const bId = Number(b?.id) || 0;
+    return aId - bId;
+  });
+
 const Plots = () => {
   // const [plots, setPlots] = useState(plotData);
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
@@ -207,6 +215,7 @@ const Plots = () => {
     total_cost: item.total_cost || "",
     payment_status: item.payment_status || "",
   });
+
   const fetchPlots = useCallback(async () => {
     if (!selectedProjectId || !token) {
       setPlots([]);
@@ -242,7 +251,7 @@ const Plots = () => {
         currentPage += 1;
       } while (currentPage <= totalPageCount);
 
-      setPlots(allPlots);
+      setPlots(sortPlotsByIdAsc(allPlots));
     } catch (error) {
       console.error("Failed to fetch plots", error);
     } finally {

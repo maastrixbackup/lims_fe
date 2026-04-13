@@ -16,13 +16,13 @@ import useFetchDashboard from "../hooks/useFetchDashboard";
 const LAND_TYPES = [
   { key: "private", label: "Private Land" },
   { key: "govt", label: "Government Land" },
-  { key: "forest", label: "Forest Land" },
+  // { key: "forest", label: "Forest Land" },
 ];
 
 const PROJECT_TYPE_MAP = {
   1: "private",
   2: "govt",
-  3: "forest",
+  // 3: "forest",
 };
 
 export default function Dashboard() {

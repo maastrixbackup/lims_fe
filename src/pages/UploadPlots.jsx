@@ -44,7 +44,7 @@ const UploadPlots = () => {
     3: {
       upload: "/forestland/uploadForestLandSchedule",
       list: "/forestland/forestLandDocumentList",
-      delete: "/forestland/forestLandDocumentDelete",
+      delete: "/forestland/deleteForestLandDocument",
       download: "",
     },
   };

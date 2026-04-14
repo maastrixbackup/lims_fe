@@ -357,7 +357,7 @@ const SummaryBox = ({ title, value, bgColor, textColor }) => (
     `}
   >
     <p className="text-xs font-bold text-gray-600">{title}</p>
-    <p className={`text-sm font-bold ${textColor}`}>{value.toFixed(2)}</p>
+    <p className={`text-sm font-bold ${textColor}`}>{value.toFixed(4)}</p>
   </div>
 );
 

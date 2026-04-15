@@ -156,7 +156,12 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
       [rowKey]: prev[rowKey].filter((_, i) => i !== index),
     }));
   };
-
+const handleRemoveExistingDoc = (rowKey, index) => {
+  setExistingDocs((prev) => ({
+    ...prev,
+    [rowKey]: prev[rowKey].filter((_, i) => i !== index),
+  }));
+};
   const isMultipleAllowed = (remark = "") =>
     remark.includes(",") || remark.includes("/");
 
@@ -209,6 +214,13 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
         formData.append(apiKey, file);
       });
     });
+    Object.entries(existingDocs).forEach(([uiKey, docs]) => {
+  const apiKey = FILE_MAP[uiKey];
+
+  if (docs && docs.length > 0) {
+    formData.append(`${apiKey}_existing`, JSON.stringify(docs));
+  }
+});
 
     try {
       setSubmitting(true);
@@ -383,14 +395,15 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
                     {existingDocs[row.key]?.length > 0 && (
                   <div className="mb-2">
                     {existingDocs[row.key].map((doc, idx) => (
-                      <button
-                        key={`${row.key}-existing-${idx}`}
-                        type="button"
-                        className="text-xs text-blue-700 block text-left"
-                        onClick={() => window.open(doc.url, "_blank")}
-                      >
-                        {doc.name} 
-                      </button>
+                        <div key={idx} className="flex justify-between text-xs">
+                        {doc.name}
+                        <button
+                          type="button"
+                         onClick={() => handleRemoveExistingDoc(row.key, idx)}
+                        >
+                          <X size={12} className="text-red-500" />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}

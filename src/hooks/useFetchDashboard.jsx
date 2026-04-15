@@ -119,10 +119,10 @@ export default function useFetchDashboard(landType) {
       } while (currentPage <= totalPageCount);
 
       return {
-        total_area_acres: Number(totalAreaAcres.toFixed(2)),
-        total_area_hectares: Number(totalAreaHectares.toFixed(2)),
-        acquired_area_acres: Number(acquiredAreaAcres.toFixed(2)),
-        acquired_area_hectares: Number(acquiredAreaHectares.toFixed(2)),
+        total_area_acres: Number(totalAreaAcres.toFixed(4)),
+        total_area_hectares: Number(totalAreaHectares.toFixed(4)),
+        acquired_area_acres: Number(acquiredAreaAcres.toFixed(4)),
+        acquired_area_hectares: Number(acquiredAreaHectares.toFixed(4)),
       };
     };
 

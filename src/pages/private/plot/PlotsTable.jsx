@@ -1453,10 +1453,10 @@ const PlotTable = ({
                     <td className="p-3">{plot.family_minor_male ?? "N/A"}</td>
                     <td className="p-3">{plot.family_minor_female ?? "N/A"}</td>
                     <td className="p-3">
-                      {plot.family_major_transgender ?? "N/A"}
+                      {plot.family_major_transgender ?? "0"}
                     </td>
                     <td className="p-3">
-                      {plot.family_minor_transgender ?? "N/A"}
+                      {plot.family_minor_transgender ?? "0"}
                     </td>
                     <td className="p-3">
                       {plot.persons_with_disability ?? "N/A"}

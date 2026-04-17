@@ -231,14 +231,32 @@ const PlotTable = ({
     return [...plots].sort((a, b) => (a.id || 0) - (b.id || 0));
   }, [plots]);
 
-  const projectFilteredPlots = useMemo(() => {
-    if (!selectedProject) return sortedPlots;
-    return sortedPlots.filter(
+const projectFilteredPlots = useMemo(() => {
+  if (!selectedProject) return sortedPlots;
+
+  return sortedPlots
+    .filter(
       (plot) =>
         plot.project_id === selectedProject.id ||
-        plot.project_name === selectedProject.project_name,
-    );
-  }, [sortedPlots, selectedProject]);
+        plot.project_name === selectedProject.project_name
+    )
+    .map((plot) => {
+      const total =
+        (Number(plot.land_value_with_mf) || 0) +
+        (Number(plot.total_value_of_trees) || 0) +
+        (Number(plot.value_of_house) || 0) +
+        (Number(plot.value_of_other_structures) || 0);
+
+       const compensationValue =
+        total + total + (Number(plot.additional_12_percent) || 0);
+
+      return {
+        ...plot,
+        total_value: total,
+        total_compensation: compensationValue,
+      };
+    });
+}, [sortedPlots, selectedProject]);
 
   const villageOptions = useMemo(() => {
     const uniqueVillages = new Set(
@@ -1156,7 +1174,7 @@ const PlotTable = ({
                       {plot.value_of_other_structures || "N/A"}
                     </td>
                     <td className="p-3">{plot.total_value || "N/A"}</td>
-                    <td className="p-3">{plot.solatium_100 || "N/A"}</td>
+                    <td className="p-3">{plot.total_value  || "N/A"}</td> {/* this is solatium_value which is equal to total_value as per the current understanding */}
                     <td className="p-3">{plot.no_days_interest || "N/A"}</td>
                     <td className="p-3">
                       {plot.additional_12_percent || "N/A"}

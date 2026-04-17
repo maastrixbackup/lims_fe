@@ -149,6 +149,7 @@ const Plots = () => {
   const mapGovtPlot = (item) => ({
     id: item.id,
     project_id: item.project_id || "",
+    district: item.district || "",
     mouza: item.mouza || "",
     tahasil: item.tahasil || "",
     thana_no: item.thana_no || "",
@@ -1017,6 +1018,7 @@ const Plots = () => {
                             {plot.plot_no || ""}
                           </td>
                           <td>{plot.thana_no || ""}</td>
+                          <td>{plot.district || "no data"}</td>
                           <td>{plot.mouza || ""}</td>
                           <td>{plot.tahasil || ""}</td>
                           <td>{plot.ri_circle || ""}</td>

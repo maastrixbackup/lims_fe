@@ -602,6 +602,7 @@ export const GovernmentPlotFields = [
   { key: "khata_no", label: "Khata No", type: "text" },
   { key: "plot_no", label: "Plot No", type: "text" },
   { key: "thana_no", label: "Thana No", type: "text" },
+  { key: "district", label: "District", type: "text" },
   { key: "mouza", label: "Village", type: "text" },
   { key: "tahasil", label: "Tahasil", type: "text" },
   { key: "ri_circle", label: "RI Circle", type: "text" },

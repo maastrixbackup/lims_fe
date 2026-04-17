@@ -19,6 +19,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   const [formData, setFormData] = useState(() => ({
     project_id: editingPlot?.project_id || selectedProject?.id || "",
     type: typeParam,
+    district: editingPlot?.district || "",
     mouza: editingPlot?.mouza || "",
     tahasil: editingPlot?.tahasil || "",
     thana_no: editingPlot?.thana_no || "",
@@ -96,6 +97,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
 
       Object.entries({
         project_id: formData.project_id,
+        district: formData.district,
         type: formData.type,
         mouza: formData.mouza,
         tahasil: formData.tahasil,
@@ -270,8 +272,17 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                     </option>
                   ))}
                 </select>
+                
               </div>
-
+ <div>
+                <label className="label">District</label>
+                <input
+                  className="input input-bordered w-full"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleChange}
+                />
+              </div>
               <div>
                 <label className="label">Khata No</label>
                 <input
@@ -598,7 +609,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             />
           </div>
 
-          <div className="card bg-base-100 shadow-md p-2">
+          {/* <div className="card bg-base-100 shadow-md p-2">
             <h2 className="text-lg font-semibold mb-3">
               💰 Valuation & Cost Details
             </h2>
@@ -743,7 +754,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                 className="textarea textarea-bordered w-full"
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-4">
             <button

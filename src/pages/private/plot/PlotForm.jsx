@@ -147,7 +147,7 @@ const PlotForm = ({ fetchPlots }) => {
     if (projectCode && formData.village_code && formData.khata_no) {
       setFormData((prev) => ({
         ...prev,
-        la_case_file_no: `${projectCode}/${formData.village_code}/${formData.khata_no}`,
+        la_case_file_no: `${projectCode}/${formData.village_name}/${formData.khata_no}`,
       }));
     }
   }, [projectCode, formData.village_code, formData.khata_no, editingPlot]);

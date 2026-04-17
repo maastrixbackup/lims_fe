@@ -22,6 +22,16 @@ const FILE_MAP = {
   proposal_submitted: "proposal_document",
 };
 
+const normalizeDateValue = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value.split("T")[0];
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return "";
+
+  return parsedDate.toISOString().split("T")[0];
+};
+
 const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
@@ -39,9 +49,11 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
     if (exactMatch) return exactMatch;
 
     const normalized = String(value).trim().toLowerCase();
+
     const optionMatch = options.find(
       (opt) => String(opt).trim().toLowerCase() === normalized,
     );
+
     if (optionMatch) return optionMatch;
 
     if (["1", "true", "yes", "y"].includes(normalized)) {
@@ -55,7 +67,6 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
     return String(value);
   };
 
-  // ------------------ FETCH EXISTING DATA ------------------
   useEffect(() => {
     const fetchStage0 = async () => {
       if (!selectedProject?.id) {
@@ -72,11 +83,11 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
 
         if (res?.success && res.data) {
           const data = res.data;
+
           setExistingDocs(buildExistingDocumentsByKey(data, FILE_MAP));
 
           setForm({
-            dgps_document:data.dgps_document || "",
-            dgps_area_ha:data.dgps_area_ha || "",
+            dgps_area_ha: data.dgps_area_ha || "",
             dgps_survey_done: data.dgps_survey_done ? "Yes" : "No",
             orsac: data.orsac_authentication ? "Yes" : "No",
             tree_enumeration: data.tree_enumeration_done ? "Yes" : "No",
@@ -110,7 +121,7 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
             ]),
             proposal_submitted: data.proposal_submitted ? "Yes" : "No",
             parivesh_proposal: data.parivesh_proposal_no || "",
-            submission_date: data.submission_date || "",
+            submission_date: normalizeDateValue(data.submission_date),
           });
 
           setIsEdit(true);
@@ -120,8 +131,7 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
           setExistingDocs({});
           onModeChange?.("add");
         }
-      } catch (err) {
-        console.log("No existing Stage-0 found");
+      } catch (error) {
         setIsEdit(false);
         setExistingDocs({});
         onModeChange?.("add");
@@ -131,13 +141,15 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
     fetchStage0();
   }, [selectedProject]);
 
-  // ------------------ HANDLERS ------------------
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleFileChange = (e, rowKey) => {
-    const selectedFiles = Array.from(e.target.files);
+    const selectedFiles = Array.from(e.target.files || []);
 
     setFiles((prev) => ({
       ...prev,
@@ -156,29 +168,31 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
       [rowKey]: prev[rowKey].filter((_, i) => i !== index),
     }));
   };
-const handleRemoveExistingDoc = (rowKey, index) => {
-  setExistingDocs((prev) => ({
-    ...prev,
-    [rowKey]: prev[rowKey].filter((_, i) => i !== index),
-  }));
-};
+
+  const handleRemoveExistingDoc = (rowKey, index) => {
+    setExistingDocs((prev) => ({
+      ...prev,
+      [rowKey]: prev[rowKey].filter((_, i) => i !== index),
+    }));
+  };
+
   const isMultipleAllowed = (remark = "") =>
     remark.includes(",") || remark.includes("/");
-
-  const stage0Status = useMemo(() => {
-    return form.proposal_submitted === "Yes" ? "READY" : "ON-GOING";
-  }, [form.proposal_submitted]);
 
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
 
   const getFiles = (key) =>
     Array.isArray(files[key]) && files[key].length > 0 ? files[key] : [];
 
-  // ------------------ SUBMIT ------------------
+  const stage0Status = useMemo(() => {
+    return form.proposal_submitted === "Yes" ? "READY" : "ON-GOING";
+  }, [form.proposal_submitted]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const forestProjectId = selectedProject?.id;
+
     if (!forestProjectId) {
       showToast("Please select a project first", "error");
       return;
@@ -187,43 +201,66 @@ const handleRemoveExistingDoc = (rowKey, index) => {
     const formData = new FormData();
 
     formData.append("forest_project_id", forestProjectId);
-    formData.append("dgps_area_ha",form.dgps_area_ha || "")
+
+    formData.append("dgps_area_ha", form.dgps_area_ha || "");
+
     formData.append("dgps_survey_done", yesNoToInt(form.dgps_survey_done));
+
     formData.append("orsac_authentication", yesNoToInt(form.orsac));
+
     formData.append("tree_enumeration_done", yesNoToInt(form.tree_enumeration));
+
     formData.append(
       "administrative_documents",
       yesNoToInt(form.administrative_docs),
     );
+
     formData.append("legal_lease_documents", yesNoToInt(form.legal_lease));
+
     formData.append("technical_data", yesNoToInt(form.technical_data));
+
     formData.append("forest_land_details", form.forest_land_details || "");
+
     formData.append("ca_ca_planning", yesNoToInt(form.ca_planning));
+
     formData.append("fra_records", form.fra_compliance || "");
+
     formData.append("environmental_statutory", form.env_statutory || "");
+
     formData.append("wildlife_safeguards", form.wildlife_safeguards || "");
+
     formData.append("maps_spatial_evidence", form.maps_spatial || "");
+
     formData.append("financial_undertakings", form.financial || "");
+
     formData.append("proposal_submitted", yesNoToInt(form.proposal_submitted));
+
     formData.append("parivesh_proposal_no", form.parivesh_proposal || "");
-    formData.append("submission_date", form.submission_date || "");
+
+    formData.append(
+      "submission_date",
+      normalizeDateValue(form.submission_date),
+    );
 
     Object.entries(FILE_MAP).forEach(([uiKey, apiKey]) => {
       const selectedFiles = getFiles(uiKey);
+
       selectedFiles.forEach((file) => {
         formData.append(apiKey, file);
       });
     });
-    Object.entries(existingDocs).forEach(([uiKey, docs]) => {
-  const apiKey = FILE_MAP[uiKey];
 
-  if (docs && docs.length > 0) {
-    formData.append(`${apiKey}_existing`, JSON.stringify(docs));
-  }
-});
+    Object.entries(existingDocs).forEach(([uiKey, docs]) => {
+      const apiKey = FILE_MAP[uiKey];
+
+      if (docs && docs.length > 0) {
+        formData.append(`${apiKey}_existing`, JSON.stringify(docs));
+      }
+    });
 
     try {
       setSubmitting(true);
+
       const submitMode = isEdit ? "edit" : "add";
 
       const url = isEdit
@@ -281,7 +318,6 @@ const handleRemoveExistingDoc = (rowKey, index) => {
               <td>{row.sl}</td>
               <td>{row.label}</td>
 
-              {/* STATUS */}
               <td>
                 {row.type === "yesno" && (
                   <div className="flex gap-3">
@@ -304,7 +340,7 @@ const handleRemoveExistingDoc = (rowKey, index) => {
                   <input
                     type="text"
                     name={row.key}
-                    className="input input-bordered input-sm"
+                    className="input input-bordered input-sm w-full"
                     value={form[row.key] || ""}
                     onChange={handleChange}
                   />
@@ -314,7 +350,7 @@ const handleRemoveExistingDoc = (rowKey, index) => {
                   <input
                     type="date"
                     name={row.key}
-                    className="input input-bordered input-sm"
+                    className="input input-bordered input-sm w-full"
                     value={form[row.key] || ""}
                     onChange={handleChange}
                   />
@@ -323,7 +359,7 @@ const handleRemoveExistingDoc = (rowKey, index) => {
                 {row.type === "status" && (
                   <select
                     name={row.key}
-                    className="select select-bordered select-sm"
+                    className="select select-bordered select-sm w-full"
                     value={form[row.key] || ""}
                     onChange={handleChange}
                   >
@@ -347,15 +383,10 @@ const handleRemoveExistingDoc = (rowKey, index) => {
                 )}
               </td>
 
-              {/* FILES */}
               <td>
-                {row.remark && (
-                  <div className="text-xs mb-1 text-gray-600">{row.remark}</div>
-                )}
+                <div className="text-xs mb-1 text-gray-600">{row.remark}</div>
 
-            
-
-               {[
+                {[
                   "Yes",
                   "Uploaded",
                   "Completed",
@@ -364,48 +395,67 @@ const handleRemoveExistingDoc = (rowKey, index) => {
                   "Cleared",
                   "Complied",
                 ].includes(form[row.key]) && (
-                  <div className="space-y-1">
+                  <>
                     <input
                       key={inputKeys[row.key] || "default"}
                       type="file"
                       multiple={isMultipleAllowed(row.remark)}
-                      className="file-input file-input-bordered file-input-sm"
+                      className="file-input file-input-bordered file-input-sm w-full"
                       onChange={(e) => handleFileChange(e, row.key)}
                     />
 
+                    {existingDocs[row.key]?.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {existingDocs[row.key].map((doc, idx) => (
+                          <div
+                            key={`${row.key}-${idx}`}
+                            className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
+                          >
+                            <button
+                              type="button"
+                              className="text-blue-700 underline truncate"
+                              onClick={() => window.open(doc.url, "_blank")}
+                            >
+                              {doc.name}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleRemoveExistingDoc(row.key, idx)
+                              }
+                            >
+                              <X size={14} className="text-red-500" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     {files[row.key]?.length > 0 && (
-                      <div className="text-xs text-green-700">
+                      <div className="text-xs text-green-700 mt-2">
                         {files[row.key].length} document(s) uploaded
                       </div>
                     )}
 
-                    {files[row.key]?.map((file, idx) => (
-                      <div key={idx} className="flex justify-between text-xs">
-                        {file.name}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(row.key, idx)}
+                    <div className="space-y-1 mt-1">
+                      {files[row.key]?.map((file, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
                         >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                    {existingDocs[row.key]?.length > 0 && (
-                  <div className="mb-2">
-                    {existingDocs[row.key].map((doc, idx) => (
-                        <div key={idx} className="flex justify-between text-xs">
-                        {doc.name}
-                        <button
-                          type="button"
-                         onClick={() => handleRemoveExistingDoc(row.key, idx)}
-                        >
-                          <X size={12} className="text-red-500" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                          <span className="truncate">{file.name}</span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(row.key, idx)}
+                          >
+                            <X size={14} className="text-red-500" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 )}
               </td>
             </tr>
@@ -421,6 +471,7 @@ const handleRemoveExistingDoc = (rowKey, index) => {
               ? "Update Stage-0"
               : "Save Stage-0"}
         </button>
+
         {showNext && (
           <button
             type="button"

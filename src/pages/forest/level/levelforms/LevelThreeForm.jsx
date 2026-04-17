@@ -110,6 +110,12 @@ const LevelThreeForm = ({
       fileRefs.current[key].value = "";
     }
   };
+  const handleRemoveExistingDoc = (rowKey, index) => {
+    setExistingDocs((prev) => ({
+      ...prev,
+      [rowKey]: prev[rowKey].filter((_, i) => i !== index),
+    }));
+  };
 
   const handleViewFile = (file) => {
     const url = URL.createObjectURL(file);
@@ -168,6 +174,13 @@ const LevelThreeForm = ({
       selectedFiles.forEach((file) => {
         formData.append(apiKey, file);
       });
+    });
+    Object.entries(existingDocs).forEach(([uiKey, docs]) => {
+      const apiKey = FILE_MAP[uiKey];
+
+      if (docs && docs.length > 0) {
+        formData.append(`${apiKey}_existing`, JSON.stringify(docs));
+      }
     });
 
     try {
@@ -281,21 +294,6 @@ const LevelThreeForm = ({
               <td>
                 <div className="text-xs mb-1">{row.remark}</div>
 
-                {existingDocs[row.key]?.length > 0 && (
-                  <div className="mb-2">
-                    {existingDocs[row.key].map((doc, idx) => (
-                      <button
-                        key={`${row.key}-existing-${idx}`}
-                        type="button"
-                        className="text-xs text-blue-700 underline block text-left"
-                        onClick={() => window.open(doc.url, "_blank")}
-                      >
-                        {doc.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
                 {row.allowUpload && form[row.key] === "Yes" && (
                   <>
                     <input
@@ -306,6 +304,34 @@ const LevelThreeForm = ({
                       onChange={(e) => handleFileChange(e, row.key)}
                     />
 
+                    {existingDocs[row.key]?.length > 0 && (
+                      <div className="mb-2 space-y-1">
+                        {existingDocs[row.key].map((doc, idx) => (
+                          <div
+                            key={`${row.key}-existing-${idx}`}
+                            className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
+                          >
+                            <button
+                              type="button"
+                              className="text-blue-700 underline truncate"
+                              onClick={() => window.open(doc.url, "_blank")}
+                            >
+                              {doc.name}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleRemoveExistingDoc(row.key, idx)
+                              }
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {files[row.key]?.map((file, idx) => (
                       <div
                         key={idx}

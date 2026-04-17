@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { addForestProject } from "../addForestProject";
@@ -41,6 +41,7 @@ const ProjectMaster = () => {
   const [editData, setEditData] = useState();
   const [existingEdsFiles, setExistingEdsFiles] = useState({});
   const [isEdit, setIsEdit] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
@@ -180,14 +181,31 @@ useEffect(() => {
     };
   };
 
+  const buildExistingEdsFiles = useCallback((edsList = []) => {
+    const fileMap = {};
+    edsList.forEach((eds, index) => {
+      if (typeof eds?.eds_reply_document === "string" && eds.eds_reply_document) {
+        fileMap[index] = eds.eds_reply_document;
+      }
+    });
+    return fileMap;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
     const fetchExistingMasterData = async () => {
       const requestedRow = location.state?.projectMasterRow;
-      if (requestedRow && selectedProject?.id && String(requestedRow.project_id) === String(selectedProject.id)) {
+      if (
+        !reloadKey &&
+        requestedRow &&
+        selectedProject?.id &&
+        String(requestedRow.project_id) === String(selectedProject.id)
+      ) {
         const normalized = normalizeEditPayload(requestedRow);
         setEditData(normalized);
+        setExistingEdsFiles(buildExistingEdsFiles(normalized?.eds_list || []));
+        setIsEdit(Boolean(normalized));
         setFormData({
           ...initialFormData,
           ...normalized,
@@ -220,6 +238,8 @@ useEffect(() => {
         const localDraft = drafts[projectId];
 
         setEditData(normalized);
+        setExistingEdsFiles(buildExistingEdsFiles(normalized?.eds_list || []));
+        setIsEdit(Boolean(normalized));
 
         if (localDraft) {
           setFormData({
@@ -256,6 +276,8 @@ useEffect(() => {
       } catch {
         if (!cancelled) {
           setEditData(null);
+          setExistingEdsFiles({});
+          setIsEdit(false);
           const drafts = readProjectMasterDrafts();
           const projectId = String(selectedProject.id);
           const localDraft = drafts[projectId];
@@ -285,7 +307,7 @@ useEffect(() => {
     return () => {
       cancelled = true;
     };
-  }, [selectedProject?.id]);
+  }, [selectedProject?.id, reloadKey, location.state, buildExistingEdsFiles]);
 
   useEffect(() => {
     let cancelled = false;
@@ -434,7 +456,7 @@ useEffect(() => {
           delete drafts[String(formData.project_id)];
           writeProjectMasterDrafts(drafts);
           showSuccess("Project updated successfully!");
-          //   fetchProjects();
+          setReloadKey((prev) => prev + 1);
         },
         onError: (err) => showError(err?.message || "Error updating project"),
       });
@@ -450,12 +472,7 @@ useEffect(() => {
         delete drafts[String(formData.project_id || selectedProject?.id)];
         writeProjectMasterDrafts(drafts);
         showSuccess("Project added successfully!");
-        // fetchProjects();
-        setFormData({
-          ...initialFormData,
-          project_id: selectedProject?.id || "",
-          project_name: selectedProject?.project_name || selectedProject?.name || "",
-        });
+        setReloadKey((prev) => prev + 1);
       },
       onError: (err) => showError(err?.message || "Error adding project"),
     });

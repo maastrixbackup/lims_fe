@@ -366,7 +366,7 @@ export const khataColumn = [
     label: "Affected Person",
     key: "displaced_affected_project",
   },
-  { label: "Case No", key: "unique_id" },
+  // { label: "Case No", key: "unique_id" },
   { label: "Plot Count", key: "plot_count" },
   { label: "Created", key: "created_at" },
   { label: "Reference Document", key: "reference_document" },
@@ -438,7 +438,7 @@ export const COMMON_COLUMNS = [
   { label: "Thana", field: "thana_no" },
   // { label: "Recorded Tenant", field: "name_of_recorded_tenant" },
   // { label: "Present Tenant", field: "name_of_present_tenant" },
-  { label: "Case Count", field: "unique_id" },
+  // { label: "Case Count", field: "unique_id" },
   { label: "Plot Count", field: "plot_count" },
   { label: "Created At", field: "created_at" },
 ];

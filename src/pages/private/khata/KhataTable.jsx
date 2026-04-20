@@ -299,7 +299,6 @@ const KhataTable = ({
                         <FilterableHeader
                           label="Recorded Tenant"
                           field="name_of_recorded_tenant"
-                          className={stickyCol3Header}
                           filters={filters}
                           setFilters={setFilters}
                           activeFilter={activeFilter}
@@ -311,7 +310,6 @@ const KhataTable = ({
                         <FilterableHeader
                           label="Present Tenant"
                           field="name_of_present_tenant"
-                          className={stickyCol4Header}
                           filters={filters}
                           setFilters={setFilters}
                           activeFilter={activeFilter}
@@ -363,10 +361,10 @@ const KhataTable = ({
                           <td className={stickyCol2Cell}>
                             {khata.village_name || ""}
                           </td>
-                          <td className={stickyCol3Cell}>
+                          <td>
                             {khata.name_of_recorded_tenant || ""}
                           </td>
-                          <td className={stickyCol4Cell}>
+                          <td>
                             {khata.name_of_present_tenant || ""}
                           </td>
 

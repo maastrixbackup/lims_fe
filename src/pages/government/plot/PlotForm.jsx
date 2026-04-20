@@ -7,6 +7,11 @@ import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import { X } from "lucide-react";
 
+const toYesNo = (value) => {
+  if (value === "Yes" || value === "No") return value;
+  return value === 1 || value === true ? "Yes" : "No";
+};
+
 const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   const token = useSelector((s) => s.auth.userToken);
   console.log("govrt plots token:", token);
@@ -34,27 +39,32 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
     proposed_area_hectares: editingPlot?.proposed_area_hectares || "",
     lease_case_no: editingPlot?.lease_case_no || "",
     present_status: editingPlot?.present_status || "",
-    ua_idco_to_tahasildar: editingPlot?.ua_idco_to_tahasildar || "",
+    ua_idco_to_tahasildar: toYesNo(editingPlot?.ua_idco_to_tahasildar),
     case_details: editingPlot?.case_details || "",
     action_to_be_taken: editingPlot?.action_to_be_taken || "",
     ri_report: editingPlot?.ri_report || "",
     tree_enumeration: editingPlot?.tree_enumeration || "",
     order_sheet_prep: editingPlot?.order_sheet_prep || "",
-    misc_dr_case_prep: editingPlot?.misc_dr_case_prep || "",
+    misc_dr_case_prep: toYesNo(editingPlot?.misc_dr_case_prep),
     misc_dr_case_prep_number: editingPlot?.misc_dr_case_prep_number || "",
     reason_for_misc_dr_case: editingPlot?.reason_for_misc_dr_case || "",
-    proclamation: editingPlot?.proclamation || "",
-    objection_received: editingPlot?.objection_received || "",
-    modification_revision: editingPlot?.modification_revision || "",
-    lease_to_idco: editingPlot?.lease_to_idco || "",
-    lease_to_ua: editingPlot?.lease_to_ua || "",
+    proclamation: toYesNo(editingPlot?.proclamation),
+    objection_received: toYesNo(editingPlot?.objection_received),
+    modification_revision: toYesNo(editingPlot?.modification_revision),
+    lease_to_idco: toYesNo(editingPlot?.lease_to_idco),
+    lease_to_ua: toYesNo(editingPlot?.lease_to_ua),
     remarks: editingPlot?.remarks || "",
     // ri_report_attachment: "",
     // tree_enumeration_attachment: "",
+    ua_idco_to_tahasildar_attachment: "",
+    proclamation_attachment: "",
+    objection_received_attachment: "",
+    modification_revision_attachment: "",
     lease_to_idco_attachment: "",
     lease_to_ua_attachment: "",
     ri_report_attachment: "",
     tree_enumeration_attachment: editingPlot?.tree_enumeration_attachment || "",
+    order_sheet_prep_attachment: "",
     land_area_total_acres: editingPlot?.land_area_total_acres || "",
     land_area_total_hectares: editingPlot?.land_area_total_hectares || "",
     land_area_acquired_acres: editingPlot?.land_area_acquired_acres || "",
@@ -80,7 +90,39 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+    setFormData((p) => {
+      const next = { ...p, [name]: value };
+
+      if (name === "lease_to_idco" && value !== "Yes") {
+        next.lease_to_idco_attachment = "";
+      }
+
+      if (name === "lease_to_ua" && value !== "Yes") {
+        next.lease_to_ua_attachment = "";
+      }
+
+      if (name === "ua_idco_to_tahasildar" && value !== "Yes") {
+        next.ua_idco_to_tahasildar_attachment = "";
+      }
+
+      if (name === "proclamation" && value !== "Yes") {
+        next.proclamation_attachment = "";
+      }
+
+      if (name === "objection_received" && value !== "Yes") {
+        next.objection_received_attachment = "";
+      }
+
+      if (name === "modification_revision" && value !== "Yes") {
+        next.modification_revision_attachment = "";
+      }
+
+      if (name === "misc_dr_case_prep" && value !== "Yes") {
+        next.misc_dr_case_prep_number = "";
+      }
+
+      return next;
+    });
   };
 
   const handleFileChange = (e) => {
@@ -156,6 +198,33 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
         fd.append(
           "tree_enumeration_attachment",
           formData.tree_enumeration_attachment,
+        );
+
+      if (formData.order_sheet_prep_attachment)
+        fd.append(
+          "order_sheet_prep_attachment",
+          formData.order_sheet_prep_attachment,
+        );
+
+      if (formData.ua_idco_to_tahasildar_attachment)
+        fd.append(
+          "ua_idco_to_tahasildar_attachment",
+          formData.ua_idco_to_tahasildar_attachment,
+        );
+
+      if (formData.proclamation_attachment)
+        fd.append("proclamation_attachment", formData.proclamation_attachment);
+
+      if (formData.objection_received_attachment)
+        fd.append(
+          "objection_received_attachment",
+          formData.objection_received_attachment,
+        );
+
+      if (formData.modification_revision_attachment)
+        fd.append(
+          "modification_revision_attachment",
+          formData.modification_revision_attachment,
         );
 
       if (formData.lease_to_idco_attachment)
@@ -480,11 +549,23 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             <h2 className="text-lg font-semibold mb-3">🔄 Workflow Tracking</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                ["ua_idco_to_tahasildar", "UA / IDCO to Tahasildar"],
-                ["proclamation", "Proclamation"],
-                ["objection_received", "Objection Received"],
-                ["modification_revision", "Modification / Revision"],
-              ].map(([name, label]) => (
+                [
+                  "ua_idco_to_tahasildar",
+                  "UA / IDCO to Tahasildar",
+                  "ua_idco_to_tahasildar_attachment",
+                ],
+                ["proclamation", "Proclamation", "proclamation_attachment"],
+                [
+                  "objection_received",
+                  "Objection Received",
+                  "objection_received_attachment",
+                ],
+                [
+                  "modification_revision",
+                  "Modification / Revision",
+                  "modification_revision_attachment",
+                ],
+              ].map(([name, label, fileField]) => (
                 <div key={name}>
                   <label className="label">{label}</label>
                   <div className="flex gap-6">
@@ -501,6 +582,21 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                       </label>
                     ))}
                   </div>
+
+                  {formData[name] === "Yes" && (
+                    <div className="mt-2">
+                      <label className="label text-sm text-gray-600">
+                        Upload {label} Document
+                      </label>
+                      <input
+                        type="file"
+                        name={fileField}
+                        onChange={handleFileChange}
+                        className="file-input file-input-bordered w-full"
+                        accept=".pdf,.jpg,.png"
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

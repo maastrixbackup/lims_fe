@@ -4,7 +4,11 @@ import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
 import { POST_CLEARANCE_DATA } from "../../../../utils/stages";
-import { buildExistingDocumentsByKey } from "./documentHelpers";
+import {
+  buildExistingDocumentsByKey,
+  downloadRemoteDocument,
+  viewRemoteDocument,
+} from "./documentHelpers";
 
 const FILE_MAP = {
   ca_plantation_started: "ca_plantation_started_document",
@@ -29,54 +33,59 @@ const LevelThreeForm = ({
   const fileRefs = useRef({});
   const selectedProject = useSelector((state) => state.selectedProject.project);
   // ---------------- FETCH EXISTING ----------------
-  useEffect(() => {
-    const fetchPostClearance = async () => {
-      if (!selectedProject?.id) {
-        setExistingDocs({});
-        setIsEdit(false);
-        onModeChange?.("add");
-        return;
-      }
+  const fetchPostClearance = async (forestProjectId = selectedProject?.id) => {
+    if (!forestProjectId) {
+      setExistingDocs({});
+      setIsEdit(false);
+      onModeChange?.("add");
+      return;
+    }
 
-      try {
-        const res = await apiClient(
-          `/forestland/getPostClearance/${selectedProject.id}`,
+    try {
+      const res = await apiClient(
+        `/forestland/getPostClearance/${forestProjectId}`,
+      );
+
+      if (res?.success && res.data) {
+        const d = res.data;
+        setExistingDocs(
+          buildExistingDocumentsByKey(d, FILE_MAP, {
+            stage: "postclearance",
+            forestProjectId,
+          }),
         );
 
-        if (res?.success && res.data) {
-          const d = res.data;
-          setExistingDocs(buildExistingDocumentsByKey(d, FILE_MAP));
+        setForm({
+          ca_plantation_started: d.ca_plantation_started ? "Yes" : "No",
+          ca_plantation_completed: d.ca_plantation_completed ? "Yes" : "No",
+          survival_report_submitted: d.survival_report_submitted
+            ? "Yes"
+            : "No",
+          wildlife_mitigation: d.wildlife_mitigation ? "Yes" : "No",
+          safety_zone_maintained: d.safety_zone_maintained ? "Yes" : "No",
+          periodic_compliance: d.periodic_compliance_submitted ? "Yes" : "No",
+          compliance_period: d.periodic_compliance_type || "",
+          inspection_observations: d.inspection_observations || "",
+          inspection_remarks: d.inspection_remarks || "",
+          post_clearance_status: d.post_clearance_status || "",
+        });
 
-          setForm({
-            ca_plantation_started: d.ca_plantation_started ? "Yes" : "No",
-            ca_plantation_completed: d.ca_plantation_completed ? "Yes" : "No",
-            survival_report_submitted: d.survival_report_submitted
-              ? "Yes"
-              : "No",
-            wildlife_mitigation: d.wildlife_mitigation ? "Yes" : "No",
-            safety_zone_maintained: d.safety_zone_maintained ? "Yes" : "No",
-            periodic_compliance: d.periodic_compliance_submitted ? "Yes" : "No",
-            compliance_period: d.periodic_compliance_type || "",
-            inspection_observations: d.inspection_observations || "",
-            inspection_remarks: d.inspection_remarks || "",
-            post_clearance_status: d.post_clearance_status || "",
-          });
-
-          setIsEdit(true);
-          onModeChange?.("edit");
-        } else {
-          setIsEdit(false);
-          setExistingDocs({});
-          onModeChange?.("add");
-        }
-      } catch (err) {
-        console.log("No Post Clearance data found");
+        setIsEdit(true);
+        onModeChange?.("edit");
+      } else {
         setIsEdit(false);
         setExistingDocs({});
         onModeChange?.("add");
       }
-    };
+    } catch (err) {
+      console.log("No Post Clearance data found");
+      setIsEdit(false);
+      setExistingDocs({});
+      onModeChange?.("add");
+    }
+  };
 
+  useEffect(() => {
     fetchPostClearance();
   }, [selectedProject]);
 
@@ -117,9 +126,31 @@ const LevelThreeForm = ({
     }));
   };
 
-  const handleViewFile = (file) => {
-    const url = URL.createObjectURL(file);
-    window.open(url, "_blank");
+  const openFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await viewRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const downloadFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await downloadRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName || "document";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
@@ -210,6 +241,11 @@ const LevelThreeForm = ({
         "success",
       );
 
+      setFiles({});
+      Object.values(fileRefs.current).forEach((input) => {
+        if (input) input.value = "";
+      });
+      await fetchPostClearance(forestProjectId);
       setIsEdit(true);
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
@@ -311,23 +347,39 @@ const LevelThreeForm = ({
                             key={`${row.key}-existing-${idx}`}
                             className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
                           >
-                            <button
-                              type="button"
-                              className="text-blue-700 underline truncate"
-                              onClick={() => window.open(doc.url, "_blank")}
-                            >
-                              {doc.name}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleRemoveExistingDoc(row.key, idx)
-                              }
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <X size={14} />
-                            </button>
+                            <span className="truncate mr-2">{doc.name}</span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                className="text-blue-700 underline"
+                                onClick={() =>
+                                  openFile(doc.viewUrl || doc.url, doc.name)
+                                }
+                              >
+                                View
+                              </button>
+                              <button
+                                type="button"
+                                className="text-blue-700 underline"
+                                onClick={() =>
+                                  downloadFile(
+                                    doc.downloadUrl || doc.viewUrl || doc.url,
+                                    doc.name,
+                                  )
+                                }
+                              >
+                                Download
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemoveExistingDoc(row.key, idx)
+                                }
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -339,19 +391,33 @@ const LevelThreeForm = ({
                       >
                         <span
                           className="truncate cursor-pointer text-gray-600"
-                          onClick={() => handleViewFile(file)}
-                          title="Click to view"
                         >
                           • {file.name}
                         </span>
 
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(row.key, idx)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <X size={12} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="text-blue-700 underline"
+                            onClick={() => openFile(file, file.name)}
+                          >
+                            View
+                          </button>
+                          <button
+                            type="button"
+                            className="text-blue-700 underline"
+                            onClick={() => downloadFile(file, file.name)}
+                          >
+                            Download
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(row.key, idx)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </>

@@ -4,7 +4,11 @@ import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
 import { STAGE_II_DATA } from "../../../../utils/stages";
-import { buildExistingDocumentsByKey } from "./documentHelpers";
+import {
+  buildExistingDocumentsByKey,
+  downloadRemoteDocument,
+  viewRemoteDocument,
+} from "./documentHelpers";
 
 const FILE_MAP = {
   environmental_clearance: "environmental_document",
@@ -25,51 +29,54 @@ const LevelTwoForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
 
   const selectedProject = useSelector((state) => state.selectedProject.project);
   // ---------------- FETCH EXISTING ----------------
-  useEffect(() => {
-    const fetchStage2 = async () => {
-      if (!selectedProject?.id) {
-        setExistingDocs({});
-        setIsEdit(false);
-        onModeChange?.("add");
-        return;
-      }
+  const fetchStage2 = async (forestProjectId = selectedProject?.id) => {
+    if (!forestProjectId) {
+      setExistingDocs({});
+      setIsEdit(false);
+      onModeChange?.("add");
+      return;
+    }
 
-      try {
-        const res = await apiClient(
-          `/forestland/getStage2/${selectedProject.id}`,
+    try {
+      const res = await apiClient(`/forestland/getStage2/${forestProjectId}`);
+
+      if (res?.success && res.data) {
+        const d = res.data;
+        setExistingDocs(
+          buildExistingDocumentsByKey(d, FILE_MAP, {
+            stage: "stage2",
+            forestProjectId,
+          }),
         );
 
-        if (res?.success && res.data) {
-          const d = res.data;
-          setExistingDocs(buildExistingDocumentsByKey(d, FILE_MAP));
+        setForm({
+          environmental_clearance: d.environmental_clearance || "",
+          nbwl_clearance: d.nbwl_clearance || "",
+          final_ca_execution: d.final_ca_execution || "",
+          final_maps_approved: d.final_maps_approved ? "Yes" : "No",
+          final_technical_approval: d.final_technical_approval || "",
+          stage_2_approval_letter: d.stage2_approval_letter ? "Yes" : "No",
+          stage_2_approval_date: d.stage2_approval_date || "",
+          approved_forest_area: d.approved_forest_area_ha || "",
+          approved_non_forest_area: d.approved_non_forest_area_ha || "",
+        });
 
-          setForm({
-            environmental_clearance: d.environmental_clearance || "",
-            nbwl_clearance: d.nbwl_clearance || "",
-            final_ca_execution: d.final_ca_execution || "",
-            final_maps_approved: d.final_maps_approved ? "Yes" : "No",
-            final_technical_approval: d.final_technical_approval || "",
-            stage_2_approval_letter: d.stage2_approval_letter ? "Yes" : "No",
-            stage_2_approval_date: d.stage2_approval_date || "",
-            approved_forest_area: d.approved_forest_area_ha || "",
-            approved_non_forest_area: d.approved_non_forest_area_ha || "",
-          });
-
-          setIsEdit(true);
-          onModeChange?.("edit");
-        } else {
-          setIsEdit(false);
-          setExistingDocs({});
-          onModeChange?.("add");
-        }
-      } catch (err) {
-        console.log("No Stage-2 data found");
+        setIsEdit(true);
+        onModeChange?.("edit");
+      } else {
         setIsEdit(false);
         setExistingDocs({});
         onModeChange?.("add");
       }
-    };
+    } catch (err) {
+      console.log("No Stage-2 data found");
+      setIsEdit(false);
+      setExistingDocs({});
+      onModeChange?.("add");
+    }
+  };
 
+  useEffect(() => {
     fetchStage2();
   }, [selectedProject]);
 
@@ -104,6 +111,32 @@ const handleRemoveExistingDoc = (rowKey, index) => {
     [rowKey]: prev[rowKey].filter((_, i) => i !== index),
   }));
 };
+  const openFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await viewRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const downloadFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await downloadRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName || "document";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
 
   const getFiles = (key) =>
@@ -192,6 +225,9 @@ Object.entries(existingDocs).forEach(([uiKey, docs]) => {
         "success",
       );
 
+      setFiles({});
+      setInputKeys({});
+      await fetchStage2(forestProjectId);
       setIsEdit(true);
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
@@ -318,11 +354,27 @@ Object.entries(existingDocs).forEach(([uiKey, docs]) => {
         <button
           type="button"
           className="text-blue-700 underline truncate"
-          onClick={() => window.open(doc.url, "_blank")}
+          onClick={() => openFile(doc.viewUrl || doc.url, doc.name)}
         >
           {doc.name}
         </button>
 
+        <button
+          type="button"
+          className="text-blue-700 underline"
+          onClick={() => openFile(doc.viewUrl || doc.url, doc.name)}
+        >
+          View
+        </button>
+        <button
+          type="button"
+          className="text-blue-700 underline"
+          onClick={() =>
+            downloadFile(doc.downloadUrl || doc.viewUrl || doc.url, doc.name)
+          }
+        >
+          Download
+        </button>
         <button
           type="button"
           onClick={() => handleRemoveExistingDoc(row.key, idx)}
@@ -348,13 +400,29 @@ Object.entries(existingDocs).forEach(([uiKey, docs]) => {
                           className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
                         >
                           <span className="truncate">• {file.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFile(row.key, idx)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X size={12} />
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              className="text-blue-700 underline"
+                              onClick={() => openFile(file, file.name)}
+                            >
+                              View
+                            </button>
+                            <button
+                              type="button"
+                              className="text-blue-700 underline"
+                              onClick={() => downloadFile(file, file.name)}
+                            >
+                              Download
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(row.key, idx)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>

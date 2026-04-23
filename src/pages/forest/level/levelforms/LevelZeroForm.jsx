@@ -3,7 +3,11 @@ import React, { useState, useMemo, useEffect } from "react";
 import { STAGE_0_DATA, showToast } from "../../../../utils/constants";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
-import { buildExistingDocumentsByKey } from "./documentHelpers";
+import {
+  buildExistingDocumentsByKey,
+  downloadRemoteDocument,
+  viewRemoteDocument,
+} from "./documentHelpers";
 
 const FILE_MAP = {
   dgps_survey_done: "dgps_document",
@@ -67,77 +71,80 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
     return String(value);
   };
 
-  useEffect(() => {
-    const fetchStage0 = async () => {
-      if (!selectedProject?.id) {
-        setExistingDocs({});
-        setIsEdit(false);
-        onModeChange?.("add");
-        return;
-      }
+  const fetchStage0 = async (forestProjectId = selectedProject?.id) => {
+    if (!forestProjectId) {
+      setExistingDocs({});
+      setIsEdit(false);
+      onModeChange?.("add");
+      return;
+    }
 
-      try {
-        const res = await apiClient(
-          `/forestland/getStage0/${selectedProject.id}`,
+    try {
+      const res = await apiClient(`/forestland/getStage0/${forestProjectId}`);
+
+      if (res?.success && res.data) {
+        const data = res.data;
+
+        setExistingDocs(
+          buildExistingDocumentsByKey(data, FILE_MAP, {
+            stage: "stage0",
+            forestProjectId,
+          }),
         );
 
-        if (res?.success && res.data) {
-          const data = res.data;
+        setForm({
+          dgps_area_ha: data.dgps_area_ha || "",
+          dgps_survey_done: data.dgps_survey_done ? "Yes" : "No",
+          orsac: data.orsac_authentication ? "Yes" : "No",
+          tree_enumeration: data.tree_enumeration_done ? "Yes" : "No",
+          administrative_docs: data.administrative_documents ? "Yes" : "No",
+          legal_lease: data.legal_lease_documents ? "Yes" : "No",
+          technical_data: data.technical_data ? "Yes" : "No",
+          forest_land_details: normalizeStatusValue(data.forest_land_details, [
+            "Uploaded",
+            "Not Uploaded",
+          ]),
+          ca_planning: data.ca_ca_planning ? "Yes" : "No",
+          fra_compliance: normalizeStatusValue(data.fra_records, [
+            "Completed",
+            "Not Completed",
+          ]),
+          env_statutory: normalizeStatusValue(data.environmental_statutory, [
+            "Cleared",
+            "Not Cleared",
+          ]),
+          wildlife_safeguards: normalizeStatusValue(data.wildlife_safeguards, [
+            "Completed",
+            "Not Completed",
+          ]),
+          maps_spatial: normalizeStatusValue(data.maps_spatial_evidence, [
+            "Authenticated",
+            "Not Authenticated",
+          ]),
+          financial: normalizeStatusValue(data.financial_undertakings, [
+            "Submitted",
+            "Not Submitted",
+          ]),
+          proposal_submitted: data.proposal_submitted ? "Yes" : "No",
+          parivesh_proposal: data.parivesh_proposal_no || "",
+          submission_date: normalizeDateValue(data.submission_date),
+        });
 
-          setExistingDocs(buildExistingDocumentsByKey(data, FILE_MAP));
-
-          setForm({
-            dgps_area_ha: data.dgps_area_ha || "",
-            dgps_survey_done: data.dgps_survey_done ? "Yes" : "No",
-            orsac: data.orsac_authentication ? "Yes" : "No",
-            tree_enumeration: data.tree_enumeration_done ? "Yes" : "No",
-            administrative_docs: data.administrative_documents ? "Yes" : "No",
-            legal_lease: data.legal_lease_documents ? "Yes" : "No",
-            technical_data: data.technical_data ? "Yes" : "No",
-            forest_land_details: normalizeStatusValue(
-              data.forest_land_details,
-              ["Uploaded", "Not Uploaded"],
-            ),
-            ca_planning: data.ca_ca_planning ? "Yes" : "No",
-            fra_compliance: normalizeStatusValue(data.fra_records, [
-              "Completed",
-              "Not Completed",
-            ]),
-            env_statutory: normalizeStatusValue(data.environmental_statutory, [
-              "Cleared",
-              "Not Cleared",
-            ]),
-            wildlife_safeguards: normalizeStatusValue(
-              data.wildlife_safeguards,
-              ["Completed", "Not Completed"],
-            ),
-            maps_spatial: normalizeStatusValue(data.maps_spatial_evidence, [
-              "Authenticated",
-              "Not Authenticated",
-            ]),
-            financial: normalizeStatusValue(data.financial_undertakings, [
-              "Submitted",
-              "Not Submitted",
-            ]),
-            proposal_submitted: data.proposal_submitted ? "Yes" : "No",
-            parivesh_proposal: data.parivesh_proposal_no || "",
-            submission_date: normalizeDateValue(data.submission_date),
-          });
-
-          setIsEdit(true);
-          onModeChange?.("edit");
-        } else {
-          setIsEdit(false);
-          setExistingDocs({});
-          onModeChange?.("add");
-        }
-      } catch (error) {
+        setIsEdit(true);
+        onModeChange?.("edit");
+      } else {
         setIsEdit(false);
         setExistingDocs({});
         onModeChange?.("add");
       }
-    };
+    } catch (error) {
+      setIsEdit(false);
+      setExistingDocs({});
+      onModeChange?.("add");
+    }
+  };
 
+  useEffect(() => {
     fetchStage0();
   }, [selectedProject]);
 
@@ -174,6 +181,33 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
       ...prev,
       [rowKey]: prev[rowKey].filter((_, i) => i !== index),
     }));
+  };
+
+  const openFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await viewRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const downloadFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await downloadRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName || "document";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const isMultipleAllowed = (remark = "") =>
@@ -286,6 +320,9 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
         "success",
       );
 
+      setFiles({});
+      setInputKeys({});
+      await fetchStage0(forestProjectId);
       setIsEdit(true);
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
@@ -411,22 +448,38 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
                             key={`${row.key}-${idx}`}
                             className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
                           >
-                            <button
-                              type="button"
-                              className="text-blue-700 underline truncate"
-                              onClick={() => window.open(doc.url, "_blank")}
-                            >
-                              {doc.name}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleRemoveExistingDoc(row.key, idx)
-                              }
-                            >
-                              <X size={14} className="text-red-500" />
-                            </button>
+                            <span className="truncate mr-2">{doc.name}</span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                className="text-blue-700 underline"
+                                onClick={() =>
+                                  openFile(doc.viewUrl || doc.url, doc.name)
+                                }
+                              >
+                                View
+                              </button>
+                              <button
+                                type="button"
+                                className="text-blue-700 underline"
+                                onClick={() =>
+                                  downloadFile(
+                                    doc.downloadUrl || doc.viewUrl || doc.url,
+                                    doc.name,
+                                  )
+                                }
+                              >
+                                Download
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemoveExistingDoc(row.key, idx)
+                                }
+                              >
+                                <X size={14} className="text-red-500" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -444,14 +497,29 @@ const StageZeroForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
                           key={idx}
                           className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
                         >
-                          <span className="truncate">{file.name}</span>
-
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFile(row.key, idx)}
-                          >
-                            <X size={14} className="text-red-500" />
-                          </button>
+                          <span className="truncate mr-2">{file.name}</span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              className="text-blue-700 underline"
+                              onClick={() => openFile(file, file.name)}
+                            >
+                              View
+                            </button>
+                            <button
+                              type="button"
+                              className="text-blue-700 underline"
+                              onClick={() => downloadFile(file, file.name)}
+                            >
+                              Download
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(row.key, idx)}
+                            >
+                              <X size={14} className="text-red-500" />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>

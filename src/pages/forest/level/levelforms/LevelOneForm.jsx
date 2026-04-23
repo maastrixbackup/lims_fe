@@ -3,7 +3,11 @@ import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
 import { showToast } from "../../../../utils/constants";
-import { buildExistingDocumentsByKey } from "./documentHelpers";
+import {
+  buildExistingDocumentsByKey,
+  downloadRemoteDocument,
+  viewRemoteDocument,
+} from "./documentHelpers";
 
 const STAGE_I_IMAGE_DATA = [
   {
@@ -125,52 +129,55 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
 
   const selectedProject = useSelector((state) => state.selectedProject.project);
   // ---------------- FETCH EXISTING ----------------
-  useEffect(() => {
-    const fetchStage1 = async () => {
-      if (!selectedProject?.id) {
-        setExistingDocs({});
-        setIsEdit(false);
-        onModeChange?.("add");
-        return;
-      }
+  const fetchStage1 = async (forestProjectId = selectedProject?.id) => {
+    if (!forestProjectId) {
+      setExistingDocs({});
+      setIsEdit(false);
+      onModeChange?.("add");
+      return;
+    }
 
-      try {
-        const res = await apiClient(
-          `/forestland/getStage1/${selectedProject.id}`,
+    try {
+      const res = await apiClient(`/forestland/getStage1/${forestProjectId}`);
+
+      if (res?.success && res.data) {
+        const d = res.data;
+        setExistingDocs(
+          buildExistingDocumentsByKey(d, FILE_MAP, {
+            stage: "stage1",
+            forestProjectId,
+          }),
         );
 
-        if (res?.success && res.data) {
-          const d = res.data;
-          setExistingDocs(buildExistingDocumentsByKey(d, FILE_MAP));
+        setForm({
+          stage_1_approval_letter: d.stage1_approval_letter || "",
+          stage_1_conditions: d.stage1_conditions_extracted ? "Yes" : "No",
+          ca_land_handed_over: d.ca_land_handed_over ? "Yes" : "No",
+          fra_compliance: d.fra_compliance || "",
+          npv_payment: d.npv_payment || "",
+          ca_payment: d.ca_payment || "",
+          aca_payment: d.aca_payment || "",
+          wildlife_payment: d.wildlife_payment || "",
+          technical_compliance: d.technical_compliance || "",
+          stage_1_compliance: d.stage1_compliance_accepted ? "Yes" : "No",
+        });
 
-          setForm({
-            stage_1_approval_letter: d.stage1_approval_letter || "",
-            stage_1_conditions: d.stage1_conditions_extracted ? "Yes" : "No",
-            ca_land_handed_over: d.ca_land_handed_over ? "Yes" : "No",
-            fra_compliance: d.fra_compliance || "",
-            npv_payment: d.npv_payment || "",
-            ca_payment: d.ca_payment || "",
-            aca_payment: d.aca_payment || "",
-            wildlife_payment: d.wildlife_payment || "",
-            technical_compliance: d.technical_compliance || "",
-            stage_1_compliance: d.stage1_compliance_accepted ? "Yes" : "No",
-          });
-
-          setIsEdit(true);
-          onModeChange?.("edit");
-        } else {
-          setIsEdit(false);
-          setExistingDocs({});
-          onModeChange?.("add");
-        }
-      } catch (err) {
-        console.log("No Stage-1 data found");
+        setIsEdit(true);
+        onModeChange?.("edit");
+      } else {
         setIsEdit(false);
         setExistingDocs({});
         onModeChange?.("add");
       }
-    };
+    } catch (err) {
+      console.log("No Stage-1 data found");
+      setIsEdit(false);
+      setExistingDocs({});
+      onModeChange?.("add");
+    }
+  };
 
+  useEffect(() => {
     fetchStage1();
   }, [selectedProject]);
 
@@ -192,12 +199,38 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
       [key]: prev[key].filter((_, i) => i !== index),
     }));
   };
-const removeExistingDoc = (key, index) => {
+  const removeExistingDoc = (key, index) => {
   setExistingDocs((prev) => ({
     ...prev,
     [key]: prev[key].filter((_, i) => i !== index),
   }));
 };
+  const openFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await viewRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const downloadFile = async (fileOrUrl, fileName) => {
+    if (typeof fileOrUrl === "string") {
+      await downloadRemoteDocument(fileOrUrl, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(fileOrUrl);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName || "document";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const yesNoToInt = (value) => (value === "Yes" ? 1 : 0);
 
   const getFiles = (key) =>
@@ -293,6 +326,8 @@ const removeExistingDoc = (key, index) => {
         "success",
       );
 
+      setFiles({});
+      await fetchStage1(forestProjectId);
       setIsEdit(true);
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
@@ -399,20 +434,32 @@ const removeExistingDoc = (key, index) => {
         key={`${row.key}-existing-${idx}`}
         className="flex items-center justify-between text-xs bg-gray-100 px-2 py-1 rounded"
       >
-        <button
-          type="button"
-          className="text-blue-700 underline truncate"
-          onClick={() => window.open(doc.url, "_blank")}
-        >
-          {doc.name}
-        </button>
+        <span className="truncate mr-2">{doc.name}</span>
 
-        <button
-          type="button"
-          onClick={() => removeExistingDoc(row.key, idx)}
-        >
-          <X size={14} className="text-red-500" />
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            className="text-blue-700 underline"
+            onClick={() => openFile(doc.viewUrl || doc.url, doc.name)}
+          >
+            View
+          </button>
+          <button
+            type="button"
+            className="text-blue-700 underline"
+            onClick={() =>
+              downloadFile(doc.downloadUrl || doc.viewUrl || doc.url, doc.name)
+            }
+          >
+            Download
+          </button>
+          <button
+            type="button"
+            onClick={() => removeExistingDoc(row.key, idx)}
+          >
+            <X size={14} className="text-red-500" />
+          </button>
+        </div>
       </div>
     ))}
   </div>
@@ -426,15 +473,31 @@ const removeExistingDoc = (key, index) => {
                         {files[row.key]?.map((f, i) => (
                           <li
                             key={i}
-                            className="flex items-center gap-2 text-xs bg-gray-100 px-2 py-1 rounded"
+                            className="flex items-center justify-between gap-2 text-xs bg-gray-100 px-2 py-1 rounded"
                           >
-                            <span className="truncate">{f.name}</span>
-                            <button
-                              type="button"
-                              onClick={() => removeFile(row.key, i)}
-                            >
-                              <X size={14} className="text-red-500" />
-                            </button>
+                            <span className="truncate mr-2">{f.name}</span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                className="text-blue-700 underline"
+                                onClick={() => openFile(f, f.name)}
+                              >
+                                View
+                              </button>
+                              <button
+                                type="button"
+                                className="text-blue-700 underline"
+                                onClick={() => downloadFile(f, f.name)}
+                              >
+                                Download
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeFile(row.key, i)}
+                              >
+                                <X size={14} className="text-red-500" />
+                              </button>
+                            </div>
                           </li>
                         ))}
                       </ul>

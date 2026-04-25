@@ -82,6 +82,16 @@ const Compensation = () => {
             status: t.status,
             txnNumber: t.transaction_no,
             file: null,
+            fileName:
+              t.payment_proof_file_name ||
+              t.payment_proof_filename ||
+              t.payment_proof ||
+              "",
+            fileUrl:
+              t.payment_proof_url ||
+              t.payment_proof_doc ||
+              t.payment_proof_path ||
+              "",
           })),
         }));
         console.log("mapped data", mapped);
@@ -222,13 +232,20 @@ const Compensation = () => {
           const updated = [...prev];
           updated[kIndex].records[rIndex] = {
             ...updated[kIndex].records[rIndex],
-            file: null,
+            file,
+            fileName: file.name,
+            fileUrl:
+              data?.data?.url ||
+              data?.data?.file_url ||
+              data?.data?.payment_proof_url ||
+              updated[kIndex].records[rIndex].fileUrl ||
+              "",
             status: "processing",
           };
           return updated;
         });
       } else {
-        showError(err.message || "File upload failed");
+        showError(data.message || "File upload failed");
       }
     } catch (err) {
       showError(err.message || "Network error during file upload");
@@ -496,7 +513,7 @@ const Compensation = () => {
                         <th>Bank A/C</th>
                         <th>Bank</th>
                         <th>IFSC</th>
-                        <th>Status</th>
+                        {/* <th>Status</th> */}
                         <th>Txn No.</th>
                         <th>Upload</th>
                         <th>Action</th>
@@ -544,7 +561,7 @@ const Compensation = () => {
                           <td>{r.bankName ?? "No data found"}</td>
                           <td>{r.ifsc ?? "No data found"}</td>
 
-                          <td>
+                          {/* <td>
                             <span
                               className={`badge text-xs ${
                                 r.status === "Paid"
@@ -554,7 +571,7 @@ const Compensation = () => {
                             >
                               {r.status}
                             </span>
-                          </td>
+                          </td> */}
 
                           <td>{r.txnNumber ?? "No data found"}</td>
 
@@ -576,13 +593,25 @@ const Compensation = () => {
 
                               {uploadingId === r.id ? (
                                 <span className="loading loading-spinner loading-xs"></span>
-                              ) : r.file ? (
-                                <span
-                                  className="text-green-600 text-xs max-w-[120px] truncate"
-                                  title={r.file.name}
-                                >
-                                  {r.file.name}
-                                </span>
+                              ) : r.fileName ? (
+                                r.fileUrl ? (
+                                  <a
+                                    href={r.fileUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-600 text-xs underline max-w-[120px] truncate inline-block"
+                                    title={r.fileName}
+                                  >
+                                    {r.fileName}
+                                  </a>
+                                ) : (
+                                  <span
+                                    className="text-green-600 text-xs max-w-[120px] truncate"
+                                    title={r.fileName}
+                                  >
+                                    {r.fileName}
+                                  </span>
+                                )
                               ) : (
                                 <span className="text-gray-400 text-xs">
                                   Choose

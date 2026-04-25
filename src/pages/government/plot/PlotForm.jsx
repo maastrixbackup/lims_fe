@@ -549,23 +549,11 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             <h2 className="text-lg font-semibold mb-3">🔄 Workflow Tracking</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                [
-                  "ua_idco_to_tahasildar",
-                  "UA / IDCO to Tahasildar",
-                  "ua_idco_to_tahasildar_attachment",
-                ],
-                ["proclamation", "Proclamation", "proclamation_attachment"],
-                [
-                  "objection_received",
-                  "Objection Received",
-                  "objection_received_attachment",
-                ],
-                [
-                  "modification_revision",
-                  "Modification / Revision",
-                  "modification_revision_attachment",
-                ],
-              ].map(([name, label, fileField]) => (
+                ["ua_idco_to_tahasildar", "UA / IDCO to Tahasildar"],
+                ["proclamation", "Proclamation"],
+                ["objection_received", "Objection Received"],
+                ["modification_revision", "Modification / Revision"],
+              ].map(([name, label]) => (
                 <div key={name}>
                   <label className="label">{label}</label>
                   <div className="flex gap-6">
@@ -582,21 +570,6 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                       </label>
                     ))}
                   </div>
-
-                  {formData[name] === "Yes" && (
-                    <div className="mt-2">
-                      <label className="label text-sm text-gray-600">
-                        Upload {label} Document
-                      </label>
-                      <input
-                        type="file"
-                        name={fileField}
-                        onChange={handleFileChange}
-                        className="file-input file-input-bordered w-full"
-                        accept=".pdf,.jpg,.png"
-                      />
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

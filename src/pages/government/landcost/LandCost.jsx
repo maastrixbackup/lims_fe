@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Upload,
-  CheckCircle,
-  AlertTriangle,
   ChevronDown,
   ChevronUp,
   Pencil,
@@ -65,9 +63,8 @@ const LandCost = () => {
       if (data.success && data.data?.length > 0) {
         const groupedByLease = {};
 
-        data.data.forEach((item, itemIndex) => {
+        data.data.forEach((item) => {
           const tenants = item.tenants?.length ? item.tenants : [{}];
-          const itemKey = item.unique_id ?? `${itemIndex}`;
 
           tenants.forEach((t) => {
             const leaseCaseNo =
@@ -80,7 +77,6 @@ const LandCost = () => {
                 khataNosSet: new Set(),
                 plotNosSet: new Set(),
                 uniqueIds: new Set(),
-                totalComp: 0,
                 totalArea: 0,
                 landCostAmount: null,
                 id: t.id,
@@ -89,7 +85,6 @@ const LandCost = () => {
                 receiptFile: null,
                 demandNoteUrl: t.demand_note_doc ?? t.demand_note ?? null,
                 receiptUrl: t.receipt_doc ?? t.receipt ?? null,
-                itemKeys: new Set(),
               };
             }
 
@@ -126,11 +121,6 @@ const LandCost = () => {
                 Number(row.landCostAmount || 0) + Number(landCostValue);
             }
 
-            if (!row.itemKeys.has(itemKey)) {
-              row.totalComp += Number(item.total_compensation ?? 0);
-              row.itemKeys.add(itemKey);
-            }
-
             if (!row.id && t.id) {
               row.id = t.id;
             }
@@ -141,7 +131,7 @@ const LandCost = () => {
         });
 
         const mapped = Object.values(groupedByLease).map(
-          ({ khataNosSet, plotNosSet, uniqueIds, itemKeys, ...row }) => {
+          ({ khataNosSet, plotNosSet, uniqueIds, ...row }) => {
             const khataNos = khataNosSet.size
               ? Array.from(khataNosSet).join(", ")
               : "No data found";
@@ -153,7 +143,6 @@ const LandCost = () => {
               leaseCaseNo: row.leaseCaseNo,
               khataNos,
               uniqueIds: Array.from(uniqueIds),
-              totalComp: row.totalComp,
               totalArea: row.totalArea,
               records: [
                 {
@@ -190,19 +179,6 @@ const LandCost = () => {
     fetchData();
   }, [projectId, typeParam, plotId]);
 
-  const validateTotals = (khata) => {
-    const landCostSum = khata.records.reduce(
-      (sum, r) => sum + Number(r.landCostAmount || 0),
-      0,
-    );
-    
-
-    return {
-      valid:
-        Math.round(landCostSum) === Math.round(Number(khata.totalComp || 0)),
-    };
-  };
-
   const handleLandCostChange = (kIndex, rIndex, value) => {
     setKhatas((prev) => {
       const updated = [...prev];
@@ -224,17 +200,17 @@ const LandCost = () => {
       return;
     }
 
-    const demandNoteAttachment =
-      attachmentType === "receipt" ? "receipt" : "demand_note";
-
     const uploadKey = `${landCostId}-${attachmentType}`;
     setUploadingKey(uploadKey);
 
     try {
       const formData = new FormData();
       formData.append("land_cost_id", String(landCostId));
-      formData.append("demand_note_attachment", demandNoteAttachment);
-      formData.append("payment_proof", file, file.name);
+      if (attachmentType === "demand_note") {
+        formData.append("demand_note_attachment", file, file.name);
+      } else {
+        formData.append("payment_proof", file, file.name);
+      }
 
       const res = await fetch(
         `${API_BASE_URL}/govtplots/landCostPaymentUpload`,
@@ -248,7 +224,7 @@ const LandCost = () => {
       );
 
       const result = await res.json();
-      if (!result.success) {
+      if (!res.ok || !result.success) {
         throw new Error(result.message || "File upload failed");
       }
 
@@ -337,7 +313,6 @@ const LandCost = () => {
         exportRows.push({
           "Lease Case No": khata.leaseCaseNo ?? r.leaseCaseNo ?? "-",
           "Khata Nos": khata.khataNos ?? r.khataNos ?? "-",
-          "Lease Total Compensation": khata.totalComp,
           "Plot Nos": r.plotNos ?? "-",
           "Total Area": r.totalArea ?? 0,
           "Land Cost (Amount)": r.landCostAmount ?? 0,
@@ -459,8 +434,6 @@ const LandCost = () => {
       </h2>
 
       {khatas.map((khata, kIndex) => {
-        const { valid } = validateTotals(khata);
-
         return (
           <div key={kIndex} className="shadow-md mb-4 bg-white rounded-md">
             <div
@@ -482,23 +455,8 @@ const LandCost = () => {
                 <p className="text-sm md:text-base">
                   <strong>Total Area:</strong> {khata.totalArea}
                 </p>
-                <p className="text-sm md:text-base">
-                  <strong>Total Compensation:</strong> Rs{" "}
-                  {khata.totalComp.toLocaleString()}
-                </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                {valid ? (
-                  <span className="flex items-center text-green-600 text-sm whitespace-nowrap">
-                    <CheckCircle size={18} className="mr-1" /> Totals Matched
-                  </span>
-                ) : (
-                  <span className="flex items-center text-orange-600 text-sm whitespace-nowrap">
-                    <AlertTriangle size={18} className="mr-1" /> Values do not
-                    match
-                  </span>
-                )}
-
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -600,7 +558,7 @@ const LandCost = () => {
                               )
                             }
                           />
-                          {uploadingKey === `${r.id}-demand_note` ? (
+                          {uploadingKey === `${r.landCostId ?? r.id}-demand_note` ? (
                             <span className="loading loading-spinner loading-xs" />
                           ) : r.demandNoteFile ? (
                             <span
@@ -639,7 +597,7 @@ const LandCost = () => {
                               )
                             }
                           />
-                          {uploadingKey === `${r.id}-receipt` ? (
+                          {uploadingKey === `${r.landCostId ?? r.id}-receipt` ? (
                             <span className="loading loading-spinner loading-xs" />
                           ) : r.receiptFile ? (
                             <span
@@ -669,8 +627,6 @@ const LandCost = () => {
                 <div className="flex justify-end mt-4 md:mt-6">
                   <button
                     className="btn btn-primary w-full md:w-auto"
-                    disabled={!valid}
-                    title={!valid ? "Totals do not match!" : ""}
                     onClick={() => handlePaymentCompleted(khata)}
                   >
                     Payment Completed

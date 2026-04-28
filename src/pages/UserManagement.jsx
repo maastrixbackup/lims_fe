@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Eye, EyeOff, Pencil, Trash2, X } from "lucide-react";
 import useUserManagement from "../hooks/useUserManagement";
 
 const UserManagement = () => {
@@ -24,6 +24,13 @@ const UserManagement = () => {
   } = useUserManagement(token);
 
   const [filters, setFilters] = useState({ query: "", role: "all" });
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      setShowPassword(false);
+    }
+  }, [isModalOpen]);
 
   const filteredUsers = useMemo(() => {
     return (users || []).filter((u) => {
@@ -226,36 +233,62 @@ const UserManagement = () => {
                     <label className="block text-sm font-medium mb-1">
                       Password
                     </label>
-                    <input
-                      type="password"
-                      className="input input-bordered w-full"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          password: e.target.value,
-                        }))
-                      }
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="input input-bordered w-full pr-12"
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData((p) => ({
+                            ...p,
+                            password: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium mb-1">
                       Confirm Password
                     </label>
-                    <input
-                      type="password"
-                      className="input input-bordered w-full"
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          confirmPassword: e.target.value,
-                        }))
-                      }
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="input input-bordered w-full pr-12"
+                        value={formData.confirmPassword}
+                        onChange={(e) =>
+                          setFormData((p) => ({
+                            ...p,
+                            confirmPassword: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={
+                          showPassword
+                            ? "Hide confirm password"
+                            : "Show confirm password"
+                        }
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}

@@ -5,12 +5,98 @@ import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
-import { X } from "lucide-react";
+import { Download, X } from "lucide-react";
 
 const toYesNo = (value) => {
   if (value === "Yes" || value === "No") return value;
   return value === 1 || value === true ? "Yes" : "No";
 };
+
+const getAttachmentName = (attachment) => {
+  if (!attachment) return "";
+  if (attachment instanceof File) return attachment.name;
+  if (typeof attachment === "string") {
+    const parts = attachment.split("/");
+    return parts[parts.length - 1];
+  }
+  if (typeof attachment === "object") {
+    return attachment.file_name || attachment.name || attachment.originalname || "";
+  }
+  return "";
+};
+
+const getAttachmentUrl = (attachment) => {
+  if (!attachment || attachment instanceof File) return "";
+  if (typeof attachment === "string") return attachment;
+  if (typeof attachment === "object") {
+    return attachment.url || attachment.path || attachment.file_path || "";
+  }
+  return "";
+};
+
+const buildInitialFormData = (editingPlot, selectedProject, typeParam) => ({
+  project_id: editingPlot?.project_id || selectedProject?.id || "",
+  type: typeParam,
+  district: editingPlot?.district || "",
+  mouza: editingPlot?.mouza || "",
+  tahasil: editingPlot?.tahasil || "",
+  thana_no: editingPlot?.thana_no || "",
+  ri_circle: editingPlot?.ri_circle || "",
+  khata_no: editingPlot?.khata_no || "",
+  kissam: editingPlot?.kissam || "",
+  name_of_ror: editingPlot?.name_of_ror || "",
+  plot_no: editingPlot?.plot_no || "",
+  total_area_acres: editingPlot?.total_area_acres || "",
+  proposed_area_acres: editingPlot?.proposed_area_acres || "",
+  total_area_hectares: editingPlot?.total_area_hectares || "",
+  proposed_area_hectares: editingPlot?.proposed_area_hectares || "",
+  lease_case_no: editingPlot?.lease_case_no || "",
+  present_status: editingPlot?.present_status || "",
+  ua_idco_to_tahasildar: toYesNo(editingPlot?.ua_idco_to_tahasildar),
+  case_details: editingPlot?.case_details || "",
+  action_to_be_taken: editingPlot?.action_to_be_taken || "",
+  ri_report: editingPlot?.ri_report || "",
+  tree_enumeration: editingPlot?.tree_enumeration || "",
+  order_sheet_prep: editingPlot?.order_sheet_prep || "",
+  misc_dr_case_prep: toYesNo(editingPlot?.misc_dr_case_prep),
+  misc_dr_case_prep_number: editingPlot?.misc_dr_case_prep_number || "",
+  reason_for_misc_dr_case: editingPlot?.reason_for_misc_dr_case || "",
+  proclamation: toYesNo(editingPlot?.proclamation),
+  objection_received: toYesNo(editingPlot?.objection_received),
+  modification_revision: toYesNo(editingPlot?.modification_revision),
+  lease_to_idco: toYesNo(editingPlot?.lease_to_idco),
+  lease_to_ua: toYesNo(editingPlot?.lease_to_ua),
+  remarks: editingPlot?.remarks || "",
+  ua_idco_to_tahasildar_attachment:
+    editingPlot?.ua_idco_to_tahasildar_attachment || "",
+  proclamation_attachment: editingPlot?.proclamation_attachment || "",
+  objection_received_attachment: editingPlot?.objection_received_attachment || "",
+  modification_revision_attachment:
+    editingPlot?.modification_revision_attachment || "",
+  lease_to_idco_attachment: editingPlot?.lease_to_idco_attachment || "",
+  lease_to_ua_attachment: editingPlot?.lease_to_ua_attachment || "",
+  ri_report_attachment: editingPlot?.ri_report_attachment || "",
+  tree_enumeration_attachment: editingPlot?.tree_enumeration_attachment || "",
+  land_area_total_acres: editingPlot?.land_area_total_acres || "",
+  land_area_total_hectares: editingPlot?.land_area_total_hectares || "",
+  land_area_acquired_acres: editingPlot?.land_area_acquired_acres || "",
+  land_area_acquired_hectares: editingPlot?.land_area_acquired_hectares || "",
+  market_value_per_acre: editingPlot?.market_value_per_acre || "",
+  bench_market_value: editingPlot?.bench_market_value || "",
+  premium: editingPlot?.premium || "",
+  ground_rent: editingPlot?.ground_rent || "",
+  cess: editingPlot?.cess || "",
+  admin_charges: editingPlot?.admin_charges || "",
+  total_cost: editingPlot?.total_cost || "",
+  legal_heir_case_no: editingPlot?.legal_heir_case_no || "",
+  land_case_no: editingPlot?.land_case_no || "",
+  land_case_date: editingPlot?.land_case_date
+    ? editingPlot.land_case_date.split("T")[0]
+    : "",
+  land_case_type: editingPlot?.land_case_type || "",
+  land_case_status: editingPlot?.land_case_status || "",
+  land_case_details: editingPlot?.land_case_details || "",
+});
 
 const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   const token = useSelector((s) => s.auth.userToken);
@@ -21,72 +107,19 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   const typeParam = useLandTypeParam();
   const [villages, setVillages] = useState([]);
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
-  const [formData, setFormData] = useState(() => ({
-    project_id: editingPlot?.project_id || selectedProject?.id || "",
-    type: typeParam,
-    district: editingPlot?.district || "",
-    mouza: editingPlot?.mouza || "",
-    tahasil: editingPlot?.tahasil || "",
-    thana_no: editingPlot?.thana_no || "",
-    ri_circle: editingPlot?.ri_circle || "",
-    khata_no: editingPlot?.khata_no || "",
-    kissam: editingPlot?.kissam || "",
-    name_of_ror: editingPlot?.name_of_ror || "",
-    plot_no: editingPlot?.plot_no || "",
-    total_area_acres: editingPlot?.total_area_acres || "",
-    proposed_area_acres: editingPlot?.proposed_area_acres || "",
-    total_area_hectares: editingPlot?.total_area_hectares || "",
-    proposed_area_hectares: editingPlot?.proposed_area_hectares || "",
-    lease_case_no: editingPlot?.lease_case_no || "",
-    present_status: editingPlot?.present_status || "",
-    ua_idco_to_tahasildar: toYesNo(editingPlot?.ua_idco_to_tahasildar),
-    case_details: editingPlot?.case_details || "",
-    action_to_be_taken: editingPlot?.action_to_be_taken || "",
-    ri_report: editingPlot?.ri_report || "",
-    tree_enumeration: editingPlot?.tree_enumeration || "",
-    order_sheet_prep: editingPlot?.order_sheet_prep || "",
-    misc_dr_case_prep: toYesNo(editingPlot?.misc_dr_case_prep),
-    misc_dr_case_prep_number: editingPlot?.misc_dr_case_prep_number || "",
-    reason_for_misc_dr_case: editingPlot?.reason_for_misc_dr_case || "",
-    proclamation: toYesNo(editingPlot?.proclamation),
-    objection_received: toYesNo(editingPlot?.objection_received),
-    modification_revision: toYesNo(editingPlot?.modification_revision),
-    lease_to_idco: toYesNo(editingPlot?.lease_to_idco),
-    lease_to_ua: toYesNo(editingPlot?.lease_to_ua),
-    remarks: editingPlot?.remarks || "",
-    // ri_report_attachment: "",
-    // tree_enumeration_attachment: "",
-    ua_idco_to_tahasildar_attachment: "",
-    proclamation_attachment: "",
-    objection_received_attachment: "",
-    modification_revision_attachment: "",
-    lease_to_idco_attachment: "",
-    lease_to_ua_attachment: "",
-    ri_report_attachment: "",
-    tree_enumeration_attachment: editingPlot?.tree_enumeration_attachment || "",
-    order_sheet_prep_attachment: "",
-    land_area_total_acres: editingPlot?.land_area_total_acres || "",
-    land_area_total_hectares: editingPlot?.land_area_total_hectares || "",
-    land_area_acquired_acres: editingPlot?.land_area_acquired_acres || "",
-    land_area_acquired_hectares: editingPlot?.land_area_acquired_hectares || "",
+  const [formData, setFormData] = useState(() =>
+    buildInitialFormData(editingPlot, selectedProject, typeParam),
+  );
 
-    market_value_per_acre: editingPlot?.market_value_per_acre || "",
-    bench_market_value: editingPlot?.bench_market_value || "",
-    premium: editingPlot?.premium || "",
-    ground_rent: editingPlot?.ground_rent || "",
-    cess: editingPlot?.cess || "",
-    admin_charges: editingPlot?.admin_charges || "",
-    total_cost: editingPlot?.total_cost || "",
+  useEffect(() => {
+    setFormData(buildInitialFormData(editingPlot, selectedProject, typeParam));
+  }, [editingPlot, selectedProject, typeParam]);
 
-    legal_heir_case_no: editingPlot?.legal_heir_case_no || "",
-    land_case_no: editingPlot?.land_case_no || "",
-    land_case_date: editingPlot?.land_case_date
-      ? editingPlot.land_case_date.split("T")[0]
-      : "",
-    land_case_type: editingPlot?.land_case_type || "",
-    land_case_status: editingPlot?.land_case_status || "",
-    land_case_details: editingPlot?.land_case_details || "",
-  }));
+  const downloadAttachment = (attachment) => {
+    const url = getAttachmentUrl(attachment);
+    if (!url) return;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -191,49 +224,43 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
       }).forEach(([k, v]) => fd.append(k, v ?? ""));
 
       // Attachments (only if uploaded)
-      if (formData.ri_report_attachment)
+      if (formData.ri_report_attachment instanceof File)
         fd.append("ri_report_attachment", formData.ri_report_attachment);
 
-      if (formData.tree_enumeration_attachment)
+      if (formData.tree_enumeration_attachment instanceof File)
         fd.append(
           "tree_enumeration_attachment",
           formData.tree_enumeration_attachment,
         );
 
-      if (formData.order_sheet_prep_attachment)
-        fd.append(
-          "order_sheet_prep_attachment",
-          formData.order_sheet_prep_attachment,
-        );
-
-      if (formData.ua_idco_to_tahasildar_attachment)
+      if (formData.ua_idco_to_tahasildar_attachment instanceof File)
         fd.append(
           "ua_idco_to_tahasildar_attachment",
           formData.ua_idco_to_tahasildar_attachment,
         );
 
-      if (formData.proclamation_attachment)
+      if (formData.proclamation_attachment instanceof File)
         fd.append("proclamation_attachment", formData.proclamation_attachment);
 
-      if (formData.objection_received_attachment)
+      if (formData.objection_received_attachment instanceof File)
         fd.append(
           "objection_received_attachment",
           formData.objection_received_attachment,
         );
 
-      if (formData.modification_revision_attachment)
+      if (formData.modification_revision_attachment instanceof File)
         fd.append(
           "modification_revision_attachment",
           formData.modification_revision_attachment,
         );
 
-      if (formData.lease_to_idco_attachment)
+      if (formData.lease_to_idco_attachment instanceof File)
         fd.append(
           "lease_to_idco_attachment",
           formData.lease_to_idco_attachment,
         );
 
-      if (formData.lease_to_ua_attachment)
+      if (formData.lease_to_ua_attachment instanceof File)
         fd.append("lease_to_ua_attachment", formData.lease_to_ua_attachment);
 
       const isEdit = Boolean(editingPlot?.id);
@@ -292,7 +319,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
   return (
     <dialog open className="modal modal-open">
       <div
-        className="modal-box max-w-2xl max-h-130 relative"
+        className="modal-box max-w-4xl max-h-130 relative"
         style={{ scrollbarWidth: "thin" }}
       >
         <button className="absolute right-3 top-3" onClick={close}>
@@ -549,23 +576,11 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
             <h2 className="text-lg font-semibold mb-3">🔄 Workflow Tracking</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                [
-                  "ua_idco_to_tahasildar",
-                  "UA / IDCO to Tahasildar",
-                  "ua_idco_to_tahasildar_attachment",
-                ],
-                ["proclamation", "Proclamation", "proclamation_attachment"],
-                [
-                  "objection_received",
-                  "Objection Received",
-                  "objection_received_attachment",
-                ],
-                [
-                  "modification_revision",
-                  "Modification / Revision",
-                  "modification_revision_attachment",
-                ],
-              ].map(([name, label, fileField]) => (
+                ["ua_idco_to_tahasildar", "UA / IDCO to Tahasildar"],
+                ["proclamation", "Proclamation"],
+                ["objection_received", "Objection Received"],
+                ["modification_revision", "Modification / Revision"],
+              ].map(([name, label]) => (
                 <div key={name}>
                   <label className="label">{label}</label>
                   <div className="flex gap-6">
@@ -582,21 +597,6 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                       </label>
                     ))}
                   </div>
-
-                  {formData[name] === "Yes" && (
-                    <div className="mt-2">
-                      <label className="label text-sm text-gray-600">
-                        Upload {label} Document
-                      </label>
-                      <input
-                        type="file"
-                        name={fileField}
-                        onChange={handleFileChange}
-                        className="file-input file-input-bordered w-full"
-                        accept=".pdf,.jpg,.png"
-                      />
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -610,11 +610,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                   "Tree Enumeration",
                   "tree_enumeration_attachment",
                 ],
-                [
-                  "order_sheet_prep",
-                  "Order Sheet Prep",
-                  "order_sheet_prep_attachment",
-                ],
+                ["order_sheet_prep", "Order Sheet Prep"],
               ].map(([name, label, fileField]) => (
                 <div key={name}>
                   <label className="label">{label}</label>
@@ -632,7 +628,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                   </select>
 
                   {/* DOCUMENT UPLOAD – ONLY IF COMPLETE */}
-                  {formData[name] === "Complete" && (
+                  {fileField && formData[name] === "Complete" && (
                     <div className="mt-2">
                       <label className="label text-sm text-gray-600">
                         Upload {label} Document
@@ -644,6 +640,26 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                         className="file-input file-input-bordered w-full"
                         accept=".pdf,.jpg,.png"
                       />
+                      {getAttachmentName(formData[fileField]) && (
+                        <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                          <span className="truncate">
+                            Current: {getAttachmentName(formData[fileField])}
+                          </span>
+                          {getAttachmentUrl(formData[fileField]) && (
+                            <button
+                              type="button"
+                              className="text-blue-600 hover:text-blue-800"
+                              onClick={() =>
+                                downloadAttachment(formData[fileField])
+                              }
+                              aria-label={`Download ${label} attachment`}
+                              title="Download attachment"
+                            >
+                              <Download size={16} />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -687,6 +703,26 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
                         className="file-input file-input-bordered w-full"
                         accept=".pdf,.jpg,.png"
                       />
+                      {getAttachmentName(formData[fileField]) && (
+                        <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                          <span className="truncate">
+                            Current: {getAttachmentName(formData[fileField])}
+                          </span>
+                          {getAttachmentUrl(formData[fileField]) && (
+                            <button
+                              type="button"
+                              className="text-blue-600 hover:text-blue-800"
+                              onClick={() =>
+                                downloadAttachment(formData[fileField])
+                              }
+                              aria-label={`Download ${label} attachment`}
+                              title="Download attachment"
+                            >
+                              <Download size={16} />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

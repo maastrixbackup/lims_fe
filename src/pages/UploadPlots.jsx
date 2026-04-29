@@ -141,6 +141,7 @@ const fetchPlotDocuments = async () => {
     try {
       setUploading(true);
       const api = LANDTYPE_API[selectedType].upload;
+   console.log('upload docs', file)
 
       const formData = new FormData();
       formData.append("file", file);

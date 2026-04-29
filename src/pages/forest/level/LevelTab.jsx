@@ -195,17 +195,9 @@ const LevelTab = () => {
     const nextStep = Math.min(stageIndex + 1, tabs.length - 1);
 
     setUnlockedStep((prev) => Math.max(prev, nextStep));
-
-    if (nextStep !== stageIndex) {
-      setActiveTab(tabs[nextStep].id);
-    }
   };
 
-  const handleStageSubmit = (stageIndex, mode) => {
-    if (mode !== "edit") {
-      return;
-    }
-
+  const handleStageSubmit = (stageIndex) => {
     handleStageComplete(stageIndex);
   };
 
@@ -225,6 +217,7 @@ const LevelTab = () => {
   const handleNextClick = () => {
     if (!canGoNext) return;
     handleStageComplete(activeTabIndex);
+    setActiveTab(tabs[activeTabIndex + 1].id);
   };
 
   return (

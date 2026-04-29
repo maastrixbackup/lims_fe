@@ -326,7 +326,7 @@ const PlotForm = ({ close, fetchPlots, editingPlot }) => {
           <X size={20} />
         </button>
         <h3 className="font-bold text-lg mb-2">
-          {editingPlot ? "Edit Plot" : "Add Plot"}
+          {editingPlot ? "Edit Govt Plot" : "Add Govt Plot"}
         </h3>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* SECTION 1 : Location Details */}

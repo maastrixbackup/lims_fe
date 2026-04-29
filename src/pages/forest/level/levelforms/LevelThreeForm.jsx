@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
-import { showToast } from "../../../../utils/constants";
+import { useSuccessMessage } from "../../../../hooks/useSuccessMessage";
+import SuccessMessage from "../../../../shared/SuccessMessage";
 import { POST_CLEARANCE_DATA } from "../../../../utils/stages";
 import {
   buildExistingDocumentsByKey,
   downloadRemoteDocument,
+  serializeExistingDocuments,
   viewRemoteDocument,
 } from "./documentHelpers";
 
@@ -29,6 +31,7 @@ const LevelThreeForm = ({
   const [existingDocs, setExistingDocs] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const fileRefs = useRef({});
   const selectedProject = useSelector((state) => state.selectedProject.project);
@@ -161,7 +164,7 @@ const LevelThreeForm = ({
 
     const forestProjectId = selectedProject?.id;
     if (!forestProjectId) {
-      showToast("Please select a project first", "error");
+      showError("Please select a project first");
       return;
     }
 
@@ -208,10 +211,7 @@ const LevelThreeForm = ({
     });
     Object.entries(existingDocs).forEach(([uiKey, docs]) => {
       const apiKey = FILE_MAP[uiKey];
-
-      if (docs && docs.length > 0) {
-        formData.append(`${apiKey}_existing`, JSON.stringify(docs));
-      }
+      formData.append(`${apiKey}_existing`, serializeExistingDocuments(docs));
     });
 
     try {
@@ -233,12 +233,11 @@ const LevelThreeForm = ({
         throw new Error(res?.message || "Failed to save post clearance");
       }
 
-      showToast(
+      showSuccess(
         res?.message ||
           (isEdit
             ? "Post clearance updated successfully"
             : "Post clearance saved successfully"),
-        "success",
       );
 
       setFiles({});
@@ -250,7 +249,7 @@ const LevelThreeForm = ({
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
     } catch (error) {
-      showToast(error.message || "Failed to save post clearance", "error");
+      showError(error.message || "Failed to save post clearance");
     } finally {
       setSubmitting(false);
     }
@@ -471,6 +470,12 @@ const LevelThreeForm = ({
           </button>
         )}
       </div>
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </form>
   );
 };

@@ -105,6 +105,7 @@ const normalizeDocumentEntries = (
             url: urls.viewUrl,
             viewUrl: urls.viewUrl,
             downloadUrl: urls.downloadUrl,
+            storedValue: extractFileName(trimmed, trimmed),
           },
         ]
       : [];
@@ -145,6 +146,12 @@ const normalizeDocumentEntries = (
         url: urls.viewUrl,
         viewUrl: urls.viewUrl,
         downloadUrl: urls.downloadUrl,
+        storedValue:
+          value.file_name ||
+          value.filename ||
+          value.path ||
+          value.file_path ||
+          extractFileName(rawUrl, ""),
       },
     ];
   }
@@ -169,6 +176,24 @@ export const buildExistingDocumentsByKey = (
     return acc;
   }, {});
 };
+
+export const serializeExistingDocuments = (docs = []) =>
+  JSON.stringify(
+    docs
+      .map((doc) => {
+        if (!doc) return "";
+        if (typeof doc === "string") return extractFileName(doc, doc);
+
+        return (
+          doc.storedValue ||
+          extractFileName(
+            doc.downloadUrl || doc.viewUrl || doc.url || doc.name || "",
+            doc.name || "",
+          )
+        );
+      })
+      .filter(Boolean),
+  );
 
 export const downloadRemoteDocument = async (
   url,

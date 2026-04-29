@@ -3,6 +3,47 @@ import { logout } from "../utils/userSlice";
 import { API_BASE_URL } from "./config"; 
 import { showToast } from "./constants";
 
+const normalizeApiErrorMessage = (rawMessage = "", status) => {
+  const message = String(rawMessage || "").trim();
+
+  if (!message) {
+    return status ? `HTTP Error ${status}` : "Something went wrong";
+  }
+
+  try {
+    const parsed = JSON.parse(message);
+    if (parsed?.message) {
+      return normalizeApiErrorMessage(parsed.message, status);
+    }
+  } catch {
+    // Response is not JSON. Continue with text checks below.
+  }
+
+  if (
+    /multererror/i.test(message) ||
+    /file too large/i.test(message)
+  ) {
+    return "Document size is too large";
+  }
+
+  const htmlMessageMatch = message.match(/<pre>([\s\S]*?)<\/pre>/i);
+  if (htmlMessageMatch?.[1]) {
+    const cleanedMessage = htmlMessageMatch[1]
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (/multererror/i.test(cleanedMessage) || /file too large/i.test(cleanedMessage)) {
+      return "Document size is too large";
+    }
+
+    if (cleanedMessage) return cleanedMessage;
+  }
+
+  return message;
+};
+
 export async function apiClient(endpoint, options = {}) {
   try {
     const token = store.getState().auth.userToken;
@@ -34,8 +75,7 @@ export async function apiClient(endpoint, options = {}) {
 
     if (!res.ok) {
       const text = await res.text();
-      // showToast(text || `HTTP Error ${res.status}`, "error");
-      throw new Error(text || `HTTP Error ${res.status}`);
+      throw new Error(normalizeApiErrorMessage(text, res.status));
     }
 
     return res.json();

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { forgotPassword } from "../features/auth";
+import logo from "../../assets/logo.jpeg";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -25,18 +26,41 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white p-6 rounded-xl shadow">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Forgot Password</h2>
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-emerald-300/30 px-4">
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-200/60 via-white/40 to-teal-200/50" />
+      <div className="absolute top-16 left-10 h-32 w-32 rounded-full bg-white/40 blur-3xl" />
+      <div className="absolute bottom-12 right-10 h-40 w-40 rounded-full bg-emerald-500/20 blur-3xl" />
+
+      <div className="relative w-full max-w-md rounded-3xl border border-white/60 bg-white/85 p-8 shadow-2xl backdrop-blur-md">
+        <div className="flex flex-col items-center mb-6">
+          <div className="mb-4 rounded-full bg-white p-2 shadow-lg ring-4 ring-emerald-100">
+            <img
+              src={logo}
+              alt="App logo"
+              className="h-20 w-20 rounded-full object-cover"
+            />
+          </div>
+          <p className="text-sm font-medium text-gray-500 tracking-wide uppercase">
+            Land Management System
+          </p>
+        </div>
+        <h2 className="mb-2 text-center text-3xl font-bold text-emerald-900">
+          Forgot Password
+        </h2>
+        <p className="mb-6 text-center text-sm text-gray-600">
+          Enter your registered email and we&apos;ll send you a reset link.
+        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-1 text-sm font-medium">Email</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full rounded-xl border border-emerald-100 bg-white/90 p-3 text-gray-800 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-200"
               placeholder="Enter your registered email"
             />
           </div>
@@ -44,13 +68,15 @@ const ForgotPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>
         {message && (
-          <p className="text-center mt-4 text-sm text-gray-700">{message}</p>
+          <p className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-800">
+            {message}
+          </p>
         )}
       </div>
     </div>

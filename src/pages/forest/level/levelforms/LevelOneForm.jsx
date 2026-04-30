@@ -2,10 +2,12 @@ import React, { useState, useMemo, useEffect } from "react";
 import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
-import { showToast } from "../../../../utils/constants";
+import { useSuccessMessage } from "../../../../hooks/useSuccessMessage";
+import SuccessMessage from "../../../../shared/SuccessMessage";
 import {
   buildExistingDocumentsByKey,
   downloadRemoteDocument,
+  serializeExistingDocuments,
   viewRemoteDocument,
 } from "./documentHelpers";
 
@@ -126,6 +128,7 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
   const [existingDocs, setExistingDocs] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const selectedProject = useSelector((state) => state.selectedProject.project);
   // ---------------- FETCH EXISTING ----------------
@@ -255,7 +258,7 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
 
     const forestProjectId = selectedProject?.id;
     if (!forestProjectId) {
-      showToast("Please select a project first", "error");
+      showError("Please select a project first");
       return;
     }
 
@@ -293,12 +296,9 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
     });
      
     Object.entries(existingDocs).forEach(([uiKey, docs]) => {
-  const apiKey = FILE_MAP[uiKey];
-
-  if (docs && docs.length > 0) {
-    formData.append(`${apiKey}_existing`, JSON.stringify(docs));
-  }
-});
+      const apiKey = FILE_MAP[uiKey];
+      formData.append(`${apiKey}_existing`, serializeExistingDocuments(docs));
+    });
     try {
       setSubmitting(true);
       const submitMode = isEdit ? "edit" : "add";
@@ -318,12 +318,11 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
         throw new Error(res?.message || "Failed to save Stage-I");
       }
 
-      showToast(
+      showSuccess(
         res?.message ||
           (isEdit
             ? "Stage-I updated successfully"
             : "Stage-I saved successfully"),
-        "success",
       );
 
       setFiles({});
@@ -332,7 +331,7 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
     } catch (error) {
-      showToast(error.message || "Failed to save Stage-I", "error");
+      showError(error.message || "Failed to save Stage-I");
     } finally {
       setSubmitting(false);
     }
@@ -527,6 +526,12 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
           </button>
         )}
       </div>
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </form>
   );
 };

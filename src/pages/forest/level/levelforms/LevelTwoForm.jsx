@@ -2,11 +2,13 @@ import { X } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { apiClient } from "../../../../utils/apiClient";
-import { showToast } from "../../../../utils/constants";
+import { useSuccessMessage } from "../../../../hooks/useSuccessMessage";
+import SuccessMessage from "../../../../shared/SuccessMessage";
 import { STAGE_II_DATA } from "../../../../utils/stages";
 import {
   buildExistingDocumentsByKey,
   downloadRemoteDocument,
+  serializeExistingDocuments,
   viewRemoteDocument,
 } from "./documentHelpers";
 
@@ -26,6 +28,7 @@ const LevelTwoForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
   const [inputKeys, setInputKeys] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
   const selectedProject = useSelector((state) => state.selectedProject.project);
   // ---------------- FETCH EXISTING ----------------
@@ -153,7 +156,7 @@ const handleRemoveExistingDoc = (rowKey, index) => {
 
     const forestProjectId = selectedProject?.id;
     if (!forestProjectId) {
-      showToast("Please select a project first", "error");
+      showError("Please select a project first");
       return;
     }
 
@@ -191,13 +194,10 @@ const handleRemoveExistingDoc = (rowKey, index) => {
         formData.append(apiKey, file);
       });
     });
-Object.entries(existingDocs).forEach(([uiKey, docs]) => {
-  const apiKey = FILE_MAP[uiKey];
-
-  if (docs && docs.length > 0) {
-    formData.append(`${apiKey}_existing`, JSON.stringify(docs));
-  }
-});
+    Object.entries(existingDocs).forEach(([uiKey, docs]) => {
+      const apiKey = FILE_MAP[uiKey];
+      formData.append(`${apiKey}_existing`, serializeExistingDocuments(docs));
+    });
     try {
       setSubmitting(true);
       const submitMode = isEdit ? "edit" : "add";
@@ -217,12 +217,11 @@ Object.entries(existingDocs).forEach(([uiKey, docs]) => {
         throw new Error(res?.message || "Failed to save Stage-II");
       }
 
-      showToast(
+      showSuccess(
         res?.message ||
           (isEdit
             ? "Stage-II updated successfully"
             : "Stage-II saved successfully"),
-        "success",
       );
 
       setFiles({});
@@ -232,7 +231,7 @@ Object.entries(existingDocs).forEach(([uiKey, docs]) => {
       onModeChange?.("edit");
       onStageComplete?.(submitMode);
     } catch (error) {
-      showToast(error.message || "Failed to save Stage-II", "error");
+      showError(error.message || "Failed to save Stage-II");
     } finally {
       setSubmitting(false);
     }
@@ -451,6 +450,12 @@ Object.entries(existingDocs).forEach(([uiKey, docs]) => {
           </button>
         )}
       </div>
+      <SuccessMessage
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={closeModal}
+      />
     </form>
   );
 };

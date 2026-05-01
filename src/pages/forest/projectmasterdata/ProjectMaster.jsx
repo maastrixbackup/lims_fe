@@ -777,6 +777,7 @@ useEffect(() => {
                       <td>
                         <input
                           className="input input-sm input-bordered"
+                          type="text"
                           value={eds.eds_ref_no}
                           onChange={(e) =>
                             handleEDSChange(index, "eds_ref_no", e.target.value)
@@ -832,6 +833,7 @@ useEffect(() => {
                         <input
                           className="input input-sm input-bordered"
                           value={eds.total_issues}
+                          type="number"
                           onChange={(e) =>
                             handleEDSChange(
                               index,
@@ -846,6 +848,7 @@ useEffect(() => {
                         <input
                           className="input input-sm input-bordered"
                           value={eds.issues_closed}
+                          type="number"
                           onChange={(e) =>
                             handleEDSChange(
                               index,
@@ -860,6 +863,7 @@ useEffect(() => {
                         <input
                           className="input input-sm input-bordered"
                           value={eds.issues_pending}
+                          type="number"
                           onChange={(e) =>
                             handleEDSChange(
                               index,
@@ -874,6 +878,7 @@ useEffect(() => {
                         <input
                           className="input input-sm input-bordered"
                           value={eds.eds_status}
+                          type="text"
                           onChange={(e) =>
                             handleEDSChange(index, "eds_status", e.target.value)
                           }

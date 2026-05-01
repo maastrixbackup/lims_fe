@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "../features/auth";
+import logo from "../../assets/logo.jpeg";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -35,6 +36,20 @@ const ResetPassword = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-6 rounded-xl shadow">
+        <div className="flex justify-center mb-4">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="cursor-pointer transition hover:scale-105"
+            aria-label="Go to login"
+          >
+            <img
+              src={logo}
+              alt="LIMS logo"
+              className="h-20 w-20 rounded-2xl object-contain shadow-md"
+            />
+          </button>
+        </div>
         <h2 className="text-2xl font-semibold mb-4 text-center">Reset Password</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -64,7 +79,7 @@ const ResetPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full cursor-pointer rounded-lg bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>

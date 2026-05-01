@@ -41,7 +41,7 @@ export const odishaDistricts = [
 export const sections = {
   "Basic Information": [
     "village_name",
-    "village_code",
+    // "village_code",
     "khata_no",
     "la_case_file_no",
     "plot_no",

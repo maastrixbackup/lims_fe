@@ -144,13 +144,13 @@ const PlotForm = ({ fetchPlots }) => {
   useEffect(() => {
     if (editingPlot) return;
 
-    if (projectCode && formData.village_code && formData.khata_no) {
+    if (projectCode && formData.village_name && formData.khata_no) {
       setFormData((prev) => ({
         ...prev,
         la_case_file_no: `${projectCode}/${formData.village_name}/${formData.khata_no}`,
       }));
     }
-  }, [projectCode, formData.village_code, formData.khata_no, editingPlot]);
+  }, [projectCode, formData.village_name, formData.khata_no, editingPlot]);
 
   const handleChange = ({ target: { name, value } }) => {
     setErrors((e) => ({ ...e, [name]: "" }));
@@ -393,10 +393,7 @@ if (name === "land_area_acquired_acres") {
                         name={field}
                         value={formData[field]}
                         onChange={handleChange}
-                        // readOnly={
-                        //   field === "la_case_file_no" ||
-                        //   field === "village_code"
-                        // }
+                        readOnly={field === "la_case_file_no"}
                         type={
                           field.includes("date")
                             ? "date"
@@ -407,7 +404,9 @@ if (name === "land_area_acquired_acres") {
                               ? "number"
                               : "text"
                         }
-                        className="input input-bordered w-full"
+                        className={`input input-bordered w-full ${
+                          field === "la_case_file_no" ? "bg-gray-100" : ""
+                        }`}
                       />
                     )}
 

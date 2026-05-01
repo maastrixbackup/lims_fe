@@ -128,7 +128,7 @@ export default function Dashboard() {
           />
           <StatsCard
             title="LA Status"
-            value={landData.la_status ?? 0}
+            value={landData.la_status ?? "-"}
             gradient="bg-gradient-to-r from-lime-400 to-green-600"
           />
           <StatsCard

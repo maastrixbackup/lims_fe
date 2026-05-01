@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../utils/userSlice";
 import { API_BASE_URL } from "../../utils/config";
+import logo from "../../assets/logo.jpeg";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function LandingPage() {
       });
 
       const data = await response.json();
-      console.log("Login response data^^^^^^^^^^^^^^:", data);
+      // console.log("Login response data^^^^^^^^^^^^^^:", data);
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Invalid email or password");
       }
@@ -73,6 +74,23 @@ export default function LandingPage() {
         <div className="absolute bottom-20 right-20 w-40 h-40 bg-emerald-300/30 rounded-full blur-2xl animate-bounce"></div>
 
         <div className="text-white max-w-lg text-center z-10 px-6">
+          <div className="mb-6 flex flex-col items-center">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="mb-4 cursor-pointer rounded-full bg-white p-2 shadow-lg ring-4 ring-emerald-100 transition hover:scale-105"
+                aria-label="Go to login"
+              >
+                <img
+                  src={logo}
+                  alt="App logo"
+                  className="h-20 w-20 rounded-full object-cover"
+                />
+              </button>
+              {/* <p className="text-sm font-medium uppercase tracking-wide text-gray-500">
+                Land Management System
+              </p> */}
+            </div>
           <h1 className="text-5xl font-extrabold mb-6 drop-shadow-lg">
             Land Information <br /> Management System
           </h1>
@@ -85,35 +103,56 @@ export default function LandingPage() {
       <div className="flex flex-1 items-center justify-center bg-base-200 relative">
         <div className="card w-full max-w-md shadow-2xl bg-white/80 backdrop-blur-md">
           <div className="card-body">
-            <h2 className="text-center text-3xl font-bold text-primary mb-6">
+            <div className="mb-6 flex flex-col items-center">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="mb-4 cursor-pointer rounded-full bg-white p-2 shadow-lg ring-4 ring-emerald-100 transition hover:scale-105"
+                aria-label="Go to login"
+              >
+                <img
+                  src={logo}
+                  alt="App logo"
+                  className="h-20 w-20 rounded-full object-cover"
+                />
+              </button>
+              <p className="text-sm font-medium uppercase tracking-wide text-gray-500">
+                LAND INFORMATION MANAGEMENT SYSTEM
+              </p>
+            </div>
+            <h2 className="mb-2 text-center text-3xl font-bold text-emerald-900">
               Welcome Back
             </h2>
+            <p className="mb-6 text-center text-sm text-gray-600">
+              Sign in with your registered email and password to continue.
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="form-control">
-                <label className="label pb-1">
-                  <span className="label-text">Email</span>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Email
                 </label>
                 <input
                   type="email"
                   name="email"
-                  placeholder="you@example.com"
-                  className="input input-bordered focus:input-primary transition w-full"
+                  placeholder="Enter your registered email"
+                  className="w-full rounded-xl border border-emerald-100 bg-white/90 p-3 text-gray-800 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-200"
                   required
                   value={email}
                   onChange={handleChangeInput}
                 />
               </div>
-              <div className="form-control">
-                <label className="label pb-1">
-                  <span className="label-text">Password</span>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Password
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    placeholder="••••••••"
-                    className="input input-bordered w-full focus:input-primary transition"
+                    placeholder="Enter your password"
+                    className="w-full rounded-xl border border-emerald-100 bg-white/90 p-3 pr-16 text-gray-800 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-200"
                     required
                     value={password}
                     onChange={handleChangeInput}
@@ -121,40 +160,37 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-primary transition"
+                    className="absolute inset-y-0 right-3 cursor-pointer text-sm font-medium text-emerald-700 transition hover:text-emerald-900"
                   >
-                    {showPassword ? "🙈" : "👁️"}
+                    {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
               </div>
-              {error && (
-                <p className="text-error text-sm text-center">{error}</p>
-              )}
 
-              <div className="flex justify-between items-center text-sm">
-                <label className="cursor-pointer flex items-center space-x-2">
-                  <input type="checkbox" className="checkbox checkbox-sm" />
-                  <span>Remember me</span>
-                </label>
+              <div className="flex items-center justify-end text-sm">
                 <button
                   type="button"
                   onClick={() => navigate("/forgot-password")}
-                  className="link link-primary"
+                  className="cursor-pointer font-medium text-emerald-700 transition hover:text-emerald-900"
                 >
-                  Forgot password?
+                  Forgot Password?
                 </button>
               </div>
-              <div className="form-control mt-4">
-                <button
-                  type="submit"
-                  className="btn btn-primary w-full flex justify-center items-center gap-2 transition-transform hover:scale-105"
-                  disabled={loading}
-                >
-                  {loading && <span className="loading loading-spinner"></span>}
-                  {loading ? "Signing In..." : "Sign In"}
-                </button>
-              </div>
+
+              <button
+                type="submit"
+                className="w-full cursor-pointer rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? "Signing In..." : "Sign In"}
+              </button>
             </form>
+
+            {error && (
+              <p className="rounded-xl bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>

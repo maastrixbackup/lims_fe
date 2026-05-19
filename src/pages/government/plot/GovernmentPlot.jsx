@@ -1099,7 +1099,7 @@ const Plots = () => {
                                   userRole === "Viewer" ? "!text-gray-400" : ""
                                 }`}
                               >
-                                ✏️ Edit
+                                ✍️ Edit
                               </option>
 
                               <option
@@ -1109,7 +1109,7 @@ const Plots = () => {
                                   !canDelete ? "!text-gray-400" : ""
                                 }`}
                               >
-                                🗑 Delete
+                                ❌ Delete
                               </option>
                             </select>
                           </td>

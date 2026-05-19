@@ -648,7 +648,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                        ✍️ Edit
                         </option>
 
                         <option
@@ -658,7 +658,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>
@@ -797,7 +797,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                         ✍️ Edit
                         </option>
 
                         <option
@@ -807,7 +807,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>
@@ -941,7 +941,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                          ✍️ Edit
                         </option>
 
                         <option
@@ -951,7 +951,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>
@@ -1086,7 +1086,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                          ✍️ Edit
                         </option>
 
                         <option
@@ -1096,7 +1096,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>
@@ -1260,7 +1260,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                          ✍️ Edit
                         </option>
 
                         <option
@@ -1270,7 +1270,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>
@@ -1409,7 +1409,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                          ✍️ Edit
                         </option>
 
                         <option
@@ -1419,7 +1419,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>
@@ -1557,7 +1557,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canEdit ? "!text-gray-400" : ""
                           }`}
                         >
-                          ✏️ Edit
+                          ✍️ Edit
                         </option>
 
                         <option
@@ -1567,7 +1567,7 @@ const projectFilteredPlots = useMemo(() => {
                             !canDelete ? "!text-gray-400" : ""
                           }`}
                         >
-                          🗑 Delete
+                          ❌ Delete
                         </option>
                       </select>
                     </td>

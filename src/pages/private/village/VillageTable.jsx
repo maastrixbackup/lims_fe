@@ -268,7 +268,7 @@ const VillageTable = ({
                               userRole === "Viewer" ? "!text-gray-400" : ""
                             }`}
                           >
-                            Edit
+                          ✍️ Edit
                           </option>
 
                           <option
@@ -278,7 +278,7 @@ const VillageTable = ({
                               !canDelete ? "!text-gray-400" : ""
                             }`}
                           >
-                            Delete
+                             ❌ Delete
                           </option>
                         </select>
                       </td>

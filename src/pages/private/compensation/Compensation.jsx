@@ -22,6 +22,42 @@ import Loader from "../../../shared/Loader";
 const Compensation = () => {
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
 
+  function roundTo(value, decimals = 2) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Number(num.toFixed(decimals));
+  }
+
+  function normalizeApportionmentForUi(rawValue, compPayment, totalComp) {
+    const raw = Number(rawValue);
+    if (!Number.isFinite(raw)) return 0;
+
+    const total = Number(totalComp);
+    const payment = Number(compPayment);
+    const expectedPercent =
+      Number.isFinite(total) && total > 0 && Number.isFinite(payment)
+        ? (payment / total) * 100
+        : null;
+
+    if (expectedPercent !== null) {
+      if (Math.abs(raw - expectedPercent) < 0.05) {
+        return roundTo(raw, 2);
+      }
+
+      if (Math.abs(raw * 100 - expectedPercent) < 0.05) {
+        return roundTo(raw * 100, 2);
+      }
+    }
+
+    return raw <= 1 ? roundTo(raw * 100, 2) : roundTo(raw, 2);
+  }
+
+  function normalizeApportionmentForApi(uiValue) {
+    const percent = Number(uiValue);
+    if (!Number.isFinite(percent)) return 0;
+    return roundTo(percent / 100, 4);
+  }
+
   const [khatas, setKhatas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState(null);
@@ -75,7 +111,11 @@ const Compensation = () => {
             tenant: t.present_tenant,
             paymentArea: Number(t.payment_area),
             compPayment: Number(t.compensation_payment),
-            apportionment: Number(t.apportionment_percent),
+            apportionment: normalizeApportionmentForUi(
+              t.apportionment_percent,
+              t.compensation_payment,
+              item.total_compensation
+            ),
             bankAcc: t.bank_ac,
             bankName: t.bank_name,
             ifsc: t.ifsc,
@@ -123,7 +163,8 @@ const Compensation = () => {
   };
 
   const handleApportionChange = (kIndex, rIndex, value) => {
-    let num = value;
+    let num = Number(value);
+    if (!Number.isFinite(num)) num = 0;
     if (num < 0) num = 0;
     if (num > 100) num = 100;
 
@@ -151,15 +192,15 @@ const Compensation = () => {
 
       // 🔥 RECALCULATE paymentArea + compPayment
       records.forEach((r) => {
-        r.compPayment = (
-          (Number(r.apportionment) / 100) *
-          khata.totalComp
-        ).toFixed(4);
-
-        r.paymentArea = (
-          (Number(r.apportionment) / 100) *
-          khata.totalArea
-        ).toFixed(4);
+        const apportionmentPercent = Number(r.apportionment) || 0;
+        r.compPayment = roundTo(
+          (apportionmentPercent / 100) * Number(khata.totalComp || 0),
+          2
+        );
+        r.paymentArea = roundTo(
+          (apportionmentPercent / 100) * Number(khata.totalArea || 0),
+          4
+        );
       });
 
       return newData;
@@ -167,7 +208,8 @@ const Compensation = () => {
   };
 
   const handlePaymentChange = (kIndex, rIndex, value) => {
-    let amount = value;
+    let amount = Number(value);
+    if (!Number.isFinite(amount)) amount = 0;
 
     if (amount < 0) amount = 0;
 
@@ -195,8 +237,14 @@ const Compensation = () => {
         );
       }
       records.forEach((r) => {
-        r.apportionment = Number(
-          ((Number(r.compPayment) / khata.totalComp) * 100).toFixed(2)
+        const apportionmentPercent =
+          Number(khata.totalComp) > 0
+            ? roundTo((Number(r.compPayment) / Number(khata.totalComp)) * 100, 2)
+            : 0;
+        r.apportionment = apportionmentPercent;
+        r.paymentArea = roundTo(
+          (apportionmentPercent / 100) * Number(khata.totalArea || 0),
+          4
         );
       });
 
@@ -299,7 +347,25 @@ const Compensation = () => {
   };
 
   const handleUpdatePayment = async (kIndex, rIndex, data) => {
-    console.log("data*********", data);
+    const currentKhata = khatas[kIndex];
+    const currentRecord = currentKhata?.records?.[rIndex];
+    const totalComp = roundTo(
+      currentKhata?.totalComp ?? data.totalComp,
+      2
+    );
+    const compPayment = roundTo(
+      currentRecord?.compPayment ?? data.compPayment,
+      2
+    );
+    const paymentArea = roundTo(
+      currentRecord?.paymentArea ?? data.paymentArea,
+      4
+    );
+    const apportionment = roundTo(
+      currentRecord?.apportionment ?? data.apportionment,
+      2
+    );
+
     try {
       const res = await fetch(
         `${API_BASE_URL}/plots/updatePlotPayment/${data.id}`,
@@ -310,10 +376,12 @@ const Compensation = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            payment_area: data.paymentArea,
-            total_compensation: data.totalComp,
-            compensation_payment: data.compPayment,
-            apportionment_percent: data.apportionment,
+            payment_area: paymentArea,
+            total_compensation: totalComp,
+            compensation_payment: compPayment,
+            apportionment_percent: normalizeApportionmentForApi(
+              apportionment
+            ),
             bank_ac: data.bankAcc,
             bank_name: data.bankName,
             ifsc: data.ifsc,
@@ -323,19 +391,25 @@ const Compensation = () => {
       );
 
       const result = await res.json();
-      if (!result.success) throw new Error("Update failed");
+      if (!result.success) {
+        throw new Error(result.message || "Failed to update payment details");
+      }
       showSuccess(result.message || "Payment details updated successfully");
       setKhatas((prev) => {
         const updated = [...prev];
         updated[kIndex].records[rIndex] = {
           ...updated[kIndex].records[rIndex],
           ...data,
+          paymentArea,
+          totalComp,
+          compPayment,
+          apportionment,
           status: "Paid",
         };
         return updated;
       });
     } catch (err) {
-      showError(err.message || "Payment completion failed");
+      showError(err.message || "Failed to update payment details");
     }
   };
   const handlePaymentCompleted = async (khata) => {
@@ -648,7 +722,7 @@ const Compensation = () => {
                       </h3>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div>
+                        {/* <div>
                           <label className="text-xs font-medium">
                             Payment Area
                           </label>
@@ -712,7 +786,7 @@ const Compensation = () => {
                               })
                             }
                           />
-                        </div>
+                        </div> */}
 
                         <div>
                           <label className="text-xs font-medium">

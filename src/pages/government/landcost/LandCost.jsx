@@ -343,10 +343,15 @@ const LandCost = () => {
   };
 
   const handlePaymentCompleted = async (khata) => {
+    const leaseCaseNo = khata?.leaseCaseNo;
     const uniqueIds = Array.isArray(khata?.uniqueIds)
       ? khata.uniqueIds.filter(Boolean)
       : [];
 
+    if (!leaseCaseNo || leaseCaseNo === "No data found") {
+      showError("Lease case number is missing for this payment");
+      return;
+    }
     if (!uniqueIds.length) {
       showError("Unique ID is missing for this lease case");
       return;
@@ -367,6 +372,7 @@ const LandCost = () => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
+              lease_case_no: leaseCaseNo,
               unique_id: uniqueId,
               ...payloadBase,
             }),

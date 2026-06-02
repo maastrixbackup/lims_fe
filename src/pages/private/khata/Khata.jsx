@@ -56,6 +56,10 @@ export default function Khata() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    console.log("Khata list:", khatas);
+  }, [khatas]);
  
 
   // const formatKhataData = (data) =>
@@ -130,6 +134,7 @@ export default function Khata() {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("print response", response);
 
       if (!response.ok) {
         throw new Error("Failed to fetch khata print data");

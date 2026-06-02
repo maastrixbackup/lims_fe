@@ -39,6 +39,7 @@ const KhataTable = ({
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
   const [filters, setFilters] = useState({});
   const [activeFilter, setActiveFilter] = useState(null);
+  const [expandedPlotNos, setExpandedPlotNos] = useState({});
   const [sortConfig, setSortConfig] = useState({
     field: null,
     direction: null,
@@ -87,6 +88,13 @@ const KhataTable = ({
     return remainingCount > 0
       ? `${firstThree} ... (${remainingCount})`
       : firstThree;
+  };
+
+  const togglePlotNoExpansion = (khataId) => {
+    setExpandedPlotNos((prev) => ({
+      ...prev,
+      [khataId]: !prev[khataId],
+    }));
   };
 
   const parseNumericValue = (value) => {
@@ -318,6 +326,30 @@ const KhataTable = ({
                           onSort={handleSort}
                           sortConfig={sortConfig}
                         />
+                        <FilterableHeader
+                          label="Plot No."
+                          field="plot_no"
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                          className="w-[200px] min-w-[200px] max-w-[200px]"
+                        />
+                          <FilterableHeader
+                          label="Kissam Of Land"
+                          field="kissam_of_land"
+                          filters={filters}
+                          setFilters={setFilters}
+                          activeFilter={activeFilter}
+                          setActiveFilter={setActiveFilter}
+                          getFilterOptions={getFilterOptions}
+                          onSort={handleSort}
+                          sortConfig={sortConfig}
+                          className="w-[200px] min-w-[200px] max-w-[200px]"
+                        />
 
                         {/* <FilterableHeader
                           label="Village"
@@ -332,11 +364,12 @@ const KhataTable = ({
                           sortConfig={sortConfig}
                         /> */}
 
-                        {COMMON_COLUMNS.map(({ label, field }) => (
+                        {COMMON_COLUMNS.map(({ label, field, className }) => (
                           <FilterableHeader
                             key={field}
                             label={label}
                             field={field}
+                            className={className}
                             filters={filters}
                             setFilters={setFilters}
                             activeFilter={activeFilter}
@@ -367,9 +400,46 @@ const KhataTable = ({
                           <td>
                             {khata.name_of_present_tenant || ""}
                           </td>
+                          <td className="w-[200px] min-w-[200px] max-w-[200px]">
+                            {khata.plot_no ? (
+                              <div className="flex flex-col">
+                                <span
+                                  className={
+                                    expandedPlotNos[khata.id]
+                                      ? "whitespace-normal break-words"
+                                      : "truncate whitespace-nowrap"
+                                  }
+                                  title={khata.plot_no}
+                                >
+                                  {khata.plot_no}
+                                </span>
+                                {khata.plot_no.length > 25 && (
+                                  <button
+                                    type="button"
+                                    className="mt-1 text-xs text-primary text-left hover:underline"
+                                    onClick={() =>
+                                      togglePlotNoExpansion(khata.id)
+                                    }
+                                  >
+                                    {expandedPlotNos[khata.id]
+                                      ? "Show less"
+                                      : "Show more"}
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </td>
+                          <td className="w-[200px] min-w-[200px] max-w-[200px] whitespace-normal break-words">
+                            {khata.kissam_of_land || ""}
+                          </td>
 
-                          {COMMON_COLUMNS.map(({ field, format }) => (
-                            <td key={field} className="whitespace-nowrap">
+                          {COMMON_COLUMNS.map(({ field, format, className }) => (
+                            <td
+                              key={field}
+                              className={`whitespace-nowrap ${className || ""}`}
+                            >
                               {format === "multi"
                                 ? formatThreeItems(khata[field])
                                 : field === "created_at"

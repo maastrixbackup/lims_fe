@@ -127,12 +127,12 @@ const VillageTable = ({
 
         .vt-thead th {
           padding: 10px 14px;
-          font-size: 10px;
-          font-weight: 500;
+          font-size: 12px;
+          font-weight: 600;
           letter-spacing: 0.09em;
           text-transform: uppercase;
-          color: #888780;
-          background: #F7F6F3;
+          color: #000;
+          background: #e5e7eb;
           border-bottom: 1px solid #E5E3DC;
           white-space: nowrap;
           text-align: left;

@@ -425,9 +425,13 @@ export const stickyCol4Cell =
 export const COMMON_COLUMNS = [
   // { label: "Present Tenant", field: "name_of_present_tenant" },
   // { label: "Village Code", field: "village_code" },
-  { label: "Plot No.", field: "plot_no", format: "multi" },
-  { label: "Kissam", field: "kissam_of_land", format: "multi" },
-  { label: "Category", field: "land_category", format: "multi" },
+  // { label: "Plot No.", field: "plot_no" },
+  // {
+  //   label: "Kissam Of Land ",
+  //   field: "kissam_of_land",
+  
+  // },
+  { label: "Category", field: "land_category", },
   { label: "Total Area (Ac)", field: "land_area_total_acres" },
   { label: "Total Area (Ha)", field: "land_area_total_hectares" },
   { label: "Acquired Area (Ac)", field: "land_area_acquired_acres" },

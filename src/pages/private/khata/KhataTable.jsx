@@ -390,15 +390,15 @@ const KhataTable = ({
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
                           </td>
-                          <td className={stickyCol1Cell}>{khata.khata_no || ""}</td>
+                          <td className={stickyCol1Cell}>{khata.khata_no || "-"}</td>
                           <td className={stickyCol2Cell}>
-                            {khata.village_name || ""}
+                            {khata.village_name || "-"}
                           </td>
                           <td>
-                            {khata.name_of_recorded_tenant || ""}
+                            {khata.name_of_recorded_tenant || "-"}
                           </td>
                           <td>
-                            {khata.name_of_present_tenant || ""}
+                            {khata.name_of_present_tenant || "-"}
                           </td>
                           <td className="w-[200px] min-w-[200px] max-w-[200px]">
                             {khata.plot_no ? (
@@ -428,23 +428,23 @@ const KhataTable = ({
                                 )}
                               </div>
                             ) : (
-                              ""
+                              "-"
                             )}
                           </td>
                           <td className="w-[200px] min-w-[200px] max-w-[200px] whitespace-normal break-words">
-                            {khata.kissam_of_land || ""}
+                            {khata.kissam_of_land || "-"}
                           </td>
 
                           {COMMON_COLUMNS.map(({ field, format, className }) => (
                             <td
                               key={field}
-                              className={`whitespace-nowrap ${className || ""}`}
+                              className={`whitespace-nowrap ${className || "-"}`}
                             >
                               {format === "multi"
                                 ? formatThreeItems(khata[field])
                                 : field === "created_at"
                                 ? moment(khata[field]).format("DD-MM-YYYY")
-                                : khata[field] || ""}
+                                : khata[field] || "-"}
                             </td>
                           ))}
 
@@ -622,25 +622,25 @@ const KhataTable = ({
                           </td>
 
                           <td className={stickyCol1Cell}>
-                            {khata.khata_no || ""}
+                            {khata.khata_no || "-"}
                           </td>
                           <td className={stickyCol2Cell}>
-                            {khata.village_name || ""}
+                            {khata.village_name || "-"}
                           </td>
                           <td className={stickyCol3Cell}>
-                            {khata.name_of_recorded_tenant || ""}
+                            {khata.name_of_recorded_tenant || "--"}
                           </td>
                           <td className={stickyCol4Cell}>
-                            {khata.name_of_present_tenant || ""}
+                            {khata.name_of_present_tenant || "-"}
                           </td>
 
                           {RR_FIELDS_FORMS.map(({ name }) => (
                             <td key={name}>
                               {khata[name] !== null &&
                               khata[name] !== undefined &&
-                              khata[name] !== ""
+                              khata[name] !== "-"
                                 ? khata[name]
-                                : ""}
+                                : "-"}
                             </td>
                           ))}
 

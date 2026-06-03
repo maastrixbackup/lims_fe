@@ -102,7 +102,7 @@ const Logs = () => {
                     </td>
                     <td className="px-4 py-2 border">{log.message}</td>
                     <td className="px-4 py-2 border">
-                      {log.user_name || "N/A"}
+                      {log.user_name || "-"}
                     </td>
                     <td className="px-4 py-2 border">
                       {moment(log.created_at).format("DD MMM YYYY, h : mm A")}

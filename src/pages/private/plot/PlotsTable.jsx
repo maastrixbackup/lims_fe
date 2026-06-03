@@ -45,17 +45,17 @@ const baseRowCells = [
   {
     key: "la_case_file_no",
     className: stickyCol1Cell,
-    render: (plot) => plot.la_case_file_no || "N/A",
+    render: (plot) => plot.la_case_file_no || "-",
   },
   {
     key: "khata_no",
     className: stickyCol2Cell,
-    render: (plot) => plot.khata_no || "N/A",
+    render: (plot) => plot.khata_no || "-",
   },
   {
     key: "plot_no",
     className: stickyCol3Cell,
-    render: (plot) => plot.plot_no || "N/A",
+    render: (plot) => plot.plot_no || "-",
   },
 ];
 
@@ -66,7 +66,7 @@ const paymentBadgeClassMap = {
 };
 
 const formatYesNoValue = (value) => {
-  if (value === null || value === undefined || value === "") return "N/A";
+  if (value === null || value === undefined || value === "") return "-";
   const normalized = String(value).trim().toUpperCase();
 
   if (["Y", "YES", "1"].includes(normalized)) return "Yes";
@@ -78,10 +78,10 @@ const formatYesNoValue = (value) => {
 const formatDisplacedAffectedValue = (value) => {
   if (value === "PAF") return "Person Affected Families";
   if (value === "PDF") return "Person Displaced Families";
-  return value || "N/A";
+  return value || "-";
 };
 
-const getCellValue = (plot, key, fallback = "N/A") => plot[key] ?? fallback;
+const getCellValue = (plot, key, fallback = "-") => plot[key] ?? fallback;
 
 const tableConfigs = [
   {
@@ -177,7 +177,7 @@ const tableConfigs = [
       { key: "details_of_other_structures" },
       { key: "value_of_other_structures" },
       { key: "total_value" },
-      { key: "solatium_100", render: (plot) => plot.total_value || "N/A" },
+      { key: "solatium_100", render: (plot) => plot.total_value || "-" },
       { key: "no_days_interest" },
       { key: "additional_12_percent" },
       { key: "total_compensation" },
@@ -199,7 +199,7 @@ const tableConfigs = [
       { key: "grievance_action" },
       { key: "tribunal", render: (plot) => formatYesNoValue(plot.tribunal) },
       { key: "tribunal_deposit_date", render: (plot, _, __, ___, formatDate) => formatDate(plot.tribunal_deposit_date) },
-      { key: "tribunal_amount", fallback: "N/A" },
+      { key: "tribunal_amount", fallback: "-" },
     ],
     includePaymentCell: true,
     rowClassName: BASE_ROW_CLASS,
@@ -208,13 +208,13 @@ const tableConfigs = [
     key: "family",
     columns: FamilyDetails,
     rows: [
-      { key: "family_major_male", fallback: "N/A" },
-      { key: "family_major_female", fallback: "N/A" },
-      { key: "family_minor_male", fallback: "N/A" },
-      { key: "family_minor_female", fallback: "N/A" },
+      { key: "family_major_male", fallback: "-" },
+      { key: "family_major_female", fallback: "-" },
+      { key: "family_minor_male", fallback: "-" },
+      { key: "family_minor_female", fallback: "-" },
       { key: "family_major_transgender", fallback: "0" },
       { key: "family_minor_transgender", fallback: "0" },
-      { key: "persons_with_disability", fallback: "N/A" },
+      { key: "persons_with_disability", fallback: "-" },
       {
         key: "family_with_orphan_members",
         render: (plot) => formatYesNoValue(plot.family_with_orphan_members),
@@ -473,9 +473,9 @@ const PlotTable = ({
   }, []);
 
   const formatDate = useCallback((date) => {
-    if (!date) return "N/A";
+    if (!date) return "-";
     const parsedDate = moment(date);
-    return parsedDate.isValid() ? parsedDate.format("DD-MM-YYYY") : "N/A";
+    return parsedDate.isValid() ? parsedDate.format("DD-MM-YYYY") : "-";
   }, []);
 
   const handleActionChange = useCallback(

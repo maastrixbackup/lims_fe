@@ -344,50 +344,33 @@ const LandCost = () => {
 
   const handlePaymentCompleted = async (khata) => {
     const leaseCaseNo = khata?.leaseCaseNo;
-    const uniqueIds = Array.isArray(khata?.uniqueIds)
-      ? khata.uniqueIds.filter(Boolean)
-      : [];
 
     if (!leaseCaseNo || leaseCaseNo === "-") {
       showError("Lease case number is missing for this payment");
       return;
     }
-    if (!uniqueIds.length) {
-      showError("Unique ID is missing for this lease case");
-      return;
-    }
-
-    const payloadBase = {
-      project_id: Number(projectId),
-      type: Number(typeParam) || 2,
-    };
 
     try {
-      const results = await Promise.all(
-        uniqueIds.map(async (uniqueId) => {
-          const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              lease_case_no: leaseCaseNo,
-              unique_id: uniqueId,
-              ...payloadBase,
-            }),
-          });
-
-          const data = await res.json();
-          if (!res.ok || !data?.success) {
-            throw new Error(data?.message || "Failed to mark payment completed");
-          }
-          return data;
+      const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          lease_case_no: leaseCaseNo,
+          project_id: Number(projectId),
+          type: Number(typeParam) || 2,
         }),
-      );
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.message || "Failed to mark payment completed");
+      }
 
       showSuccess(
-        results?.[0]?.message || "Payment marked as completed successfully",
+        data?.message || "Payment marked as completed successfully",
       );
       await fetchData();
     } catch (err) {

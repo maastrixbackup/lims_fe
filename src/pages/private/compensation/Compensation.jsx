@@ -15,7 +15,7 @@ import {
   Clock,
 } from "lucide-react";
 import { API_BASE_URL } from "../../../utils/config";
-import { safeFetch } from "../../../utils/apiClient";
+import { apiClient, safeFetch } from "../../../utils/apiClient";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -68,6 +68,73 @@ function roundTo(value, decimals = 2) {
   const num = Number(value);
   if (!Number.isFinite(num)) return 0;
   return Number(num.toFixed(decimals));
+}
+
+function getFirstFiniteNumber(...values) {
+  for (const value of values) {
+    const parsedValue = Number(value);
+    if (Number.isFinite(parsedValue) && parsedValue > 0) {
+      return parsedValue;
+    }
+  }
+
+  return 0;
+}
+
+function deriveTotalCompensation(source = {}) {
+  const directTotal = getFirstFiniteNumber(
+    source.total_compensation,
+    source.totalCompensation
+  );
+
+  if (directTotal > 0) {
+    return directTotal;
+  }
+
+  const totalValue = getFirstFiniteNumber(
+    source.total_value,
+    (Number(source.land_value_with_mf) || 0) +
+      (Number(source.total_value_of_trees) || 0) +
+      (Number(source.value_of_house) || 0) +
+      (Number(source.value_of_other_structures) || 0)
+  );
+
+  const additionalPercent = Number(source.additional_12_percent) || 0;
+
+  if (totalValue > 0) {
+    return roundTo(totalValue + totalValue + additionalPercent, 2);
+  }
+
+  return 0;
+}
+
+function buildPlotCompensationMap(plots = []) {
+  return plots.reduce((acc, plot) => {
+    const plotNo = String(plot?.plot_no || "").trim();
+    if (!plotNo) return acc;
+
+    const totalValue =
+      getFirstFiniteNumber(plot.total_value) ||
+      (Number(plot.land_value_with_mf) || 0) +
+        (Number(plot.total_value_of_trees) || 0) +
+        (Number(plot.value_of_house) || 0) +
+        (Number(plot.value_of_other_structures) || 0);
+
+    const totalCompensation =
+      getFirstFiniteNumber(
+        plot.total_compensation,
+        plot.totalCompensation
+      ) ||
+      (totalValue > 0
+        ? roundTo(totalValue + totalValue + (Number(plot.additional_12_percent) || 0), 2)
+        : 0);
+
+    if (totalCompensation > 0) {
+      acc[plotNo] = totalCompensation;
+    }
+
+    return acc;
+  }, {});
 }
 
 function normalizeApportionmentForUi(rawValue, compPayment, totalComp) {
@@ -158,6 +225,25 @@ const Compensation = () => {
     const query = new URLSearchParams({ project_id: projectId, type: typeParam });
     if (plotId) query.append("plot_id", plotId);
     try {
+      const plotCompensationMap = {};
+      let currentPage = 1;
+      let totalPlotPages = 1;
+
+      do {
+        const plotListResponse = await apiClient(
+          `/plots/plotList?project_id=${projectId}&type=${typeParam}&page=${currentPage}&limit=500`
+        );
+        const plotPage = Array.isArray(plotListResponse?.plots)
+          ? plotListResponse.plots
+          : [];
+
+        Object.assign(plotCompensationMap, buildPlotCompensationMap(plotPage));
+
+        totalPlotPages = Number(plotListResponse?.totalPages) || 1;
+        if (!plotPage.length) break;
+        currentPage += 1;
+      } while (currentPage <= totalPlotPages);
+
       const res = await safeFetch(
         `${API_BASE_URL}/plots/getCompensationDetails?${query.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -165,41 +251,73 @@ const Compensation = () => {
       const data = await res.json();
       if (data.success && data.data?.length > 0) {
         setKhatas(
-          data.data.map((item) => ({
-            uniqueId: item.unique_id,
-            khataNo: item.khata_no,
-            totalArea: Number(item.total_area),
-            totalComp: Number(item.total_compensation),
-            records: item.tenants.map((t) => ({
-              id: t.id,
-              plotNo: t.plot_no,
-              tenant: t.present_tenant,
-              plotCompensation: Number(t.total_compensation ?? 0),
-              paymentArea: Number(t.payment_area),
-              compPayment: Number(t.compensation_payment),
-              apportionment: normalizeApportionmentForUi(
-                t.apportionment_percent,
-                t.compensation_payment,
-                item.total_compensation
-              ),
-              bankAcc: t.bank_ac,
-              bankName: t.bank_name,
-              ifsc: t.ifsc,
-              status: t.status,
-              txnNumber: t.transaction_no,
-              file: null,
-              fileName:
-                t.payment_proof_file_name ||
-                t.payment_proof_filename ||
-                t.payment_proof ||
-                "",
-              fileUrl:
-                t.payment_proof_url ||
-                t.payment_proof_doc ||
-                t.payment_proof_path ||
-                "",
-            })),
-          }))
+          data.data.map((item) => {
+            const records = item.tenants.map((t) => {
+              const plotNumber = String(t.plot_no || "").trim();
+              const plotCompensation = getFirstFiniteNumber(
+                plotCompensationMap[plotNumber],
+                t.total_compensation,
+                t.totalCompensation,
+                deriveTotalCompensation(t)
+              );
+
+              return {
+                id: t.id,
+                plotNo: t.plot_no,
+                tenant: t.present_tenant,
+                plotCompensation,
+                paymentArea: Number(t.payment_area),
+                compPayment: Number(t.compensation_payment),
+                apportionment: normalizeApportionmentForUi(
+                  t.apportionment_percent,
+                  t.compensation_payment,
+                  plotCompensation
+                ),
+                bankAcc: t.bank_ac,
+                bankName: t.bank_name,
+                ifsc: t.ifsc,
+                status: t.status,
+                txnNumber: t.transaction_no,
+                file: null,
+                fileName:
+                  t.payment_proof_file_name ||
+                  t.payment_proof_filename ||
+                  t.payment_proof ||
+                  "",
+                fileUrl:
+                  t.payment_proof_url ||
+                  t.payment_proof_doc ||
+                  t.payment_proof_path ||
+                  "",
+              };
+            });
+
+            const totalComp =
+              getFirstFiniteNumber(
+                item.total_compensation,
+                item.totalCompensation,
+                deriveTotalCompensation(item)
+              ) ||
+              roundTo(
+                Object.values(
+                  records.reduce((acc, record) => {
+                    if (!acc[record.plotNo] && record.plotCompensation > 0) {
+                      acc[record.plotNo] = record.plotCompensation;
+                    }
+                    return acc;
+                  }, {})
+                ).reduce((sum, amount) => sum + Number(amount || 0), 0),
+                2
+              );
+
+            return {
+              uniqueId: item.unique_id,
+              khataNo: item.khata_no,
+              totalArea: Number(item.total_area),
+              totalComp,
+              records,
+            };
+          })
         );
       } else {
         setKhatas([]);
@@ -264,22 +382,18 @@ const Compensation = () => {
       return Number(dominantCompensation[0]);
     }
 
-    return roundTo(
+    const compensationFromPayments = roundTo(
       plotRecords.reduce((sum, record) => sum + Number(record.compPayment || 0), 0),
       2,
     );
+
+    if (compensationFromPayments > 0) {
+      return compensationFromPayments;
+    }
+
+    return 0;
   };
 
-  const getPlotTotals = (plotRecords = []) => ({
-    totalCompensation: roundTo(
-      plotRecords.reduce((sum, record) => sum + Number(record.compPayment || 0), 0),
-      2
-    ),
-    totalPaymentArea: roundTo(
-      plotRecords.reduce((sum, record) => sum + Number(record.paymentArea || 0), 0),
-      4
-    ),
-  });
 
   /* ── apportionment change ── */
   const handleApportionChange = (kIndex, rIndex, value, plotRecords) => {
@@ -542,7 +656,9 @@ const Compensation = () => {
       <div className="space-y-4 mt-6">
         {khatas.map((khata, kIndex) => {
           const plotEntries = Object.entries(groupRecordsByPlot(khata.records));
-          const matchedPlotCount = plotEntries.filter(([, plotRecords]) => validatePlotTotals(plotRecords).valid).length;
+          const matchedPlotCount = plotEntries.filter(([, plotRecords]) =>
+            validatePlotTotals(plotRecords).valid
+          ).length;
           const isOpen = openIndex === kIndex;
 
           return (
@@ -575,6 +691,10 @@ const Compensation = () => {
 
                     <Stat label="Khata No" value={khata.khataNo} />
                     <Stat label="Total Area" value={khata.totalArea} />
+                    <Stat
+                      label="Total Compensation"
+                      value={`Rs. ${Number(khata.totalComp || 0).toLocaleString()}`}
+                    />
                     {/* <Stat
                       label="Total Compensation"
                       value={`₹${plotCompensation.toLocaleString()}`}

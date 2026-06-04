@@ -628,7 +628,7 @@ const KhataTable = ({
                             {khata.village_name || "-"}
                           </td>
                           <td className={stickyCol3Cell}>
-                            {khata.name_of_recorded_tenant || "--"}
+                            {khata.name_of_recorded_tenant || "-"}
                           </td>
                           <td className={stickyCol4Cell}>
                             {khata.name_of_present_tenant || "-"}

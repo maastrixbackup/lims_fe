@@ -254,8 +254,8 @@ const handleDelete = async () => {
           }}
         >
           <option value="">Select Type</option>
-          <option value="1">Pvt Land</option>
-          <option value="2">Govt Land</option>
+          <option value="1">Private Land</option>
+          <option value="2">Government Land</option>
           <option value="3">Forest Land</option>
         </select>
 

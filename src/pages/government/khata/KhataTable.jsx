@@ -36,7 +36,7 @@ const KhataTable = ({
   );
   const dispatch = useDispatch();
 
-  const emptyValue = "";
+  const emptyValue = "-";
   const headerCellClass =
     "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 bg-gray-200 whitespace-nowrap border-b border-slate-200/80";
   const bodyCellClass =

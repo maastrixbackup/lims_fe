@@ -1,6 +1,8 @@
 import { API_BASE_URL } from "../../../../utils/config";
 import store from "../../../../utils/store";
 
+export const MAX_FILE_SIZE_HELPER_TEXT = "Maximum file size: 20 MB";
+
 const getDocumentName = (value, fallback = "Document") => {
   if (!value || typeof value !== "string") return fallback;
   const clean = value.split("?")[0];

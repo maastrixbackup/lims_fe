@@ -6,6 +6,7 @@ import { useSuccessMessage } from "../../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../../shared/SuccessMessage";
 import { STAGE_II_DATA } from "../../../../utils/stages";
 import {
+  MAX_FILE_SIZE_HELPER_TEXT,
   buildExistingDocumentsByKey,
   downloadRemoteDocument,
   serializeExistingDocuments,
@@ -343,6 +344,9 @@ const handleRemoveExistingDoc = (rowKey, index) => {
                         className="file-input file-input-bordered file-input-sm"
                         onChange={(e) => handleFileChange(e, row.key)}
                       />
+                      <div className="mt-1 text-xs text-red-500">
+                        {MAX_FILE_SIZE_HELPER_TEXT}
+                      </div>
        {existingDocs[row.key]?.length > 0 && (
   <div className="mb-2 space-y-1">
     {existingDocs[row.key].map((doc, idx) => (

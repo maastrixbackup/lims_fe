@@ -68,8 +68,8 @@ const LandCost = () => {
 
           tenants.forEach((t) => {
             const leaseCaseNo =
-              item.lease_case_no ?? t.lease_case_no ?? "No data found";
-            const key = leaseCaseNo || "No data found";
+              item.lease_case_no ?? t.lease_case_no ?? "-";
+            const key = leaseCaseNo || "-";
 
             if (!groupedByLease[key]) {
               groupedByLease[key] = {
@@ -134,10 +134,10 @@ const LandCost = () => {
           ({ khataNosSet, plotNosSet, uniqueIds, ...row }) => {
             const khataNos = khataNosSet.size
               ? Array.from(khataNosSet).join(", ")
-              : "No data found";
+              : "-";
             const plotNos = plotNosSet.size
               ? Array.from(plotNosSet).join(", ")
-              : "No data found";
+              : "-";
 
             return {
               leaseCaseNo: row.leaseCaseNo,
@@ -343,45 +343,34 @@ const LandCost = () => {
   };
 
   const handlePaymentCompleted = async (khata) => {
-    const uniqueIds = Array.isArray(khata?.uniqueIds)
-      ? khata.uniqueIds.filter(Boolean)
-      : [];
+    const leaseCaseNo = khata?.leaseCaseNo;
 
-    if (!uniqueIds.length) {
-      showError("Unique ID is missing for this lease case");
+    if (!leaseCaseNo || leaseCaseNo === "-") {
+      showError("Lease case number is missing for this payment");
       return;
     }
 
-    const payloadBase = {
-      project_id: Number(projectId),
-      type: Number(typeParam) || 2,
-    };
-
     try {
-      const results = await Promise.all(
-        uniqueIds.map(async (uniqueId) => {
-          const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              unique_id: uniqueId,
-              ...payloadBase,
-            }),
-          });
-
-          const data = await res.json();
-          if (!res.ok || !data?.success) {
-            throw new Error(data?.message || "Failed to mark payment completed");
-          }
-          return data;
+      const res = await fetch(`${API_BASE_URL}/govtplots/paymentCompleted`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          lease_case_no: leaseCaseNo,
+          project_id: Number(projectId),
+          type: Number(typeParam) || 2,
         }),
-      );
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.message || "Failed to mark payment completed");
+      }
 
       showSuccess(
-        results?.[0]?.message || "Payment marked as completed successfully",
+        data?.message || "Payment marked as completed successfully",
       );
       await fetchData();
     } catch (err) {
@@ -482,14 +471,14 @@ const LandCost = () => {
                       <div className="mb-3">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Plot Nos.</p>
                       <div className="text-sm bg-white shadow-md rounded-md p-2 max-h-28 overflow-y-auto break-words leading-6 bg-blue-50">
-                        {r.plotNos || "No data found"}
+                        {r.plotNos || "-"}
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                       <div>
                         <p className="text-sm font-semibold text-gray-500 mb-1">Khata Nos.</p>
                         <p className="text-sm font-medium break-words">
-                          {r.khataNos || khata.khataNos || "No data found"}
+                          {r.khataNos || khata.khataNos || "-"}
                         </p>
                       </div>
                       <div>
@@ -741,28 +730,28 @@ const LandCost = () => {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <p>
                 <strong>Lease Case No:</strong>{" "}
-                {editData.leaseCaseNo || "No data found"}
+                {editData.leaseCaseNo || "-"}
               </p>
               <p>
-                <strong>Khata Nos:</strong> {editData.khataNos || "No data found"}
+                <strong>Khata Nos:</strong> {editData.khataNos || "-"}
               </p>
               <p>
-                <strong>Plot Nos:</strong> {editData.plotNos || "No data found"}
+                <strong>Plot Nos:</strong> {editData.plotNos || "-"}
               </p>
               <p>
-                <strong>Total Area:</strong> {editData.totalArea || "No data found"}
+                <strong>Total Area:</strong> {editData.totalArea || "-"}
               </p>
               <p>
                 <strong>Land Cost:</strong>{" "}
-                {editData.landCostAmount || "No data found"}
+                {editData.landCostAmount || "-"}
               </p>
               <p>
                 <strong>Demand Note Attachment:</strong>{" "}
-                {editData.demandNoteAttachment || "No data found"}
+                {editData.demandNoteAttachment || "-"}
               </p>
               <p>
                 <strong>Receipt Attachment:</strong>{" "}
-                {editData.receiptAttachment || "No data found"}
+                {editData.receiptAttachment || "-"}
               </p>
             </div>
             <div className="flex justify-end mt-5">

@@ -169,7 +169,7 @@ export default function Header({ setSidebarOpen, isMobile, sidebarOpen }) {
 )}
 
         </div>
-        <div className="relative" ref={notifRef}>
+        {/* <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             className="
@@ -203,7 +203,7 @@ export default function Header({ setSidebarOpen, isMobile, sidebarOpen }) {
               </ul>
             </div>
           )}
-        </div>
+        </div> */}
         <div className="relative" ref={profileRef}>
           <div
             className="

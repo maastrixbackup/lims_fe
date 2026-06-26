@@ -172,7 +172,7 @@ export default function Dashboard() {
       </div>
 
       {/* 🔹 Progress */}
-      <ProgressOverview landType={landData} />
+      {/* <ProgressOverview landType={landData} /> */}
     </main>
   );
 }

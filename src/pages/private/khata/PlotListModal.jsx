@@ -541,13 +541,13 @@ useEffect(() => {
                   processedPlots.map((plot, i) => (
                     <tr key={plot.id || i} className="whitespace-nowrap">
                       <td>{i + 1}</td>
-                      <td className="font-semibold">{plot.plot_no || "N/A"}</td>
-                      <td>{plot.full_part || "N/A"}</td>
-                      <td>{plot.land_area_total_acres || "N/A"}</td>
-                      <td>{plot.land_area_total_hectares || "N/A"}</td>
-                      <td>{plot.land_area_acquired_acres || "N/A"}</td>
-                      <td>{plot.land_area_acquired_hectares || "N/A"}</td>
-                      <td>{plot.village_name || "N/A"}</td>
+                      <td className="font-semibold">{plot.plot_no || "-"}</td>
+                      <td>{plot.full_part || "-"}</td>
+                      <td>{plot.land_area_total_acres || "-"}</td>
+                      <td>{plot.land_area_total_hectares || "-"}</td>
+                      <td>{plot.land_area_acquired_acres || "-"}</td>
+                      <td>{plot.land_area_acquired_hectares || "-"}</td>
+                      <td>{plot.village_name || "-"}</td>
                     </tr>
                   ))
                 ) : (

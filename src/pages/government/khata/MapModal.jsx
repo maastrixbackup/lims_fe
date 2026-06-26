@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { X, Upload, CheckCircle } from "lucide-react";
+import { X, Upload, CheckCircle, ExternalLink, Download } from "lucide-react";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 
@@ -10,8 +10,57 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [mapData, setMapData] = useState([]);
+  const [activeFile, setActiveFile] = useState("");
 
   const khata_id = khata?.id;
+
+  const toAbsoluteUrl = (value) => {
+    if (!value || typeof value !== "string") return "";
+
+    try {
+      return new URL(value, API_BASE_URL).toString();
+    } catch {
+      return "";
+    }
+  };
+
+  const getMapFileUrls = (map) => {
+    const directUrl =
+      map?.download_url ||
+      map?.url ||
+      map?.file_url ||
+      map?.path ||
+      map?.file_path ||
+      "";
+    const fallbackUrl =
+      map?.file_name && khata_id
+        ? `${API_BASE_URL}/govtkhata/downloadGovtMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`
+        : "";
+
+    return [toAbsoluteUrl(directUrl), fallbackUrl].filter(Boolean);
+  };
+
+  const getErrorMessage = async (response, fallbackMessage) => {
+    const contentType = response.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      try {
+        const data = await response.json();
+        return data?.message || fallbackMessage;
+      } catch {
+        return fallbackMessage;
+      }
+    }
+
+    const text = await response.text();
+    const cleanedText = text
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return cleanedText || fallbackMessage;
+  };
+
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -78,6 +127,40 @@ const MapModal = ({ khata, onClose, onUpload }) => {
     if (khata_id) fetchMapData();
   }, [khata_id]);
 
+ const handleDownloadMap = async (map) => {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/govtkhata/downloadGovtMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || "Download failed");
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = map.file_name;
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Download error:", err);
+    alert("Failed to download file");
+  }
+};
+
   return (
     <dialog open className="modal modal-open">
       <div className="modal-box max-w-xl relative">
@@ -115,6 +198,18 @@ const MapModal = ({ khata, onClose, onUpload }) => {
             <span className="text-sm">{successMsg}</span>
           </div>
         )}
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+          Google Maps does not open a KMZ file directly inside this page. Use
+          <a
+            href="https://earth.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mx-1 font-medium underline"
+          >
+            Google Earth
+          </a>
+          to import the downloaded KMZ, or open the file in Google Earth.
+        </div>
         <div className="grid grid-cols-1 gap-3">
           {mapData.length > 0 ? (
             mapData.map((map) => (
@@ -128,15 +223,25 @@ const MapModal = ({ khata, onClose, onUpload }) => {
                     {map.file_name}
                   </span>
                 </div>
-
-               <a
-                href={`/${map.file_name}`}
-                target="_blank"
-                className="btn btn-xs btn-outline btn-primary"
-              >
-                View in Google Earth
-              </a>
-
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://earth.google.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-xs btn-outline btn-primary"
+                  >
+                    <ExternalLink size={14} />
+                    Open KMZ
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadMap(map)}
+                    className="btn btn-xs btn-outline"
+                  >
+                    <Download size={14} />
+                    Download
+                  </button>
+                </div>
               </div>
             ))
           ) : (

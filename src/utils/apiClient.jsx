@@ -44,6 +44,32 @@ const normalizeApiErrorMessage = (rawMessage = "", status) => {
   return message;
 };
 
+const getFriendlyNetworkErrorMessage = (error) => {
+  if (!error) return "Unable to connect to the server";
+
+  if (
+    error instanceof TypeError &&
+    /failed to fetch|load failed|networkerror/i.test(error.message || "")
+  ) {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      return "No internet connection. Please check your network and try again.";
+    }
+
+    return "Unable to reach the server. Please check your connection and try again.";
+  }
+
+  return error.message || "Something went wrong";
+};
+
+export async function safeFetch(input, init) {
+  try {
+    return await fetch(input, init);
+  } catch (err) {
+    err.message = getFriendlyNetworkErrorMessage(err);
+    throw err;
+  }
+}
+
 export async function apiClient(endpoint, options = {}) {
   try {
     const token = store.getState().auth.userToken;
@@ -64,7 +90,7 @@ export async function apiClient(endpoint, options = {}) {
         : undefined,
     };
 
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const res = await safeFetch(`${API_BASE_URL}${endpoint}`, config);
 
     if (res.status === 401) {
       showToast("Your session has expired. Please log in again.", "error");
@@ -80,6 +106,7 @@ export async function apiClient(endpoint, options = {}) {
 
     return res.json();
   } catch (err) {
+    err.message = getFriendlyNetworkErrorMessage(err);
     console.error("API Error:", err);
     // showToast(err.message || "Something went wrong!", "error");
     throw err;

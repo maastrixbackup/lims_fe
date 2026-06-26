@@ -8,6 +8,7 @@ import FilterHeader from "../plot/FilterHeader";
 import { useDispatch, useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
 import { setSelectedKhataId } from "../../../utils/khataSlice";
+import { LandPlot, MapIcon, Upload, View } from "lucide-react";
 
 const KhataTable = ({
   khatas,
@@ -35,7 +36,7 @@ const KhataTable = ({
   );
   const dispatch = useDispatch();
 
-  const emptyValue = "";
+  const emptyValue = "-";
   const headerCellClass =
     "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-700 bg-gray-200 whitespace-nowrap border-b border-slate-200/80";
   const bodyCellClass =
@@ -279,16 +280,18 @@ const KhataTable = ({
                         <option value="" disabled>
                           Actions
                         </option>
-                        <option value="viewPlots">View Plots ({k.plot_count || 0})</option>
+                        <option value="viewPlots">
+                          <LandPlot size={14} />View Plots ({k.plot_count || 0})</option>
                         <option value="upload" disabled={userRole === "Viewer"}>
-                          Upload ({k.khata_document_count || 0})
+                          <Upload size={14} />Upload ({k.khata_document_count || 0})
                         </option>
-                        <option value="map">Map ({k.khata_map_document_count || 0})</option>
+                        <option value="map">
+                          <MapIcon size={14} />Map ({k.khata_map_document_count || 0})</option>
                         <option value="edit" disabled={!canEdit}>
-                          Edit
+                          ✍️ Edit
                         </option>
                         <option value="delete" disabled={!canDelete}>
-                          Delete
+                         ❌ Delete
                         </option>
                       </select>
                     </td>

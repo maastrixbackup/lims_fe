@@ -70,14 +70,16 @@ export const useKhata = () => {
       let currentPage = 1;
       const maxPages = 1000;
       const allKhatas = [];
+      
 
       while (currentPage <= maxPages) {
         const url = `/khata/khataList?page=${currentPage}&limit=${pageSize}&project_id=${projectId}&village_id=${villageQueryString}&type=${typeParam}`;
         const data = await apiClient(url);
-        console.log(`Fetched page`, data);
+        console.log(`Fetched page ${currentPage}`, data);
         if (!data.success) break;
 
         const pageData = data.khatas || [];
+        //  console.log(`Page ${currentPage} data length:`, pageData.length);
         allKhatas.push(...pageData);
 
         const serverTotalPages = Number(

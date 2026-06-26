@@ -179,7 +179,7 @@ export default function LandingPage() {
 
               <button
                 type="submit"
-                className="w-full cursor-pointer rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full cursor-pointer rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-600"
                 disabled={loading}
               >
                 {loading ? "Signing In..." : "Sign In"}

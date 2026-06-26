@@ -5,6 +5,7 @@ import { apiClient } from "../../../../utils/apiClient";
 import { useSuccessMessage } from "../../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../../shared/SuccessMessage";
 import {
+  MAX_FILE_SIZE_HELPER_TEXT,
   buildExistingDocumentsByKey,
   downloadRemoteDocument,
   serializeExistingDocuments,
@@ -425,6 +426,9 @@ const LevelOneForm = ({ onStageComplete, onModeChange, showNext, onNext }) => {
                           handleFileChange(row.key, e.target.files)
                         }
                       />
+                      <div className="mt-1 text-xs text-red-500">
+                        {MAX_FILE_SIZE_HELPER_TEXT}
+                      </div>
                     
          {existingDocs[row.key]?.length > 0 && (
   <div className="mb-2 space-y-1">

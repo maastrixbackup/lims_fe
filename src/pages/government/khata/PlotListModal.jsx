@@ -314,13 +314,13 @@ useEffect(() => {
                   processedPlots.map((plot, i) => (
                     <tr key={plot.id || i} className="whitespace-nowrap">
                       <td>{i + 1}</td>
-                      <td className="font-semibold">{plot.plot_no || "N/A"}</td>
-                      {/* <td>{plot.full_part || "N/A"}</td> */}
-                      <td>{plot.total_area_acres ?? plot.land_area_total_acres ?? "N/A"}</td>
-                      <td>{plot.total_area_hectares ?? plot.land_area_total_hectares ?? "N/A"}</td>
-                      <td>{plot.proposed_area_acres ?? plot.land_area_acquired_acres ?? "N/A"}</td>
-                      <td>{plot.proposed_area_hectares ?? plot.land_area_acquired_hectares ?? "N/A"}</td>
-                      <td>{plot.mouza || "N/A"}</td>
+                      <td className="font-semibold">{plot.plot_no || "-"}</td>
+                      {/* <td>{plot.full_part || "-"}</td> */}
+                      <td>{plot.total_area_acres ?? plot.land_area_total_acres ?? "-"}</td>
+                      <td>{plot.total_area_hectares ?? plot.land_area_total_hectares ?? "-"}</td>
+                      <td>{plot.proposed_area_acres ?? plot.land_area_acquired_acres ?? "-"}</td>
+                      <td>{plot.proposed_area_hectares ?? plot.land_area_acquired_hectares ?? "-"}</td>
+                      <td>{plot.mouza || "-"}</td>
                     </tr>
                   ))
                 ) : (

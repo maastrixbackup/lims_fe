@@ -233,24 +233,24 @@ const ProjectMasterTable = ({ projects = [], loading, onEdit, onDelete }) => {
               {filteredAndSortedData.map((row) => (
                 <tr key={row.id}>
                   <td>{row.id}</td>
-                  <td>{row.project_id || "No data found"}</td>
-                  <td>{row.proposal_no || "No data found"}</td>
-                  <td>{row.project_name || "No data found"}</td>
-                  <td>{row.project_category || "No data found"}</td>
-                  <td>{row.project_sub_category || "No data found"}</td>
-                  <td>{row.project_nature || "No data found"}</td>
-                  <td>{row.user_agency || "No data found"}</td>
-                  <td>{row.state || "No data found"}</td>
-                  <td>{row.district || "No data found"}</td>
-                  <td>{row.tahasil || "No data found"}</td>
-                  <td>{row.mouza || "No data found"}</td>
-                  <td>{row.range_division || "No data found"}</td>
-                  <td>{row.forest_type || "No data found"}</td>
-                  <td>{row.total_project_area_ha || "No data found"}</td>
-                  <td>{row.forest_area_ha || "No data found"}</td>
-                  <td>{row.non_forest_area_ha || "No data found"}</td>
-                  <td>{row.project_status || "No data found"}</td>
-                  <td>{row.current_stage || "No data found"}</td>
+                  <td>{row.project_id || "-"}</td>
+                  <td>{row.proposal_no || "-"}</td>
+                  <td>{row.project_name || "-"}</td>
+                  <td>{row.project_category || "-"}</td>
+                  <td>{row.project_sub_category || "-"}</td>
+                  <td>{row.project_nature || "-"}</td>
+                  <td>{row.user_agency || "-"}</td>
+                  <td>{row.state || "-"}</td>
+                  <td>{row.district || "-"}</td>
+                  <td>{row.tahasil || "-"}</td>
+                  <td>{row.mouza || "-"}</td>
+                  <td>{row.range_division || "-"}</td>
+                  <td>{row.forest_type || "-"}</td>
+                  <td>{row.total_project_area_ha || "-"}</td>
+                  <td>{row.forest_area_ha || "-"}</td>
+                  <td>{row.non_forest_area_ha || "-"}</td>
+                  <td>{row.project_status || "-"}</td>
+                  <td>{row.current_stage || "-"}</td>
                   <td>
                     {Number(row.eds_flag) === 1 ? (
                       <span

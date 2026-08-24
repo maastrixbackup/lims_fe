@@ -479,7 +479,7 @@ const KhataTable = ({
                                   if (action === "delete") onDelete(khata);
                                 }}
                               >
-                                <option value="" disabled>
+                                <option value="" className="font-bold" disabled>
                                   Actions
                                 </option>
                                 <option

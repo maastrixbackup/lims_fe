@@ -125,7 +125,7 @@ const KhataForm = ({ onCancel, editingKhata, fetchKhatas }) => {
       khata_no: formData.khata_no,
       village_id: formData.village_id,
       village_name: formData.village_name,
-      kissam: formData.kissam,
+      kissam_of_land: formData.kissam,
       plot_no: formData.plot_no,
       lease_case_no: formData.lease_case_no,
       present_status: formData.present_status,

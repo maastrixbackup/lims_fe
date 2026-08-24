@@ -37,7 +37,6 @@ export default function Header({ setSidebarOpen, isMobile, sidebarOpen }) {
 
   const username = user?.name || "User";
   const userProfilePic = user?.profile_pic || "/default-avatar.png";
-  console.log("profile_pic", user)
 
   const handleProjectSelect = (project) => {
     dispatch(setSelectedProject(project || null));

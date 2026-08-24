@@ -5,6 +5,7 @@ import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "../khata/FilterableHeader";
 import Loader from "../../../shared/Loader";
 import { Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const VillageTable = ({
   villages = [],
@@ -89,7 +90,7 @@ const VillageTable = ({
           const fieldValue = row[field];
           if (fieldValue === null || fieldValue === undefined) return false;
           return String(fieldValue).trim() === String(value).trim();
-        })
+        }),
       )
       .sort((a, b) => {
         if (!sortConfig.field || !sortConfig.direction) return 0;
@@ -97,7 +98,7 @@ const VillageTable = ({
           a[sortConfig.field],
           b[sortConfig.field],
           sortConfig.direction,
-          sortConfig.field
+          sortConfig.field,
         );
       });
   }, [projectVillages, filters, sortConfig]);
@@ -156,22 +157,30 @@ const VillageTable = ({
         .vt-date { font-size: 12px; color: #888780; font-variant-numeric: tabular-nums; }
 
         .vt-icon-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
-          border: 0.5px solid #E5E3DC;
-          background: white;
-          cursor: pointer;
-          transition: background 0.13s, border-color 0.13s, transform 0.1s;
-          padding: 0;
-        }
-        .vt-icon-btn:hover { background: #F1EFE8; border-color: #D3D1C7; }
-        .vt-icon-btn:active { transform: scale(0.93); }
-        .vt-icon-btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-        .vt-icon-btn.del:hover { background: #FCEBEB; border-color: #F09595; }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #E5E3DC;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.vt-icon-btn:hover {
+  background: #F4F4F0;
+  border-color: #CBD5E1;
+}
+.vt-icon-btn.del:hover {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+}
+.vt-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: auto; /* Allows hover tooltip/toast click for restricted users */
+}
 
         .vt-empty {
           display: flex;
@@ -209,13 +218,13 @@ const VillageTable = ({
       `}</style>
 
       <div className="vt-root bg-white rounded-2xl border border-[#E5E3DC] overflow-hidden">
-
         {showNoProject && (
           <div className="vt-empty">
             <div className="vt-empty-icon bg-[#EEEDFE]">🗂️</div>
             <p className="vt-empty-title">No project selected</p>
             <p className="vt-empty-sub">
-              Please <span className="vt-highlight">select a project</span> first to view the village list.
+              Please <span className="vt-highlight">select a project</span>{" "}
+              first to view the village list.
             </p>
           </div>
         )}
@@ -227,7 +236,9 @@ const VillageTable = ({
             <div className="vt-empty-icon bg-[#FCEBEB]">📭</div>
             <p className="vt-empty-title">No villages found</p>
             <p className="vt-empty-sub">
-              No villages exist for the <span className="vt-highlight">selected project</span>. Try a different project or add a new village.
+              No villages exist for the{" "}
+              <span className="vt-highlight">selected project</span>. Try a
+              different project or add a new village.
             </p>
           </div>
         )}
@@ -236,7 +247,11 @@ const VillageTable = ({
           <>
             <div
               className="overflow-x-auto"
-              style={{ maxHeight: 400, overflowY: "auto", scrollbarWidth: "thin" }}
+              style={{
+                maxHeight: 400,
+                overflowY: "auto",
+                scrollbarWidth: "thin",
+              }}
             >
               <table className="vt-table">
                 <thead className="vt-thead sticky top-0 z-10">
@@ -297,14 +312,19 @@ const VillageTable = ({
                       onSort={handleSort}
                       sortConfig={sortConfig}
                     />
-                    <th className="text-right pr-6">Actions</th>
+                    <th className="text-right pr-6 sticky right-0 bg-[#e5e7eb] z-20">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
 
                 <tbody className="vt-tbody">
                   {filteredVillages.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-6 text-[#888780] text-sm">
+                      <td
+                        colSpan={7}
+                        className="text-center py-6 text-[#888780] text-sm"
+                      >
                         No data found
                       </td>
                     </tr>
@@ -312,53 +332,62 @@ const VillageTable = ({
                     filteredVillages.map((v, i) => (
                       <tr key={v.id}>
                         <td className="vt-sl">{i + 1}</td>
-                        <td className="vt-village">{v.village_name || "No Data"}</td>
+                        <td className="vt-village">
+                          {v.village_name || "No Data"}
+                        </td>
                         <td>{v.district || "No Data"}</td>
                         <td>{v.tahasil || "No Data"}</td>
                         <td>{v.thana_name_no || "No Data"}</td>
-                        <td className="vt-date">{moment(v.created_at).format("DD-MM-YYYY")}</td>
-                         <td className="text-right">
-                        <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                          defaultValue=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            e.target.value = "";
+                        <td className="vt-date">
+                          {moment(v.created_at).format("DD-MM-YYYY")}
+                        </td>
+                        <td className="text-right pr-4">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Edit Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!canEdit) {
+                                  toast.error(
+                                    "You do not have permission to edit.",
+                                  );
+                                  return;
+                                }
+                                onEdit(v);
+                              }}
+                              disabled={!canEdit}
+                              className="vt-icon-btn"
+                              title={
+                                canEdit ? "Edit Village" : "Edit Restricted"
+                              }
+                            >
+                              <Pencil size={14} className="text-slate-600" />
+                            </button>
 
-                            if (action === "edit" && canEdit) {
-                              onEdit(v);
-                            }
-
-                            if (action === "delete" && canDelete) {
-                              onDelete(v);
-                            }
-                          }}
-                        >
-                          <option value="" disabled>
-                            Actions
-                          </option>
-
-                          <option
-                            value="edit"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
-                          >
-                          ✍️ Edit
-                          </option>
-
-                          <option
-                            value="delete"
-                            disabled={!canDelete}
-                            className={`text-md text-gray-700 font-bold ${
-                              !canDelete ? "!text-gray-400" : ""
-                            }`}
-                          >
-                             ❌ Delete
-                          </option>
-                        </select>
-                      </td>
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!canDelete) {
+                                  toast.error(
+                                    "You do not have permission to delete.",
+                                  );
+                                  return;
+                                }
+                                onDelete(v);
+                              }}
+                              disabled={!canDelete}
+                              className="vt-icon-btn del"
+                              title={
+                                canDelete
+                                  ? "Delete Village"
+                                  : "Delete Restricted"
+                              }
+                            >
+                              <Trash2 size={14} className="text-red-500" />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))
                   )}

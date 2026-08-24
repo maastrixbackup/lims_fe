@@ -1,15 +1,18 @@
 import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
+  if (totalPages <= 0) return null;
+
   return (
-    <div className="w-full overflow-x-auto border-t border-gray-200 bg-gray-50">
-      <div className="flex items-center justify-between gap-4 min-w-max px-4 py-3">
+    <div className="w-full border-t border-slate-200/80 bg-white px-4 py-3 sm:px-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         
-        {/* Page size */}
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <span className="text-sm text-gray-700">Page Size:</span>
+        {/* Left: Page Size Selector */}
+        <div className="flex items-center gap-2.5 text-xs text-slate-600">
+          <span className="font-medium text-slate-500">Rows per page:</span>
           <select
-            className="select select-bordered select-sm w-24"
+            className="h-8 rounded-lg border border-slate-200 bg-slate-50/50 px-2.5 text-xs font-medium text-slate-700 outline-none transition-all hover:bg-slate-100 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20"
             value={limit}
             onChange={(e) => {
               setLimit(Number(e.target.value));
@@ -23,80 +26,117 @@ const Pagination = ({ page, totalPages, setPage, limit, setLimit }) => {
           </select>
         </div>
 
-        {/* Pagination buttons */}
-        <div className="join whitespace-nowrap">
+        {/* Right: Page Navigation Controls */}
+        <div className="flex items-center gap-1.5">
+          {/* Previous Button */}
           <button
-            className="join-item btn btn-sm"
+            type="button"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
+            className="inline-flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900 disabled:pointer-events-none disabled:opacity-40"
           >
-            Prev
+            <ChevronLeft size={14} />
+            <span className="hidden sm:inline">Previous</span>
           </button>
 
-          {totalPages === 1 ? (
-            <button className="join-item btn btn-sm btn-primary">1</button>
-          ) : (
-            <>
+          {/* Page Number Buttons */}
+          <div className="flex items-center gap-1">
+            {totalPages === 1 ? (
               <button
-                className={`join-item btn btn-sm ${
-                  page === 1 ? "btn-primary" : ""
-                }`}
-                onClick={() => setPage(1)}
+                type="button"
+                className="h-8 min-w-[32px] rounded-lg bg-indigo-600 text-xs font-semibold text-white shadow-xs"
               >
                 1
               </button>
-
-              {page > 3 && (
-                <button className="join-item btn btn-sm btn-disabled">…</button>
-              )}
-
-              {page > 2 && (
+            ) : (
+              <>
+                {/* First Page */}
                 <button
-                  className="join-item btn btn-sm"
-                  onClick={() => setPage(page - 1)}
+                  type="button"
+                  onClick={() => setPage(1)}
+                  className={`h-8 min-w-[32px] rounded-lg px-2 text-xs font-medium transition-all ${
+                    page === 1
+                      ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
                 >
-                  {page - 1}
+                  1
                 </button>
-              )}
 
-              {page !== 1 && page !== totalPages && (
-                <button className="join-item btn btn-sm btn-primary">
-                  {page}
-                </button>
-              )}
+                {/* Left Ellipsis */}
+                {page > 3 && (
+                  <span className="px-1 text-xs text-slate-400 select-none">
+                    •••
+                  </span>
+                )}
 
-              {page < totalPages - 1 && (
+                {/* Previous Page Link */}
+                {page > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => setPage(page - 1)}
+                    className="h-8 min-w-[32px] rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all"
+                  >
+                    {page - 1}
+                  </button>
+                )}
+
+                {/* Current Active Middle Page */}
+                {page !== 1 && page !== totalPages && (
+                  <button
+                    type="button"
+                    className="h-8 min-w-[32px] rounded-lg bg-indigo-600 px-2 text-xs font-semibold text-white shadow-xs transition-all"
+                  >
+                    {page}
+                  </button>
+                )}
+
+                {/* Next Page Link */}
+                {page < totalPages - 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setPage(page + 1)}
+                    className="h-8 min-w-[32px] rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-all"
+                  >
+                    {page + 1}
+                  </button>
+                )}
+
+                {/* Right Ellipsis */}
+                {page < totalPages - 2 && (
+                  <span className="px-1 text-xs text-slate-400 select-none">
+                    •••
+                  </span>
+                )}
+
+                {/* Last Page */}
                 <button
-                  className="join-item btn btn-sm"
-                  onClick={() => setPage(page + 1)}
+                  type="button"
+                  onClick={() => setPage(totalPages)}
+                  className={`h-8 min-w-[32px] rounded-lg px-2 text-xs font-medium transition-all ${
+                    page === totalPages
+                      ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
                 >
-                  {page + 1}
+                  {totalPages}
                 </button>
-              )}
+              </>
+            )}
+          </div>
 
-              {page < totalPages - 2 && (
-                <button className="join-item btn btn-sm btn-disabled">…</button>
-              )}
-
-              <button
-                className={`join-item btn btn-sm ${
-                  page === totalPages ? "btn-primary" : ""
-                }`}
-                onClick={() => setPage(totalPages)}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-
+          {/* Next Button */}
           <button
-            className="join-item btn btn-sm"
+            type="button"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
+            className="inline-flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900 disabled:pointer-events-none disabled:opacity-40"
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight size={14} />
           </button>
         </div>
+
       </div>
     </div>
   );

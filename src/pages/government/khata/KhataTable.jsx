@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import {
   GovtKhataColumn,
-  stickyActionCell,
-  stickyActionHeader,
 } from "../../../utils/constants";
 import FilterHeader from "../plot/FilterHeader";
 import { useDispatch, useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
 import { setSelectedKhataId } from "../../../utils/khataSlice";
 import { LandPlot, MapIcon, Upload, View } from "lucide-react";
+
+export const stickyActionHeader =
+  "p-3 text-center bg-gray-200 sticky right-0 z-[30] shadow-md w-[90px] min-w-[90px]";
+
+export const stickyActionCell =
+  "p-3 text-center sticky right-0 border-l border-gray-200 shadow-sm bg-white z-[10] w-[90px] min-w-[90px]";
 
 const KhataTable = ({
   khatas,
@@ -261,7 +265,7 @@ const KhataTable = ({
                       className={`${stickyActionCell} px-4 py-3 border-b border-slate-200 align-top bg-white`}
                     >
                       <select
-                        className="select select-sm bg-white border-slate-300 w-[42px] min-h-8 h-8"
+                        className="select select-sm bg-white border-slate-300 w-24 h-8 px-2 text-xs hover:bg-gray-100 transition-all"
                         defaultValue=""
                         onChange={(e) => {
                           const action = e.target.value;

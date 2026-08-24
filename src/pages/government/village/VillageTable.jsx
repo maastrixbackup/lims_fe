@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "../../private/khata/FilterableHeader";
 import Loader from "../../../shared/Loader";
+import { Edit3, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const VillageTable = ({
   villages = [],
@@ -99,7 +101,7 @@ const VillageTable = ({
           const fieldValue = row[field];
           if (fieldValue === null || fieldValue === undefined) return false;
           return String(fieldValue).trim() === String(value).trim();
-        })
+        }),
       )
       .sort((a, b) => {
         if (!sortConfig.field || !sortConfig.direction) return 0;
@@ -108,7 +110,7 @@ const VillageTable = ({
           a[sortConfig.field],
           b[sortConfig.field],
           sortConfig.direction,
-          sortConfig.field
+          sortConfig.field,
         );
       });
   }, [projectVillages, filters, sortConfig]);
@@ -126,7 +128,7 @@ const VillageTable = ({
   const showNoVillages = selectedProject && filteredVillages.length === 0;
 
   return (
-    <div className="card bg-white">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
       {showNoProject && (
         <div className="py-10 text-center">
           <p className="text-lg font-medium text-gray-500">
@@ -163,7 +165,7 @@ const VillageTable = ({
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 uppercase text-xs">
+              <thead className="bg-slate-50 text-slate-600 sticky top-0 z-10 text-xs font-semibold tracking-wider uppercase border-b border-gray-200">
                 <tr>
                   <th>Sl/No</th>
                   <FilterableHeader
@@ -221,7 +223,9 @@ const VillageTable = ({
                     onSort={handleSort}
                     sortConfig={sortConfig}
                   />
-                  <th className="text-right pr-6">Actions</th>
+                  <th className="text-right pr-6 sticky right-0 bg-gray-100 z-20">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -234,55 +238,71 @@ const VillageTable = ({
                   </tr>
                 ) : (
                   filteredVillages.map((v, i) => (
-                    <tr key={v.id} className="hover:bg-gray-50 whitespace-nowrap">
-                      <td>{i + 1}</td>
-                      <td>{v.village_name || "No Data"}</td>
-                      <td>{v.district || "No Data"}</td>
-                      <td>{v.tahasil || "No Data"}</td>
-                      <td>{v.thana_name_no || "No Data"}</td>
-                      <td>{moment(v.created_at).format("DD-MM-YYYY")}</td>
+                    <tr
+                      key={v.id}
+                      className="hover:bg-slate-50/80 transition-colors border-b border-gray-100 text-sm text-gray-700"
+                    >
+                      <td className="font-medium text-gray-500">{i + 1}</td>
+                      <td className="font-semibold text-gray-800">
+                        {v.village_name || "—"}
+                      </td>
+                      <td>{v.district || "—"}</td>
+                      <td>{v.tahasil || "—"}</td>
+                      <td>{v.thana_name_no || "—"}</td>
+                      <td className="text-gray-500">
+                        {moment(v.created_at).format("DD MMM YYYY")}
+                      </td>
 
-                      <td className="text-right">
-                        <select
-                          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
-                          defaultValue=""
-                          onChange={(e) => {
-                            const action = e.target.value;
-                            e.target.value = "";
-
-                            if (action === "edit" && canEdit) {
+                      <td className="text-right pr-4">
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Edit Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!canEdit) {
+                                toast.error(
+                                  "You do not have permission to edit.",
+                                );
+                                return;
+                              }
                               onEdit(v);
-                            }
+                            }}
+                            disabled={!canEdit}
+                            className={`p-1.5 rounded-lg border transition-all ${
+                              canEdit
+                                ? "bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100 hover:scale-105"
+                                : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-50"
+                            }`}
+                            title={canEdit ? "Edit Village" : "Edit Restricted"}
+                          >
+                            <Edit3 size={15} />
+                          </button>
 
-                            if (action === "delete" && canDelete) {
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!canDelete) {
+                                toast.error(
+                                  "You do not have permission to delete.",
+                                );
+                                return;
+                              }
                               onDelete(v);
-                            }
-                          }}
-                        >
-                          <option value="" disabled>
-                            Actions
-                          </option>
-
-                          <option
-                            value="edit"
-                            disabled={userRole === "Viewer"}
-                            className={`text-md text-gray-700 font-bold ${
-                              userRole === "Viewer" ? "!text-gray-400" : ""
-                            }`}
-                          >
-                            ✍️ Edit
-                          </option>
-
-                          <option
-                            value="delete"
+                            }}
                             disabled={!canDelete}
-                            className={`text-md text-gray-700 font-bold ${
-                              !canDelete ? "!text-gray-400" : ""
+                            className={`p-1.5 rounded-lg border transition-all ${
+                              canDelete
+                                ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100 hover:scale-105"
+                                : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-50"
                             }`}
+                            title={
+                              canDelete ? "Delete Village" : "Delete Restricted"
+                            }
                           >
-                             ❌ Delete
-                          </option>
-                        </select>
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -305,4 +325,3 @@ const VillageTable = ({
 };
 
 export default VillageTable;
-

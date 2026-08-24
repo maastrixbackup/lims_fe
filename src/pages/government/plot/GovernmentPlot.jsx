@@ -1,10 +1,10 @@
+/* eslint-disable no-constant-binary-expression */
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../../../utils/config";
 import PlotForm from "./PlotForm";
 import {
   GovernmentPlotFields,
   LandAreaEvaluationFields,
-  legalIssue,
   stickyActionCell,
   stickyActionHeader,
 } from "../../../utils/constants";
@@ -21,6 +21,7 @@ import { FolderUp } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import Loader from "../../../shared/Loader";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const PRESENT_STATUS_MAP = {
   1: "Lease Case to Sub-Collector",
   2: "Lease Case to ADM (Rev Sec)",
@@ -57,7 +58,6 @@ const Plots = () => {
   const [paymentStatusMap, setPaymentStatusMap] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlot, setEditingPlot] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const userRole = useSelector((state) => state.auth.user?.role_name);
   const canEdit = userRole !== "Viewer";
   const canDelete = !(userRole === "Data Entry User" || userRole === "Viewer");
@@ -111,9 +111,7 @@ const Plots = () => {
       return "PC";
     }
     if (
-      ["rp", "ready", "ready for payment", "payment ready"].includes(
-        normalized,
-      )
+      ["rp", "ready", "ready for payment", "payment ready"].includes(normalized)
     ) {
       return "RP";
     }
@@ -442,8 +440,8 @@ const Plots = () => {
       return true;
     };
 
-    return [...new Set(plots.map((p) => p[key]).filter(isPresent))].sort((a, b) =>
-      sortCollator.compare(String(a), String(b)),
+    return [...new Set(plots.map((p) => p[key]).filter(isPresent))].sort(
+      (a, b) => sortCollator.compare(String(a), String(b)),
     );
   };
   const filteredPlots = useMemo(() => {
@@ -756,68 +754,70 @@ const Plots = () => {
     <main className="flex-1 overflow-y-auto space-y-2">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Government Land Plot</h2>
-    <div 
-    // className="w-full flex justify-end"
-    >
-        <div className="grid grid-cols-3 gap-3 items-center">
-          <div>
-            <select
-              value={selectedLeaseCaseNo}
-              onChange={(e) => setSelectedLeaseCaseNo(e.target.value)}
-              className="select select-sm select-bordered"
-              disabled={!leaseCaseOptions.length}
-            >
-              <option value="">Select Lease Case</option>
-              {leaseCaseOptions.map((leaseNo) => (
-                <option key={leaseNo} value={leaseNo}>
-                  {leaseNo}
+        <div
+        // className="w-full flex justify-end"
+        >
+          <div className="grid grid-cols-3 gap-3 items-center">
+            <div>
+              <select
+                value={selectedLeaseCaseNo}
+                onChange={(e) => setSelectedLeaseCaseNo(e.target.value)}
+                className="select select-sm select-bordered"
+                disabled={!leaseCaseOptions.length}
+              >
+                <option value="">Select Lease Case</option>
+                {leaseCaseOptions.map((leaseNo) => (
+                  <option key={leaseNo} value={leaseNo}>
+                    {leaseNo}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <select
+                value={selectedPaymentCode}
+                onChange={(e) =>
+                  handleGlobalPaymentStatusChange(e.target.value)
+                }
+                className="select select-sm select-bordered text-gray-700 text-md font-medium"
+                disabled={
+                  isRestricted ||
+                  !selectedLeaseCaseNo ||
+                  loadingLeaseCaseNo === selectedLeaseCaseNo
+                }
+              >
+                <option value="" disabled>
+                  Payment Status
                 </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <select
-              value={selectedPaymentCode}
-              onChange={(e) => handleGlobalPaymentStatusChange(e.target.value)}
-              className="select select-sm select-bordered text-gray-700 text-md font-medium"
-              disabled={
-                isRestricted ||
-                !selectedLeaseCaseNo ||
-                loadingLeaseCaseNo === selectedLeaseCaseNo
-              }
-            >
-              <option value="" disabled>
-                Payment Status
-              </option>
-              <option value="RP" disabled={selectedPaymentCode === "PP"}>
-                Ready for Payment
-              </option>
-              <option value="PP">Payment Processing</option>
-              <option value="PC">Payment Complete</option>
-            </select>
-          </div>
-          <div>
-            <button
-              type="button"
-              className={`btn btn-sm pointer-events-none ${
-                !selectedLeaseCaseNo
-                  ? "bg-gray-200 text-gray-600 border-gray-300"
-                  : selectedPaymentCode === "RP"
-                    ? "bg-orange-600 text-white border-orange-600"
-                    : selectedPaymentCode === "PP"
-                      ? "bg-green-400 text-white border-green-400"
-                      : selectedPaymentCode === "PC"
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-gray-200 text-gray-600 border-gray-300"
-              }`}
-            >
-              <span className="text-xs whitespace-nowrap px-2">
-                {selectedPaymentCode || "No Payment"}
-              </span>
-            </button>
+                <option value="RP" disabled={selectedPaymentCode === "PP"}>
+                  Ready for Payment
+                </option>
+                <option value="PP">Payment Processing</option>
+                <option value="PC">Payment Complete</option>
+              </select>
+            </div>
+            <div>
+              <button
+                type="button"
+                className={`btn btn-sm pointer-events-none ${
+                  !selectedLeaseCaseNo
+                    ? "bg-gray-200 text-gray-600 border-gray-300"
+                    : selectedPaymentCode === "RP"
+                      ? "bg-orange-600 text-white border-orange-600"
+                      : selectedPaymentCode === "PP"
+                        ? "bg-green-400 text-white border-green-400"
+                        : selectedPaymentCode === "PC"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-gray-200 text-gray-600 border-gray-300"
+                }`}
+              >
+                <span className="text-xs whitespace-nowrap px-2">
+                  {selectedPaymentCode || "No Payment"}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
         <div className="grid grid-cols-2 gap-2 items-center justify-end">
           {/* <select
             value={selectedLeaseCaseNo}
@@ -893,7 +893,7 @@ const Plots = () => {
           </button>
         </div>
       </div>
-  
+
       <div>
         {loading && selectedProjectId ? (
           <Loader message="Loading plot list..." />
@@ -932,19 +932,15 @@ const Plots = () => {
         )}
         {!loading && selectedProjectId && filteredPlots.length > 0 && (
           <>
-          
             <PlotTabs>
-              
               <div
                 className=" max-h-[400px] overflow-y-auto"
                 style={{ scrollbarWidth: "thin" }}
               >
-                
                 <table
                   className="table w-full whitespace-nowrap overflow-x-auto"
                   title="Basic Details"
                 >
-                  
                   <thead className="bg-gray-200 sticky top-0 z-10">
                     <tr>
                       <th className="">Sl/No</th>
@@ -1072,7 +1068,7 @@ const Plots = () => {
                           <td>{plot.remarks || "-"}</td>
                           <td className={stickyActionCell}>
                             <select
-                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                              className="select select-sm bg-gray-100 border border-gray-300 w-24 h-8 px-2 text-xs cursor-pointer focus:ring-1 focus:ring-slate-400"
                               defaultValue=""
                               onChange={(e) => {
                                 const action = e.target.value;
@@ -1086,7 +1082,6 @@ const Plots = () => {
                                   onDelete(plot);
                                 }
                               }}
-                              // disabled={!canEdit && !canDelete}
                             >
                               <option value="" disabled>
                                 Actions
@@ -1216,5 +1211,3 @@ const Plots = () => {
 };
 
 export default Plots;
-
-

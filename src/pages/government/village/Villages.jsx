@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -12,6 +13,7 @@ import ExportButtons from "../../../shared/ExportButtons";
 import { apiClient } from "../../../utils/apiClient";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
+import { toast } from "sonner";
 
 const Villages = () => {
   const { user, userToken: token } = useSelector((s) => s.auth);
@@ -109,24 +111,22 @@ const Villages = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async () => {
+const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
       const data = await apiClient(
-        `/village/deleteVillage/${deleteVillage.id} `,{
+        `/village/deleteVillage/${deleteVillage.id}`, {
         method: "DELETE",
-      },
-     
-      );
+      });
+
       if (data && data.success) {
-       showSuccess( data.message || "Village Deleted Successfully")
+        toast.success(data.message || "Village Deleted Successfully");
         fetchVillages();
       } else {
-        showError(data?.message || "Failed to delete village.");
+        toast.error(data?.message || "Failed to delete village.");
       }
     } catch (err) {
-      // console.error("Delete error:", err);
-     showError(err.message, "An error occurred while deleting the village.");
+      toast.error(err.message || "An error occurred while deleting the village.");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteVillage(null);

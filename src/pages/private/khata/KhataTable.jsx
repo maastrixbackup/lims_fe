@@ -15,10 +15,7 @@ import PlotListModal from "./PlotListModal";
 import { setSelectedKhataId } from "../../../utils/khataSlice";
 import Pagination from "../../../shared/Pagination";
 import FilterableHeader from "./FilterableHeader";
-import {
-  RR_FIELDS_FORMS,
-  COMMON_COLUMNS,
-} from "../../../utils/constants";
+import { RR_FIELDS_FORMS, COMMON_COLUMNS } from "../../../utils/constants";
 import KhataTabs from "./KhataTabs";
 
 const KhataTable = ({
@@ -67,9 +64,9 @@ const KhataTable = ({
     "p-3 text-left bg-white md:sticky md:left-[320px] shadow-sm";
 
   const stickyActionHeader =
-    "p-3 text-right bg-gray-200 sticky right-0 z-[30] shadow-md";
+    "p-3 text-center bg-gray-200 sticky right-0 z-[30] shadow-md w-[100px] min-w-[100px]";
   const stickyActionCell =
-    "p-3 text-right sticky right-0 border-l border-gray-100 shadow-sm bg-white";
+    "p-3 text-center sticky right-0 border-l border-gray-200 shadow-sm bg-white z-[10] w-[100px] min-w-[100px]";
   const sortCollator = new Intl.Collator(undefined, {
     sensitivity: "base",
     numeric: true,
@@ -81,8 +78,8 @@ const KhataTable = ({
       typeof value === "string"
         ? value.split(",").map((v) => v.trim())
         : Array.isArray(value)
-        ? value
-        : [];
+          ? value
+          : [];
     const firstThree = items.slice(0, 3).join(", ");
     const remainingCount = items.length - 3;
     return remainingCount > 0
@@ -149,7 +146,7 @@ const KhataTable = ({
       }
     });
     return Array.from(set).sort((a, b) =>
-      sortCollator.compare(String(a), String(b))
+      sortCollator.compare(String(a), String(b)),
     );
   };
 
@@ -167,21 +164,24 @@ const KhataTable = ({
             .includes(value);
 
         return String(fieldValue) === String(value);
-      })
+      }),
     )
     .sort((a, b) => {
       if (!sortConfig.field || !sortConfig.direction) return 0;
       return compareNaturally(
         a[sortConfig.field],
         b[sortConfig.field],
-        sortConfig.direction
+        sortConfig.direction,
       );
     });
 
-  const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));
+  const clientTotalPages = Math.max(
+    1,
+    Math.ceil(filteredKhatas.length / limit),
+  );
   const paginatedKhatas = filteredKhatas.slice(
     (page - 1) * limit,
-    page * limit
+    page * limit,
   );
 
   useEffect(() => {
@@ -338,7 +338,7 @@ const KhataTable = ({
                           sortConfig={sortConfig}
                           className="w-[200px] min-w-[200px] max-w-[200px]"
                         />
-                          <FilterableHeader
+                        <FilterableHeader
                           label="Kissam Of Land"
                           field="kissam_of_land"
                           filters={filters}
@@ -390,16 +390,14 @@ const KhataTable = ({
                           <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                             {(page - 1) * limit + idx + 1}
                           </td>
-                          <td className={stickyCol1Cell}>{khata.khata_no || "-"}</td>
+                          <td className={stickyCol1Cell}>
+                            {khata.khata_no || "-"}
+                          </td>
                           <td className={stickyCol2Cell}>
                             {khata.village_name || "-"}
                           </td>
-                          <td>
-                            {khata.name_of_recorded_tenant || "-"}
-                          </td>
-                          <td>
-                            {khata.name_of_present_tenant || "-"}
-                          </td>
+                          <td>{khata.name_of_recorded_tenant || "-"}</td>
+                          <td>{khata.name_of_present_tenant || "-"}</td>
                           <td className="w-[200px] min-w-[200px] max-w-[200px]">
                             {khata.plot_no ? (
                               <div className="flex flex-col">
@@ -435,22 +433,24 @@ const KhataTable = ({
                             {khata.kissam_of_land || "-"}
                           </td>
 
-                          {COMMON_COLUMNS.map(({ field, format, className }) => (
-                            <td
-                              key={field}
-                              className={`whitespace-nowrap ${className || "-"}`}
-                            >
-                              {format === "multi"
-                                ? formatThreeItems(khata[field])
-                                : field === "created_at"
-                                ? moment(khata[field]).format("DD-MM-YYYY")
-                                : khata[field] || "-"}
-                            </td>
-                          ))}
+                          {COMMON_COLUMNS.map(
+                            ({ field, format, className }) => (
+                              <td
+                                key={field}
+                                className={`whitespace-nowrap ${className || "-"}`}
+                              >
+                                {format === "multi"
+                                  ? formatThreeItems(khata[field])
+                                  : field === "created_at"
+                                    ? moment(khata[field]).format("DD-MM-YYYY")
+                                    : khata[field] || "-"}
+                              </td>
+                            ),
+                          )}
 
                           <td className={stickyActionCell}>
                             <select
-                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
+                              className="select select-sm bg-gray-100 border border-gray-300 w-full max-w-[80px] px-1 text-xs"
                               defaultValue=""
                               onChange={(e) => {
                                 const action = e.target.value;
@@ -742,4 +742,3 @@ const KhataTable = ({
 };
 
 export default KhataTable;
-

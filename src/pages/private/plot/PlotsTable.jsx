@@ -90,17 +90,25 @@ const tableConfigs = [
     rows: [
       { key: "full_part" },
       { key: "ses_survey_no" },
-      { key: "date_of_award", render: (plot, _, __, ___, formatDate) => formatDate(plot.date_of_award) },
+      {
+        key: "date_of_award",
+        render: (plot, _, __, ___, formatDate) =>
+          formatDate(plot.date_of_award),
+      },
       { key: "name_of_recorded_tenant" },
       { key: "name_of_present_tenant" || "-" },
       { key: "present_tenant_count" || "-" },
       { key: "present_address" },
       {
         key: "displaced_affected_project",
-        render: (plot) => formatDisplacedAffectedValue(plot.displaced_affected_project),
+        render: (plot) =>
+          formatDisplacedAffectedValue(plot.displaced_affected_project),
       },
       { key: "district" },
-      { key: "village_name", className: `${DEFAULT_CELL_CLASS} whitespace-nowrap` },
+      {
+        key: "village_name",
+        className: `${DEFAULT_CELL_CLASS} whitespace-nowrap`,
+      },
       { key: "tahasil_name" },
       { key: "ri_circle_name" },
       { key: "thana_no" },
@@ -151,7 +159,11 @@ const tableConfigs = [
     rows: [
       { key: "legal_heir_certificate_no" },
       { key: "land_case_no" },
-      { key: "land_case_date", render: (plot, _, __, ___, formatDate) => formatDate(plot.land_case_date) },
+      {
+        key: "land_case_date",
+        render: (plot, _, __, ___, formatDate) =>
+          formatDate(plot.land_case_date),
+      },
       { key: "land_case_type" },
       { key: "land_case_status" },
       { key: "land_case_action" },
@@ -193,12 +205,20 @@ const tableConfigs = [
     columns: TribunalColumns,
     rows: [
       { key: "grievance_no" },
-      { key: "grievance_date", render: (plot, _, __, ___, formatDate) => formatDate(plot.grievance_date) },
+      {
+        key: "grievance_date",
+        render: (plot, _, __, ___, formatDate) =>
+          formatDate(plot.grievance_date),
+      },
       { key: "grievance_subject" },
       { key: "grievance_status" },
       { key: "grievance_action" },
       { key: "tribunal", render: (plot) => formatYesNoValue(plot.tribunal) },
-      { key: "tribunal_deposit_date", render: (plot, _, __, ___, formatDate) => formatDate(plot.tribunal_deposit_date) },
+      {
+        key: "tribunal_deposit_date",
+        render: (plot, _, __, ___, formatDate) =>
+          formatDate(plot.tribunal_deposit_date),
+      },
       { key: "tribunal_amount", fallback: "-" },
     ],
     includePaymentCell: true,
@@ -342,13 +362,19 @@ const PlotTable = ({
   }, [selectedProject, sortedPlots]);
 
   const villageOptions = useMemo(
-    () => [...new Set(projectFilteredPlots.map((plot) => plot.village_name).filter(Boolean))],
+    () => [
+      ...new Set(
+        projectFilteredPlots.map((plot) => plot.village_name).filter(Boolean),
+      ),
+    ],
     [projectFilteredPlots],
   );
 
   const getOptions = useCallback(
     (field) => [
-      ...new Set(projectFilteredPlots.map((plot) => plot[field]).filter(Boolean)),
+      ...new Set(
+        projectFilteredPlots.map((plot) => plot[field]).filter(Boolean),
+      ),
     ],
     [projectFilteredPlots],
   );
@@ -452,7 +478,13 @@ const PlotTable = ({
     }
 
     return data;
-  }, [columnFilters, projectFilteredPlots, searchQuery, selectedVillage, sortConfig]);
+  }, [
+    columnFilters,
+    projectFilteredPlots,
+    searchQuery,
+    selectedVillage,
+    sortConfig,
+  ]);
 
   const clientTotalPages = Math.max(1, Math.ceil(filteredPlots.length / limit));
   const paginatedPlots = filteredPlots.slice((page - 1) * limit, page * limit);
@@ -638,7 +670,7 @@ const PlotTable = ({
     (plot) => (
       <td className={stickyActionCell}>
         <select
-          className="select select-sm bg-gray-100 border border-gray-300 w-[42px]"
+          className="select select-sm bg-gray-100 border border-gray-300 w-full sm:w-28 min-w-[90px] h-8 px-2 text-xs font-medium rounded-md cursor-pointer focus:ring-1 focus:ring-indigo-400"
           defaultValue=""
           onChange={(event) => {
             const { value } = event.target;
@@ -652,20 +684,20 @@ const PlotTable = ({
           <option
             value="edit"
             disabled={!canEdit}
-            className={`text-md text-gray-700 font-bold ${
+            className={`text-xs text-gray-700 font-medium ${
               !canEdit ? "!text-gray-400" : ""
             }`}
           >
-             ✍️ Edit
+            ✍️ Edit
           </option>
           <option
             value="delete"
             disabled={!canDelete}
-            className={`text-md text-gray-700 font-bold ${
+            className={`text-xs text-gray-700 font-medium ${
               !canDelete ? "!text-gray-400" : ""
             }`}
           >
-           ❌ Delete
+            ❌ Delete
           </option>
         </select>
       </td>
@@ -690,7 +722,11 @@ const PlotTable = ({
 
   const renderTable = useCallback(
     ({ key, columns, rows, includePaymentCell, rowClassName = "" }) => (
-      <div key={key} className={TABLE_WRAPPER_CLASS} style={TABLE_WRAPPER_STYLE}>
+      <div
+        key={key}
+        className={TABLE_WRAPPER_CLASS}
+        style={TABLE_WRAPPER_STYLE}
+      >
         <table className="table w-full">
           <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 whitespace-nowrap text-sm">
             <tr>
@@ -808,7 +844,9 @@ const PlotTable = ({
             <>
               <p className="text-md font-medium text-red-500">
                 No data found for the{" "}
-                <span className="text-primary font-bold">Selected Project.</span>
+                <span className="text-primary font-bold">
+                  Selected Project.
+                </span>
               </p>
               <p className="text-md text-gray-500 mt-1">
                 Try selecting a different{" "}

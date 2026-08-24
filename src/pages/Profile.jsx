@@ -1,11 +1,21 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
-  CheckCircle, XCircle, Camera, User, Mail, Phone,
-  Edit, Save, X, Loader2, Check,
+  CheckCircle,
+  XCircle,
+  Camera,
+  User,
+  Mail,
+  Phone,
+  Edit,
+  Save,
+  X,
+  Loader2,
+  Check,
 } from "lucide-react";
 import { API_BASE_URL } from "../utils/config";
 import { useDispatch } from "react-redux";
 import { updateUser } from "../utils/userSlice";
+import { toast } from "sonner";
 
 const Profile = () => {
   const getAuthToken = () =>
@@ -85,6 +95,21 @@ const Profile = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Optional client-side MIME type check
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/jpg",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(
+          "Invalid file format. Please select a JPG, PNG, or WEBP image.",
+        );
+        e.target.value = null;
+        return;
+      }
+
       setProfile((prev) => ({ ...prev, avatar: file }));
       setPreview(URL.createObjectURL(file));
     }
@@ -95,15 +120,19 @@ const Profile = () => {
     try {
       setUpdating(true);
       const token = getAuthToken();
-      if (!token) throw new Error("Not authorized");
+      if (!token) {
+        toast.error("Not authorized. Please log in again.");
+        return;
+      }
 
       const formData = new FormData();
       formData.append("name", profile.fullName);
       formData.append("username", profile.username);
       formData.append("email", profile.email);
       formData.append("phone_number", profile.phone_number);
-      if (profile.avatar instanceof File)
+      if (profile.avatar instanceof File) {
         formData.append("profile_pic", profile.avatar);
+      }
 
       const response = await fetch(`${API_BASE_URL}/user/updateUser`, {
         method: "POST",
@@ -111,10 +140,18 @@ const Profile = () => {
         body: formData,
       });
 
-      const data = await response.json();
-      if (!response.ok || !data.success)
-        throw new Error(data.message || "Failed to update profile");
+      // Parse JSON safely
+      const data = await response.json().catch(() => null);
 
+      // If HTTP error (e.g., 400 Bad Request, 500 Server Error, Express Multer image filter error)
+      if (!response.ok || !data?.success) {
+        const errorMessage =
+          data?.message || "Invalid image format or failed to update profile.";
+        toast.error(errorMessage); // Displays the exact backend error message
+        return;
+      }
+
+      // Success flow
       const updatedUser = data.updatedUser || data.user || {};
       const newPicUrl = updatedUser.profile_pic
         ? updatedUser.profile_pic.startsWith("http")
@@ -140,13 +177,14 @@ const Profile = () => {
           email: updatedUser.email,
           phone_number: updatedUser.phone_number,
           profile_pic: updatedUser.profile_pic,
-        })
+        }),
       );
 
-      setShowModal(true);
+      toast.success(data.message || "Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
-      alert(err.message || "Failed to update profile");
+      // Catches network failures or unexpected JS errors
+      toast.error(err.message || "Something went wrong. Please try again.");
     } finally {
       setUpdating(false);
     }
@@ -283,7 +321,6 @@ const Profile = () => {
 
       <main className="min-h-screen bg-[#F7F6F3] p-6 md:p-10 pf-sans">
         <div className="max-w-4xl mx-auto">
-
           {error && (
             <div className="mb-6 px-4 py-3 rounded-lg bg-[#FCEBEB] text-[#791F1F] text-sm border border-[#F09595]">
               {error}
@@ -291,10 +328,8 @@ const Profile = () => {
           )}
 
           <div className="grid md:grid-cols-[240px_1fr] gap-5">
-
             {/* ── Sidebar ── */}
             <div className="bg-white rounded-2xl border border-[#E5E3DC] p-6 flex flex-col items-center">
-
               {/* Avatar */}
               <div className="relative mb-4">
                 {preview ? (
@@ -368,7 +403,6 @@ const Profile = () => {
 
             {/* ── Main panel ── */}
             <div className="bg-white rounded-2xl border border-[#E5E3DC] p-6 flex flex-col relative">
-
               {/* Updating overlay */}
               {updating && (
                 <div className="absolute inset-0 bg-white/75 flex flex-col items-center justify-center rounded-2xl z-10">
@@ -384,7 +418,9 @@ const Profile = () => {
                     Profile details
                   </p>
                   <p className="text-[12px] text-[#B4B2A9]">
-                    {isEditing ? "Make changes below" : "Your personal information"}
+                    {isEditing
+                      ? "Make changes below"
+                      : "Your personal information"}
                   </p>
                 </div>
                 {!isEditing && (
@@ -398,7 +434,11 @@ const Profile = () => {
               </div>
 
               {/* Fields */}
-              <form id="profileForm" onSubmit={handleSubmit} className="flex flex-col gap-5 flex-1">
+              <form
+                id="profileForm"
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-5 flex-1"
+              >
                 {fields.map(({ label, name, type }) => (
                   <div key={name} className="flex flex-col gap-1">
                     <label className="text-[10.5px] font-medium tracking-widest uppercase text-[#B4B2A9]">
@@ -443,11 +483,16 @@ const Profile = () => {
               <div className="w-11 h-11 rounded-full bg-[#EAF3DE] flex items-center justify-center mb-4">
                 <Check size={20} className="text-[#27500A]" />
               </div>
-              <p className="pf-serif text-[17px] text-[#1C1B18] mb-1">Profile updated</p>
+              <p className="pf-serif text-[17px] text-[#1C1B18] mb-1">
+                Profile updated
+              </p>
               <p className="text-[12px] text-[#888780] leading-relaxed">
                 Your information has been saved successfully.
               </p>
-              <button className="pf-modal-ok" onClick={() => setShowModal(false)}>
+              <button
+                className="pf-modal-ok"
+                onClick={() => setShowModal(false)}
+              >
                 Done
               </button>
             </div>

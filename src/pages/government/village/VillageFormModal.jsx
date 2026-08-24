@@ -39,7 +39,12 @@ const VillageFormModal = ({
       setFormData({
         project_id: editingVillage.project_id,
         village_name: editingVillage.village_name,
-        district: editingVillage.district,
+        district:
+          odishaDistricts.find(
+            (d) => d.toLowerCase() === editingVillage.district?.toLowerCase(),
+          ) ||
+          editingVillage.district ||
+          "",
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         // village_code: editingVillage.village_code,
@@ -110,6 +115,7 @@ const VillageFormModal = ({
         showError(data?.message || "Something went wrong.");
       }
     } catch (error) {
+      console.log(error)
       showError("Failed to save village. Please try again.");
     } finally {
       setLoading(false);

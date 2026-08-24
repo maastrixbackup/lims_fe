@@ -8,8 +8,6 @@ import { Pencil, Trash2 } from "lucide-react";
 
 const VillageTable = ({
   villages = [],
-  projects = [],
-  isRestricted,
   onEdit,
   onDelete,
   page,
@@ -279,7 +277,7 @@ const VillageTable = ({
                     />
                     <FilterableHeader
                       label="Thana Name/ No"
-                      field="thana_no"
+                      field="thana_name_no"
                       filters={filters}
                       setFilters={setFilters}
                       activeFilter={activeFilter}
@@ -317,7 +315,7 @@ const VillageTable = ({
                         <td className="vt-village">{v.village_name || "No Data"}</td>
                         <td>{v.district || "No Data"}</td>
                         <td>{v.tahasil || "No Data"}</td>
-                        <td>{v.thana_no || "No Data"}</td>
+                        <td>{v.thana_name_no || "No Data"}</td>
                         <td className="vt-date">{moment(v.created_at).format("DD-MM-YYYY")}</td>
                          <td className="text-right">
                         <select

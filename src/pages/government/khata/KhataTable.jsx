@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  GovtKhataColumn,
-} from "../../../utils/constants";
+import { GovtKhataColumn } from "../../../utils/constants";
 import FilterHeader from "../plot/FilterHeader";
 import { useDispatch, useSelector } from "react-redux";
 import Pagination from "../../../shared/Pagination";
@@ -12,7 +10,7 @@ export const stickyActionHeader =
   "p-3 text-center bg-gray-200 sticky right-0 z-[30] shadow-md w-[90px] min-w-[90px]";
 
 export const stickyActionCell =
-  "p-3 text-center sticky right-0 border-l border-gray-200 shadow-sm bg-white z-[10] w-[90px] min-w-[90px]";
+  "p-3 text-center sticky right-0 border-l border-gray-200 shadow-sm bg-white z-[5] w-[90px] min-w-[90px]";
 
 const KhataTable = ({
   khatas,
@@ -101,13 +99,13 @@ const KhataTable = ({
 
   const getUniqueValues = (key) => {
     if (key === "plot_no") {
-      return [...new Set(khatas.flatMap((k) => extractPlotNumbers(k.plot_no)))].sort((a, b) =>
-        sortCollator.compare(String(a), String(b)),
-      );
+      return [
+        ...new Set(khatas.flatMap((k) => extractPlotNumbers(k.plot_no))),
+      ].sort((a, b) => sortCollator.compare(String(a), String(b)));
     }
 
-    return [...new Set(khatas.map((k) => k[key]).filter(Boolean))].sort((a, b) =>
-      sortCollator.compare(String(a), String(b)),
+    return [...new Set(khatas.map((k) => k[key]).filter(Boolean))].sort(
+      (a, b) => sortCollator.compare(String(a), String(b)),
     );
   };
 
@@ -117,7 +115,8 @@ const KhataTable = ({
         value
           ? key === "plot_no"
             ? extractPlotNumbers(k.plot_no).some(
-                (plotNo) => plotNo.toLowerCase() === String(value).toLowerCase(),
+                (plotNo) =>
+                  plotNo.toLowerCase() === String(value).toLowerCase(),
               )
             : String(k[key]).toLowerCase().includes(value.toLowerCase())
           : true,
@@ -131,8 +130,14 @@ const KhataTable = ({
       return compareValues(aVal, bVal, sortConfig.direction);
     });
 
-  const clientTotalPages = Math.max(1, Math.ceil(filteredKhatas.length / limit));
-  const paginatedKhatas = filteredKhatas.slice((page - 1) * limit, page * limit);
+  const clientTotalPages = Math.max(
+    1,
+    Math.ceil(filteredKhatas.length / limit),
+  );
+  const paginatedKhatas = filteredKhatas.slice(
+    (page - 1) * limit,
+    page * limit,
+  );
 
   useEffect(() => {
     if (page > clientTotalPages) {
@@ -147,7 +152,10 @@ const KhataTable = ({
           {!selectedProjectId ? (
             <>
               <p className="text-lg font-medium">
-                Please <span className="text-primary font-semibold">Select a Project</span>{" "}
+                Please{" "}
+                <span className="text-primary font-semibold">
+                  Select a Project
+                </span>{" "}
                 first.
               </p>
               <p className="text-lg text-gray-500 mt-1">
@@ -157,10 +165,14 @@ const KhataTable = ({
           ) : (
             <>
               <p className="text-md font-medium text-red-500">
-                No Khata found for the <span className="text-primary font-bold">Selected Project.</span>
+                No Khata found for the{" "}
+                <span className="text-primary font-bold">
+                  Selected Project.
+                </span>
               </p>
               <p className="text-md text-gray-500 mt-1">
-                Try selecting a different <span className="text-gray-700 font-semibold">Project</span> or
+                Try selecting a different{" "}
+                <span className="text-gray-700 font-semibold">Project</span> or
                 add a new Khata.
               </p>
             </>
@@ -242,65 +254,108 @@ const KhataTable = ({
               </thead>
 
               <tbody>
-                {paginatedKhatas.map((k, idx) => (
-                  <tr key={k.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className={bodyCellClass}>{(page - 1) * limit + idx + 1}</td>
-                    <td className={stickyCol1Cell}>{k.khata_no || emptyValue}</td>
-                    <td className={`${stickyCol2Cell} min-w-[300px] max-w-[360px]`}>
-                      <div className="max-h-24 overflow-y-auto leading-6 pr-1 whitespace-normal break-words" style={{scrollbarWidth:"thin"}}>
-                        {k.plot_numbers || emptyValue}
-                      </div>
-                    </td>
-                    <td className={`${bodyCellClass} min-w-[180px]`}>{k.village_name || emptyValue}</td>
-                    <td className={bodyCellClass}>{k.kissam || emptyValue}</td>
-                    <td className={bodyCellClass}>{k.lease_case_no || emptyValue}</td>
-                    <td className={`${bodyCellClass} min-w-[220px]`} style={{scrollbarWidth:"thin"}}>{k.present_status || emptyValue}</td>
-                    <td className={`${bodyCellClass} min-w-[220px]`}>{k.case_details || emptyValue}</td>
-                    <td className={bodyCellClass}>{k.plot_count || emptyValue}</td>
-                    {/* <td className={bodyCellClass}>{k.unique_id || emptyValue}</td> */}
-                    <td className={bodyCellClass}>{k.name_of_ror || emptyValue}</td>
-                    <td className={bodyCellClass}>{k.land_category || emptyValue}</td>
+                {paginatedKhatas.map((k, idx) => {
+                  // Dynamic z-index so higher rows sit ABOVE lower rows when dropdowns expand
+                  const rowZIndex = paginatedKhatas.length - idx;
 
-                    <td
-                      className={`${stickyActionCell} px-4 py-3 border-b border-slate-200 align-top bg-white`}
+                  return (
+                    <tr
+                      key={k.id || `khata-row-${idx}`}
+                      className="hover:bg-slate-50/80 transition-colors relative"
+                      style={{ zIndex: rowZIndex }}
                     >
-                      <select
-                        className="select select-sm bg-white border-slate-300 w-24 h-8 px-2 text-xs hover:bg-gray-100 transition-all"
-                        defaultValue=""
-                        onChange={(e) => {
-                          const action = e.target.value;
-                          e.target.value = "";
-
-                          if (action === "viewPlots") {
-                            dispatch(setSelectedKhataId(k.id));
-                            onViewPlots(k);
-                          }
-                          if (action === "upload") onUpload(k);
-                          if (action === "map") onMap(k);
-                          if (action === "edit" && canEdit) onEdit(k);
-                          if (action === "delete" && canDelete) onDelete(k);
-                        }}
+                      <td className={bodyCellClass}>
+                        {(page - 1) * limit + idx + 1}
+                      </td>
+                      <td className={stickyCol1Cell}>
+                        {k.khata_no || emptyValue}
+                      </td>
+                      <td
+                        className={`${stickyCol2Cell} min-w-[300px] max-w-[360px]`}
                       >
-                        <option value="" disabled>
-                          Actions
-                        </option>
-                        <option value="viewPlots">
-                          <LandPlot size={14} />View Plots ({k.plot_count || 0})</option>
-                        <option value="upload" disabled={userRole === "Viewer"}>
-                          <Upload size={14} />Upload ({k.khata_document_count || 0})
-                        </option>
-                        <option value="map">
-                          <MapIcon size={14} />Map ({k.khata_map_document_count || 0})</option>
-                        <option value="edit" disabled={!canEdit}>
-                          ✍️ Edit
-                        </option>
-                        <option value="delete" disabled={!canDelete}>
-                         ❌ Delete
-                        </option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
+                        <div
+                          className="max-h-24 overflow-y-auto leading-6 pr-1 whitespace-normal break-words"
+                          style={{ scrollbarWidth: "thin" }}
+                        >
+                          {k.plot_numbers || emptyValue}
+                        </div>
+                      </td>
+                      <td className={`${bodyCellClass} min-w-[180px]`}>
+                        {k.village_name || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.kissam || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.lease_case_no || emptyValue}
+                      </td>
+                      <td
+                        className={`${bodyCellClass} min-w-[220px]`}
+                        style={{ scrollbarWidth: "thin" }}
+                      >
+                        {k.present_status || emptyValue}
+                      </td>
+                      <td className={`${bodyCellClass} min-w-[220px]`}>
+                        {k.case_details || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.plot_count || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.name_of_ror || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.land_category || emptyValue}
+                      </td>
+
+                      {/* Sticky Action Cell with Pointer-Events Fixed */}
+                      <td
+                        className={`${stickyActionCell} px-4 py-3 border-b border-slate-200 align-top bg-white`}
+                        style={{ zIndex: rowZIndex }}
+                      >
+                        <select
+                          className="select select-sm bg-white border-slate-300 w-28 h-8 px-2 text-xs hover:bg-gray-100 transition-all cursor-pointer pointer-events-auto relative z-20"
+                          value=""
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            if (!action) return;
+
+                            if (action === "viewPlots") {
+                              dispatch(setSelectedKhataId(k.id));
+                              onViewPlots(k);
+                            }
+                            if (action === "upload") onUpload(k);
+                            if (action === "map") onMap(k);
+                            if (action === "edit" && canEdit) onEdit(k);
+                            if (action === "delete" && canDelete) onDelete(k);
+                          }}
+                        >
+                          <option value="" disabled>
+                            Actions
+                          </option>
+                          <option value="viewPlots">
+                            📊 View Plots ({k.plot_count || 0})
+                          </option>
+                          <option
+                            value="upload"
+                            disabled={userRole === "Viewer"}
+                          >
+                            📤 Upload ({k.khata_document_count || 0})
+                          </option>
+                          <option value="map">
+                            🗺️ Map ({k.khata_map_document_count || 0})
+                          </option>
+                          <option value="edit" disabled={!canEdit}>
+                            ✍️ Edit
+                          </option>
+                          <option value="delete" disabled={!canDelete}>
+                            ❌ Delete
+                          </option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

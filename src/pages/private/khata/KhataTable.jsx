@@ -385,142 +385,151 @@ const KhataTable = ({
                     </thead>
 
                     <tbody>
-                      {paginatedKhatas.map((khata, idx) => (
-                        <tr key={khata.id} className="border-b border-gray-200">
-                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                            {(page - 1) * limit + idx + 1}
-                          </td>
-                          <td className={stickyCol1Cell}>
-                            {khata.khata_no || "-"}
-                          </td>
-                          <td className={stickyCol2Cell}>
-                            {khata.village_name || "-"}
-                          </td>
-                          <td>{khata.name_of_recorded_tenant || "-"}</td>
-                          <td>{khata.name_of_present_tenant || "-"}</td>
-                          <td className="w-[200px] min-w-[200px] max-w-[200px]">
-                            {khata.plot_no ? (
-                              <div className="flex flex-col">
-                                <span
-                                  className={
-                                    expandedPlotNos[khata.id]
-                                      ? "whitespace-normal break-words"
-                                      : "truncate whitespace-nowrap"
-                                  }
-                                  title={khata.plot_no}
-                                >
-                                  {khata.plot_no}
-                                </span>
-                                {khata.plot_no.length > 25 && (
-                                  <button
-                                    type="button"
-                                    className="mt-1 text-xs text-primary text-left hover:underline"
-                                    onClick={() =>
-                                      togglePlotNoExpansion(khata.id)
+                      {paginatedKhatas.map((khata, idx) => {
+                        const rowZIndex = paginatedKhatas.length - idx;
+
+                        return (
+                          <tr
+                            key={khata.id || `khata-tab1-${idx}`}
+                            className="border-b border-gray-200 relative"
+                            style={{ zIndex: rowZIndex }}
+                          >
+                            <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                              {(page - 1) * limit + idx + 1}
+                            </td>
+                            <td className={stickyCol1Cell}>
+                              {khata.khata_no || "-"}
+                            </td>
+                            <td className={stickyCol2Cell}>
+                              {khata.village_name || "-"}
+                            </td>
+                            <td>{khata.name_of_recorded_tenant || "-"}</td>
+                            <td>{khata.name_of_present_tenant || "-"}</td>
+                            <td className="w-[200px] min-w-[200px] max-w-[200px]">
+                              {khata.plot_no ? (
+                                <div className="flex flex-col">
+                                  <span
+                                    className={
+                                      expandedPlotNos[khata.id]
+                                        ? "whitespace-normal break-words"
+                                        : "truncate whitespace-nowrap"
                                     }
+                                    title={khata.plot_no}
                                   >
-                                    {expandedPlotNos[khata.id]
-                                      ? "Show less"
-                                      : "Show more"}
-                                  </button>
-                                )}
-                              </div>
-                            ) : (
-                              "-"
+                                    {khata.plot_no}
+                                  </span>
+                                  {khata.plot_no.length > 25 && (
+                                    <button
+                                      type="button"
+                                      className="mt-1 text-xs text-primary text-left hover:underline"
+                                      onClick={() =>
+                                        togglePlotNoExpansion(khata.id)
+                                      }
+                                    >
+                                      {expandedPlotNos[khata.id]
+                                        ? "Show less"
+                                        : "Show more"}
+                                    </button>
+                                  )}
+                                </div>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+                            <td className="w-[200px] min-w-[200px] max-w-[200px] whitespace-normal break-words">
+                              {khata.kissam_of_land || "-"}
+                            </td>
+
+                            {COMMON_COLUMNS.map(
+                              ({ field, format, className }) => (
+                                <td
+                                  key={field}
+                                  className={`whitespace-nowrap ${className || "-"}`}
+                                >
+                                  {format === "multi"
+                                    ? formatThreeItems(khata[field])
+                                    : field === "created_at"
+                                      ? moment(khata[field]).format(
+                                          "DD-MM-YYYY",
+                                        )
+                                      : khata[field] || "-"}
+                                </td>
+                              ),
                             )}
-                          </td>
-                          <td className="w-[200px] min-w-[200px] max-w-[200px] whitespace-normal break-words">
-                            {khata.kissam_of_land || "-"}
-                          </td>
 
-                          {COMMON_COLUMNS.map(
-                            ({ field, format, className }) => (
-                              <td
-                                key={field}
-                                className={`whitespace-nowrap ${className || "-"}`}
-                              >
-                                {format === "multi"
-                                  ? formatThreeItems(khata[field])
-                                  : field === "created_at"
-                                    ? moment(khata[field]).format("DD-MM-YYYY")
-                                    : khata[field] || "-"}
-                              </td>
-                            ),
-                          )}
-
-                          <td className={stickyActionCell}>
-                            <select
-                              className="select select-sm bg-gray-100 border border-gray-300 w-full max-w-[80px] px-1 text-xs"
-                              defaultValue=""
-                              onChange={(e) => {
-                                const action = e.target.value;
-                                e.target.value = "";
-
-                                if (action === "viewPlots") {
-                                  dispatch(setSelectedKhataId(khata.id));
-                                  setIsPlotModalOpen(true);
-                                }
-
-                                if (action === "upload") onUpload(khata);
-                                if (action === "map") onMap(khata);
-                                if (action === "edit") onEdit(khata);
-                                if (action === "delete") onDelete(khata);
-                              }}
+                            <td
+                              className={`${stickyActionCell} relative`}
+                              style={{ zIndex: rowZIndex }}
                             >
-                              <option value="" disabled>
-                                Actions
-                              </option>
+                              <select
+                                className="select select-sm bg-gray-100 border border-gray-300 w-full max-w-[90px] px-1 text-xs cursor-pointer relative z-20 pointer-events-auto"
+                                value=""
+                                onChange={(e) => {
+                                  const action = e.target.value;
+                                  if (!action) return;
 
-                              <option
-                                value="viewPlots"
-                                className="text-md text-gray-700 font-bold"
-                              >
-                                <LandPlot size={14} />
-                                View Plots ({khata.plot_count || 0})
-                              </option>
+                                  if (action === "viewPlots") {
+                                    dispatch(setSelectedKhataId(khata.id));
+                                    setIsPlotModalOpen(true);
+                                  }
 
-                              <option
-                                value="upload"
-                                disabled={userRole === "Viewer"}
-                                className={`text-md text-gray-700 font-bold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
+                                  if (action === "upload") onUpload(khata);
+                                  if (action === "map") onMap(khata);
+                                  if (action === "edit") onEdit(khata);
+                                  if (action === "delete") onDelete(khata);
+                                }}
                               >
-                                <Upload size={14} />
-                                Upload ({khata.khata_document_count || 0})
-                              </option>
-
-                              <option
-                                value="map"
-                                className="text-md text-gray-700 font-bold"
-                              >
-                                <MapIcon size={14} />
-                                Map ({khata.khata_map_document_count || 0})
-                              </option>
-
-                              <option
-                                value="edit"
-                                disabled={userRole === "Viewer"}
-                                className={`text-md text-gray-700 font-bold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ✍️Edit
-                              </option>
-
-                              <option
-                                value="delete"
-                                disabled={isRestricted}
-                                className={`text-md text-gray-700 font-bold ${
-                                  isRestricted ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ❌Delete
-                              </option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
+                                <option value="" disabled>
+                                  Actions
+                                </option>
+                                <option
+                                  value="viewPlots"
+                                  className="text-md text-gray-700 font-bold"
+                                >
+                                  📊 View Plots ({khata.plot_count || 0})
+                                </option>
+                                <option
+                                  value="upload"
+                                  disabled={userRole === "Viewer"}
+                                  className={`text-md text-gray-700 font-bold ${
+                                    userRole === "Viewer"
+                                      ? "!text-gray-400"
+                                      : ""
+                                  }`}
+                                >
+                                  📤 Upload ({khata.khata_document_count || 0})
+                                </option>
+                                <option
+                                  value="map"
+                                  className="text-md text-gray-700 font-bold"
+                                >
+                                  🗺️ Map ({khata.khata_map_document_count || 0})
+                                </option>
+                                <option
+                                  value="edit"
+                                  disabled={userRole === "Viewer"}
+                                  className={`text-md text-gray-700 font-bold ${
+                                    userRole === "Viewer"
+                                      ? "!text-gray-400"
+                                      : ""
+                                  }`}
+                                >
+                                  ✍️ Edit
+                                </option>
+                                <option
+                                  value="delete"
+                                  disabled={isRestricted}
+                                  className={`text-md text-gray-700 font-bold ${
+                                    isRestricted ? "!text-gray-400" : ""
+                                  }`}
+                                >
+                                  ❌ Delete
+                                </option>
+                              </select>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -615,108 +624,115 @@ const KhataTable = ({
                     </thead>
 
                     <tbody>
-                      {paginatedKhatas.map((khata, idx) => (
-                        <tr key={khata.id} className="border-b border-gray-200">
-                          <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
-                            {(page - 1) * limit + idx + 1}
-                          </td>
+                      {paginatedKhatas.map((khata, idx) => {
+                        const rowZIndex = paginatedKhatas.length - idx;
 
-                          <td className={stickyCol1Cell}>
-                            {khata.khata_no || "-"}
-                          </td>
-                          <td className={stickyCol2Cell}>
-                            {khata.village_name || "-"}
-                          </td>
-                          <td className={stickyCol3Cell}>
-                            {khata.name_of_recorded_tenant || "-"}
-                          </td>
-                          <td className={stickyCol4Cell}>
-                            {khata.name_of_present_tenant || "-"}
-                          </td>
-
-                          {RR_FIELDS_FORMS.map(({ name }) => (
-                            <td key={name}>
-                              {khata[name] !== null &&
-                              khata[name] !== undefined &&
-                              khata[name] !== "-"
-                                ? khata[name]
-                                : "-"}
+                        return (
+                          <tr
+                            key={khata.id || `khata-tab2-${idx}`}
+                            className="border-b border-gray-200 relative"
+                            style={{ zIndex: rowZIndex }}
+                          >
+                            <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
+                              {(page - 1) * limit + idx + 1}
                             </td>
-                          ))}
 
-                          <td className={stickyActionCell}>
-                            <select
-                              className="select select-sm bg-gray-100 border border-gray-300 w-[42px] "
-                              defaultValue=""
-                              onChange={(e) => {
-                                const action = e.target.value;
-                                e.target.value = "";
+                            <td className={stickyCol1Cell}>
+                              {khata.khata_no || "-"}
+                            </td>
+                            <td className={stickyCol2Cell}>
+                              {khata.village_name || "-"}
+                            </td>
+                            <td className={stickyCol3Cell}>
+                              {khata.name_of_recorded_tenant || "-"}
+                            </td>
+                            <td className={stickyCol4Cell}>
+                              {khata.name_of_present_tenant || "-"}
+                            </td>
 
-                                if (action === "viewPlots") {
-                                  dispatch(setSelectedKhataId(khata.id));
-                                  setIsPlotModalOpen(true);
-                                }
+                            {RR_FIELDS_FORMS.map(({ name }) => (
+                              <td key={name}>
+                                {khata[name] !== null &&
+                                khata[name] !== undefined &&
+                                khata[name] !== "-"
+                                  ? khata[name]
+                                  : "-"}
+                              </td>
+                            ))}
 
-                                if (action === "upload") onUpload(khata);
-                                if (action === "map") onMap(khata);
-                                if (action === "edit") onEdit(khata);
-                                if (action === "delete") onDelete(khata);
-                              }}
+                            <td
+                              className={`${stickyActionCell} relative`}
+                              style={{ zIndex: rowZIndex }}
                             >
-                              <option value="" disabled>
-                                Actions
-                              </option>
+                              <select
+                                className="select select-sm bg-gray-100 border border-gray-300 w-full max-w-[90px] px-1 text-xs cursor-pointer relative z-20 pointer-events-auto"
+                                value=""
+                                onChange={(e) => {
+                                  const action = e.target.value;
+                                  if (!action) return;
 
-                              <option
-                                value="viewPlots"
-                                className="text-md text-gray-700 font-bold"
-                              >
-                                <LandPlot size={14} />
-                                View Plots ({khata.plot_count || 0})
-                              </option>
+                                  if (action === "viewPlots") {
+                                    dispatch(setSelectedKhataId(khata.id));
+                                    setIsPlotModalOpen(true);
+                                  }
 
-                              <option
-                                value="upload"
-                                disabled={userRole === "Viewer"}
-                                className={`text-md text-gray-700 font-bold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
+                                  if (action === "upload") onUpload(khata);
+                                  if (action === "map") onMap(khata);
+                                  if (action === "edit") onEdit(khata);
+                                  if (action === "delete") onDelete(khata);
+                                }}
                               >
-                                <Upload size={14} />
-                                Upload ({khata.khata_document_count || 0})
-                              </option>
-
-                              <option
-                                value="map"
-                                className="text-md text-gray-700 font-bold"
-                              >
-                                <MapIcon size={14} />
-                                Map ({khata.khata_map_document_count || 0})
-                              </option>
-
-                              <option
-                                value="edit"
-                                disabled={userRole === "Viewer"}
-                                className={`text-md text-gray-700 font-bold ${
-                                  userRole === "Viewer" ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ✍️ Edit
-                              </option>
-
-                              <option
-                                value="delete"
-                                disabled={isRestricted}
-                                className={`text-md text-gray-700 font-bold ${
-                                  isRestricted ? "!text-gray-400" : ""
-                                }`}
-                              >
-                                ❌ Delete
-                              </option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
+                                <option value="" disabled>
+                                  Actions
+                                </option>
+                                <option
+                                  value="viewPlots"
+                                  className="text-md text-gray-700 font-bold"
+                                >
+                                  📊 View Plots ({khata.plot_count || 0})
+                                </option>
+                                <option
+                                  value="upload"
+                                  disabled={userRole === "Viewer"}
+                                  className={`text-md text-gray-700 font-bold ${
+                                    userRole === "Viewer"
+                                      ? "!text-gray-400"
+                                      : ""
+                                  }`}
+                                >
+                                  📤 Upload ({khata.khata_document_count || 0})
+                                </option>
+                                <option
+                                  value="map"
+                                  className="text-md text-gray-700 font-bold"
+                                >
+                                  🗺️ Map ({khata.khata_map_document_count || 0})
+                                </option>
+                                <option
+                                  value="edit"
+                                  disabled={userRole === "Viewer"}
+                                  className={`text-md text-gray-700 font-bold ${
+                                    userRole === "Viewer"
+                                      ? "!text-gray-400"
+                                      : ""
+                                  }`}
+                                >
+                                  ✍️ Edit
+                                </option>
+                                <option
+                                  value="delete"
+                                  disabled={isRestricted}
+                                  className={`text-md text-gray-700 font-bold ${
+                                    isRestricted ? "!text-gray-400" : ""
+                                  }`}
+                                >
+                                  ❌ Delete
+                                </option>
+                              </select>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

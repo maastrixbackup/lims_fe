@@ -90,12 +90,16 @@ export async function apiClient(endpoint, options = {}) {
         : undefined,
     };
 
-    const res = await safeFetch(`${API_BASE_URL}${endpoint}`, config);
+    // --- FIX: Normalize base URL and endpoint to avoid double slashes ---
+    const cleanBaseUrl = (API_BASE_URL || "").replace(/\/+$/, "");
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    const fullUrl = `${cleanBaseUrl}${cleanEndpoint}`;
+
+    const res = await safeFetch(fullUrl, config);
 
     if (res.status === 401) {
       showToast("Your session has expired. Please log in again.", "error");
       store.dispatch(logout());
-      // setTimeout(() => (window.location.href = "/"), 1500);
       return;
     }
 
@@ -108,7 +112,6 @@ export async function apiClient(endpoint, options = {}) {
   } catch (err) {
     err.message = getFriendlyNetworkErrorMessage(err);
     console.error("API Error:", err);
-    // showToast(err.message || "Something went wrong!", "error");
     throw err;
   }
 }

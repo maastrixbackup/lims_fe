@@ -3,22 +3,33 @@ import { X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLandTypeParam } from "../../../utils/landtypes";
 import { apiClient } from "../../../utils/apiClient";
-import { RR_FIELDS_FORMS, showToast } from "../../../utils/constants";
+import { RR_FIELDS_FORMS } from "../../../utils/constants";
+import { toast } from "sonner";
 
-const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
+const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
   const typeParam = useLandTypeParam();
-  console.log("khata^^^^^^^^^^^", khata);
   const typeLabel =
     typeParam === 2
       ? "Government Land"
       : typeParam === 3
-      ? "Forest Land"
-      : "Private Land";
+        ? "Forest Land"
+        : "Private Land";
 
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((state) => state.list.projects || []);
   const [openVillage, setOpenVillage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Helper to format ISO dates safely for HTML input
+  const formatDateForInput = (dateStr) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      return !isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "";
+    } catch {
+      return "";
+    }
+  };
 
   const [formData, setFormData] = useState({
     project_id: "",
@@ -59,15 +70,13 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
   });
 
   const initializing = useRef(false);
-  // const userRole = useSelector((s) => s.auth.user?.role_name || "");
-  // const isRestricted = userRole === "Data Entry User";
 
   useEffect(() => {
     if (khata) {
       initializing.current = true;
       setFormData({
-        project_id: khata.project_id,
-        village_id: khata.village_id,
+        project_id: khata.project_id ?? "",
+        village_id: khata.village_id ?? "",
         khata_no: khata.khata_no || "",
         type: khata.type || typeParam,
         plot_no: khata.plot_no || "",
@@ -82,7 +91,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         tahasil_name: khata.tahasil_name || "",
         ri_circle_name: khata.ri_circle_name || "",
         thana_no: khata.thana_no || "",
-        date_of_award: khata.date_of_award || "",
+        date_of_award: formatDateForInput(khata.date_of_award),
         name_of_recorded_tenant: khata.name_of_recorded_tenant || "",
         name_of_present_tenant: khata.name_of_present_tenant || "",
         present_address: khata.present_address || "",
@@ -107,62 +116,35 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
 
       setTimeout(() => (initializing.current = false), 300);
     } else {
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         project_id: selectedProject?.id || "",
-        village_id: "",
-        khata_no: "",
         type: typeParam,
-        plot_no: "",
-        full_part: "",
-        kissam_of_land: "",
-        land_category: "",
-        land_area_total_acres: "",
-        land_area_total_hectares: "",
-        land_area_acquired_acres: "",
-        land_area_acquired_hectares: "",
-        lo13_remarks: "",
-        tahasil_name: "",
-        ri_circle_name: "",
-        thana_no: "",
-        date_of_award: "",
-        name_of_recorded_tenant: "",
-        name_of_present_tenant: "",
-        present_address: "",
-        displaced_affected_project: "",
-        rr_employment: "",
-        rr_cash_in_lieu: "",
-        rr_training_skill_upgradation: "",
-        rr_self_employment: "",
-        rr_special_allowance_st_ntfp: "",
-        rr_homestead_allotment: "",
-        rr_house_building_assistance: "",
-        rr_constructed_by: "",
-        rr_transit_shed: "",
-        rr_transport_allowance: "",
-        rr_maintenance_allowance: "",
-        rr_multiple_displacement_allowance: "",
-        rr_exgratia: "",
-        rr_other_benefits: "",
-      });
+      }));
     }
   }, [khata, typeParam, selectedProject]);
 
+  const prevProjectIdRef = useRef(formData.project_id);
+
   useEffect(() => {
-    if (!initializing.current) {
+    if (
+      !initializing.current &&
+      prevProjectIdRef.current &&
+      prevProjectIdRef.current !== formData.project_id
+    ) {
       setFormData((prev) => ({
         ...prev,
         village_id: "",
       }));
     }
+    prevProjectIdRef.current = formData.project_id;
   }, [formData.project_id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "project_id" || name === "village_id" ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -170,46 +152,71 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
     e.preventDefault();
     if (submitting) return;
 
+    if (!formData.project_id) {
+      toast.warning("Please select a project.");
+      return;
+    }
+    if (!formData.village_id) {
+      toast.warning("Please select a village.");
+      return;
+    }
+    if (!formData.khata_no || !String(formData.khata_no).trim()) {
+      toast.warning("Khata Number is required.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const isEdit = Boolean(khata);
-
       const endpoint = isEdit
         ? `/khata/updateKhata/${khata.id}`
         : `/khata/addKhata`;
-
       const method = isEdit ? "PUT" : "POST";
+
+      // Prepare clean payload
+      const payload = {};
+      Object.keys(formData).forEach((key) => {
+        const val = formData[key];
+        payload[key] = val === "" || val === undefined ? null : val;
+      });
+
+      // Ensure IDs and numerical fields carry proper numeric types if present
+      if (payload.project_id !== null)
+        payload.project_id = Number(payload.project_id);
+      if (payload.village_id !== null)
+        payload.village_id = Number(payload.village_id);
+      if (payload.type !== null) payload.type = Number(payload.type);
 
       const res = await apiClient(endpoint, {
         method,
-        body: formData,
+        body: payload,
       });
 
-      if (!res.success) {
-        showToast(res.message || "Failed to save khata", "error");
+      if (res && res.success === false) {
+        toast.error(res.message || "Failed to save khata");
         return;
       }
 
       await fetchKhatas();
-
-      showToast(
-        isEdit ? "Khata Updated Successfully" : "Khata Added Successfully",
-        "success"
+      toast.success(
+        isEdit ? "Khata updated successfully" : "Khata added successfully",
       );
-
       onClose();
     } catch (err) {
-      console.error(err);
-      showToast("Error saving khata", "error");
+      console.error("Submit Khata Error:", err);
+      toast.error(err.message || "Error saving khata");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <dialog open className="modal modal-open ">
-      <div className="modal-box max-w-2xl max-h-130 relative" style={{scrollbarWidth:"thin"}}>
+    <dialog open className="modal modal-open">
+      <div
+        className="modal-box max-w-2xl max-h-130 relative"
+        style={{ scrollbarWidth: "thin" }}
+      >
         <button
           type="button"
           className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
@@ -225,13 +232,14 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium ">Project</label>
+              <label className="block text-sm font-medium">
+                Project <span className="text-red-500">*</span>
+              </label>
               <select
                 name="project_id"
                 value={formData.project_id || ""}
                 onChange={handleChange}
                 className="select select-bordered w-full"
-               
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
@@ -242,7 +250,9 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium ">Land Type</label>
+              <label className="block text-sm font-medium">
+                Land Type<span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 className="input input-bordered w-full bg-gray-100"
@@ -251,15 +261,19 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               />
             </div>
           </div>
+
           <div className="relative">
-            <label className="block text-sm font-medium">Village</label>
+            <label className="block text-sm font-medium">
+              Village <span className="text-red-500">*</span>
+            </label>
             <button
               type="button"
               onClick={() => setOpenVillage(!openVillage)}
-              className="select select-bordered w-full flex justify-between items-center"
+              className="select select-bordered w-full flex justify-between items-center text-left"
             >
-              {villages.find((v) => v.id === formData.village_id)
-                ?.village_name || "Select Village"}
+              {villages.find(
+                (v) => Number(v.id) === Number(formData.village_id),
+              )?.village_name || "Select Village"}
             </button>
 
             {openVillage && (
@@ -279,22 +293,23 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </ul>
             )}
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium ">Khata No.</label>
+              <label className="block text-sm font-medium">
+                Khata No.<span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="khata_no"
                 value={formData.khata_no}
                 onChange={handleChange}
                 className="input input-bordered w-full"
-               
-                // disabled={isRestricted}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium ">Plot No.</label>
+              <label className="block text-sm font-medium">Plot No.</label>
               <input
                 type="text"
                 name="plot_no"
@@ -304,9 +319,10 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               />
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium ">
+              <label className="block text-sm font-medium">
                 Kissam of Land
               </label>
               <input
@@ -319,7 +335,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium ">
+              <label className="block text-sm font-medium">
                 Category of Land
               </label>
               <input
@@ -330,22 +346,30 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
                 className="input input-bordered w-full"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium ">Full Part</label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full / Part
+              </label>
+              <select
                 name="full_part"
-                value={formData.full_part}
+                value={formData.full_part || ""}
                 onChange={handleChange}
-                className="input input-bordered w-full"
-              />
+                className="select select-bordered w-full bg-white text-gray-900 border-gray-300 hover:border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all rounded-lg text-sm"
+              >
+                <option value="">Select Option</option>
+                <option value="Full">Full</option>
+                <option value="Part">Part</option>
+              </select>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium">Total Area (Acres)</label>
               <input
                 type="number"
+                step="any"
                 name="land_area_total_acres"
                 value={formData.land_area_total_acres}
                 onChange={handleChange}
@@ -357,6 +381,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <label className="text-sm font-medium">Total Area (Ha)</label>
               <input
                 type="number"
+                step="any"
                 name="land_area_total_hectares"
                 value={formData.land_area_total_hectares}
                 onChange={handleChange}
@@ -364,6 +389,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               />
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium">
@@ -371,6 +397,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               </label>
               <input
                 type="number"
+                step="any"
                 name="land_area_acquired_acres"
                 value={formData.land_area_acquired_acres}
                 onChange={handleChange}
@@ -382,6 +409,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <label className="text-sm font-medium">Acquired Area (Ha)</label>
               <input
                 type="number"
+                step="any"
                 name="land_area_acquired_hectares"
                 value={formData.land_area_acquired_hectares}
                 onChange={handleChange}
@@ -423,6 +451,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               />
             </div>
           </div>
+
           <div>
             <label className="text-sm font-medium">Date of Award</label>
             <input
@@ -433,6 +462,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               className="input input-bordered w-full"
             />
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium">
@@ -460,6 +490,7 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               />
             </div>
           </div>
+
           <div>
             <label className="text-sm font-medium">Present Address</label>
             <textarea
@@ -496,9 +527,9 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
               <option value="PDF">PDF</option>
             </select>
           </div>
-          
 
           <hr className="my-4" />
+
           <div className="grid grid-cols-2 gap-3">
             {RR_FIELDS_FORMS.map((field) => (
               <div key={field.name}>
@@ -512,11 +543,11 @@ const KhataFormModal = ({ khata, onClose, token, villages, fetchKhatas }) => {
                   value={formData[field.name] ?? ""}
                   onChange={handleChange}
                   className="input input-bordered w-full"
-                  // disabled={isRestricted}
                 />
               </div>
             ))}
           </div>
+
           <div className="modal-action">
             <button
               type="button"

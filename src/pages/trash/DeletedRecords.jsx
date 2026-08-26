@@ -147,12 +147,12 @@ const DeletedRecords = () => {
                   >
                     Restore
                   </button>
-                  <button
+                  {/* <button
                     className="btn btn-xs btn-error"
                     onClick={() => confirmAction(r.id, "delete")}
                   >
                     Delete
-                  </button>
+                  </button> */}
                 </td>
               </tr>
             ))}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { apiClient } from "../utils/apiClient"; // <-- GLOBAL API CLIENT
+import { apiClient } from "../utils/apiClient";
+import { toast } from "sonner";
 
 export default function useUserManagement(token) {
   const { projects } = useSelector((s) => s.list);
@@ -13,38 +14,25 @@ export default function useUserManagement(token) {
   const [editingUser, setEditingUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // const [formData, setFormData] = useState({
-  //   name: "",
-  //   email: "",
-  //   password: "",
-  //   confirmPassword: "",
-  //   role_id: "",
-  //   accessed_projects: [],
-  //   phone_number: "",
-  //   profile_pic: "",
-  // });
   const [formData, setFormData] = useState({
-  name: "",
-  email: "",
-  phone_number: "",
-  password: "",
-  confirmPassword: "",
-  role_id: "",
-  accessed_projects: [],
-  profile_pic: null,
-  existing_profile_pic: "",
-  permissions: {
-    can_add: false,
-    can_edit: false,
-    can_delete: false,
-    can_upload: false,
-    can_view: false,
-    can_download: false,
-  },
-});
-
-
-  // const navigate = useNavigate();
+    name: "",
+    email: "",
+    phone_number: "",
+    password: "",
+    confirmPassword: "",
+    role_id: "",
+    accessed_projects: [],
+    profile_pic: null,
+    existing_profile_pic: "",
+    permissions: {
+      can_add: false,
+      can_edit: false,
+      can_delete: false,
+      can_upload: false,
+      can_view: false,
+      can_download: false,
+    },
+  });
 
   const fetchData = async () => {
     if (!token) return;
@@ -61,6 +49,7 @@ export default function useUserManagement(token) {
       setRoles(Array.isArray(rolesData.roles) ? rolesData.roles : []);
     } catch (err) {
       console.error("Error fetching data:", err);
+      toast.error(err.message || "Failed to fetch user management data");
     } finally {
       setLoading(false);
     }
@@ -106,6 +95,14 @@ export default function useUserManagement(token) {
         phone_number: user.phone_number || "",
         profile_pic: null,
         existing_profile_pic: user.profile_pic || "",
+        permissions: user.permissions || {
+          can_add: false,
+          can_edit: false,
+          can_delete: false,
+          can_upload: false,
+          can_view: false,
+          can_download: false,
+        },
       });
     } else {
       resetForm();
@@ -113,18 +110,27 @@ export default function useUserManagement(token) {
 
     setIsModalOpen(true);
   };
+
   const resetForm = () => {
     setEditingUser(null);
     setFormData({
       name: "",
       email: "",
+      phone_number: "",
       password: "",
       confirmPassword: "",
       role_id: "",
       accessed_projects: [],
-      phone_number: "",
       profile_pic: null,
       existing_profile_pic: "",
+      permissions: {
+        can_add: false,
+        can_edit: false,
+        can_delete: false,
+        can_upload: false,
+        can_view: false,
+        can_download: false,
+      },
     });
   };
 
@@ -136,9 +142,37 @@ export default function useUserManagement(token) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!editingUser && formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    // Field validation for new user creation
+    if (!editingUser) {
+      if (!formData.name.trim()) {
+        toast.warning("Name is required.");
+        return;
+      }
+      if (!formData.email.trim()) {
+        toast.warning("Email is required.");
+        return;
+      }
+      if (!formData.phone_number.trim()) {
+        toast.warning("Phone number is required.");
+        return;
+      }
+      if (!formData.role_id) {
+        toast.warning("Role selection is required.");
+        return;
+      }
+      if (!formData.password) {
+        toast.warning("Password is required.");
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        toast.warning("Passwords do not match!");
+        return;
+      }
+    } else {
+      if (formData.password && formData.password !== formData.confirmPassword) {
+        toast.warning("Passwords do not match!");
+        return;
+      }
     }
 
     try {
@@ -148,18 +182,24 @@ export default function useUserManagement(token) {
       form.append("role_id", formData.role_id);
       form.append("phone_number", formData.phone_number);
 
+      // Derive username from first name (e.g. "Rudranarayan Sahu" -> "rudra")
+      const firstName = formData.name.trim().split(" ")[0] || "";
+      const generatedUsername = firstName.slice(0, 5).toLowerCase();
+      form.append("username", generatedUsername);
+
       if (!editingUser || formData.password) {
         form.append("password", formData.password);
       }
 
-      formData.accessed_projects.forEach((id) => {
-        form.append("accessed_projects[]", id);
-      });
+      // JSON stringify the array to align with Multer JSON.parse on backend
+      form.append(
+        "accessed_projects",
+        JSON.stringify(formData.accessed_projects)
+      );
 
       if (formData.profile_pic instanceof File) {
         form.append("profile_pic", formData.profile_pic);
       } else if (editingUser && formData.existing_profile_pic) {
-        // Keep current image on edit when no new file is chosen.
         form.append("existing_profile_pic", formData.existing_profile_pic);
         form.append("keep_existing_profile_pic", "1");
       }
@@ -173,14 +213,18 @@ export default function useUserManagement(token) {
         body: form,
       });
 
-      if (res.success) {
+      if (res && res.success !== false) {
+        toast.success(
+          editingUser ? "User updated successfully" : "User created successfully"
+        );
         fetchData();
         closeModal();
       } else {
-        alert(res.message || "Failed to save user.");
+        toast.error(res?.message || "Failed to save user.");
       }
     } catch (err) {
       console.error("Error saving user:", err);
+      toast.error(err.message || "An unexpected error occurred while saving user.");
     }
   };
 
@@ -193,14 +237,16 @@ export default function useUserManagement(token) {
         { method: "DELETE" }
       );
 
-      if (res.success) {
+      if (res && res.success !== false) {
+        toast.success("User deleted successfully");
         fetchData();
         setDeleteConfirm(null);
       } else {
-        alert(res.message || "Failed to delete user.");
+        toast.error(res?.message || "Failed to delete user.");
       }
     } catch (err) {
       console.error("Error deleting user:", err);
+      toast.error(err.message || "An error occurred while deleting user.");
     }
   };
 

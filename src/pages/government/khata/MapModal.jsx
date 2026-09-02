@@ -10,56 +10,55 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [mapData, setMapData] = useState([]);
-  const [activeFile, setActiveFile] = useState("");
 
   const khata_id = khata?.id;
 
-  const toAbsoluteUrl = (value) => {
-    if (!value || typeof value !== "string") return "";
+  // const toAbsoluteUrl = (value) => {
+  //   if (!value || typeof value !== "string") return "";
 
-    try {
-      return new URL(value, API_BASE_URL).toString();
-    } catch {
-      return "";
-    }
-  };
+  //   try {
+  //     return new URL(value, API_BASE_URL).toString();
+  //   } catch {
+  //     return "";
+  //   }
+  // };
 
-  const getMapFileUrls = (map) => {
-    const directUrl =
-      map?.download_url ||
-      map?.url ||
-      map?.file_url ||
-      map?.path ||
-      map?.file_path ||
-      "";
-    const fallbackUrl =
-      map?.file_name && khata_id
-        ? `${API_BASE_URL}/govtkhata/downloadGovtMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`
-        : "";
+  // const getMapFileUrls = (map) => {
+  //   const directUrl =
+  //     map?.download_url ||
+  //     map?.url ||
+  //     map?.file_url ||
+  //     map?.path ||
+  //     map?.file_path ||
+  //     "";
+  //   const fallbackUrl =
+  //     map?.file_name && khata_id
+  //       ? `${API_BASE_URL}/govtkhata/downloadGovtMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`
+  //       : "";
 
-    return [toAbsoluteUrl(directUrl), fallbackUrl].filter(Boolean);
-  };
+  //   return [toAbsoluteUrl(directUrl), fallbackUrl].filter(Boolean);
+  // };
 
-  const getErrorMessage = async (response, fallbackMessage) => {
-    const contentType = response.headers.get("content-type") || "";
+  // const getErrorMessage = async (response, fallbackMessage) => {
+  //   const contentType = response.headers.get("content-type") || "";
 
-    if (contentType.includes("application/json")) {
-      try {
-        const data = await response.json();
-        return data?.message || fallbackMessage;
-      } catch {
-        return fallbackMessage;
-      }
-    }
+  //   if (contentType.includes("application/json")) {
+  //     try {
+  //       const data = await response.json();
+  //       return data?.message || fallbackMessage;
+  //     } catch {
+  //       return fallbackMessage;
+  //     }
+  //   }
 
-    const text = await response.text();
-    const cleanedText = text
-      .replace(/<[^>]*>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+  //   const text = await response.text();
+  //   const cleanedText = text
+  //     .replace(/<[^>]*>/g, " ")
+  //     .replace(/\s+/g, " ")
+  //     .trim();
 
-    return cleanedText || fallbackMessage;
-  };
+  //   return cleanedText || fallbackMessage;
+  // };
 
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];

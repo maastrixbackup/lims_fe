@@ -17,11 +17,15 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   const toAbsoluteUrl = (value) => {
     if (!value || typeof value !== "string") return "";
 
-    try {
-      return new URL(value, API_BASE_URL).toString();
-    } catch {
-      return "";
+    let fullUrl = value;
+    if (!value.startsWith("http://") && !value.startsWith("https://")) {
+      const cleanBase = "https://lims.bnbconsultancy.in/api".replace(/\/$/, "");
+      const cleanPath = value.replace(/^\//, "");
+      fullUrl = `${cleanBase}/${cleanPath}`;
     }
+
+    // 2. Hard-force http:// to https:// unconditionally
+    return fullUrl.replace(/^http:\/\//i, "https://");
   };
 
   const getMapFileUrls = (map) => {
@@ -32,12 +36,15 @@ const MapModal = ({ khata, onClose, onUpload }) => {
       map?.path ||
       map?.file_path ||
       "";
+
     const fallbackUrl =
       map?.file_name && khata_id
-        ? `${API_BASE_URL}/khata/downloadMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`
+        ? `https://lims.bnbconsultancy.in/api/khata/downloadMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`
         : "";
 
-    return [toAbsoluteUrl(directUrl), fallbackUrl].filter(Boolean);
+    return [toAbsoluteUrl(directUrl), toAbsoluteUrl(fallbackUrl)].filter(
+      Boolean,
+    );
   };
 
   const getErrorMessage = async (response, fallbackMessage) => {
@@ -100,7 +107,6 @@ const MapModal = ({ khata, onClose, onUpload }) => {
     }
   };
 
-
   const fetchMapData = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/khata/getMapFiles/${khata_id}`, {
@@ -111,8 +117,8 @@ const MapModal = ({ khata, onClose, onUpload }) => {
       });
 
       const data = await res.json();
- console.log('map', data);
- 
+      console.log("map", data);
+
       if (data?.success) {
         setMapData(data?.data || []);
       } else {
@@ -229,48 +235,64 @@ const MapModal = ({ khata, onClose, onUpload }) => {
         </div>
         <div className="grid grid-cols-1 gap-3">
           {mapData.length > 0 ? (
-            mapData.map((map) => (
-              <div
-                key={map.id}
-                className="flex items-center justify-between p-3 rounded-xl border shadow-sm bg-gray-50 hover:bg-gray-100 transition"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span className="font-medium text-sm truncate">
-                    {map.file_name}
-                  </span>
+            mapData.map((map) => {
+              // 1. Get resolved candidate URLs and take the primary one
+              const mapUrls = getMapFileUrls(map);
+              const primaryUrl = mapUrls[0] || "";
+              console.log("Resolved map URLs:", mapUrls, "Primary URL:", primaryUrl); 
+
+              // 2. Build the Google Earth Web viewer link
+              const googleEarthUrl = primaryUrl
+                ? `https://earth.google.com/web/?kml=${encodeURIComponent(primaryUrl)}`
+                : "#";
+
+              return (
+                <div
+                  key={map.id}
+                  className="flex items-center justify-between p-3 rounded-xl border shadow-sm bg-gray-50 hover:bg-gray-100 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="font-medium text-sm truncate">
+                      {map.file_name}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={googleEarthUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-xs btn-outline btn-primary flex items-center gap-1"
+                    >
+                      <ExternalLink size={14} />
+                      Open KMZ
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => handleMapFileAction(map, "download")}
+                      disabled={activeFile === `download:${map.file_name}`}
+                      className="btn btn-xs btn-outline"
+                    >
+                      <Download size={14} />
+                      {activeFile === `download:${map.file_name}`
+                        ? "Downloading..."
+                        : "Download"}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                   <a
-                    href="https://earth.google.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-xs btn-outline btn-primary"
-                  >
-                    <ExternalLink size={14} />
-                    Open KMZ
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => handleMapFileAction(map, "download")}
-                    disabled={activeFile === `download:${map.file_name}`}
-                    className="btn btn-xs btn-outline"
-                  >
-                    <Download size={14} />
-                    {activeFile === `download:${map.file_name}`
-                      ? "Downloading..."
-                      : "Download"}
-                  </button>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="text-sm text-gray-500">No map files uploaded yet.</p>
           )}
         </div>
 
         <div className="modal-action">
-          <button className="btn" onClick={onClose}>Close</button>
+          <button className="btn" onClick={onClose}>
+            Close
+          </button>
         </div>
       </div>
     </dialog>

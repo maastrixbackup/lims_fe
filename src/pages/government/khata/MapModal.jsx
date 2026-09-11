@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { X, Upload, CheckCircle, ExternalLink, Download } from "lucide-react";
+import { X, Upload, CheckCircle, Eye, Download } from "lucide-react";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
+import { extractDriveFileId } from "../../../utils/googleDrive";
+import MapPreviewModal from "../../../components/features/MapPreviewModal";
 
 const MapModal = ({ khata, onClose, onUpload }) => {
   const fileInputRef = useRef();
@@ -11,55 +13,12 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   const [successMsg, setSuccessMsg] = useState("");
   const [mapData, setMapData] = useState([]);
 
+  // State for Map Preview Modal
+  const [selectedMap, setSelectedMap] = useState(null);
+
   const khata_id = khata?.id;
 
-  // const toAbsoluteUrl = (value) => {
-  //   if (!value || typeof value !== "string") return "";
-
-  //   try {
-  //     return new URL(value, API_BASE_URL).toString();
-  //   } catch {
-  //     return "";
-  //   }
-  // };
-
-  // const getMapFileUrls = (map) => {
-  //   const directUrl =
-  //     map?.download_url ||
-  //     map?.url ||
-  //     map?.file_url ||
-  //     map?.path ||
-  //     map?.file_path ||
-  //     "";
-  //   const fallbackUrl =
-  //     map?.file_name && khata_id
-  //       ? `${API_BASE_URL}/govtkhata/downloadGovtMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`
-  //       : "";
-
-  //   return [toAbsoluteUrl(directUrl), fallbackUrl].filter(Boolean);
-  // };
-
-  // const getErrorMessage = async (response, fallbackMessage) => {
-  //   const contentType = response.headers.get("content-type") || "";
-
-  //   if (contentType.includes("application/json")) {
-  //     try {
-  //       const data = await response.json();
-  //       return data?.message || fallbackMessage;
-  //     } catch {
-  //       return fallbackMessage;
-  //     }
-  //   }
-
-  //   const text = await response.text();
-  //   const cleanedText = text
-  //     .replace(/<[^>]*>/g, " ")
-  //     .replace(/\s+/g, " ")
-  //     .trim();
-
-  //   return cleanedText || fallbackMessage;
-  // };
-
+  // Handle file selection and upload
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -99,26 +58,29 @@ const MapModal = ({ khata, onClose, onUpload }) => {
     }
   };
 
-
+  // Fetch map documents from backend
   const fetchMapData = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/govtkhata/getGovtMapFiles/${khata_id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/govtkhata/getGovtMapFiles/${khata_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
- console.log('map', data);
- 
+      console.log("Fetched map files:", data);
+
       if (data?.success) {
         setMapData(data?.data || []);
       } else {
-        console.error("Error: ", data?.message);
+        console.error("Error fetching map files:", data?.message);
       }
     } catch (error) {
-      console.error("Could not get data:", error);
+      console.error("Could not fetch map files:", error);
     }
   };
 
@@ -126,133 +88,132 @@ const MapModal = ({ khata, onClose, onUpload }) => {
     if (khata_id) fetchMapData();
   }, [khata_id]);
 
- const handleDownloadMap = async (map) => {
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/govtkhata/downloadGovtMapFile/${khata_id}/${encodeURIComponent(map.file_name)}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(errorText || "Download failed");
-    }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = map.file_name;
-    document.body.appendChild(link);
-    link.click();
-
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Download error:", err);
-    alert("Failed to download file");
-  }
-};
-
   return (
-    <dialog open className="modal modal-open">
-      <div className="modal-box max-w-xl relative">
-        <button
-          className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-          onClick={onClose}
-        >
-          <X size={20} />
-        </button>
-
-        <h3 className="font-bold text-lg mb-4">
-          Maps for Khata {khata?.number}
-        </h3>
-        <div className="flex justify-end mb-4">
+    <>
+      <dialog open className="modal modal-open">
+        <div className="modal-box max-w-xl relative">
           <button
-            className="btn btn-sm btn-primary flex items-center gap-2"
-            onClick={() => fileInputRef.current.click()}
-            disabled={loading}
+            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+            onClick={onClose}
           >
-            <Upload size={16} />
-            {loading ? "Uploading..." : "Upload KMZ File"}
+            <X size={20} />
           </button>
 
-          <input
-            type="file"
-            accept=".kmz,.zip"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleFileSelect}
-          />
-        </div>
-        {successMsg && (
-          <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
-            <CheckCircle size={18} />
-            <span className="text-sm">{successMsg}</span>
-          </div>
-        )}
-        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
-          Google Maps does not open a KMZ file directly inside this page. Use
-          <a
-            href="https://earth.google.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-1 font-medium underline"
-          >
-            Google Earth
-          </a>
-          to import the downloaded KMZ, or open the file in Google Earth.
-        </div>
-        <div className="grid grid-cols-1 gap-3">
-          {mapData.length > 0 ? (
-            mapData.map((map) => (
-              <div
-                key={map.id}
-                className="flex items-center justify-between p-3 rounded-xl border shadow-sm bg-gray-50 hover:bg-gray-100 transition"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span className="font-medium text-sm truncate">
-                    {map.file_name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <a
-                    href="https://earth.google.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-xs btn-outline btn-primary"
-                  >
-                    <ExternalLink size={14} />
-                    Open KMZ
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadMap(map)}
-                    className="btn btn-xs btn-outline"
-                  >
-                    <Download size={14} />
-                    Download
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">No map files uploaded yet.</p>
-          )}
-        </div>
+          <h3 className="font-bold text-lg mb-4">
+            Maps for Khata {khata?.number}
+          </h3>
 
-        <div className="modal-action">
-          <button className="btn" onClick={onClose}>Close</button>
+          <div className="flex justify-end mb-4">
+            <button
+              className="btn btn-sm btn-primary flex items-center gap-2"
+              onClick={() => fileInputRef.current.click()}
+              disabled={loading}
+            >
+              <Upload size={16} />
+              {loading ? "Uploading..." : "Upload KMZ File"}
+            </button>
+
+            <input
+              type="file"
+              accept=".kmz,.zip"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+          </div>
+
+          {successMsg && (
+            <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-green-100 text-green-700 border border-green-300">
+              <CheckCircle size={18} />
+              <span className="text-sm">{successMsg}</span>
+            </div>
+          )}
+
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+            Click <strong>Preview</strong> to view geometries directly inside
+            the platform, or <strong>Download</strong> to save the file locally.
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            {mapData.length > 0 ? (
+              mapData.map((map) => {
+                const rawUrl = map.file_url || "";
+                const fileName = map.file_name || "Map Document";
+                const fileId = extractDriveFileId(rawUrl);
+
+                // Build backend proxy URL if file is hosted on Google Drive, or use direct file URL
+                const previewUrl = fileId
+                  ? `${API_BASE_URL.replace("/api", "")}/maps/proxy/${fileId}`
+                  : rawUrl;
+
+                return (
+                  <div
+                    key={map.id}
+                    className="flex items-center justify-between p-3 rounded-xl border shadow-sm bg-gray-50 hover:bg-gray-100 transition"
+                  >
+                    <div className="flex items-center gap-2 max-w-[50%]">
+                      <span className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></span>
+                      <span
+                        className="font-medium text-sm truncate"
+                        title={fileName}
+                      >
+                        {fileName}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {/* Trigger Inline Preview Modal */}
+                      <button
+                        onClick={() =>
+                          setSelectedMap({ url: previewUrl, name: fileName })
+                        }
+                        className="btn btn-xs btn-primary flex items-center gap-1"
+                      >
+                        <Eye size={14} />
+                        Preview
+                      </button>
+
+                      {/* Direct Download Link */}
+                      <a
+                        href={rawUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={fileName}
+                        className="btn btn-xs btn-outline flex items-center gap-1"
+                      >
+                        <Download size={14} />
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-gray-500">
+                No map files uploaded yet.
+              </p>
+            )}
+          </div>
+
+          <div className="modal-action">
+            <button className="btn" onClick={onClose}>
+              Close
+            </button>
+          </div>
         </div>
-      </div>
-    </dialog>
+      </dialog>
+
+      {/* Render Preview Modal conditionally when selectedMap is set */}
+      {selectedMap && (
+        <MapPreviewModal
+          isOpen={Boolean(selectedMap)}
+          onClose={() => setSelectedMap(null)}
+          fileUrl={selectedMap.url}
+          fileName={selectedMap.name}
+          token={token}
+        />
+      )}
+    </>
   );
 };
 

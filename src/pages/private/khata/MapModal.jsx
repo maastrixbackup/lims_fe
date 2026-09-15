@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { X, Upload, CheckCircle, Eye, Download } from "lucide-react";
+import { X, Upload, CheckCircle, Eye, Download, Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../utils/config";
 import { extractDriveFileId } from "../../../utils/googleDrive";
 import MapPreviewModal from "../../../components/features/MapPreviewModal";
+import { toast } from "sonner";
 
 const MapModal = ({ khata, onClose, onUpload }) => {
   const fileInputRef = useRef();
@@ -12,6 +13,7 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [mapData, setMapData] = useState([]);
+  const [deletingId, setDeletingId] = useState(null);
 
   // 3. New state for custom preview modal
   const [selectedMap, setSelectedMap] = useState(null);
@@ -83,6 +85,54 @@ const MapModal = ({ khata, onClose, onUpload }) => {
   useEffect(() => {
     if (khata_id) fetchMapData();
   }, [khata_id]);
+
+  const executeDelete = async (docId) => {
+    try {
+      setDeletingId(docId);
+
+      const res = await fetch(
+        `${API_BASE_URL.replace("/api", "")}/maps/deleteMapDocument/${docId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to delete map document");
+      }
+
+      toast.success("Map document deleted successfully!");
+
+      // Refresh the map list
+      fetchMapData();
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error(err.message || "Error deleting map document");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Trigger Sonner confirmation toast
+  const handleDelete = (docId) => {
+    toast("Are you sure you want to delete this map file?", {
+      action: {
+        label: "Delete",
+        onClick: () => executeDelete(docId),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => toast.dismiss(),
+      },
+      duration: 5000,
+    });
+  };
 
   return (
     <>
@@ -179,6 +229,19 @@ const MapModal = ({ khata, onClose, onUpload }) => {
                         <Download size={14} />
                         Download
                       </a>
+
+                      <button
+                        onClick={() => handleDelete(map.id)}
+                        disabled={deletingId === map.id}
+                        className="btn btn-xs btn-ghost text-error hover:bg-error/10 p-1 rounded-lg transition-colors"
+                        title="Delete Map"
+                      >
+                        {deletingId === map.id ? (
+                          <span className="loading loading-spinner loading-xs text-error" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+                      </button>
                     </div>
                   </div>
                 );

@@ -1,9 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { X, Maximize2, Minimize2, List, Search, Layers } from "lucide-react";
-import { MapContainer, TileLayer, GeoJSON, ImageOverlay, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  GeoJSON,
+  ImageOverlay,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { parseKmzBuffer, revokeAssetUrls, computeGeometryBounds } from "../../utils/kmzParser";
+import {
+  parseKmzBuffer,
+  revokeAssetUrls,
+  computeGeometryBounds,
+} from "../../utils/kmzParser";
 
 // Fix Leaflet's default marker icon paths in React/Vite bundlers
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -23,12 +33,14 @@ const BASEMAPS = {
   street: {
     label: "Map",
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   },
   satellite: {
     label: "Satellite",
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    attribution:
+      "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
     // Plain satellite imagery has no road/place names — this overlay adds
     // them back on top so it reads like Google Earth's hybrid view rather
     // than an unlabeled photo.
@@ -101,11 +113,18 @@ const HOVER_STYLE = { weight: 2.5, fillOpacity: 0.35 };
 
 const styleFromProps = (props = {}) => ({
   color: props["stroke"] || "#2563eb",
-  weight: props["stroke-width"] ? Number(props["stroke-width"]) : BASE_STYLE.weight,
-  opacity: props["stroke-opacity"] !== undefined ? Number(props["stroke-opacity"]) : BASE_STYLE.opacity,
+  weight: props["stroke-width"]
+    ? Number(props["stroke-width"])
+    : BASE_STYLE.weight,
+  opacity:
+    props["stroke-opacity"] !== undefined
+      ? Number(props["stroke-opacity"])
+      : BASE_STYLE.opacity,
   fillColor: props["fill-color"] || props["fill"] || "#3b82f6",
   fillOpacity:
-    props["fill-opacity"] !== undefined ? Number(props["fill-opacity"]) : BASE_STYLE.fillOpacity,
+    props["fill-opacity"] !== undefined
+      ? Number(props["fill-opacity"])
+      : BASE_STYLE.fillOpacity,
 });
 
 // Renders a point as its KML-defined icon image when available, otherwise a
@@ -131,13 +150,17 @@ const buildPointLayer = (feature, latlng) => {
 };
 
 const escapeHtml = (value) =>
-  String(value).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  })[c]);
+  String(value).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
 
 // Style/internal keys that shouldn't be shown as "extra data" in a popup.
 const INTERNAL_PROP_KEYS = new Set([
@@ -180,7 +203,7 @@ const popupHtml = (props = {}) => {
       value !== null &&
       value !== undefined &&
       value !== "" &&
-      typeof value !== "object"
+      typeof value !== "object",
   );
 
   const extraHtml = extraEntries.length
@@ -188,8 +211,8 @@ const popupHtml = (props = {}) => {
         .map(
           ([key, value]) =>
             `<tr><td style="padding:1px 6px 1px 0;color:#888;white-space:nowrap;vertical-align:top">${escapeHtml(
-              key
-            )}</td><td style="padding:1px 0">${escapeHtml(value)}</td></tr>`
+              key,
+            )}</td><td style="padding:1px 0">${escapeHtml(value)}</td></tr>`,
         )
         .join("")}</table>`
     : "";
@@ -200,6 +223,7 @@ const popupHtml = (props = {}) => {
 };
 
 const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
+  console.log("MapPreviewModal props:", { isOpen, fileUrl, fileName, token });
   const [geoData, setGeoData] = useState(null);
   const [groundOverlays, setGroundOverlays] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -226,10 +250,33 @@ const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
         const response = await fetch(fileUrl, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
+
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("kmz") && !contentType.includes("zip")) {
+          const html = await response.text();
+          console.error("Server returned:", html.slice(0, 300));
+          throw new Error(`Expected KMZ but got ${contentType}`);
+        }
+        console.log("Status:", response.status);
+        console.log("Content-Type:", response.headers.get("content-type"));
+        console.log("Content-Length:", response.headers.get("content-length"));
+
         if (!response.ok) throw new Error("Failed to load map file.");
         const buffer = await response.arrayBuffer();
+        console.log("Buffer Size:", buffer.byteLength);
 
-        const { geoJson, groundOverlays: overlays, assetMap } = await parseKmzBuffer(buffer);
+        const bytes = new Uint8Array(buffer.slice(0, 8));
+
+        console.log(
+          [...bytes].map((b) => b.toString(16).padStart(2, "0")).join(" "),
+        );
+
+        const {
+          geoJson,
+          groundOverlays: overlays,
+          assetMap,
+        } = await parseKmzBuffer(buffer);
 
         if (cancelled) {
           revokeAssetUrls(assetMap);
@@ -321,7 +368,9 @@ const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
         </div>
 
         {/* Body */}
-        <div className={`relative ${isFullscreen ? "flex-1" : "h-[600px]"} w-full bg-gray-100 flex`}>
+        <div
+          className={`relative ${isFullscreen ? "flex-1" : "h-[600px]"} w-full bg-gray-100 flex`}
+        >
           {loading && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
               <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -358,7 +407,9 @@ const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     {filteredLayers.length === 0 ? (
-                      <p className="text-xs text-gray-400 p-3">No named layers found.</p>
+                      <p className="text-xs text-gray-400 p-3">
+                        No named layers found.
+                      </p>
                     ) : (
                       filteredLayers.map((p) => (
                         <button
@@ -423,7 +474,11 @@ const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
                   )}
 
                   {groundOverlays.map((ov, i) => (
-                    <ImageOverlay key={`overlay-${i}`} url={ov.url} bounds={ov.bounds} />
+                    <ImageOverlay
+                      key={`overlay-${i}`}
+                      url={ov.url}
+                      bounds={ov.bounds}
+                    />
                   ))}
 
                   {geoData && (
@@ -431,9 +486,14 @@ const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
                       key={fileUrl}
                       data={geoData}
                       style={(feature) => styleFromProps(feature.properties)}
-                      pointToLayer={(feature, latlng) => buildPointLayer(feature, latlng)}
+                      pointToLayer={(feature, latlng) =>
+                        buildPointLayer(feature, latlng)
+                      }
                       onEachFeature={(feature, layer) => {
-                        if (feature.properties?.name || feature.properties?.description) {
+                        if (
+                          feature.properties?.name ||
+                          feature.properties?.description
+                        ) {
                           layer.bindPopup(popupHtml(feature.properties));
                         }
 
@@ -454,7 +514,10 @@ const MapPreviewModal = ({ isOpen, onClose, fileUrl, fileName, token }) => {
                   )}
 
                   {(geoData || groundOverlays.length > 0) && (
-                    <AutoFitBounds geoJsonData={geoData} groundOverlays={groundOverlays} />
+                    <AutoFitBounds
+                      geoJsonData={geoData}
+                      groundOverlays={groundOverlays}
+                    />
                   )}
 
                   <FocusLayer target={focusTarget} />

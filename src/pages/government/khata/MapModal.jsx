@@ -96,7 +96,7 @@ const MapModal = ({ khata, onClose, onUpload }) => {
       setDeletingId(docId);
 
       const res = await fetch(
-        `${API_BASE_URL.replace("/api", "")}/maps/deleteMapDocument/${docId}`,
+        `${API_BASE_URL}/maps/deleteMapDocument/${docId}`,
         {
           method: "DELETE",
           headers: {
@@ -192,7 +192,7 @@ const MapModal = ({ khata, onClose, onUpload }) => {
 
                 // Build backend proxy URL if file is hosted on Google Drive, or use direct file URL
                 const previewUrl = fileId
-                  ? `${API_BASE_URL.replace("/api", "")}/maps/proxy/${fileId}`
+                  ? `${API_BASE_URL}/maps/proxy/${fileId}`
                   : rawUrl;
 
                 return (

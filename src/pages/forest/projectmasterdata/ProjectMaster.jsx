@@ -73,62 +73,62 @@ const ProjectMaster = () => {
         issues_closed: "",
         issues_pending: "",
         eds_status: "",
-        eds_reply_document:""
+        eds_reply_document: "",
       },
     ],
     project_category: "",
     project_nature: "",
     project_sub_category: "",
   };
-useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-  const fetchData = async () => {
-    if (!selectedProject?.id) return;
+    const fetchData = async () => {
+      if (!selectedProject?.id) return;
 
-    try {
-      const res = await apiClient(
-        `/forestland/getForestProject/${selectedProject.id}`
-      );
+      try {
+        const res = await apiClient(
+          `/forestland/getForestProject/${selectedProject.id}`,
+        );
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      const latest = res?.data?.master
-        ? { ...res.data.master, eds_list: res?.data?.eds_list || [] }
-        : null;
-      const normalized = normalizeEditPayload(latest);
+        const latest = res?.data?.master
+          ? { ...res.data.master, eds_list: res?.data?.eds_list || [] }
+          : null;
+        const normalized = normalizeEditPayload(latest);
 
-      if (normalized) {
-        setFormData({
-          ...initialFormData,
-          ...normalized,
-          project_id: selectedProject.id,
-          project_name:
-            selectedProject.project_name || selectedProject.name || "",
-        });
+        if (normalized) {
+          setFormData({
+            ...initialFormData,
+            ...normalized,
+            project_id: selectedProject.id,
+            project_name:
+              selectedProject.project_name || selectedProject.name || "",
+          });
 
-        // ✅ STORE EXISTING EDS FILES
-        const fileMap = {};
-        normalized.eds_list?.forEach((eds, i) => {
-          if (eds.eds_reply_document) {
-            fileMap[i] = eds.eds_reply_document;
-          }
-        });
+          // ✅ STORE EXISTING EDS FILES
+          const fileMap = {};
+          normalized.eds_list?.forEach((eds, i) => {
+            if (eds.eds_reply_document) {
+              fileMap[i] = eds.eds_reply_document;
+            }
+          });
 
-        setExistingEdsFiles(fileMap);
-        setIsEdit(true);
-        return;
+          setExistingEdsFiles(fileMap);
+          setIsEdit(true);
+          return;
+        }
+
+        setIsEdit(false);
+      } catch {
+        setIsEdit(false);
       }
+    };
 
-      setIsEdit(false);
-    } catch {
-      setIsEdit(false);
-    }
-  };
-
-  fetchData();
-  return () => (cancelled = true);
-}, [selectedProject?.id]);
+    fetchData();
+    return () => (cancelled = true);
+  }, [selectedProject?.id]);
   const [formData, setFormData] = useState(initialFormData);
 
   const sanitizeDraft = (data) => ({
@@ -184,7 +184,10 @@ useEffect(() => {
   const buildExistingEdsFiles = useCallback((edsList = []) => {
     const fileMap = {};
     edsList.forEach((eds, index) => {
-      if (typeof eds?.eds_reply_document === "string" && eds.eds_reply_document) {
+      if (
+        typeof eds?.eds_reply_document === "string" &&
+        eds.eds_reply_document
+      ) {
         fileMap[index] = eds.eds_reply_document;
       }
     });
@@ -210,7 +213,8 @@ useEffect(() => {
           ...initialFormData,
           ...normalized,
           project_id: selectedProject.id,
-          project_name: selectedProject.project_name || selectedProject.name || "",
+          project_name:
+            selectedProject.project_name || selectedProject.name || "",
           eds_flag: Number(normalized.eds_flag || 0),
           eds_list:
             Array.isArray(normalized.eds_list) && normalized.eds_list.length
@@ -271,7 +275,8 @@ useEffect(() => {
         setFormData({
           ...initialFormData,
           project_id: selectedProject.id,
-          project_name: selectedProject.project_name || selectedProject.name || "",
+          project_name:
+            selectedProject.project_name || selectedProject.name || "",
         });
       } catch {
         if (!cancelled) {
@@ -336,6 +341,7 @@ useEffect(() => {
           }));
         }
       } catch (err) {
+        console.log(err);
         if (!cancelled) {
           setFormData((prev) => ({
             ...prev,
@@ -384,8 +390,11 @@ useEffect(() => {
     }
 
     if (name === "project_id") {
-      const matchedProject = projects.find((p) => String(p.id) === String(value));
-      const nextProjectName = matchedProject?.project_name || matchedProject?.name || "";
+      const matchedProject = projects.find(
+        (p) => String(p.id) === String(value),
+      );
+      const nextProjectName =
+        matchedProject?.project_name || matchedProject?.name || "";
       const drafts = readProjectMasterDrafts();
       const projectDraft = drafts[String(value)];
 
@@ -439,8 +448,14 @@ useEffect(() => {
 
   const handleEDSChange = (index, field, value) => {
     const updated = [...formData.eds_list];
-    updated[index][field] = value;
-    setFormData({ ...formData, eds_list: updated });
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      eds_list: updated,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -897,7 +912,8 @@ useEffect(() => {
                             )
                           }
                         />
-                        {(eds?.eds_reply_document || existingEdsFiles[index]) && (
+                        {(eds?.eds_reply_document ||
+                          existingEdsFiles[index]) && (
                           <div className="text-xs text-gray-500 mt-1 truncate">
                             {typeof eds.eds_reply_document === "string"
                               ? eds.eds_reply_document

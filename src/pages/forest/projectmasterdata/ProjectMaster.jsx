@@ -904,13 +904,16 @@ const ProjectMaster = () => {
                         <input
                           type="file"
                           className="file-input file-input-sm w-full file-input-bordered"
-                          onChange={(e) =>
-                            handleEDSChange(
-                              index,
-                              "eds_reply_document",
-                              e.target.files[0],
-                            )
-                          }
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              handleEDSChange(
+                                index,
+                                "eds_reply_document",
+                                file,
+                              );
+                            }
+                          }}
                         />
                         {(eds?.eds_reply_document ||
                           existingEdsFiles[index]) && (

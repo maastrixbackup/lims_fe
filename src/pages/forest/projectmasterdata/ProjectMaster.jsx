@@ -907,6 +907,16 @@ const ProjectMaster = () => {
                           onChange={(e) => {
                             const file = e.target.files[0];
                             if (file) {
+                              const maxSizeBytes = 14 * 1024 * 1024; 
+
+                              if (file.size > maxSizeBytes) {
+                                showError(
+                                  "File size exceeds the 14 MB limit. Please select a smaller file.",
+                                );
+                                e.target.value = ""; 
+                                return;
+                              }
+
                               handleEDSChange(
                                 index,
                                 "eds_reply_document",

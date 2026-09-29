@@ -274,9 +274,9 @@ const KhataTable = ({
                   style={{ scrollbarWidth: "thin" }}
                 >
                   <table className="table w-full">
-                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 uppercase text-xs">
+                    <thead className="sticky top-0 z-40 bg-gray-200 text-gray-700 uppercase text-xs">
                       <tr>
-                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-50 shadow-md">
                           Sl/No
                         </th>
                         <FilterableHeader
@@ -386,13 +386,10 @@ const KhataTable = ({
 
                     <tbody>
                       {paginatedKhatas.map((khata, idx) => {
-                        const rowZIndex = paginatedKhatas.length - idx;
-
                         return (
                           <tr
                             key={khata.id || `khata-tab1-${idx}`}
                             className="border-b border-gray-200 relative"
-                            style={{ zIndex: rowZIndex }}
                           >
                             <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                               {(page - 1) * limit + idx + 1}
@@ -450,17 +447,14 @@ const KhataTable = ({
                                     ? formatThreeItems(khata[field])
                                     : field === "created_at"
                                       ? moment(khata[field]).format(
-                                          "DD-MM-YYYY",
-                                        )
+                                        "DD-MM-YYYY",
+                                      )
                                       : khata[field] || "-"}
                                 </td>
                               ),
                             )}
 
-                            <td
-                              className={`${stickyActionCell} relative`}
-                              style={{ zIndex: rowZIndex }}
-                            >
+                            <td className={`${stickyActionCell} relative z-10`}>
                               <select
                                 className="select select-sm bg-gray-100 border border-gray-300 w-full max-w-[90px] px-1 text-xs cursor-pointer relative z-20 pointer-events-auto"
                                 value=""
@@ -491,11 +485,10 @@ const KhataTable = ({
                                 <option
                                   value="upload"
                                   disabled={userRole === "Viewer"}
-                                  className={`text-md text-gray-700 font-bold ${
-                                    userRole === "Viewer"
+                                  className={`text-md text-gray-700 font-bold ${userRole === "Viewer"
                                       ? "!text-gray-400"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   📤 Upload ({khata.khata_document_count || 0})
                                 </option>
@@ -508,20 +501,18 @@ const KhataTable = ({
                                 <option
                                   value="edit"
                                   disabled={userRole === "Viewer"}
-                                  className={`text-md text-gray-700 font-bold ${
-                                    userRole === "Viewer"
+                                  className={`text-md text-gray-700 font-bold ${userRole === "Viewer"
                                       ? "!text-gray-400"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   ✍️ Edit
                                 </option>
                                 <option
                                   value="delete"
                                   disabled={isRestricted}
-                                  className={`text-md text-gray-700 font-bold ${
-                                    isRestricted ? "!text-gray-400" : ""
-                                  }`}
+                                  className={`text-md text-gray-700 font-bold ${isRestricted ? "!text-gray-400" : ""
+                                    }`}
                                 >
                                   ❌ Delete
                                 </option>
@@ -548,9 +539,9 @@ const KhataTable = ({
                   style={{ scrollbarWidth: "thin" }}
                 >
                   <table className="table w-full ">
-                    <thead className="sticky top-0 bg-gray-200 z-20 text-gray-700 uppercase text-xs">
+                    <thead className="sticky top-0 z-40 bg-gray-200 text-gray-700 uppercase text-xs">
                       <tr>
-                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-[30] shadow-md">
+                        <th className="p-3 text-left bg-gray-200 text-gray-700 md:sticky md:left-0 z-50 shadow-md">
                           Sl/No
                         </th>
                         <FilterableHeader
@@ -625,13 +616,10 @@ const KhataTable = ({
 
                     <tbody>
                       {paginatedKhatas.map((khata, idx) => {
-                        const rowZIndex = paginatedKhatas.length - idx;
-
                         return (
                           <tr
                             key={khata.id || `khata-tab2-${idx}`}
                             className="border-b border-gray-200 relative"
-                            style={{ zIndex: rowZIndex }}
                           >
                             <td className="p-3 text-left bg-white md:sticky md:left-0 shadow-sm">
                               {(page - 1) * limit + idx + 1}
@@ -653,17 +641,14 @@ const KhataTable = ({
                             {RR_FIELDS_FORMS.map(({ name }) => (
                               <td key={name}>
                                 {khata[name] !== null &&
-                                khata[name] !== undefined &&
-                                khata[name] !== "-"
+                                  khata[name] !== undefined &&
+                                  khata[name] !== "-"
                                   ? khata[name]
                                   : "-"}
                               </td>
                             ))}
 
-                            <td
-                              className={`${stickyActionCell} relative`}
-                              style={{ zIndex: rowZIndex }}
-                            >
+                            <td className={`${stickyActionCell} relative z-10`}>
                               <select
                                 className="select select-sm bg-gray-100 border border-gray-300 w-full max-w-[90px] px-1 text-xs cursor-pointer relative z-20 pointer-events-auto"
                                 value=""
@@ -694,11 +679,10 @@ const KhataTable = ({
                                 <option
                                   value="upload"
                                   disabled={userRole === "Viewer"}
-                                  className={`text-md text-gray-700 font-bold ${
-                                    userRole === "Viewer"
+                                  className={`text-md text-gray-700 font-bold ${userRole === "Viewer"
                                       ? "!text-gray-400"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   📤 Upload ({khata.khata_document_count || 0})
                                 </option>
@@ -711,20 +695,18 @@ const KhataTable = ({
                                 <option
                                   value="edit"
                                   disabled={userRole === "Viewer"}
-                                  className={`text-md text-gray-700 font-bold ${
-                                    userRole === "Viewer"
+                                  className={`text-md text-gray-700 font-bold ${userRole === "Viewer"
                                       ? "!text-gray-400"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   ✍️ Edit
                                 </option>
                                 <option
                                   value="delete"
                                   disabled={isRestricted}
-                                  className={`text-md text-gray-700 font-bold ${
-                                    isRestricted ? "!text-gray-400" : ""
-                                  }`}
+                                  className={`text-md text-gray-700 font-bold ${isRestricted ? "!text-gray-400" : ""
+                                    }`}
                                 >
                                   ❌ Delete
                                 </option>

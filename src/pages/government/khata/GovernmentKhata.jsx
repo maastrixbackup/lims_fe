@@ -69,7 +69,6 @@ const GovernmentKhata = () => {
         const mapped = (res.data || []).map((k) => ({
           id: k.id,
           khata_no: k.khata_no,
-          // Keep both keys so existing filters/export (`plot_no`) and UI (`plot_numbers`) work.
           plot_numbers: k.plot_numbers || k.plot_no || "-",
           plot_no: k.plot_numbers || k.plot_no || "-",
           project_id: k.project_id,
@@ -79,7 +78,7 @@ const GovernmentKhata = () => {
           case_details: k.case_details,
           village_name: k.village_name || "-",
           plot_count: k.plot_count || 0,
-          kissam: k.kissam || "",
+          kissam: k.kissam || k.kissam_of_land|| "",
           unique_id: k.unique_id || "",
           name_of_ror: k.name_of_ror || "",
           land_category: k.land_category || "",

@@ -218,7 +218,7 @@ const Plots = () => {
             <p>
               Are you sure you want to delete plot{" "}
               <span className="font-semibold">
-                {deleteConfirm.code || deleteConfirm.id}
+                {deleteConfirm.plot_no}
               </span>
               ?
             </p>

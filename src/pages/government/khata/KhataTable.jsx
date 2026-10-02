@@ -187,7 +187,7 @@ const KhataTable = ({
             style={{ scrollbarWidth: "thin" }}
           >
             <table className="table w-full">
-              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10 uppercase text-xs">
+              <thead className="bg-gray-200 text-gray-700 sticky top-0 z-20 uppercase text-xs">
                 <tr>
                   <th className={headerCellClass}>
                     <FilterHeader
@@ -255,14 +255,10 @@ const KhataTable = ({
 
               <tbody>
                 {paginatedKhatas.map((k, idx) => {
-                  // Dynamic z-index so higher rows sit ABOVE lower rows when dropdowns expand
-                  const rowZIndex = paginatedKhatas.length - idx;
-
                   return (
                     <tr
                       key={k.id || `khata-row-${idx}`}
                       className="hover:bg-slate-50/80 transition-colors relative"
-                      style={{ zIndex: rowZIndex }}
                     >
                       <td className={bodyCellClass}>
                         {(page - 1) * limit + idx + 1}
@@ -320,7 +316,6 @@ const KhataTable = ({
                       {/* Sticky Action Cell with Pointer-Events Fixed */}
                       <td
                         className={`${stickyActionCell} px-4 py-3 border-b border-slate-200 align-top bg-white`}
-                        style={{ zIndex: rowZIndex }}
                       >
                         <select
                           className="select select-sm bg-white border-slate-300 w-28 h-8 px-2 text-xs hover:bg-gray-100 transition-all cursor-pointer pointer-events-auto relative z-20"

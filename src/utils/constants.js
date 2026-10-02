@@ -729,6 +729,9 @@ export const GovtKhataColumn = [
   // { key: "unique_id", label: "Case Count", type: "text" },
   { key: "name_of_ror", label: "ROR Name", type: "text" },
   { key: "land_category", label: "Land Category", type: "text" },
+  { key: "tahasil", label: "Tahasil", type: "text" },
+  { key: "total_areas", label: "Total Area", type: "text" },
+  { key: "acquired_areas", label: "Acquired Area", type: "text" },
 ];
 
 export const BasicDetails = [

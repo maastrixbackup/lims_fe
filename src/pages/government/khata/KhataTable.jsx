@@ -307,6 +307,15 @@ const KhataTable = ({
                       <td className={bodyCellClass}>
                         {k.land_category || emptyValue}
                       </td>
+                      <td className={bodyCellClass}>
+                        {k.tahasil || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.total_areas || emptyValue}
+                      </td>
+                      <td className={bodyCellClass}>
+                        {k.acquired_areas || emptyValue}
+                      </td>
 
                       {/* Sticky Action Cell with Pointer-Events Fixed */}
                       <td

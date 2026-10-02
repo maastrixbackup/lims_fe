@@ -84,6 +84,9 @@ const GovernmentKhata = () => {
           land_category: k.land_category || "",
           khata_document_count: k.khata_document_count || 0,
           khata_map_document_count: k.khata_map_document_count || 0,
+          tahasil: k.tahasil || "",
+          total_areas: k.total_areas || "",
+          acquired_areas: k.acquired_areas || "",
         }));
 
         allKhatas.push(...mapped);
@@ -168,6 +171,9 @@ const onViewPlots = (khata) => {
       "Case Count",
       "ROR Name",
       "Land Category",
+      "Tahasil",
+      "Total Area",
+      "Acquired Area",
     ];
 
     const rows = khatas.map((k) => [
@@ -182,6 +188,9 @@ const onViewPlots = (khata) => {
       k.unique_id,
       k.name_of_ror,
       k.land_category,
+      k.tahasil,
+      k.total_areas,
+      k.acquired_areas,
     ]);
 
     const csvContent = [headers, ...rows]

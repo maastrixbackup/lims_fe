@@ -48,7 +48,7 @@ const VillageFormModal = ({
         tahasil: editingVillage.tahasil,
         type: editingVillage.type?.toString(),
         // village_code: editingVillage.village_code,
-        thana_no: editingVillage.thana_no,
+        thana_no: editingVillage.thana_name_no ?? editingVillage.thana_no ?? "",
         // multiplying_factor: editingVillage.multiplying_factor || "",
       });
     } else {

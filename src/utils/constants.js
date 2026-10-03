@@ -730,8 +730,8 @@ export const GovtKhataColumn = [
   { key: "name_of_ror", label: "ROR Name", type: "text" },
   { key: "land_category", label: "Land Category", type: "text" },
   { key: "tahasil", label: "Tahasil", type: "text" },
-  { key: "total_areas", label: "Total Area", type: "text" },
-  { key: "acquired_areas", label: "Acquired Area", type: "text" },
+  { key: "total_areas", label: "Total Area (Acres)", type: "text" },
+  { key: "acquired_areas", label: "Acquired Area (Acres)", type: "text" },
 ];
 
 export const BasicDetails = [
@@ -1336,7 +1336,7 @@ export const STAGE_0_DATA = [
   {
     "sl": 9,
     "key": "ca_planning",
-    "label": "CA / CA Planning",
+    "label": "CA /ACA Planning",
     "type": "yesno",
     "remark": "CA land if applicable"
   },
@@ -1370,7 +1370,7 @@ export const STAGE_0_DATA = [
     "label": "Maps & Spatial Evidence",
     "type": "status",
     "options": ["Authenticated", "Not Authenticated"],
-    "remark": "DGPS maps, Toposheets, CA & RCA maps"
+    "remark": "DGPS maps, Toposheets, CA & ACA maps"
   },
   {
     "sl": 14,

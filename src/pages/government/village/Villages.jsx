@@ -21,7 +21,7 @@ const Villages = () => {
   const selectedProject = useSelector((state) => state.selectedProject.project);
   const role = user?.role_name;
   const canEdit = role !== "Viewer"; // users that can add/edit/delete
- const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
+  const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
   const { landType } = useParams();
   const typeParam = useLandTypeParam();
 
@@ -46,17 +46,20 @@ const Villages = () => {
   const tahasils = useMemo(() => {
     return [...new Set(villages.map((v) => v.tahasil).filter(Boolean))];
   }, [villages]);
+  const districts = useMemo(() => {
+    return [...new Set(villages.map((v) => v.district).filter(Boolean))];
+  }, [villages]);
 
   const normalizeVillages = (data) => {
     if (!Array.isArray(data)) return [];
     return data.map((v) => ({
+      ...v,
       id: v.id ?? v.village_id ?? v.uid,
       village_name: v.village_name ?? v.name ?? v.village,
       district: v.district ?? v.dist ?? v.district_name ?? "",
       tahasil: v.tahasil ?? v.taluka ?? v.tahasil_name ?? "",
       project_id: v.project_id ?? v.project ?? v.projectId ?? "",
       project_name: v.project_name ?? v.project_name ?? "",
-      ...v,
     }));
   };
 
@@ -84,7 +87,7 @@ const Villages = () => {
         setTotalPages(1);
       }
     } catch (err) {
-      showError(err.message || "Error fetching villages:", );
+      showError(err.message || "Error fetching villages:",);
       setVillages([]);
       setTotalPages(1);
     } finally {
@@ -111,7 +114,7 @@ const Villages = () => {
     setIsModalOpen(true);
   };
 
-const handleDelete = async () => {
+  const handleDelete = async () => {
     if (!deleteVillage) return;
     try {
       const data = await apiClient(
@@ -137,16 +140,19 @@ const handleDelete = async () => {
     if (!Array.isArray(villages)) return [];
 
     return villages.filter((v) => {
+      const norm = (s) => String(s ?? "").trim().toLowerCase();
+
       const matchDistrict =
         formData.districts.length === 0 ||
-        formData.districts.includes(v.district);
+        formData.districts.some((d) => norm(d) === norm(v.district));
 
       const matchTahasil =
-        formData.tahasils.length === 0 || formData.tahasils.includes(v.tahasil);
+        formData.tahasils.length === 0 ||
+        formData.tahasils.some((t) => norm(t) === norm(v.tahasil));
 
       const matchVillage =
         formData.villageNames.length === 0 ||
-        formData.villageNames.includes(v.village_name);
+        formData.villageNames.some((vn) => norm(vn) === norm(v.village_name));
 
       return matchDistrict && matchTahasil && matchVillage;
     });
@@ -158,7 +164,7 @@ const handleDelete = async () => {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
         {/* Header */}
         <h2 className="text-base sm:text-lg font-semibold capitalize">
-        Government Land Villages
+          Government Land Villages
         </h2>
 
         {/* Actions */}
@@ -179,11 +185,10 @@ const handleDelete = async () => {
 
           <button
             className={`btn btn-primary text-white whitespace-nowrap
-        ${
-          !canEdit
-            ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
-            : ""
-        }
+        ${!canEdit
+                ? "!bg-gray-300 !text-gray-400 !border !border-gray-300 !cursor-not-allowed"
+                : ""
+              }
       `}
             onClick={() => canEdit && openModal()}
             disabled={!canEdit}
@@ -227,7 +232,7 @@ const handleDelete = async () => {
         <VillageFilter
           formData={formData}
           setFormData={setFormData}
-          odishaDistricts={odishaDistricts}
+          odishaDistricts={districts}
           tahasils={tahasils}
           villages={villages}
         />
@@ -277,7 +282,7 @@ const handleDelete = async () => {
         onConfirm={handleDelete}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
-       <SuccessMessage
+      <SuccessMessage
         open={modal.open}
         type={modal.type}
         message={modal.message}

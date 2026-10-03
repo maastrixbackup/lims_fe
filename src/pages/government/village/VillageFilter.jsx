@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
+const normalize = (v) => String(v ?? "").trim().toLowerCase();
+
 const VillageFilter = ({
   formData,
   setFormData,
@@ -24,13 +26,17 @@ const VillageFilter = ({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // Case-insensitive check: does `list` already contain `value` in any case?
+  const isSelected = (list, value) =>
+    (list || []).some((v) => normalize(v) === normalize(value));
+
   const toggleSelection = (key, value) => {
     setFormData((prev) => {
       const selected = prev[key] || [];
       return {
         ...prev,
-        [key]: selected.includes(value)
-          ? selected.filter((v) => v !== value)
+        [key]: isSelected(selected, value)
+          ? selected.filter((v) => normalize(v) !== normalize(value))
           : [...selected, value],
       };
     });
@@ -97,7 +103,7 @@ const VillageFilter = ({
                 >
                   <input
                     type="checkbox"
-                    checked={formData.districts?.includes(d)}
+                    checked={isSelected(formData.districts, d)}
                     onChange={() => toggleSelection("districts", d)}
                   />
                   {d}
@@ -148,7 +154,7 @@ const VillageFilter = ({
                 >
                   <input
                     type="checkbox"
-                    checked={formData.tahasils?.includes(t)}
+                    checked={isSelected(formData.tahasils, t)}
                     onChange={() => toggleSelection("tahasils", t)}
                   />
                   {t}

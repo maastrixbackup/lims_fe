@@ -270,7 +270,7 @@ const KhataTable = ({
             <KhataTabs>
               <div>
                 <div
-                  className="max-h-[400px] overflow-x-auto relative"
+                  className="max-h-[400px] overflow-x-auto overflow-y-auto relative"
                   style={{ scrollbarWidth: "thin" }}
                 >
                   <table className="table w-full">
@@ -535,7 +535,7 @@ const KhataTable = ({
               </div>
               <div>
                 <div
-                  className="max-h-[400px] overflow-x-auto relative"
+                  className="max-h-[400px] overflow-x-auto overflow-y-auto relative"
                   style={{ scrollbarWidth: "thin" }}
                 >
                   <table className="table w-full ">

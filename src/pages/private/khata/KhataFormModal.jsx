@@ -15,6 +15,20 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
         ? "Forest Land"
         : "Private Land";
 
+  const isEditMode = Boolean(khata);
+  const lockedFieldProps = {
+    disabled: isEditMode,
+    className: `input input-bordered w-full ${
+      isEditMode ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
+    }`,
+  };
+  const lockedSelectClass = `select select-bordered w-full ${
+    isEditMode ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
+  }`;
+  const lockedTextareaClass = `textarea textarea-bordered w-full ${
+    isEditMode ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
+  }`;
+
   const selectedProject = useSelector((s) => s.selectedProject.project);
   const projects = useSelector((state) => state.list.projects || []);
   const [openVillage, setOpenVillage] = useState(false);
@@ -229,6 +243,12 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
           {khata ? "Edit Khata" : "Add Khata"}
         </h3>
 
+        {isEditMode && (
+          <p className="text-xs text-gray-500 mb-3">
+            Only the Khata No. can be changed while editing.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -239,7 +259,8 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="project_id"
                 value={formData.project_id || ""}
                 onChange={handleChange}
-                className="select select-bordered w-full"
+                disabled={isEditMode}
+                className={lockedSelectClass}
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
@@ -268,15 +289,18 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
             </label>
             <button
               type="button"
-              onClick={() => setOpenVillage(!openVillage)}
-              className="select select-bordered w-full flex justify-between items-center text-left"
+              onClick={() => !isEditMode && setOpenVillage(!openVillage)}
+              disabled={isEditMode}
+              className={`select select-bordered w-full flex justify-between items-center text-left ${
+                isEditMode ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
+              }`}
             >
               {villages.find(
                 (v) => Number(v.id) === Number(formData.village_id),
               )?.village_name || "Select Village"}
             </button>
 
-            {openVillage && (
+            {openVillage && !isEditMode && (
               <ul className="absolute left-0 top-full dropdown menu w-full rounded-box bg-base-100 shadow-lg p-2 max-h-54 overflow-y-auto z-50">
                 {villages.map((v) => (
                   <li
@@ -315,7 +339,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="plot_no"
                 value={formData.plot_no}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
           </div>
@@ -330,7 +354,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="kissam_of_land"
                 value={formData.kissam_of_land}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
 
@@ -343,7 +367,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="land_category"
                 value={formData.land_category}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
 
@@ -355,7 +379,8 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="full_part"
                 value={formData.full_part || ""}
                 onChange={handleChange}
-                className="select select-bordered w-full bg-white text-gray-900 border-gray-300 hover:border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all rounded-lg text-sm"
+                disabled={isEditMode}
+                className={`${lockedSelectClass} hover:border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all rounded-lg text-sm`}
               >
                 <option value="">Select Option</option>
                 <option value="Full">Full</option>
@@ -373,7 +398,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="land_area_total_acres"
                 value={formData.land_area_total_acres}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
 
@@ -385,7 +410,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="land_area_total_hectares"
                 value={formData.land_area_total_hectares}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
           </div>
@@ -401,7 +426,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="land_area_acquired_acres"
                 value={formData.land_area_acquired_acres}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
 
@@ -413,7 +438,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="land_area_acquired_hectares"
                 value={formData.land_area_acquired_hectares}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
           </div>
@@ -426,7 +451,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="tahasil_name"
                 value={formData.tahasil_name}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
             <div>
@@ -436,7 +461,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="ri_circle_name"
                 value={formData.ri_circle_name}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
 
@@ -447,7 +472,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="thana_no"
                 value={formData.thana_no}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
           </div>
@@ -459,7 +484,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
               name="date_of_award"
               value={formData.date_of_award}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              {...lockedFieldProps}
             />
           </div>
 
@@ -473,7 +498,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="name_of_recorded_tenant"
                 value={formData.name_of_recorded_tenant}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
 
@@ -486,7 +511,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                 name="name_of_present_tenant"
                 value={formData.name_of_present_tenant}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                {...lockedFieldProps}
               />
             </div>
           </div>
@@ -497,7 +522,8 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
               name="present_address"
               value={formData.present_address}
               onChange={handleChange}
-              className="textarea textarea-bordered w-full"
+              disabled={isEditMode}
+              className={lockedTextareaClass}
             />
           </div>
 
@@ -508,7 +534,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
               name="lo13_remarks"
               value={formData.lo13_remarks}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              {...lockedFieldProps}
             />
           </div>
 
@@ -520,7 +546,8 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
               name="displaced_affected_project"
               value={formData.displaced_affected_project || ""}
               onChange={handleChange}
-              className="select select-bordered w-full"
+              disabled={isEditMode}
+              className={lockedSelectClass}
             >
               <option value="">Select Type</option>
               <option value="PAF">PAF</option>
@@ -542,7 +569,7 @@ const KhataFormModal = ({ khata, onClose, villages, fetchKhatas }) => {
                   name={field.name}
                   value={formData[field.name] ?? ""}
                   onChange={handleChange}
-                  className="input input-bordered w-full"
+                  {...lockedFieldProps}
                 />
               </div>
             ))}

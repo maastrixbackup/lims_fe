@@ -55,7 +55,7 @@ const DeletedRecords = () => {
   // Permanent Delete
   const handlePermanentDelete = async (id) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/plots/permanentDelete/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/plots/deletePrivatePlotPermanently/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -147,12 +147,12 @@ const DeletedRecords = () => {
                   >
                     Restore
                   </button>
-                  {/* <button
+                  <button
                     className="btn btn-xs btn-error"
                     onClick={() => confirmAction(r.id, "delete")}
                   >
                     Delete
-                  </button> */}
+                  </button>
                 </td>
               </tr>
             ))}

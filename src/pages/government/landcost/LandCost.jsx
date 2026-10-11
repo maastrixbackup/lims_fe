@@ -16,6 +16,7 @@ import { useLocation } from "react-router";
 import { useSuccessMessage } from "../../../hooks/useSuccessMessage";
 import SuccessMessage from "../../../shared/SuccessMessage";
 import Loader from "../../../shared/Loader";
+import { toast } from "sonner";
 
 const LandCost = () => {
   const { modal, showSuccess, showError, closeModal } = useSuccessMessage();
@@ -83,8 +84,8 @@ const LandCost = () => {
                 landCostId: t.land_cost_id ?? t.id ?? null,
                 demandNoteFile: null,
                 receiptFile: null,
-                demandNoteUrl: t.demand_note_doc ?? t.demand_note ?? null,
-                receiptUrl: t.receipt_doc ?? t.receipt ?? null,
+                demandNoteUrl: t.demand_note_file_url ?? null,
+                receiptUrl: t.payment_proof_file_url ?? null,
               };
             }
 
@@ -126,6 +127,13 @@ const LandCost = () => {
             }
             if (!row.landCostId && (t.land_cost_id || t.id)) {
               row.landCostId = t.land_cost_id ?? t.id;
+            }
+            if (!row.demandNoteUrl && t.demand_note_file_url) {
+              row.demandNoteUrl = t.demand_note_file_url;
+            }
+
+            if (!row.receiptUrl && t.payment_proof_file_url) {
+              row.receiptUrl = t.payment_proof_file_url;
             }
           });
         });
@@ -237,13 +245,13 @@ const LandCost = () => {
           ...updated[kIndex].records[rIndex],
           ...(attachmentType === "demand_note"
             ? {
-                demandNoteFile: file,
-                demandNoteUrl: result?.data?.url || null,
-              }
+              demandNoteFile: file,
+              demandNoteUrl: result?.data?.url || null,
+            }
             : {
-                receiptFile: file,
-                receiptUrl: result?.data?.url || null,
-              }),
+              receiptFile: file,
+              receiptUrl: result?.data?.url || null,
+            }),
         };
 
         return updated;
@@ -254,7 +262,7 @@ const LandCost = () => {
       setUploadingKey(null);
     }
   };
- 
+
 
   const handleDeleteRecord = (kIndex, rIndex) => {
     setKhatas((prev) => {
@@ -368,10 +376,12 @@ const LandCost = () => {
       if (!res.ok || !data?.success) {
         throw new Error(data?.message || "Failed to mark payment completed");
       }
-
       showSuccess(
         data?.message || "Payment marked as completed successfully",
       );
+      toast.success(data?.message || "Payment marked as completed successfully");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       await fetchData();
     } catch (err) {
       showError(err.message || "Failed to mark payment as completed");
@@ -468,7 +478,7 @@ const LandCost = () => {
                     key={r.id ?? rIndex}
                     className="shadow-md rounded-lg p-3 md:p-4 bg-blue-50"
                   >
-                      <div className="mb-3">
+                    <div className="mb-3">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Plot Nos.</p>
                       <div className="text-sm bg-white shadow-md rounded-md p-2 max-h-28 overflow-y-auto break-words leading-6 bg-blue-50">
                         {r.plotNos || "-"}
@@ -528,7 +538,7 @@ const LandCost = () => {
                       </div>
                     </div>
 
-                  
+
 
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
@@ -745,13 +755,37 @@ const LandCost = () => {
                 <strong>Land Cost:</strong>{" "}
                 {editData.landCostAmount || "-"}
               </p>
+
               <p>
                 <strong>Demand Note Attachment:</strong>{" "}
-                {editData.demandNoteAttachment || "-"}
+                {editData.demandNoteUrl ? (
+                  <a
+                    href={editData.demandNoteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    View Demand Note
+                  </a>
+                ) : (
+                  "-"
+                )}
               </p>
+
               <p>
                 <strong>Receipt Attachment:</strong>{" "}
-                {editData.receiptAttachment || "-"}
+                {editData.receiptUrl ? (
+                  <a
+                    href={editData.receiptUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    View Receipt
+                  </a>
+                ) : (
+                  "-"
+                )}
               </p>
             </div>
             <div className="flex justify-end mt-5">
